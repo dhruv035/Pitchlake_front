@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import { StarknetProvider } from "../context/StarknetProvider";
+import { Header } from "@/components/LayoutComponents";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -16,7 +18,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <body className={inter.className}>
+        <StarknetProvider>
+          <Header />
+          {children}
+        </StarknetProvider>
+      </body>
     </html>
   );
 }
