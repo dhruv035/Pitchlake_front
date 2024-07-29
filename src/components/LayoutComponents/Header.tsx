@@ -114,6 +114,7 @@ export default function Header() {
             {connectors.map((connector) => {
               return (
                 <Button
+                key={connector.name}
                   className={[buttonClass.button, buttonClass.uppercase].join(
                     " "
                   )}
