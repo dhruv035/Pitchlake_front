@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 
-import { sepolia, mainnet } from "@starknet-react/chains";
+import { sepolia, mainnet, Chain, devnet } from "@starknet-react/chains";
 import {
   StarknetConfig,
   publicProvider,
@@ -9,6 +9,7 @@ import {
   braavos,
   useInjectedConnectors,
   voyager,
+  jsonRpcProvider,
 } from "@starknet-react/core";
 
 export const StarknetProvider = ({ children }: { children: React.ReactNode }) => {
@@ -21,9 +22,10 @@ export const StarknetProvider = ({ children }: { children: React.ReactNode }) =>
     order: "alphabetical",
   });
 
+ 
   return (
     <StarknetConfig
-      chains={[mainnet, sepolia]}
+      chains={[mainnet, sepolia,devnet]}
       provider={publicProvider()}
       connectors={connectors}
       explorer={voyager}

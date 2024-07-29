@@ -9,77 +9,55 @@ const useOptionRound = ({ address }: { address: string }) => {
     return { abi: optionRoundABI, address };
   }, [address]);
   const { account } = useAccount();
-  const typedContract = useMemo(
-    () =>
-      useContract({
-        ...contractData,
-      }).contract?.typedv2(optionRoundABI),
-    [address]
-  );
+  const typedContract = useContract({
+    ...contractData,
+  }).contract?.typedv2(optionRoundABI);
 
   //Read States
-  const { data: reservePrice } = useMemo(
-    () =>
-      useContractRead({ ...contractData, functionName: "get_reserve_price" }),
-    [typedContract]
-  );
+  const { data: reservePrice } = useContractRead({
+    ...contractData,
+    functionName: "get_reserve_price",
+    watch:true,
+  });
 
-  const { data: strikePrice } = useMemo(
-    () =>
-      useContractRead({ ...contractData, functionName: "get_strike_price" }),
-    [address]
-  );
+  const { data: strikePrice } = useContractRead({
+    ...contractData,
+    functionName: "get_strike_price",
+    watch:true,
+  });
 
-  const biddingNonce = useMemo(
-    () =>
-      useContractRead({
-        ...contractData,
-        functionName: "get_bidding_nonce_for",
-        args: [account?.address as string],
-      }),
-    [account?.address, contractData]
-  );
+  const biddingNonce = useContractRead({
+    ...contractData,
+    functionName: "get_bidding_nonce_for",
+    args: [account?.address as string],
+    watch:true,
+  });
 
-  const { data: bids } = useMemo(
-    () =>
-      useContractRead({
-        ...contractData,
-        functionName: "get_bids_for",
-        args: [account?.address as string],
-      }),
-    [account?.address, contractData]
-  );
+  const { data: bids } = useContractRead({
+    ...contractData,
+    functionName: "get_bids_for",
+    args: [account?.address as string],
+    watch:true,
+  });
+  const { data: refundableBids } = useContractRead({
+    ...contractData,
+    functionName: "get_refundable_bids_for",
+    args: [account?.address as string],
+    watch:true,
+  });
 
-  const { data: refundableBids } = useMemo(
-    () =>
-      useContractRead({
-        ...contractData,
-        functionName: "get_refundable_bids_for",
-        args: [account?.address as string],
-      }),
-    [account?.address, contractData]
-  );
-
-  const { data: optionsBalance } = useMemo(
-    () =>
-      useContractRead({
-        ...contractData,
-        functionName: "get_total_options_balance_for",
-        args: [account?.address as string],
-      }),
-    [account?.address, contractData]
-  );
-
-  const { data: tokenizableOptions } = useMemo(
-    () =>
-      useContractRead({
-        ...contractData,
-        functionName: "get_tokenizable_options_for",
-        args: [account?.address as string],
-      }),
-    [account?.address, contractData]
-  );
-
+  const { data: optionsBalance } = useContractRead({
+    ...contractData,
+    functionName: "get_total_options_balance_for",
+    args: [account?.address as string],
+    watch:true,
+  });
+  const { data: tokenizableOptions } = useContractRead({
+    ...contractData,
+    functionName: "get_tokenizable_options_for",
+    args: [account?.address as string],
+    watch:true,
+  });
   //  const { data:  } = useMemo(
   //   () =>
   //     useContractRead({ ...contractData, functionName: "get_reserve_price" }),

@@ -4,9 +4,11 @@ import Link from "next/link";
 import { Vault } from "@/lib/types";
 import styles from "./VaultCard.module.css";
 import { useRouter } from "next/navigation";
+import useVault from "@/hooks/useVault";
 
 export default function VaultCard({ vault }: { vault: Vault }) {
-
+  const state = useVault("0x694b9e83d24c01d98b276252280f1bacb61db1f5573aaae0671c9fdaccbfebd");
+  console.log("State",state);
   const router = useRouter();
   return (
 

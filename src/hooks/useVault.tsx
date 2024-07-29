@@ -1,64 +1,58 @@
-import { useAccount, useContract, useContractRead } from "@starknet-react/core";
+import {
+  useAccount,
+  useContract,
+  useContractRead,
+  useNetwork,
+  useProvider,
+} from "@starknet-react/core";
 import { vaultABI } from "@/abi";
 import { DepositArgs } from "@/lib/types";
 import { LibraryError } from "starknet";
 import { use, useCallback, useMemo } from "react";
 
-const useVault = ({ address }: { address: string }) => {
+const useVault = (address: string) => {
   const contractData = {
     abi: vaultABI,
     address,
   };
-  const typedContract = useMemo(
-    () =>
-      useContract({
-        ...contractData,
-      }).contract?.typedv2(vaultABI),
-    [address]
-  );
 
-  const { account } = useAccount();
+  const { contract } = useContract({
+    ...contractData,
+  });
 
+  const typedContract = contract?.typedv2(vaultABI);
+  const { address: accountAddress } = useAccount();
+
+  const data = typedContract?.populate("get_total_balance");
+  console.log("data", data);
+  const { chain } = useNetwork();
+  const { provider } = useProvider();
+  const selector = console.log("PROVIDER", provider, typedContract, chain);
   //Read States
-  const { data: lpLockedAmount } = useMemo(
-    () =>
-      useContractRead({
-        ...contractData,
-        functionName: "get_lp_locked_balance",
-        args: [account?.address as string],
-        watch: true,
-      }),
-    [account?.address]
-  );
-  const { data: lpUnlockedAmount } = useMemo(
-    () =>
-      useContractRead({
-        ...contractData,
-        functionName: "get_lp_unlocked_balance",
-        args: [account?.address as string],
-        watch: true,
-      }),
-    [account?.address]
-  );
-  const { data: vaultLockedAmount } = useMemo(
-    () =>
-      useContractRead({
-        ...contractData,
-        functionName: "get_total_locked_balance",
-        watch: true,
-      }),
-    [address]
-  );
+  const { data: lpLockedAmount } = useContractRead({
+    ...contractData,
+    functionName: "get_lp_locked_balance",
+    args: [accountAddress as string],
+    watch: true,
+  });
 
-  const { data: vaultUnlockedAmount } = useMemo(
-    () =>
-      useContractRead({
-        ...contractData,
-        functionName: "get_total_unlocked_balance",
-        watch: true,
-      }),
-    [address]
-  );
+  const { data: lpUnlockedAmount } = useContractRead({
+    ...contractData,
+    functionName: "get_lp_unlocked_balance",
+    args: [accountAddress as string],
+    watch: true,
+  });
+  const { data: vaultLockedAmount } = useContractRead({
+    ...contractData,
+    functionName: "get_total_locked_balance",
+    watch: true,
+  });
+
+  const { data: vaultUnlockedAmount } = useContractRead({
+    ...contractData,
+    functionName: "get_total_unlocked_balance",
+    watch: true,
+  });
 
   //Write Calls
   const depositLiquidity = useCallback(
