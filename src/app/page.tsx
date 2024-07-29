@@ -5,9 +5,23 @@ import styles from "./page.module.css";
 import { useConnect } from "@starknet-react/core";
 import { Button } from "antd";
 import { useState } from "react";
+import VaultCard from "@/components/VaultCard/VaultCard";
+import { Vault } from "@/lib/types";
 
 export default function Home() {
-  const vaults: any = [];
+  const vaults: Array<Vault> = [
+    {
+      address: "0x1234",
+      underlying: "ETH",
+      strikePrice: "123",
+      capLevel: "3000",
+      totalLocked: "123",
+      totalUnlocked: "124",
+      currentRoundId: "2",
+      auctionRunTime: 32,
+      optionSettleTime: 32,
+    } as Vault,
+  ];
   const [isModalVisible, setIsModalVisible] = useState<boolean>();
   const handleCreateClick = () => {};
   return (
@@ -41,12 +55,10 @@ export default function Home() {
           </Button>
         </div>
         <div className={styles.vaultList}>
-          {vaults?.allVaults?.map((vault: any, idx: any) =>
+          {vaults?.map((vault: Vault, idx: any) => (
             // <VaultTimeline key={vault.address + idx.toString()} vault={vault} />
-            ({
-              //<VaultCard key={vault.address + idx} vault={vault} />
-            })
-          )}
+            <VaultCard key={vault.address + idx} vault={vault} />
+          ))}
           {/* <CreateVault {...{ handleCreateClick }} /> */}
         </div>
         {
