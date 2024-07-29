@@ -1,0 +1,119 @@
+:root {
+  /* Colors */
+  --main: rgb(243, 231, 169);
+  --orange: rgb(243, 121, 12);
+  --red: rgb(243, 65, 32);
+  --deepRed: rgb(197, 30, 72);
+  --paleMain: rgba(243, 231, 169, 0.2);
+  --green: #06d6a0;
+  --text: rgb(209, 206, 206);
+
+  /* Paddings/margins */
+  --padding: 80px;
+
+  /* Font faces */
+  --mainFont: "Share Tech", "Roboto", "Helvetica", "Arial", sans-serif;
+}
+
+html,
+body {
+  font-family: var(--mainFont);
+  background: rgba(18, 18, 25, 1);
+}
+
+*[class^="Mui"] {
+  font-family: var(--mainFont) !important;
+}
+
+strong {
+  color: var(--orange);
+}
+
+/* Tabs */
+
+.ant-popover-placement-bottomRight .ant-popover-arrow {
+  right: 4px;
+}
+
+.ant-tabs-tab.ant-tabs-tab-active > .ant-tabs-tab-btn,
+.ant-tabs-tab:hover {
+  color: var(--orange);
+}
+
+.ant-tabs-tab-disabled {
+  color: var(--paleMain) !important;
+}
+
+/* Table */
+
+.ant-tabs-ink-bar {
+  background-color: var(--orange);
+}
+
+.ant-table {
+  background: transparent;
+}
+
+.ant-table-thead > tr > th {
+  background: transparent;
+  font-size: 1.2em;
+}
+
+.ant-table-cell {
+  color: white !important;
+}
+
+.ant-table-tbody > tr > td:hover,
+.ant-table-cell-row-hover {
+  color: var(--orange) !important;
+  background-color: var(--paleMain) !important;
+}
+
+/* Pagination */
+
+.ant-pagination-item-link,
+.ant-pagination-item {
+  color: var(--orange) !important;
+  background-color: var(--paleMain) !important;
+  border-color: var(--paleMain) !important;
+}
+
+.ant-pagination-prev:hover .ant-pagination-item-link,
+.ant-pagination-next:hover .ant-pagination-item-link,
+.ant-pagination-item:hover {
+  border-color: var(--orange) !important;
+}
+
+.ant-pagination-disabled .ant-pagination-item-link,
+.ant-pagination-disabled:hover .ant-pagination-item-link {
+  opacity: 0.5;
+  border-color: transparent;
+}
+.ant-pagination-item-active {
+  border-color: var(--orange) !important;
+}
+
+.ant-pagination-item-active a,
+.ant-pagination-item:hover a {
+  color: var(--orange) !important;
+}
+
+.ant-pagination-item a {
+  color: white;
+}
+
+/* No data */
+
+.ant-empty-img-simple-g {
+  stroke: currentColor;
+}
+
+.ant-empty-img-simple-path,
+.ant-empty-img-simple-ellipse {
+  fill: currentColor;
+}
+
+.ant-empty-description,
+.ant-empty {
+  color: currentColor;
+}

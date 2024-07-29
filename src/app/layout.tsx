@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import "./globals.css";
+import "@/styles/global.css";
 import { StarknetProvider } from "../context/StarknetProvider";
 import { Header } from "@/components/LayoutComponents";
 
