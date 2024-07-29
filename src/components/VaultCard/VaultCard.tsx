@@ -3,11 +3,16 @@ import { Progress } from "antd";
 import Link from "next/link";
 import { Vault } from "@/lib/types";
 import styles from "./VaultCard.module.css";
+import { useRouter } from "next/navigation";
 
 export default function VaultCard({ vault }: { vault: Vault }) {
+
+  const router = useRouter();
   return (
-    <Link href={`/vaults/${vault.address}`} passHref>
-      <div className={styles.container}>
+
+      <div className={styles.container} onClick={()=>{
+        router.push(`/vaults/${vault.address}`);
+      }}>
         <div className={`${styles.titleBox} ${styles.row}`}>
           <p className={styles.title}>
             {vault.address} | {vault.address ? "PUT" : "CALL"}
@@ -21,13 +26,13 @@ export default function VaultCard({ vault }: { vault: Vault }) {
             </p>
 
             <div style={{ display: "flex" }}>
-              <p>STRIKE:&nbsp;</p>
+              <p>STRIKE: &nbsp;</p>
               <p>
                 <strong>{vault.strikePrice} gwei</strong>
               </p>
             </div>
             <div style={{ display: "flex" }}>
-              <p>CR:&nbsp;</p>
+              <p>CR: &nbsp;</p>
               <p>
                 <strong>{Number(vault.capLevel || 0) * 100}%</strong>
               </p>
@@ -69,6 +74,5 @@ export default function VaultCard({ vault }: { vault: Vault }) {
           </p>
         </div>
       </div>
-    </Link>
   );
 }

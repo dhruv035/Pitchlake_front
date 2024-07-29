@@ -4,7 +4,7 @@
   --orange: rgb(243, 121, 12);
   --red: rgb(243, 65, 32);
   --deepRed: rgb(197, 30, 72);
-  --paleMain: rgba(243, 231, 169, 0.2);
+
   --green: #06d6a0;
   --text: rgb(209, 206, 206);
 
@@ -18,6 +18,7 @@ html,
 body {
   font-family: var(--mainFont);
   background: rgba(18, 18, 25, 1);
+  color:white
 }
 
 *[class^="Mui"] {
