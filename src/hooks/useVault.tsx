@@ -8,7 +8,7 @@ import {
 import { vaultABI } from "@/abi";
 import { DepositArgs } from "@/lib/types";
 import { LibraryError } from "starknet";
-import { use, useCallback, useMemo } from "react";
+import { use, useCallback, useEffect, useMemo } from "react";
 
 const useVault = (address: string) => {
   const contractData = {
@@ -20,39 +20,55 @@ const useVault = (address: string) => {
     ...contractData,
   });
 
-  const typedContract = contract?.typedv2(vaultABI);
+  const typedContract = useMemo(() => contract?.typedv2(vaultABI), [contract]);
   const { address: accountAddress } = useAccount();
-
-  const data = typedContract?.populate("get_total_balance");
-  console.log("data", data);
   const { chain } = useNetwork();
   const { provider } = useProvider();
-  const selector = console.log("PROVIDER", provider, typedContract, chain);
   //Read States
-  const { data: lpLockedAmount } = useContractRead({
-    ...contractData,
-    functionName: "get_lp_locked_balance",
-    args: [accountAddress as string],
-    watch: true,
-  });
+  // useContractRead
+  // const { data: lpLockedAmount } = useContractRead({
+  //   ...contractData,
+  //   functionName: "get_lp_locked_balance",
+  //   args: [accountAddress as string],
+  //   watch: true,
+  //   parseResult:true,
+  // });
 
-  const { data: lpUnlockedAmount } = useContractRead({
-    ...contractData,
-    functionName: "get_lp_unlocked_balance",
-    args: [accountAddress as string],
-    watch: true,
-  });
-  const { data: vaultLockedAmount } = useContractRead({
+  // const { data: lpUnlockedAmount } = useContractRead({
+  //   ...contractData,
+  //   functionName: "get_lp_unlocked_balance",
+  //   args: [accountAddress as string],
+  //   watch: true,
+  // });
+  const {
+    data: vaultLockedAmount,
+    status,
+    isError,
+    isLoading,
+    isFetching,
+  } = useContractRead({
     ...contractData,
     functionName: "get_total_locked_balance",
-    watch: true,
+    watch:true,
   });
 
-  const { data: vaultUnlockedAmount } = useContractRead({
-    ...contractData,
-    functionName: "get_total_unlocked_balance",
-    watch: true,
-  });
+  useEffect(() => {
+    if (status !== "pending") {
+      console.log("isError:", isError, "\nData", vaultLockedAmount);
+      console.log(status,
+        isError,
+        isLoading,
+        isFetching,)
+    }
+  }, [status,
+    isError,
+    isLoading,
+    isFetching,]);
+  // const { data: vaultUnlockedAmount } = useContractRead({
+  //   ...contractData,
+  //   functionName: "get_total_unlocked_balance",
+  //   watch: true,
+  // });
 
   //Write Calls
   const depositLiquidity = useCallback(
@@ -141,9 +157,9 @@ const useVault = (address: string) => {
   return {
     state: {
       vaultLockedAmount,
-      vaultUnlockedAmount,
-      lpLockedAmount,
-      lpUnlockedAmount,
+      // vaultUnlockedAmount,
+      // lpLockedAmount,
+      // lpUnlockedAmount,
     },
     depositLiquidity,
     withdrawLiquidity,

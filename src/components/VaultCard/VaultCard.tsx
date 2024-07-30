@@ -7,8 +7,8 @@ import { useRouter } from "next/navigation";
 import useVault from "@/hooks/useVault";
 
 export default function VaultCard({ vault }: { vault: Vault }) {
-  const state = useVault("0x694b9e83d24c01d98b276252280f1bacb61db1f5573aaae0671c9fdaccbfebd");
-  console.log("State",state);
+  const state = useVault("0x7796226d4e24cdaaebf6208d92f9c1f4bf5fbb1defd4869b19fa572090496af");
+  console.log("State",state.state);
   const router = useRouter();
   return (
 
