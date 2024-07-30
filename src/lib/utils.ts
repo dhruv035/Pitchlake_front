@@ -5,3 +5,11 @@ export const shortenString = (str: string) => {
 };
 
 export const copyToClipboard = (text: string) => navigator.clipboard.writeText(text);
+
+export const stringToHex = (decimalString: string)=> {
+  decimalString = String(decimalString);
+
+  const num = BigInt(decimalString);
+
+  return `0x${num.toString(16)}`;
+}

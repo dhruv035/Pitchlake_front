@@ -9,6 +9,8 @@ import { vaultABI } from "@/abi";
 import { DepositArgs } from "@/lib/types";
 import { LibraryError } from "starknet";
 import { use, useCallback, useEffect, useMemo } from "react";
+import useOptionRound from "./useOptionRound";
+import { stringToHex } from "@/lib/utils";
 
 const useVault = (address: string) => {
   const contractData = {
@@ -25,50 +27,75 @@ const useVault = (address: string) => {
   const { chain } = useNetwork();
   const { provider } = useProvider();
   //Read States
-  // useContractRead
-  // const { data: lpLockedAmount } = useContractRead({
-  //   ...contractData,
-  //   functionName: "get_lp_locked_balance",
-  //   args: [accountAddress as string],
-  //   watch: true,
-  //   parseResult:true,
-  // });
 
-  // const { data: lpUnlockedAmount } = useContractRead({
-  //   ...contractData,
-  //   functionName: "get_lp_unlocked_balance",
-  //   args: [accountAddress as string],
-  //   watch: true,
-  // });
+
+
+  const { data: currentRoundId } = useContractRead({
+    ...contractData,
+    functionName: "current_option_round_id",
+    args: [],
+    watch: true,
+  });
+  const { data: currentRoundAddress } = useContractRead({
+    ...contractData,
+    functionName: "get_option_round_address",
+    args:currentRoundId?[Number(currentRoundId)]:undefined
+  });
+
+  const { data: previousRoundAddress } = useContractRead({
+    ...contractData,
+    functionName: "get_option_round_address",
+    args:currentRoundId &&Number(currentRoundId)>0?[Number(currentRoundId)-1]:undefined
+  });
+  const currentRound = useOptionRound(currentRoundAddress?stringToHex(currentRoundAddress.toString()):undefined);
+  const previousRound = useOptionRound(previousRoundAddress?stringToHex(previousRoundAddress.toString()):undefined);
+  const { data: auctionRunTime } = useContractRead({
+    ...contractData,
+    functionName: "get_auction_run_time",
+    args: [],
+    watch: true,
+  });
+  const { data: optionRunTime } = useContractRead({
+    ...contractData,
+    functionName: "get_option_run_time",
+    args: [],
+    watch: true,
+  });
+  const { data: roundTransitionPeriod } = useContractRead({
+    ...contractData,
+    functionName: "get_round_transition_period",
+    args: [],
+    watch: true,
+  });
+
+  const { data: lpLockedAmount } = useContractRead({
+    ...contractData,
+    functionName: "get_lp_locked_balance",
+    args: [accountAddress as string],
+    watch: true,
+  });
+
+  const { data: lpUnlockedAmount } = useContractRead({
+    ...contractData,
+    functionName: "get_lp_unlocked_balance",
+    args: [accountAddress as string],
+    watch: true,
+  });
   const {
-    data: vaultLockedAmount,
-    status,
-    isError,
-    isLoading,
-    isFetching,
+    data: vaultLockedAmount
   } = useContractRead({
     ...contractData,
     functionName: "get_total_locked_balance",
-    watch:true,
+    watch: true,
+    args: [],
   });
 
-  useEffect(() => {
-    if (status !== "pending") {
-      console.log("isError:", isError, "\nData", vaultLockedAmount);
-      console.log(status,
-        isError,
-        isLoading,
-        isFetching,)
-    }
-  }, [status,
-    isError,
-    isLoading,
-    isFetching,]);
-  // const { data: vaultUnlockedAmount } = useContractRead({
-  //   ...contractData,
-  //   functionName: "get_total_unlocked_balance",
-  //   watch: true,
-  // });
+  const { data: vaultUnlockedAmount } = useContractRead({
+    ...contractData,
+    functionName: "get_total_unlocked_balance",
+    watch: true,
+    args: [],
+  });
 
   //Write Calls
   const depositLiquidity = useCallback(
@@ -157,10 +184,16 @@ const useVault = (address: string) => {
   return {
     state: {
       vaultLockedAmount,
-      // vaultUnlockedAmount,
-      // lpLockedAmount,
-      // lpUnlockedAmount,
+      vaultUnlockedAmount,
+      lpLockedAmount,
+      lpUnlockedAmount,
+      currentRoundId,
+      auctionRunTime,
+      optionRunTime,
+      roundTransitionPeriod,
     },
+    currentRound,
+    previousRound,
     depositLiquidity,
     withdrawLiquidity,
     startAuction,

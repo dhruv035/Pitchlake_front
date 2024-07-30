@@ -4,7 +4,7 @@ import { useAccount, useContract, useContractRead } from "@starknet-react/core";
 import { useCallback, useMemo } from "react";
 import { LibraryError } from "starknet";
 
-const useOptionRound = ({ address }: { address: string }) => {
+const useOptionRound = (address: string | undefined) => {
   const contractData = useMemo(() => {
     return { abi: optionRoundABI, address };
   }, [address]);
@@ -17,46 +17,48 @@ const useOptionRound = ({ address }: { address: string }) => {
   const { data: reservePrice } = useContractRead({
     ...contractData,
     functionName: "get_reserve_price",
-    watch:true,
+    watch: true,
+    args:[],
   });
 
   const { data: strikePrice } = useContractRead({
     ...contractData,
     functionName: "get_strike_price",
-    watch:true,
+    watch: true,
+    args:[],
   });
 
   const biddingNonce = useContractRead({
     ...contractData,
     functionName: "get_bidding_nonce_for",
     args: [account?.address as string],
-    watch:true,
+    watch: true,
   });
 
   const { data: bids } = useContractRead({
     ...contractData,
     functionName: "get_bids_for",
     args: [account?.address as string],
-    watch:true,
+    watch: true,
   });
   const { data: refundableBids } = useContractRead({
     ...contractData,
     functionName: "get_refundable_bids_for",
     args: [account?.address as string],
-    watch:true,
+    watch: true,
   });
 
   const { data: optionsBalance } = useContractRead({
     ...contractData,
     functionName: "get_total_options_balance_for",
     args: [account?.address as string],
-    watch:true,
+    watch: true,
   });
   const { data: tokenizableOptions } = useContractRead({
     ...contractData,
     functionName: "get_tokenizable_options_for",
     args: [account?.address as string],
-    watch:true,
+    watch: true,
   });
   //  const { data:  } = useMemo(
   //   () =>
