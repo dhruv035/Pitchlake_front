@@ -7,9 +7,9 @@ import {
 } from "@starknet-react/core";
 import { vaultABI } from "@/abi";
 import { DepositArgs } from "@/lib/types";
-import { LibraryError } from "starknet";
+import { CairoCustomEnum, LibraryError } from "starknet";
 import { use, useCallback, useEffect, useMemo } from "react";
-import useOptionRound from "./useOptionRound";
+import useOptionRound from "./optionRound/useOptionRound";
 import { stringToHex } from "@/lib/utils";
 
 const useVault = (address: string) => {
@@ -49,6 +49,17 @@ const useVault = (address: string) => {
   });
   const currentRound = useOptionRound(currentRoundAddress?stringToHex(currentRoundAddress.toString()):undefined);
   const previousRound = useOptionRound(previousRoundAddress?stringToHex(previousRoundAddress.toString()):undefined);
+
+
+
+
+  const {data:vaultType} = useContractRead({
+    ...contractData,
+    functionName: "vault_type",
+    args: [],
+    watch: true,
+  });
+
   const { data: auctionRunTime } = useContractRead({
     ...contractData,
     functionName: "get_auction_run_time",
@@ -183,6 +194,7 @@ const useVault = (address: string) => {
 
   return {
     state: {
+      vaultType:vaultType as CairoCustomEnum,
       vaultLockedAmount,
       vaultUnlockedAmount,
       lpLockedAmount,

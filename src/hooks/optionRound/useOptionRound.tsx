@@ -15,6 +15,33 @@ const useOptionRound = (address: string | undefined) => {
 
   //Read States
 
+  const {data:auctionStartDate}= useContractRead({
+    ...contractData,
+    functionName:"get_auction_start_date",
+    args:[],
+    watch:true,
+  })
+  
+  const {data:auctionEndDate}= useContractRead({
+    ...contractData,
+    functionName:"get_auction_end_date",
+    args:[],
+    watch:true,
+  })
+  const {data:optionSettleDate}= useContractRead({
+    ...contractData,
+    functionName:"get_option_settlement_date",
+    args:[],
+    watch:true,
+  })
+
+  const {data:optionSettleTime}= useContractRead({
+    ...contractData,
+    functionName:"get_auction_clearing_price",
+    args:[],
+    watch:true,
+  })
+
   const {data:clearingPrice} = useContractRead({
     ...contractData,
     functionName:"get_auction_clearing_price",
@@ -180,6 +207,9 @@ const useOptionRound = (address: string | undefined) => {
       roundState:roundState as CairoCustomEnum,
       clearingPrice,
       optionsSold,
+      auctionStartDate:new Date(Number(auctionStartDate)*1000),
+      auctionEndDate:new Date (Number(auctionEndDate)*1000),
+      optionSettleDate:new Date (Number(optionSettleDate)*1000),
     },
     placeBid,
     updateBid,

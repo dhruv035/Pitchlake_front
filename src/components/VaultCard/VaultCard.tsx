@@ -10,7 +10,7 @@ import { CairoCustomEnum } from "starknet";
 
 export default function VaultCard({ vault }: { vault: Vault }) {
   const vaultNew = useVault(
-    "0x6d162d274d1deffe7915bba69c72fa79ff74c6d766fb4dc94e27ae16d338ce8"
+    "0x735e785e914238196a28d3edc11cddcd438b714908d8b7b45ea07c5ad8112b6"
   );
 
   const router = useRouter();
@@ -19,18 +19,47 @@ export default function VaultCard({ vault }: { vault: Vault }) {
   myHeaders.append("content-type", "application/json");
 
   return (
-    <div
-      className={styles.container}
-      onClick={() => {
-      }}
-    >
+    <div className={styles.container} onClick={() => {}}>
       <div className={`${styles.titleBox} ${styles.row}`}>
         <p className={styles.title}>
-          {vault.address} | {vault.address ? "PUT" : "CALL"}
+          {vault.address} | {vaultNew.state.vaultType?.activeVariant()}
         </p>
       </div>
 
       <div className={styles.flexGap}>
+        <div
+          className={styles.row}
+          style={{ flex: 1, flexDirection: "column" }}
+        >
+          <p>
+            <strong>Previous Round</strong>
+          </p>
+
+          <div style={{ display: "flex" }}>
+            <p>Round Id: &nbsp;</p>
+            <p>
+              <strong>
+                {vaultNew.previousRound.state.roundId?.toString()}
+              </strong>
+            </p>
+          </div>
+          <div style={{ display: "flex" }}>
+            <p>CapLevel: &nbsp;</p>
+            <p>
+              <strong>
+                {Number(vaultNew.previousRound.state.capLevel || 0) / 100}%
+              </strong>
+            </p>
+          </div>
+          <div style={{ display: "flex" }}>
+            <p>State: &nbsp;</p>
+            <p>
+              <strong>
+                {vaultNew.previousRound.state.roundState?.activeVariant()}
+              </strong>
+            </p>
+          </div>
+        </div>
         <div
           className={styles.row}
           style={{ flex: 1, flexDirection: "column" }}
@@ -42,24 +71,52 @@ export default function VaultCard({ vault }: { vault: Vault }) {
           <div style={{ display: "flex" }}>
             <p>Round Id: &nbsp;</p>
             <p>
-              <strong>{vaultNew.state.currentRoundId?.toString()}</strong>
+              <strong>{vaultNew.currentRound.state.roundId?.toString()}</strong>
             </p>
           </div>
           <div style={{ display: "flex" }}>
             <p>CapLevel: &nbsp;</p>
             <p>
-              <strong>{Number(vaultNew.previousRound.state.capLevel || 0) / 100}%</strong>
+              <strong>
+                {Number(vaultNew.currentRound.state.capLevel || 0) / 100}%
+              </strong>
             </p>
           </div>
           <div style={{ display: "flex" }}>
             <p>State: &nbsp;</p>
             <p>
-              <strong>{vaultNew.currentRound.state.roundState?.activeVariant()}</strong>
+              <strong>
+                {vaultNew.currentRound.state.roundState?.activeVariant()}
+              </strong>
+            </p>
+          </div>
+          <div style={{ display: "flex" }}>
+            <p>StartDate: &nbsp;</p>
+            <p>
+              <strong>
+                {vaultNew.currentRound.state.auctionStartDate?.toUTCString()}
+              </strong>
+            </p>
+          </div>
+          <div style={{ display: "flex" }}>
+            <p>Auction End Date: &nbsp;</p>
+            <p>
+              <strong>
+                {vaultNew.currentRound.state.auctionEndDate?.toUTCString()}
+              </strong>
+            </p>
+          </div>
+          <div style={{ display: "flex" }}>
+            <p>Option Settle Date: &nbsp;</p>
+            <p>
+              <strong>
+                {vaultNew.currentRound.state.optionSettleDate?.toUTCString()}
+              </strong>
             </p>
           </div>
         </div>
 
-        <div
+        {/* <div
           className={styles.flexGap}
           style={{ flex: 1, flexDirection: "column" }}
         >
@@ -75,7 +132,7 @@ export default function VaultCard({ vault }: { vault: Vault }) {
               <strong>{0}%</strong>
             </p>
           </div>
-        </div>
+        </div> */}
       </div>
 
       <div className={styles.row} style={{ gap: "5px", whiteSpace: "nowrap" }}>
@@ -83,7 +140,14 @@ export default function VaultCard({ vault }: { vault: Vault }) {
             <strong>{formatEther(vault.tvl || 0).toString()} weth</strong>
           </p> */}
         <p>
-          TLV: <strong>{(Number(vaultNew.state.vaultLockedAmount)+Number(vaultNew.state.vaultUnlockedAmount)/1000000000 || 0).toString()}&nbsp;gwei</strong>
+          TLV:{" "}
+          <strong>
+            {(
+              Number(vaultNew.state.vaultLockedAmount) +
+                Number(vaultNew.state.vaultUnlockedAmount) / 1000000000 || 0
+            ).toString()}
+            &nbsp;gwei
+          </strong>
         </p>
         <Progress
           percent={50}
@@ -100,7 +164,10 @@ export default function VaultCard({ vault }: { vault: Vault }) {
           borderRadius: "0px 0px 10px 10px",
         }}
       >
-        <p>Time Left:&nbsp;</p>
+        <p>
+          Time Left:&nbsp;
+          {vaultNew.currentRound.state.auctionEndDate?.toString()}
+        </p>
         <p>
           <strong></strong>
         </p>
