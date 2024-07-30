@@ -4,6 +4,20 @@ export type DepositArgs = {
     beneficiary: string;
     amount: number | bigint;
   };
+  
+  export enum RoundState {
+    Open=0, // Accepting deposits, waiting for auction to start
+    Auctioning=1, // Auction is on going, accepting bids
+    Running=2, // Auction has ended, waiting for option round expiry date to settle
+    Settled=3,
+}
+
+export const RoundStateLabels: { [key in RoundState]: string } = {
+    [RoundState.Open]: "Open",
+    [RoundState.Auctioning]: "Auctioning",
+    [RoundState.Running]: "Running",
+    [RoundState.Settled]:"Settled"
+};
 
 export type Vault = {
   address:string;

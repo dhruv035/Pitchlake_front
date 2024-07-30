@@ -6,6 +6,7 @@ import styles from "./VaultCard.module.css";
 import { useRouter } from "next/navigation";
 import useVault from "@/hooks/useVault";
 import { useEffect } from "react";
+import { CairoCustomEnum } from "starknet";
 
 export default function VaultCard({ vault }: { vault: Vault }) {
   const vaultNew = useVault(
@@ -16,7 +17,6 @@ export default function VaultCard({ vault }: { vault: Vault }) {
   var myHeaders = new Headers();
   myHeaders.append("accept", "application/json");
   myHeaders.append("content-type", "application/json");
-
 
   return (
     <div
@@ -36,19 +36,25 @@ export default function VaultCard({ vault }: { vault: Vault }) {
           style={{ flex: 1, flexDirection: "column" }}
         >
           <p>
-            <strong>{vault.underlying?.toUpperCase()}</strong>
+            <strong>Current Round</strong>
           </p>
 
           <div style={{ display: "flex" }}>
-            <p>Current Round: &nbsp;</p>
+            <p>Round Id: &nbsp;</p>
             <p>
               <strong>{vaultNew.state.currentRoundId?.toString()}</strong>
             </p>
           </div>
           <div style={{ display: "flex" }}>
-            <p>CR: &nbsp;</p>
+            <p>CapLevel: &nbsp;</p>
             <p>
-              <strong>{Number(vault.capLevel || 0) * 100}%</strong>
+              <strong>{Number(vaultNew.previousRound.state.capLevel || 0) / 100}%</strong>
+            </p>
+          </div>
+          <div style={{ display: "flex" }}>
+            <p>State: &nbsp;</p>
+            <p>
+              <strong>{vaultNew.currentRound.state.roundState?.activeVariant()}</strong>
             </p>
           </div>
         </div>
@@ -77,7 +83,7 @@ export default function VaultCard({ vault }: { vault: Vault }) {
             <strong>{formatEther(vault.tvl || 0).toString()} weth</strong>
           </p> */}
         <p>
-          TLV: <strong>{(vault.totalLocked || 0).toString()}</strong>
+          TLV: <strong>{(Number(vaultNew.state.vaultLockedAmount)+Number(vaultNew.state.vaultUnlockedAmount)/1000000000 || 0).toString()}&nbsp;gwei</strong>
         </p>
         <Progress
           percent={50}
