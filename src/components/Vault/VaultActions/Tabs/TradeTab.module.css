@@ -1,0 +1,12 @@
+.feeSlippage {
+  margin-bottom: 22px;
+}
+
+.notionals :global .ant-input-number {
+  margin-bottom: 8px;
+}
+
+.notionals > span {
+  font-size: 1.2em;
+  margin-right: 8px;
+}

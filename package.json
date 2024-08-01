@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@ant-design/icons": "^5.4.0",
     "@starknet-react/chains": "^0.1.7",
     "@starknet-react/core": "^2.8.3",
     "antd": "^5.19.3",

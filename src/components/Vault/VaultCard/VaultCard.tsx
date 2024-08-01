@@ -4,14 +4,16 @@ import Link from "next/link";
 import { Vault } from "@/lib/types";
 import styles from "./VaultCard.module.css";
 import { useRouter } from "next/navigation";
-import useVault from "@/hooks/useVault";
 import { useEffect } from "react";
 import { CairoCustomEnum } from "starknet";
+import { shortenString } from "@/lib/utils";
+import useVaultState from "@/hooks/vault/useVaultState";
 
-export default function VaultCard({ vault }: { vault: Vault }) {
-  const vaultNew = useVault(
-    "0x735e785e914238196a28d3edc11cddcd438b714908d8b7b45ea07c5ad8112b6"
+export default function VaultCard({ vaultAddress }: { vaultAddress: string }) {
+  const vaultNew = useVaultState(
+    vaultAddress
   );
+  console.log("VAULTNEW",vaultNew)
 
   const router = useRouter();
   var myHeaders = new Headers();
@@ -19,10 +21,10 @@ export default function VaultCard({ vault }: { vault: Vault }) {
   myHeaders.append("content-type", "application/json");
 
   return (
-    <div className={styles.container} onClick={() => {}}>
+    <div className={styles.container} onClick={() => {router.push(`/vaults/${vaultAddress}`)}}>
       <div className={`${styles.titleBox} ${styles.row}`}>
         <p className={styles.title}>
-          {vault.address} | {vaultNew.state.vaultType?.activeVariant()}
+          {shortenString(vaultAddress)} | {vaultNew.state.vaultType?.activeVariant()}
         </p>
       </div>
 

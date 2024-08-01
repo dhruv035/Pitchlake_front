@@ -1,5 +1,11 @@
 import { optionRoundABI } from "@/abi";
-import { PlaceBidArgs, RefundableBidsArgs, RoundState, UpdateBidArgs } from "@/lib/types";
+import {
+  OptionRoundState,
+  PlaceBidArgs,
+  RefundableBidsArgs,
+  RoundState,
+  UpdateBidArgs,
+} from "@/lib/types";
 import { useAccount, useContract, useContractRead } from "@starknet-react/core";
 import { useCallback, useMemo } from "react";
 import { CairoCustomEnum, LibraryError } from "starknet";
@@ -15,83 +21,83 @@ const useOptionRound = (address: string | undefined) => {
 
   //Read States
 
-  const {data:auctionStartDate}= useContractRead({
+  const { data: auctionStartDate } = useContractRead({
     ...contractData,
-    functionName:"get_auction_start_date",
-    args:[],
-    watch:true,
-  })
-  
-  const {data:auctionEndDate}= useContractRead({
-    ...contractData,
-    functionName:"get_auction_end_date",
-    args:[],
-    watch:true,
-  })
-  const {data:optionSettleDate}= useContractRead({
-    ...contractData,
-    functionName:"get_option_settlement_date",
-    args:[],
-    watch:true,
-  })
+    functionName: "get_auction_start_date",
+    args: [],
+    watch: true,
+  });
 
-  const {data:optionSettleTime}= useContractRead({
+  const { data: auctionEndDate } = useContractRead({
     ...contractData,
-    functionName:"get_auction_clearing_price",
-    args:[],
-    watch:true,
-  })
+    functionName: "get_auction_end_date",
+    args: [],
+    watch: true,
+  });
+  const { data: optionSettleDate } = useContractRead({
+    ...contractData,
+    functionName: "get_option_settlement_date",
+    args: [],
+    watch: true,
+  });
 
-  const {data:clearingPrice} = useContractRead({
+  const { data: optionSettleTime } = useContractRead({
     ...contractData,
-    functionName:"get_auction_clearing_price",
-    args:[],
-    watch:true,
-  })
-  const {data:optionsSold} = useContractRead({
-    ...contractData,
-    functionName:"total_options_sold",
-    args:[],
-    watch:true,
-  })
+    functionName: "get_auction_clearing_price",
+    args: [],
+    watch: true,
+  });
 
-  const {data:roundId} = useContractRead({
+  const { data: clearingPrice } = useContractRead({
     ...contractData,
-    functionName:"get_round_id",
-    args:[],
-    watch:true,
-  })
-  const {data: totalOptionsAvailable} = useContractRead({
+    functionName: "get_auction_clearing_price",
+    args: [],
+    watch: true,
+  });
+  const { data: optionsSold } = useContractRead({
     ...contractData,
-    functionName:"get_total_options_available",
-    args:[],
-    watch:true,
-  })
-  const {data: roundState} = useContractRead({
-    ...contractData,
-    functionName:"get_state",
-    args:[],
-    watch:true,
-  })
+    functionName: "total_options_sold",
+    args: [],
+    watch: true,
+  });
 
-  const {data: capLevel} = useContractRead({
+  const { data: roundId } = useContractRead({
     ...contractData,
-    functionName:"get_cap_level",
-    args:[],
-    watch:true,
-  })
+    functionName: "get_round_id",
+    args: [],
+    watch: true,
+  });
+  const { data: totalOptionsAvailable } = useContractRead({
+    ...contractData,
+    functionName: "get_total_options_available",
+    args: [],
+    watch: true,
+  });
+  const { data: roundState } = useContractRead({
+    ...contractData,
+    functionName: "get_state",
+    args: [],
+    watch: true,
+  });
+
+  const { data: capLevel } = useContractRead({
+    ...contractData,
+    functionName: "get_cap_level",
+    args: [],
+    watch: true,
+  });
   const { data: reservePrice } = useContractRead({
     ...contractData,
     functionName: "get_reserve_price",
     watch: true,
-    args:[],
+    args: [],
   });
 
   const { data: strikePrice } = useContractRead({
     ...contractData,
     functionName: "get_strike_price",
     watch: true,
-    args:[],
+    args: [],
   });
 
   const biddingNonce = useContractRead({
@@ -201,16 +207,15 @@ const useOptionRound = (address: string | undefined) => {
       capLevel,
       refundableBids,
       tokenizableOptions,
-      biddingNonce,
       roundId,
       totalOptionsAvailable,
-      roundState:roundState as CairoCustomEnum,
+      roundState: roundState as CairoCustomEnum,
       clearingPrice,
       optionsSold,
-      auctionStartDate:new Date(Number(auctionStartDate)*1000),
-      auctionEndDate:new Date (Number(auctionEndDate)*1000),
-      optionSettleDate:new Date (Number(optionSettleDate)*1000),
-    },
+      auctionStartDate: new Date(Number(auctionStartDate) * 1000),
+      auctionEndDate: new Date(Number(auctionEndDate) * 1000),
+      optionSettleDate: new Date(Number(optionSettleDate) * 1000),
+    } as OptionRoundState,
     placeBid,
     updateBid,
     refundUnusedBids,
