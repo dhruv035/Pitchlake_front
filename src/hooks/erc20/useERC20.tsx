@@ -28,7 +28,7 @@ const useERC20 = (tokenAddress: string | undefined, target?: string) => {
     if (isDev === true) {
       return devAccount;
     } else return connectorAccount;
-  }, [connectorAccount, isDev]);
+  }, [connectorAccount, isDev,devAccount]);
 
   const typedContract = useMemo(() => {
     if (!contract) return;
@@ -65,13 +65,12 @@ const useERC20 = (tokenAddress: string | undefined, target?: string) => {
           approvalArgs.amount,
         );
         const typedData = data as TransactionResult;
-        console.log("typedData", typedData);
         setPendingTx(typedData.transaction_hash);
       } catch (err) {
         console.log("ERR", err);
       }
     },
-    [typedContract, account],
+    [typedContract, setPendingTx],
   );
 
   return {

@@ -58,7 +58,7 @@ const useOptionRoundActions = (address: string | undefined) => {
         // const data = await writeAsync({ calls: [callData] });
         return typedData;
       },
-    [typedContract, account]
+    [typedContract, setPendingTx]
   );
 
   return {

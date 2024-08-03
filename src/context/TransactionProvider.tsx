@@ -59,7 +59,6 @@ const TransactionProvider = ({ children }: { children: ReactNode }) => {
     toastId.current = null;
   };
 
-  console.log("pendingTx", pendingTx, status);
 
   useEffect(() => {
     if (pendingTx)

@@ -39,7 +39,7 @@ export default function VaultCard({ vaultAddress }: { vaultAddress: string }) {
             <p>Round Id: &nbsp;</p>
             <p>
               <strong>
-                {vaultNew.previousRound.state.roundId?.toString()}
+                {vaultNew.previousRoundState.roundId?.toString()}
               </strong>
             </p>
           </div>
@@ -47,7 +47,7 @@ export default function VaultCard({ vaultAddress }: { vaultAddress: string }) {
             <p>CapLevel: &nbsp;</p>
             <p>
               <strong>
-                {Number(vaultNew.previousRound.state.capLevel || 0) / 100}%
+                {Number(vaultNew.previousRoundState.capLevel || 0) / 100}%
               </strong>
             </p>
           </div>
@@ -55,7 +55,7 @@ export default function VaultCard({ vaultAddress }: { vaultAddress: string }) {
             <p>State: &nbsp;</p>
             <p>
               <strong>
-                {vaultNew.previousRound.state.roundState?.activeVariant()}
+                {vaultNew.previousRoundState.roundState?.activeVariant()}
               </strong>
             </p>
           </div>
@@ -71,14 +71,14 @@ export default function VaultCard({ vaultAddress }: { vaultAddress: string }) {
           <div style={{ display: "flex" }}>
             <p>Round Id: &nbsp;</p>
             <p>
-              <strong>{vaultNew.currentRound.state.roundId?.toString()}</strong>
+              <strong>{vaultNew.currentRoundState.roundId?.toString()}</strong>
             </p>
           </div>
           <div style={{ display: "flex" }}>
             <p>CapLevel: &nbsp;</p>
             <p>
               <strong>
-                {Number(vaultNew.currentRound.state.capLevel || 0) / 100}%
+                {Number(vaultNew.currentRoundState.capLevel || 0) / 100}%
               </strong>
             </p>
           </div>
@@ -86,7 +86,7 @@ export default function VaultCard({ vaultAddress }: { vaultAddress: string }) {
             <p>State: &nbsp;</p>
             <p>
               <strong>
-                {vaultNew.currentRound.state.roundState?.activeVariant()}
+                {vaultNew.currentRoundState.roundState?.activeVariant()}
               </strong>
             </p>
           </div>
@@ -94,7 +94,7 @@ export default function VaultCard({ vaultAddress }: { vaultAddress: string }) {
             <p>StartDate: &nbsp;</p>
             <p>
               <strong>
-                {vaultNew.currentRound.state.auctionStartDate?.toUTCString()}
+                {vaultNew.currentRoundState.auctionStartDate?.toUTCString()}
               </strong>
             </p>
           </div>
@@ -102,7 +102,7 @@ export default function VaultCard({ vaultAddress }: { vaultAddress: string }) {
             <p>Auction End Date: &nbsp;</p>
             <p>
               <strong>
-                {vaultNew.currentRound.state.auctionEndDate?.toUTCString()}
+                {vaultNew.currentRoundState.auctionEndDate?.toUTCString()}
               </strong>
             </p>
           </div>
@@ -110,7 +110,7 @@ export default function VaultCard({ vaultAddress }: { vaultAddress: string }) {
             <p>Option Settle Date: &nbsp;</p>
             <p>
               <strong>
-                {vaultNew.currentRound.state.optionSettleDate?.toUTCString()}
+                {vaultNew.currentRoundState.optionSettleDate?.toUTCString()}
               </strong>
             </p>
           </div>
@@ -166,7 +166,7 @@ export default function VaultCard({ vaultAddress }: { vaultAddress: string }) {
       >
         <p>
           Time Left:&nbsp;
-          {vaultNew.currentRound.state.auctionEndDate?.toString()}
+          {vaultNew.currentRoundState.auctionEndDate?.toString()}
         </p>
         <p>
           <strong></strong>
