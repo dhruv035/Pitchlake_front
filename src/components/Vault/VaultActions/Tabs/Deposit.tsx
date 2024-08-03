@@ -38,7 +38,7 @@ export default function Deposit({
     useState<boolean>(false);
   const { allowance, approve, balance } = useERC20(
     vaultState.ethAddress,
-    vaultState.address
+    vaultState.address,
   );
 
   //Update is approved when allowance is greater than amount

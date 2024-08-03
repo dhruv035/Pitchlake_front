@@ -5,9 +5,7 @@ import { shortenString } from "@/lib/utils";
 import useVaultState from "@/hooks/vault/useVaultState";
 
 export default function VaultCard({ vaultAddress }: { vaultAddress: string }) {
-  const vaultNew = useVaultState(
-    vaultAddress
-  );
+  const vaultNew = useVaultState(vaultAddress);
 
   const router = useRouter();
   var myHeaders = new Headers();
@@ -15,10 +13,16 @@ export default function VaultCard({ vaultAddress }: { vaultAddress: string }) {
   myHeaders.append("content-type", "application/json");
 
   return (
-    <div className={styles.container} onClick={() => {router.push(`/vaults/${vaultAddress}`)}}>
+    <div
+      className={styles.container}
+      onClick={() => {
+        router.push(`/vaults/${vaultAddress}`);
+      }}
+    >
       <div className={`${styles.titleBox} ${styles.row}`}>
         <p className={styles.title}>
-          {shortenString(vaultAddress)} | {vaultNew.state.vaultType?.activeVariant()}
+          {shortenString(vaultAddress)} |{" "}
+          {vaultNew.state.vaultType?.activeVariant()}
         </p>
       </div>
 

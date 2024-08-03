@@ -5,18 +5,24 @@ import { Tabs } from "antd";
 import classes from "./VaultActions.module.css";
 import { HistoryOutlined, LeftOutlined } from "@ant-design/icons/lib/icons";
 import { useAccount } from "@starknet-react/core";
-import { DepositArgs, TransactionResult, VaultActionsType, VaultState, WithdrawArgs } from "@/lib/types";
+import {
+  DepositArgs,
+  TransactionResult,
+  VaultActionsType,
+  VaultState,
+  WithdrawArgs,
+} from "@/lib/types";
 
 type Props = {
   vaultState: VaultState;
-  vaultActions:VaultActionsType;
+  vaultActions: VaultActionsType;
   selectedRound: number;
   chart?: string;
   setChart?: Function;
 };
 
 export default function VaultActions(props: Props) {
-  const { vaultState,vaultActions, selectedRound, chart, setChart } = props;
+  const { vaultState, vaultActions, selectedRound, chart, setChart } = props;
   const { account } = useAccount();
 
   return (
@@ -29,7 +35,7 @@ export default function VaultActions(props: Props) {
       }}
     >
       <div style={{ display: "flex", gap: "10px" }}>
-        {Number(vaultState.currentRoundId)> 1 && (
+        {Number(vaultState.currentRoundId) > 1 && (
           <div
             className={classes.buttonBack}
             onClick={
@@ -43,11 +49,14 @@ export default function VaultActions(props: Props) {
         <div className={classes.round}>
           {`Round: ${selectedRound}`}
           {
-          //selectedRound === vault.currentRound && " (Current)"
+            //selectedRound === vault.currentRound && " (Current)"
           }
         </div>
       </div>
-      <Deposit vaultState={vaultState} deposit={vaultActions.depositLiquidity}  />
+      <Deposit
+        vaultState={vaultState}
+        deposit={vaultActions.depositLiquidity}
+      />
 
       {/* {
         //Debug container should be removed

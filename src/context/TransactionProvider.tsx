@@ -24,7 +24,7 @@ import { Account, RpcProvider } from "starknet";
 
 export type TransactionContextType = {
   isDev: boolean;
-  devAccount:Account|undefined;
+  devAccount: Account | undefined;
   isTxDisabled: boolean;
   pendingTx: string | undefined;
   setIsDev: Dispatch<SetStateAction<boolean>>;
@@ -33,15 +33,15 @@ export type TransactionContextType = {
 };
 
 export const TransactionContext = createContext<TransactionContextType>(
-  {} as TransactionContextType
+  {} as TransactionContextType,
 );
 const TransactionProvider = ({ children }: { children: ReactNode }) => {
   const [isDev, setIsDev] = useState<boolean>(false);
   const devAccount = getDevAccount(
-    new RpcProvider({ nodeUrl: "http://127.0.0.1:5050" })
+    new RpcProvider({ nodeUrl: "http://127.0.0.1:5050" }),
   );
   const [isTxDisabled, setIsTxDisabled] = useState<boolean>(false);
-  
+
   const [pendingTx, setPendingTx] = useState<string | undefined>();
   const { data, status } = useWaitForTransaction({ hash: pendingTx });
 
@@ -58,58 +58,58 @@ const TransactionProvider = ({ children }: { children: ReactNode }) => {
     toastId.current = null;
   };
 
-  console.log("pendingTx",pendingTx,status)
+  console.log("pendingTx", pendingTx, status);
 
   useEffect(() => {
-    if(pendingTx)
-    switch (status) {
-      case "pending":
-        console.log
-        toastId.current = toast("Pending", {
-          type: "info",
-          position: "top-left",
-          autoClose: false,
-          hideProgressBar: false,
-          closeOnClick: false,
-          pauseOnHover: false,
-          draggable: false,
-          progress: 1 / 3,
-        });
-        break;
-      case "success":
-        if (toastId.current)
-          toast.update(toastId.current, {
-            render: "Transaction success: " + pendingTx,
-            type: "success",
-            progress: undefined,
-            autoClose: 5000,
-          });
-        onSuccess?.(status);
-        clearTransaction();
-        break;
-      case "error":
-      default:
-        const render = "Transaction failed " + (pendingTx || ""),
-          options: ToastOptions = {
-            type: "error",
+    if (pendingTx)
+      switch (status) {
+        case "pending":
+          console.log;
+          toastId.current = toast("Pending", {
+            type: "info",
             position: "top-left",
-            progress: undefined,
-            autoClose: 5000,
-          };
+            autoClose: false,
+            hideProgressBar: false,
+            closeOnClick: false,
+            pauseOnHover: false,
+            draggable: false,
+            progress: 1 / 3,
+          });
+          break;
+        case "success":
+          if (toastId.current)
+            toast.update(toastId.current, {
+              render: "Transaction success: " + pendingTx,
+              type: "success",
+              progress: undefined,
+              autoClose: 5000,
+            });
+          onSuccess?.(status);
+          clearTransaction();
+          break;
+        case "error":
+        default:
+          const render = "Transaction failed " + (pendingTx || ""),
+            options: ToastOptions = {
+              type: "error",
+              position: "top-left",
+              progress: undefined,
+              autoClose: 5000,
+            };
 
-        toastId.current
-          ? toast.update(toastId.current, { ...options, render })
-          : toast(render, options);
+          toastId.current
+            ? toast.update(toastId.current, { ...options, render })
+            : toast(render, options);
 
-        clearTransaction();
-        break;
-    }
+          clearTransaction();
+          break;
+      }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pendingTx, status]);
 
-  console.log("ISTXDISABLED",isTxDisabled)
+  console.log("ISTXDISABLED", isTxDisabled);
   useEffect(() => {
-   setIsTxDisabled(!!pendingTx)
+    setIsTxDisabled(!!pendingTx);
   }, [pendingTx]);
 
   //Takes data from pendingState maintained in the context to send a replacement transaction

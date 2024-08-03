@@ -21,7 +21,10 @@ export default function Footer({ createVault }: Props) {
       >
         Cancel
       </Button> */}
-      <Button className={[buttonClass.button, buttonClass.cancel].join(" ")} onClick={createVault}>
+      <Button
+        className={[buttonClass.button, buttonClass.cancel].join(" ")}
+        onClick={createVault}
+      >
         createVault
       </Button>
     </div>

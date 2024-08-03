@@ -1,10 +1,6 @@
 "use client";
-import react from "react";
-import Image from "next/image";
-import buttonClass from "@/styles/Button.module.css";
 import classes from "./page.module.css";
-import { useAccount, useConnect } from "@starknet-react/core";
-import { Button } from "antd";
+import { useAccount } from "@starknet-react/core";
 import { useState } from "react";
 import Head from "next/head";
 import { shortenString } from "@/lib/utils";
@@ -18,10 +14,11 @@ export default function Home({
 }: {
   params: { address: string };
 }) {
-  const { currentRound, state: vaultState } = useVaultState(vaultAddress);
+  const { currentRoundState, state: vaultState } = useVaultState(vaultAddress);
   const vaultActions = useVaultActions(vaultAddress);
   const { account } = useAccount();
   const [isModalVisible, setIsModalVisible] = useState<boolean>();
+
   const handleCreateClick = () => {};
   return (
     <div className={classes.container}>
@@ -29,7 +26,7 @@ export default function Home({
         <title>Vault {shortenString(vaultAddress) || "..."} on PitchLake</title>
       </Head>
       {/* <VaultTimeline disabled vault={vault} /> */}
-      <VaultHeader vault={vaultState} currentRoundState={currentRound.state} />
+      <VaultHeader vault={vaultState} currentRoundState={currentRoundState} />
       <div className={classes.chartRow}>
         <div className={classes.chart}>
           {/* <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -56,7 +53,7 @@ export default function Home({
           <VaultActions
             vaultState={vaultState}
             vaultActions={vaultActions}
-            selectedRound={Number(currentRound.state.roundId)}
+            selectedRound={Number(currentRoundState.roundId)}
             // chart={chart}
             // setChart={setChart}
           />

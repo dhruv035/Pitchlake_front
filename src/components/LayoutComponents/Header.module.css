@@ -82,5 +82,10 @@
 }
 
 .transactionsOverlay :global .ant-popover-arrow-content::before {
-  background: linear-gradient(to left, rgba(18, 18, 25, 1) 50%, rgba(18, 18, 25, 1) 50%) no-repeat -10px -10px;
+  background: linear-gradient(
+      to left,
+      rgba(18, 18, 25, 1) 50%,
+      rgba(18, 18, 25, 1) 50%
+    )
+    no-repeat -10px -10px;
 }

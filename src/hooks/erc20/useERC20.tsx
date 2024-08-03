@@ -19,17 +19,26 @@ const useERC20 = (tokenAddress: string | undefined, target?: string) => {
   };
 
   const { contract } = useContract({ ...contractData });
-  const typedContract = useMemo(() => contract?.typedv2(erc20ABI), [contract]);
-
-  const { writeAsync } = useContractWrite({});
+  const { isDev, devAccount, setPendingTx } = useTransactionContext();
   const { account: connectorAccount } = useAccount();
-  const { isDev,devAccount,setPendingTx } = useTransactionContext();
+
+  // const { writeAsync } = useContractWrite({});
 
   const account = useMemo(() => {
     if (isDev === true) {
       return devAccount;
     } else return connectorAccount;
   }, [connectorAccount, isDev]);
+
+  const typedContract = useMemo(() => {
+    if (!contract) return;
+    const typedContract = contract.typedv2(erc20ABI);
+    if (account) typedContract.connect(account as Account);
+
+    return typedContract;
+  }, [contract, account]);
+  // const { writeAsync } = useContractWrite({});
+
   //Read States
 
   const balance = useContractRead({
@@ -51,16 +60,18 @@ const useERC20 = (tokenAddress: string | undefined, target?: string) => {
     async (approvalArgs: ApprovalArgs) => {
       if (!typedContract) return;
       try {
-        typedContract?.connect(account as Account);
-        const data = await typedContract.approve(approvalArgs.spender, approvalArgs.amount);
-        const typedData = data as TransactionResult
-        console.log("typedData",typedData)
+        const data = await typedContract.approve(
+          approvalArgs.spender,
+          approvalArgs.amount,
+        );
+        const typedData = data as TransactionResult;
+        console.log("typedData", typedData);
         setPendingTx(typedData.transaction_hash);
       } catch (err) {
         console.log("ERR", err);
       }
     },
-    [typedContract, account]
+    [typedContract, account],
   );
 
   return {

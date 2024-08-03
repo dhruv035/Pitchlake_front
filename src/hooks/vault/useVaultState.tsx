@@ -2,9 +2,9 @@ import { useAccount, useContractRead } from "@starknet-react/core";
 import { vaultABI } from "@/abi";
 import { VaultState } from "@/lib/types";
 import { CairoCustomEnum } from "starknet";
-import useOptionRound from "../optionRound/useOptionRound";
 import { stringToHex } from "@/lib/utils";
 import { useMemo } from "react";
+import useOptionRoundState from "../optionRound/useOptionRoundState";
 
 const useVaultState = (address: string) => {
   const contractData = {
@@ -31,7 +31,7 @@ const useVaultState = (address: string) => {
     ...contractData,
     functionName: "get_option_round_address",
     args: currentRoundId?.data ? [Number(currentRoundId.data)] : undefined,
-    watch:true,
+    watch: true,
   });
 
   const { data: previousRoundAddress } = useContractRead({
@@ -41,17 +41,17 @@ const useVaultState = (address: string) => {
       currentRoundId?.data && Number(currentRoundId.data) > 0
         ? [Number(currentRoundId.data) - 1]
         : undefined,
-    watch:true,
+    watch: true,
   });
-  const currentRound = useOptionRound(
+  const currentRoundState = useOptionRoundState(
     currentRoundAddress
       ? stringToHex(currentRoundAddress.toString())
-      : undefined
+      : undefined,
   );
-  const previousRound = useOptionRound(
+  const previousRoundState = useOptionRoundState(
     previousRoundAddress
       ? stringToHex(previousRoundAddress.toString())
-      : undefined
+      : undefined,
   );
 
   const { data: vaultType } = useContractRead({
@@ -108,7 +108,9 @@ const useVaultState = (address: string) => {
   });
   return {
     state: {
-      ethAddress: ethAddress.data?stringToHex(ethAddress.data.toString()):undefined,
+      ethAddress: ethAddress.data
+        ? stringToHex(ethAddress.data.toString())
+        : undefined,
       address,
       vaultType: vaultType as CairoCustomEnum,
       vaultLockedAmount: vaultLockedAmount
@@ -126,8 +128,8 @@ const useVaultState = (address: string) => {
     } as VaultState,
     currentRoundAddress,
     previousRoundAddress,
-    currentRound,
-    previousRound,
+    currentRoundState,
+    previousRoundState,
   };
 };
 

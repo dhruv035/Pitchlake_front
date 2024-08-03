@@ -54,7 +54,7 @@ export default function Header() {
         })}
       </>
     ),
-    [transactions]
+    [transactions],
   );
   return (
     <div className={classes.header}>
@@ -118,7 +118,7 @@ export default function Header() {
                 <Button
                   key={connector.name}
                   className={[buttonClass.button, buttonClass.uppercase].join(
-                    " "
+                    " ",
                   )}
                   onClick={() => {
                     connect({ connector });

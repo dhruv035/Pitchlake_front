@@ -7,9 +7,10 @@ import { useState } from "react";
 import VaultCard from "@/components/Vault/VaultCard/VaultCard";
 
 export default function Home() {
- const vaults = ["0x8302570d5785ba68731099b52abe41379e9bdc9b37fee2b3e0765367ace11"];
+  const vaults = [
+    "0x659dab87521e6153006180e15e09a0c4db62189971e15e80dc0e42235c4da0f",
+  ];
 
- 
   const [isModalVisible, setIsModalVisible] = useState<boolean>();
   const handleCreateClick = () => {};
 
@@ -44,7 +45,7 @@ export default function Home() {
           </Button>
         </div>
         <div className={styles.vaultList}>
-          {vaults?.map((vault: string,index:number) => (
+          {vaults?.map((vault: string, index: number) => (
             // <VaultTimeline key={vault.address + idx.toString()} vault={vault} />
             <VaultCard key={index} vaultAddress={vault} />
           ))}

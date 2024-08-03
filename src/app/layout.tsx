@@ -6,9 +6,13 @@ import { StarknetProvider } from "../context/StarknetProvider";
 import { Header } from "@/components/LayoutComponents";
 import TransactionProvider from "@/context/TransactionProvider";
 import { ToastContainer } from "react-toastify";
-import 'react-toastify/dist/ReactToastify.css';
+import "react-toastify/dist/ReactToastify.css";
 const inter = Inter({ subsets: ["latin"] });
-const shareTech = Share_Tech({subsets:["latin"],weight:["400"],variable:"--mainFont"});
+const shareTech = Share_Tech({
+  subsets: ["latin"],
+  weight: ["400"],
+  variable: "--mainFont",
+});
 export const metadata: Metadata = {
   title: "Pitchlake",
   description: "Gas Options Market",
@@ -24,9 +28,9 @@ export default function RootLayout({
       <body>
         <StarknetProvider>
           <TransactionProvider>
-          <Header />
-          <ToastContainer/>
-          {children}
+            <Header />
+            <ToastContainer />
+            {children}
           </TransactionProvider>
         </StarknetProvider>
       </body>

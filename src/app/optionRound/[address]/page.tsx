@@ -3,10 +3,10 @@ import styles from "./page.module.css";
 import { useState } from "react";
 import { Vault } from "@/lib/types";
 
-type PageParams ={
-  params:{address:string}
-}
-const  Home:React.FC<PageParams>=({params:{address}}:PageParams)=> {
+type PageParams = {
+  params: { address: string };
+};
+const Home: React.FC<PageParams> = ({ params: { address } }: PageParams) => {
   const vaults: Array<Vault> = [
     {
       address: "0x1234",
@@ -27,6 +27,6 @@ const  Home:React.FC<PageParams>=({params:{address}}:PageParams)=> {
       <>{address}</>
     </main>
   );
-}
+};
 
-export default Home
+export default Home;

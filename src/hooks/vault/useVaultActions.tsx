@@ -17,6 +17,8 @@ import { useCallback, useMemo, useState } from "react";
 import { stringToHex } from "@/lib/utils";
 import { getDevAccount } from "@/lib/constants";
 import { useTransactionContext } from "@/context/TransactionProvider";
+import { toast } from "react-toastify";
+import { displayToastError } from "@/lib/toasts";
 
 const useVaultActions = (address: string) => {
   const { contract } = useContract({
@@ -24,20 +26,20 @@ const useVaultActions = (address: string) => {
     address,
   });
 
-  const { isDev,devAccount } = useTransactionContext();
+  const { isDev, devAccount } = useTransactionContext();
   const { account: connectorAccount } = useAccount();
   const { setPendingTx } = useTransactionContext();
 
   const account = useMemo(() => {
     if (isDev === true) {
-     
       return devAccount;
     } else return connectorAccount;
   }, [connectorAccount, isDev]);
 
   const typedContract = useMemo(() => {
-    const typedContract = contract?.typedv2(vaultABI);
-    if (account) typedContract?.connect(account as Account);
+    if (!contract) return;
+    const typedContract = contract.typedv2(vaultABI);
+    if (account) typedContract.connect(account as Account);
     return typedContract;
   }, [contract, account]);
 
@@ -50,107 +52,51 @@ const useVaultActions = (address: string) => {
   // };
 
   //Write Calls
-  const depositLiquidity = useCallback(
-    async (depositArgs: DepositArgs) => {
-      console.log("!")
-      if (!typedContract) {
-        console.log("123")
-        //Throw toast here
-        return;
-      }
-      console.log("ARGSDEP", depositArgs);
-      try {
-        console.log("HEXDD", stringToHex(depositArgs.beneficiary));
-        const data = await typedContract?.deposit_liquidity(
-          BigInt(depositArgs.amount),
-          depositArgs.beneficiary
-        );
-        console.log("DATATAS",data)
-        const typedData = data as TransactionResult;
-        setPendingTx(typedData.transaction_hash);
-        // const data = await writeAsync({ calls: [callData] });
-        return typedData;
-        //Use data.transaction hash to watch for updates
-      } catch (err) {
-        const error = err as LibraryError;
-        console.log("ERROR", error);
-        //Throw toast with library error
-        return;
-      }
-    },
-    [typedContract, account]
-  );
 
-  const withdrawLiquidity = useCallback(
-    async (withdrawArgs: WithdrawArgs) => {
-      if (!typedContract) {
-        //Throw toast here
-        return;
-      }
-      try {
-        const data = await typedContract.withdraw_liquidity(
-          withdrawArgs.amount
-        );
-        const typedData = data as TransactionResult;
-        setPendingTx(typedData.transaction_hash);
-        // const data = await writeAsync({ calls: [callData] });
-        return typedData;
-        //Use data.transaction hash to watch for updates
-      } catch (err) {
-        const error = err as LibraryError;
-        //Throw toast with library error
-      }
-    },
-    [typedContract, account]
-  );
+  const depositLiquidity = async (depositArgs: DepositArgs) => {
+    await callContract("deposit_liquidity")(depositArgs);
+  };
 
-  //State Transition
+  const withdrawLiquidity = async (withdrawArgs: WithdrawArgs) => {
+    await callContract("withdraw_liquidity")(withdrawArgs);
+  };
 
-  const startAuction = useCallback(async () => {
-    if (!typedContract) {
-      //Throw toast here
-      return;
-    }
-    try {
-      const data = await typedContract.start_auction();
+  const startAuction = async () => {
+    await callContract("start_auction")();
+  };
+
+  const endAuction = async () => {
+    await callContract("end_auction")();
+  };
+
+  const settleOptionRound = async () => {
+    await callContract("settle_option_round")();
+  };
+
+  const callContract = useCallback(
+    (functionName: string) => async (args?: DepositArgs | WithdrawArgs) => {
+      if (!typedContract) return;
+      let argsData;
+      if (args) argsData = Object.values(args).map((value) => value);
+      const callData = typedContract?.populate(
+        functionName,
+        argsData ? [...argsData] : undefined,
+      );
+      let data;
+      if (argsData) {
+        data = await typedContract?.[functionName](...argsData);
+      } else {
+        data = await typedContract?.[functionName]();
+      }
       const typedData = data as TransactionResult;
       setPendingTx(typedData.transaction_hash);
       // const data = await writeAsync({ calls: [callData] });
       return typedData;
-      //Use data.transaction hash to watch for updates
-    } catch (err) {
-      const error = err as LibraryError;
-      //Throw toast with library error
-    }
-  }, [typedContract]);
+    },
+    [typedContract, account],
+  );
 
-  const endAuction = useCallback(async () => {
-    if (!typedContract) {
-      //Throw toast here
-      return;
-    }
-    try {
-      const data = await typedContract.end_auction();
-      //Use data.transaction hash to watch for updates
-    } catch (err) {
-      const error = err as LibraryError;
-      //Throw toast with library error
-    }
-  }, [typedContract]);
-
-  const settleOptionRound = useCallback(async () => {
-    if (!typedContract) {
-      //Throw toast here
-      return;
-    }
-    try {
-      const data = await typedContract.settle_option_round();
-      //Use data.transaction hash to watch for updates
-    } catch (err) {
-      const error = err as LibraryError;
-      //Throw toast with library error
-    }
-  }, [typedContract]);
+  //State Transition
 
   return {
     depositLiquidity,
