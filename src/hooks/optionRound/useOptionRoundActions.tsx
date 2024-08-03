@@ -1,17 +1,13 @@
 import { optionRoundABI } from "@/abi";
 import { useTransactionContext } from "@/context/TransactionProvider";
 import {
-  OptionRoundState,
   PlaceBidArgs,
-  RefundableBidsArgs,
   RefundUnusedBidsArgs,
-  RoundState,
   TransactionResult,
   UpdateBidArgs,
 } from "@/lib/types";
-import { useAccount, useContract, useContractRead } from "@starknet-react/core";
+import { useAccount, useContract } from "@starknet-react/core";
 import { useCallback, useMemo } from "react";
-import { CairoCustomEnum, LibraryError } from "starknet";
 
 const useOptionRoundActions = (address: string | undefined) => {
   const contractData = useMemo(() => {
@@ -51,10 +47,6 @@ const useOptionRoundActions = (address: string | undefined) => {
         if (!typedContract) return;
         let argsData;
         if (args) argsData = Object.values(args).map((value) => value);
-        const callData = typedContract?.populate(
-          functionName,
-          argsData ? [...argsData] : undefined,
-        );
         let data;
         if (argsData) {
           data = await typedContract?.[functionName](...argsData);
@@ -66,7 +58,7 @@ const useOptionRoundActions = (address: string | undefined) => {
         // const data = await writeAsync({ calls: [callData] });
         return typedData;
       },
-    [typedContract, account],
+    [typedContract, account]
   );
 
   return {

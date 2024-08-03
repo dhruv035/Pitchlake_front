@@ -46,12 +46,12 @@ const useVaultState = (address: string) => {
   const currentRoundState = useOptionRoundState(
     currentRoundAddress
       ? stringToHex(currentRoundAddress.toString())
-      : undefined,
+      : undefined
   );
   const previousRoundState = useOptionRoundState(
     previousRoundAddress
       ? stringToHex(previousRoundAddress.toString())
-      : undefined,
+      : undefined
   );
 
   const { data: vaultType } = useContractRead({

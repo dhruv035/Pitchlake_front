@@ -78,10 +78,6 @@ const useVaultActions = (address: string) => {
       if (!typedContract) return;
       let argsData;
       if (args) argsData = Object.values(args).map((value) => value);
-      const callData = typedContract?.populate(
-        functionName,
-        argsData ? [...argsData] : undefined,
-      );
       let data;
       if (argsData) {
         data = await typedContract?.[functionName](...argsData);
@@ -93,7 +89,7 @@ const useVaultActions = (address: string) => {
       // const data = await writeAsync({ calls: [callData] });
       return typedData;
     },
-    [typedContract, account],
+    [typedContract, account]
   );
 
   //State Transition

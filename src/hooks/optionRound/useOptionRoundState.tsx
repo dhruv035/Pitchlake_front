@@ -1,24 +1,16 @@
 import { optionRoundABI } from "@/abi";
 import {
   OptionRoundState,
-  PlaceBidArgs,
-  RefundableBidsArgs,
-  RoundState,
-  UpdateBidArgs,
 } from "@/lib/types";
 import { useAccount, useContract, useContractRead } from "@starknet-react/core";
-import { useCallback, useMemo } from "react";
-import { CairoCustomEnum, LibraryError } from "starknet";
+import { useMemo } from "react";
+import { CairoCustomEnum } from "starknet";
 
 const useOptionRoundState = (address: string | undefined) => {
   const contractData = useMemo(() => {
     return { abi: optionRoundABI, address };
   }, [address]);
   const { account } = useAccount();
-  const typedContract = useContract({
-    ...contractData,
-  }).contract?.typedv2(optionRoundABI);
-
   //Read States
 
   const { data: auctionStartDate } = useContractRead({

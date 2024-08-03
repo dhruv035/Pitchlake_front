@@ -14,6 +14,7 @@ import { Id, toast, ToastOptions } from "react-toastify";
 import { useWaitForTransaction } from "@starknet-react/core";
 import { getDevAccount } from "@/lib/constants";
 import { Account, RpcProvider } from "starknet";
+import { displayToastError, displayToastInfo, updateToast } from "@/lib/toasts";
 
 /*This is the bridge for any transactions to go through, it's disabled by isTxDisabled if there is data loading or if 
   there's a pending transaction. The data loading is enforced to ensure no transaction is done without latest data.
@@ -33,17 +34,17 @@ export type TransactionContextType = {
 };
 
 export const TransactionContext = createContext<TransactionContextType>(
-  {} as TransactionContextType,
+  {} as TransactionContextType
 );
 const TransactionProvider = ({ children }: { children: ReactNode }) => {
   const [isDev, setIsDev] = useState<boolean>(false);
   const devAccount = getDevAccount(
-    new RpcProvider({ nodeUrl: "http://127.0.0.1:5050" }),
+    new RpcProvider({ nodeUrl: "http://127.0.0.1:5050" })
   );
   const [isTxDisabled, setIsTxDisabled] = useState<boolean>(false);
 
   const [pendingTx, setPendingTx] = useState<string | undefined>();
-  const { data, status } = useWaitForTransaction({ hash: pendingTx });
+  const { status } = useWaitForTransaction({ hash: pendingTx });
 
   const toastId = useRef<Id | null>(null),
     [onSuccess, setOnSuccess] = useState<(state?: string) => any>();
@@ -65,41 +66,24 @@ const TransactionProvider = ({ children }: { children: ReactNode }) => {
       switch (status) {
         case "pending":
           console.log;
-          toastId.current = toast("Pending", {
-            type: "info",
-            position: "top-left",
-            autoClose: false,
-            hideProgressBar: false,
-            closeOnClick: false,
-            pauseOnHover: false,
-            draggable: false,
-            progress: 1 / 3,
-          });
+          toastId.current = displayToastInfo("pending", false, 1 / 3);
           break;
         case "success":
           if (toastId.current)
-            toast.update(toastId.current, {
-              render: "Transaction success: " + pendingTx,
-              type: "success",
-              progress: undefined,
-              autoClose: 5000,
-            });
+            updateToast(
+              toastId.current,
+              "success",
+              "Transaction success: " + pendingTx
+            );
           onSuccess?.(status);
           clearTransaction();
           break;
         case "error":
         default:
-          const render = "Transaction failed " + (pendingTx || ""),
-            options: ToastOptions = {
-              type: "error",
-              position: "top-left",
-              progress: undefined,
-              autoClose: 5000,
-            };
-
+          const render = "Transaction failed " + (pendingTx || "");
           toastId.current
-            ? toast.update(toastId.current, { ...options, render })
-            : toast(render, options);
+            ? updateToast(toastId.current, "error", render) //toast.update(toastId.current, { ...options, render })
+            : displayToastError(render);
 
           clearTransaction();
           break;
@@ -107,7 +91,6 @@ const TransactionProvider = ({ children }: { children: ReactNode }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pendingTx, status]);
 
-  console.log("ISTXDISABLED", isTxDisabled);
   useEffect(() => {
     setIsTxDisabled(!!pendingTx);
   }, [pendingTx]);

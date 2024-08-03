@@ -1,19 +1,35 @@
-import { toast, TypeOptions } from "react-toastify";
+import { Id, toast, TypeOptions } from "react-toastify";
 
 const displayToast =
-  (type: TypeOptions) => (content: string, autoClose?: number | false) => {
+  (type: TypeOptions) =>
+  (content: string, autoClose?: number | false, progress?: number) => {
     const id = toast(content, {
-      type: type,
+      type,
       position: "top-left",
-      autoClose: autoClose,
+      autoClose: autoClose ? autoClose : 5000,
       hideProgressBar: false,
       closeOnClick: false,
       pauseOnHover: false,
       draggable: false,
-      progress: 1 / 3,
+      progress,
     });
     return id;
   };
+
+export const updateToast = (
+  id: Id,
+  type: TypeOptions,
+  render: string,
+  autoClose?: number | false,
+  progress?: string | number | undefined
+) => {
+  toast.update(id, {
+    render: render,
+    type,
+    autoClose,
+    progress: undefined,
+  });
+};
 
 export const displayToastSuccess = displayToast("success");
 export const displayToastError = displayToast("error");
