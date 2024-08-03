@@ -1,11 +1,6 @@
 "use client";
-import Image from "next/image";
-import buttonClass from "@/styles/Button.module.css";
 import styles from "./page.module.css";
-import { useConnect } from "@starknet-react/core";
-import { Button } from "antd";
 import { useState } from "react";
-import VaultCard from "@/components/VaultCard/VaultCard";
 import { Vault } from "@/lib/types";
 
 type PageParams ={

@@ -13,3 +13,6 @@ export const stringToHex = (decimalString: string)=> {
 
   return `0x${num.toString(16)}`;
 }
+
+import { Connector } from '@starknet-react/core';
+import { Account, ec, Provider } from 'starknet';

@@ -11,7 +11,6 @@ const useVaultState = (address: string) => {
     abi: vaultABI,
     address,
   };
-  console.log("ADDRESS",address)
 
   const { address: accountAddress } = useAccount();
   //Read States

@@ -22,6 +22,7 @@ import {
 import useERC20 from "@/hooks/erc20/useERC20";
 import { useAccount } from "@starknet-react/core";
 import { stringToHex } from "@/lib/utils";
+import { useTransactionContext } from "@/context/TransactionProvider";
 
 export default function Deposit({
   vaultState,
@@ -32,9 +33,10 @@ export default function Deposit({
 }) {
   const [amount, setAmount] = useState<string>("");
   const { account } = useAccount();
+  const { isDev, devAccount } = useTransactionContext();
   const [displayInsufficientBalance, setDisplayInsufficientBalance] =
     useState<boolean>(false);
-  const { allowance, approve } = useERC20(
+  const { allowance, approve, balance } = useERC20(
     vaultState.ethAddress,
     vaultState.address
   );
@@ -46,7 +48,10 @@ export default function Deposit({
     } else return false;
   }, [allowance, amount]);
 
-  const handleAmountChange = () => {};
+  const handleAmountChange = (value: string | null) => {
+    if (value) setAmount(value);
+    else setAmount("");
+  };
   // const approveShares = async () => {
   //   const approveTx = await getERC20Instance(roundTokenData.depositsToken).populateTransaction.approve(
   //     vault.depositsController,
@@ -75,7 +80,7 @@ export default function Deposit({
             <InputNumber
               className={inputs.input}
               placeholder="Deposit Amount (ETH)"
-              onChange={(e) => handleAmountChange}
+              onChange={handleAmountChange}
               controls={false}
             />
             <div className={classes.controls}>
@@ -102,6 +107,13 @@ export default function Deposit({
                   false
                 }
                 onClick={async () => {
+                  if (isDev) {
+                    if (devAccount)
+                      await deposit({
+                        amount: BigInt(amount),
+                        beneficiary: devAccount.address,
+                      });
+                  }
                   if (account)
                     await deposit({
                       amount: BigInt(amount),

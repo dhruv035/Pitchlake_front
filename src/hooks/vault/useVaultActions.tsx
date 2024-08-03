@@ -12,42 +12,64 @@ import {
   VaultActionsType,
   WithdrawArgs,
 } from "@/lib/types";
-import { Account, LibraryError } from "starknet";
-import { useCallback, useMemo } from "react";
+import { Account, LibraryError, Provider, RpcProvider } from "starknet";
+import { useCallback, useMemo, useState } from "react";
 import { stringToHex } from "@/lib/utils";
+import { getDevAccount } from "@/lib/constants";
+import { useTransactionContext } from "@/context/TransactionProvider";
 
 const useVaultActions = (address: string) => {
   const { contract } = useContract({
     abi: vaultABI,
     address,
   });
-  const { writeAsync } = useContractWrite({});
-  const contractData = {
-    abi: vaultABI,
-    address,
-  };
-  const { account } = useAccount();
 
-  const typedContract = useMemo(() => contract?.typedv2(vaultABI), [contract]);
+  const { isDev,devAccount } = useTransactionContext();
+  const { account: connectorAccount } = useAccount();
+  const { setPendingTx } = useTransactionContext();
+
+  const account = useMemo(() => {
+    if (isDev === true) {
+     
+      return devAccount;
+    } else return connectorAccount;
+  }, [connectorAccount, isDev]);
+
+  const typedContract = useMemo(() => {
+    const typedContract = contract?.typedv2(vaultABI);
+    if (account) typedContract?.connect(account as Account);
+    return typedContract;
+  }, [contract, account]);
+
+  //Maybe used later to rewrite calls as useMemos with and writeAsync
+  //May not be required if we watch our transactions off the plugin
+  // const { writeAsync } = useContractWrite({});
+  // const contractData = {
+  //   abi: vaultABI,
+  //   address,
+  // };
 
   //Write Calls
   const depositLiquidity = useCallback(
     async (depositArgs: DepositArgs) => {
-      if (!contract) {
+      console.log("!")
+      if (!typedContract) {
+        console.log("123")
         //Throw toast here
         return;
       }
+      console.log("ARGSDEP", depositArgs);
       try {
-
-        console.log("HEXDD",stringToHex(depositArgs.beneficiary))
-        typedContract?.connect(account as Account);
+        console.log("HEXDD", stringToHex(depositArgs.beneficiary));
         const data = await typedContract?.deposit_liquidity(
-          BigInt(2),
-          (depositArgs.beneficiary)
-          
+          BigInt(depositArgs.amount),
+          depositArgs.beneficiary
         );
+        console.log("DATATAS",data)
+        const typedData = data as TransactionResult;
+        setPendingTx(typedData.transaction_hash);
         // const data = await writeAsync({ calls: [callData] });
-        return data as TransactionResult;
+        return typedData;
         //Use data.transaction hash to watch for updates
       } catch (err) {
         const error = err as LibraryError;
@@ -69,14 +91,17 @@ const useVaultActions = (address: string) => {
         const data = await typedContract.withdraw_liquidity(
           withdrawArgs.amount
         );
-        return data as TransactionResult;
+        const typedData = data as TransactionResult;
+        setPendingTx(typedData.transaction_hash);
+        // const data = await writeAsync({ calls: [callData] });
+        return typedData;
         //Use data.transaction hash to watch for updates
       } catch (err) {
         const error = err as LibraryError;
         //Throw toast with library error
       }
     },
-    [typedContract]
+    [typedContract, account]
   );
 
   //State Transition
@@ -88,6 +113,10 @@ const useVaultActions = (address: string) => {
     }
     try {
       const data = await typedContract.start_auction();
+      const typedData = data as TransactionResult;
+      setPendingTx(typedData.transaction_hash);
+      // const data = await writeAsync({ calls: [callData] });
+      return typedData;
       //Use data.transaction hash to watch for updates
     } catch (err) {
       const error = err as LibraryError;

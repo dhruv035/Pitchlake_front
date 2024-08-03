@@ -1,11 +1,6 @@
 import { Progress } from "antd";
-
-import Link from "next/link";
-import { Vault } from "@/lib/types";
 import styles from "./VaultCard.module.css";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
-import { CairoCustomEnum } from "starknet";
 import { shortenString } from "@/lib/utils";
 import useVaultState from "@/hooks/vault/useVaultState";
 
@@ -13,7 +8,6 @@ export default function VaultCard({ vaultAddress }: { vaultAddress: string }) {
   const vaultNew = useVaultState(
     vaultAddress
   );
-  console.log("VAULTNEW",vaultNew)
 
   const router = useRouter();
   var myHeaders = new Headers();

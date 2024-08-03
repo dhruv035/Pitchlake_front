@@ -5,9 +5,11 @@ import {
   useContractWrite,
 } from "@starknet-react/core";
 import { useCallback, useMemo } from "react";
-import { ApprovalArgs } from "@/lib/types";
+import { ApprovalArgs, TransactionResult } from "@/lib/types";
 import { erc20ABI } from "@/abi";
-import { Account } from "starknet";
+import { Account, RpcProvider } from "starknet";
+import { useTransactionContext } from "@/context/TransactionProvider";
+import { getDevAccount } from "@/lib/constants";
 
 const useERC20 = (tokenAddress: string | undefined, target?: string) => {
   //   const typedContract = useContract({abi:erc20ABI,address}).contract?.typedv2(erc20ABI)
@@ -15,20 +17,29 @@ const useERC20 = (tokenAddress: string | undefined, target?: string) => {
     abi: erc20ABI,
     address: tokenAddress,
   };
-  console.log("tokenAddress",tokenAddress)
 
-  const {contract} = useContract({ ...contractData });
+  const { contract } = useContract({ ...contractData });
   const typedContract = useMemo(() => contract?.typedv2(erc20ABI), [contract]);
 
   const { writeAsync } = useContractWrite({});
-  const { account, address: accountAddress } = useAccount();
+  const { account: connectorAccount } = useAccount();
+  const { isDev,setPendingTx } = useTransactionContext();
+
+  const account = useMemo(() => {
+    if (isDev === true) {
+      const devAccount = getDevAccount(
+        new RpcProvider({ nodeUrl: "http://127.0.0.1:5050" })
+      );
+      return devAccount;
+    } else return connectorAccount;
+  }, [connectorAccount, isDev]);
   //Read States
 
   const balance = useContractRead({
     abi: erc20ABI,
     address: tokenAddress ? tokenAddress : undefined,
     functionName: "balance_of",
-    args: accountAddress ? [accountAddress] : undefined,
+    args: account ? [account.address] : undefined,
     watch: true,
   });
 
@@ -36,22 +47,23 @@ const useERC20 = (tokenAddress: string | undefined, target?: string) => {
     abi: erc20ABI,
     address: tokenAddress ? tokenAddress : undefined,
     functionName: "allowance",
-    args: accountAddress && target ? [accountAddress, target] : undefined,
+    args: account?.address && target ? [account.address, target] : undefined,
     watch: true,
   });
   const approve = useCallback(
     async (approvalArgs: ApprovalArgs) => {
-        console.log("TYPEDCONTRACT",typedContract)
       if (!typedContract) return;
       try {
-        console.log("HEY", approvalArgs.spender, approvalArgs.amount);
         typedContract?.connect(account as Account);
-        await typedContract.approve(approvalArgs.spender,approvalArgs.amount)
+        const data = await typedContract.approve(approvalArgs.spender, approvalArgs.amount);
+        const typedData = data as TransactionResult
+        console.log("typedData",typedData)
+        setPendingTx(typedData.transaction_hash);
       } catch (err) {
         console.log("ERR", err);
       }
     },
-    [typedContract, accountAddress]
+    [typedContract, account]
   );
 
   return {

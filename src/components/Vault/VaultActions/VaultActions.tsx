@@ -3,7 +3,6 @@ import React from "react";
 import { Tabs } from "antd";
 //import Withdraw from "./Tabs/Withdraw";
 import classes from "./VaultActions.module.css";
-import Debug from "./Tabs/Debug";
 import { HistoryOutlined, LeftOutlined } from "@ant-design/icons/lib/icons";
 import { useAccount } from "@starknet-react/core";
 import { DepositArgs, TransactionResult, VaultActionsType, VaultState, WithdrawArgs } from "@/lib/types";

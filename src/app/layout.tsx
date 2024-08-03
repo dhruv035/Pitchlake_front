@@ -4,7 +4,9 @@ import { Share_Tech } from "next/font/google";
 import "@/styles/global.css";
 import { StarknetProvider } from "../context/StarknetProvider";
 import { Header } from "@/components/LayoutComponents";
-
+import TransactionProvider from "@/context/TransactionProvider";
+import { ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 const inter = Inter({ subsets: ["latin"] });
 const shareTech = Share_Tech({subsets:["latin"],weight:["400"],variable:"--mainFont"});
 export const metadata: Metadata = {
@@ -21,8 +23,11 @@ export default function RootLayout({
     <html className={`${shareTech.variable}`} lang="en">
       <body>
         <StarknetProvider>
+          <TransactionProvider>
           <Header />
+          <ToastContainer/>
           {children}
+          </TransactionProvider>
         </StarknetProvider>
       </body>
     </html>

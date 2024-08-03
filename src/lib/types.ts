@@ -48,7 +48,7 @@ export type VaultState ={
 
 export type VaultActionsType = {
   depositLiquidity: (depositArgs: DepositArgs) => Promise<TransactionResult | undefined>;
-  withdrawLiquidity: (withdrawArgs: WithdrawArgs) => Promise<void>;
+  withdrawLiquidity: (withdrawArgs: WithdrawArgs) => Promise<TransactionResult|undefined>;
   startAuction: () => Promise<void>;
   endAuction: () => Promise<void>;
   settleOptionRound: () => Promise<void>;

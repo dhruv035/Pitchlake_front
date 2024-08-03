@@ -15,12 +15,14 @@ import {
   useDisconnect,
 } from "@starknet-react/core";
 import { copyToClipboard, shortenString } from "@/lib/utils";
+import { useTransactionContext } from "@/context/TransactionProvider";
 
 export default function Header() {
   const { connect, connectors } = useConnect();
   const { disconnect } = useDisconnect();
   const { account } = useAccount();
-  const { isLoading, isError, error, data } = useBalance({
+  const { isDev, setIsDev } = useTransactionContext();
+  const { data } = useBalance({
     address: account?.address,
     watch: true,
   });
@@ -41,7 +43,7 @@ export default function Header() {
             return (
               <p
                 key={tx.transaction.hash}
-                onClick={()=>copyTxHash(tx.transaction.hash)}
+                onClick={() => copyTxHash(tx.transaction.hash)}
                 title="Copy transaction hash to clipboard"
               >
                 <span>{tx.transaction.hash}: </span>
@@ -114,7 +116,7 @@ export default function Header() {
             {connectors.map((connector) => {
               return (
                 <Button
-                key={connector.name}
+                  key={connector.name}
                   className={[buttonClass.button, buttonClass.uppercase].join(
                     " "
                   )}
@@ -128,6 +130,14 @@ export default function Header() {
             })}
           </>
         )}
+        <Button
+          className={[buttonClass.button, buttonClass.uppercase].join(" ")}
+          onClick={() => {
+            setIsDev((prevState) => !prevState);
+          }}
+        >
+          {isDev ? "Wallet Mode" : "Dev Mode"}
+        </Button>
       </div>
     </div>
   );

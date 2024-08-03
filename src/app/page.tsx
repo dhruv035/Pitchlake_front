@@ -1,15 +1,13 @@
 "use client";
-import Image from "next/image";
 import buttonClass from "@/styles/Button.module.css";
 import styles from "./page.module.css";
 import { useConnect } from "@starknet-react/core";
 import { Button } from "antd";
 import { useState } from "react";
 import VaultCard from "@/components/Vault/VaultCard/VaultCard";
-import { Vault } from "@/lib/types";
 
 export default function Home() {
- const vaults = ["0x24dc23a4f7db10995a8ace32d5a97a2af1f13cdc3eb0754f2131eb29217ed88"];
+ const vaults = ["0x8302570d5785ba68731099b52abe41379e9bdc9b37fee2b3e0765367ace11"];
 
  
   const [isModalVisible, setIsModalVisible] = useState<boolean>();

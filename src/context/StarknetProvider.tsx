@@ -13,7 +13,11 @@ import {
 } from "@starknet-react/core";
 import { Provider } from "starknet";
 
-export const StarknetProvider = ({ children }: { children: React.ReactNode }) => {
+export const StarknetProvider = ({
+  children,
+}: {
+  children: React.ReactNode;
+}) => {
   const { connectors } = useInjectedConnectors({
     // Show these connectors if the user has no connector installed.
     recommended: [argent(), braavos()],
@@ -26,7 +30,11 @@ export const StarknetProvider = ({ children }: { children: React.ReactNode }) =>
   return (
     <StarknetConfig
       chains={[mainnet, sepolia, devnet]}
-      provider={jsonRpcProvider({rpc:(chain:Chain)=>{return {nodeUrl:"http://127.0.0.1:5050/"}}})}
+      provider={jsonRpcProvider({
+        rpc: (chain: Chain) => {
+          return { nodeUrl: "http://127.0.0.1:5050/" };
+        },
+      })}
       connectors={connectors}
       explorer={voyager}
     >
