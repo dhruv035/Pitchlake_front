@@ -23,13 +23,10 @@ const useERC20 = (tokenAddress: string | undefined, target?: string) => {
 
   const { writeAsync } = useContractWrite({});
   const { account: connectorAccount } = useAccount();
-  const { isDev,setPendingTx } = useTransactionContext();
+  const { isDev,devAccount,setPendingTx } = useTransactionContext();
 
   const account = useMemo(() => {
     if (isDev === true) {
-      const devAccount = getDevAccount(
-        new RpcProvider({ nodeUrl: "http://127.0.0.1:5050" })
-      );
       return devAccount;
     } else return connectorAccount;
   }, [connectorAccount, isDev]);
