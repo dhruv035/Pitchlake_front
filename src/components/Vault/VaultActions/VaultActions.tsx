@@ -1,4 +1,4 @@
-import Deposit from "./Deposit";
+import Deposit from "./Tabs/Deposit";
 import React from "react";
 import { Tabs } from "antd";
 //import Withdraw from "./Tabs/Withdraw";
@@ -12,7 +12,7 @@ import {
   VaultState,
   WithdrawArgs,
 } from "@/lib/types";
-import Withdraw from "./Withdraw";
+import Withdraw from "./Tabs/Withdraw";
 
 type Props = {
   vaultState: VaultState;

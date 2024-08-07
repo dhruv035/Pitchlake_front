@@ -29,11 +29,9 @@ export default function RootLayout({
       <body>
         <StarknetProvider>
           <TransactionProvider>
-          <AntdRegistry>
             <Header />
             <ToastContainer />
             {children}
-            </AntdRegistry>
           </TransactionProvider>
         </StarknetProvider>
       </body>

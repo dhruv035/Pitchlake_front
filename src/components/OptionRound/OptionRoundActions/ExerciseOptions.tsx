@@ -15,23 +15,21 @@ import { useState } from "react";
 import {
   OptionRoundState,
   PlaceBidArgs,
-  TransactionResult,
+  RefundBidsArgs,
   VaultState,
 } from "@/lib/types";
 import useERC20 from "@/hooks/erc20/useERC20";
 import { useAccount } from "@starknet-react/core";
 import { useTransactionContext } from "@/context/TransactionProvider";
 
-export default function PlaceBid({
+export default function ExerciseOptions({
   vaultState,
   optionRoundState,
-  placeBid,
+  exerciseOptions,
 }: {
   vaultState: VaultState;
   optionRoundState: OptionRoundState;
-  placeBid: (
-    placeBidArgs: PlaceBidArgs
-  ) => Promise<void>;
+  exerciseOptions: () => Promise<void>;
 }) {
   const [amount, setAmount] = useState<string>("");
   const [price, setPrice] = useState<string>("");
@@ -39,8 +37,10 @@ export default function PlaceBid({
   const { isDev, devAccount } = useTransactionContext();
   const [displayInsufficientBalance, setDisplayInsufficientBalance] =
     useState<boolean>(false);
-  const { data, approve } = useERC20(vaultState.ethAddress, optionRoundState.address);
-
+  const { data, approve } = useERC20(
+    vaultState.ethAddress,
+    optionRoundState.address
+  );
 
   //Update is approved when allowance is greater than amount
   const isApproved = useMemo(() => {
@@ -61,54 +61,24 @@ export default function PlaceBid({
 
   return (
     <div className={classes.container}>
-      <p className={classes.title}>{"Place Bid"}</p>
+      <p className={classes.title}>{"Exercise Options"}</p>
       <div style={{ width: "100%" }}>
         {
           <>
-          <div style={{}}>
-            <InputNumber
-              className={inputs.input}
-              placeholder="Bid Amount"
-              onChange={handleAmountChange}
-              controls={false}
-            />
-            <InputNumber
-              className={inputs.input}
-              placeholder="Bid Price (ETH)"
-              onChange={handlePriceChange}
-              controls={false}
-            /></div>
-            <div className={classes.controls}>
-              <Button
-                style={{ flex: 1 }}
-                className={buttons.button}
-                title="approve"
-                disabled={false}
-                onClick={async () =>
-                  await approve({
-                    amount: BigInt(amount),
-                    spender: vaultState.address,
-                  })
-                }
-              >
-                Approve
-              </Button>
+            <div style={{}}>
               <Button
                 style={{ flex: 1 }}
                 className={[buttons.button, buttons.confirm].join(" ")}
-                title="Place Bid"
+                title="Exercise Options"
                 disabled={
                   //!isDepositClickable || displayInsufficientBalance
                   false
                 }
                 onClick={async () => {
-                    await placeBid({
-                      amount: BigInt(amount),
-                      price: BigInt(price),
-                    });
+                  if (account) await exerciseOptions();
                 }}
               >
-                PlaceBid
+                Exercise Options
               </Button>
             </div>
           </>

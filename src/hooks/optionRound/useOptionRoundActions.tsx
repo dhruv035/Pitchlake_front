@@ -2,7 +2,7 @@ import { optionRoundABI } from "@/abi";
 import { useTransactionContext } from "@/context/TransactionProvider";
 import {
   PlaceBidArgs,
-  RefundUnusedBidsArgs,
+  RefundBidsArgs,
   TransactionResult,
   UpdateBidArgs,
 } from "@/lib/types";
@@ -29,7 +29,7 @@ const useOptionRoundActions = (address: string | undefined) => {
     await callContract("update_bid")(args);
   };
 
-  const refundUnusedBids = async (args: RefundUnusedBidsArgs) => {
+  const refundUnusedBids = async (args: RefundBidsArgs) => {
     await callContract("refund_unused_bids")(args);
   };
 
@@ -43,7 +43,7 @@ const useOptionRoundActions = (address: string | undefined) => {
 
   const callContract = useCallback(
     (functionName: string) =>
-      async (args?: PlaceBidArgs | UpdateBidArgs | RefundUnusedBidsArgs) => {
+      async (args?: PlaceBidArgs | UpdateBidArgs | RefundBidsArgs) => {
         if (!typedContract) return;
         let argsData;
         if (args) argsData = Object.values(args).map((value) => value);

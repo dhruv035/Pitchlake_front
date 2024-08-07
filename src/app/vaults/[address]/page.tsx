@@ -4,7 +4,6 @@ import { useAccount } from "@starknet-react/core";
 import { useState } from "react";
 import Head from "next/head";
 import buttons from "@/styles/Button.module.css";
-import inputs from "@/styles/Input.module.css"
 import { shortenString } from "@/lib/utils";
 import VaultHeader from "@/components/Vault/VaultHeader/VaultHeader";
 import VaultActions from "@/components/Vault/VaultActions";
@@ -13,6 +12,10 @@ import useVaultActions from "@/hooks/vault/useVaultActions";
 import { Button, InputNumber } from "antd";
 import PlaceBid from "@/components/OptionRound/OptionRoundActions/PlaceBid";
 import useOptionRoundActions from "@/hooks/optionRound/useOptionRoundActions";
+import UpdateBid from "@/components/OptionRound/OptionRoundActions/UpdateBid";
+import RefundBids from "@/components/OptionRound/OptionRoundActions/RefundBids";
+import ExerciseOptions from "@/components/OptionRound/OptionRoundActions/ExerciseOptions";
+import MintOptions from "@/components/OptionRound/OptionRoundActions/MintOptions";
 
 export default function Home({
   params: { address: vaultAddress },
@@ -21,7 +24,7 @@ export default function Home({
 }) {
   const { currentRoundState, state: vaultState } = useVaultState(vaultAddress);
   const vaultActions = useVaultActions(vaultAddress);
-  const roundActions = useOptionRoundActions(currentRoundState.address)
+  const roundActions = useOptionRoundActions(currentRoundState.address);
   const { account } = useAccount();
   const [isModalVisible, setIsModalVisible] = useState<boolean>();
 
@@ -32,7 +35,7 @@ export default function Home({
         <title>Vault {shortenString(vaultAddress) || "..."} on PitchLake</title>
       </Head>
       {/* <VaultTimeline disabled vault={vault} /> */}
-      
+
       <VaultHeader vault={vaultState} currentRoundState={currentRoundState} />
       <div className={classes.chartRow}>
         <div className={classes.chart}>
@@ -88,7 +91,79 @@ export default function Home({
       </div>
     </div>
     <VaultHistory vault={vault} /> */}
-      
+      <div>
+        State Transitions
+        <Button
+          style={{ flex: 1 }}
+          className={[buttons.button, buttons.confirm].join(" ")}
+          title="deposit"
+          disabled={
+            //!isDepositClickable || displayInsufficientBalance
+            false
+          }
+          onClick={async () => {
+            vaultActions.startAuction();
+          }}
+        >
+          Start Auction
+        </Button>
+        <Button
+          style={{ flex: 1 }}
+          className={[buttons.button, buttons.confirm].join(" ")}
+          title="deposit"
+          disabled={
+            //!isDepositClickable || displayInsufficientBalance
+            false
+          }
+          onClick={async () => {
+            vaultActions.endAuction();
+          }}
+        >
+          End Auction
+        </Button>
+        <Button
+          style={{ flex: 1 }}
+          className={[buttons.button, buttons.confirm].join(" ")}
+          title="deposit"
+          disabled={
+            //!isDepositClickable || displayInsufficientBalance
+            false
+          }
+          onClick={async () => {
+            vaultActions.settleOptionRound();
+          }}
+        >
+          Settle Option Round
+        </Button>
+      </div>
+      <div>Current Round {currentRoundState?.roundId?.toString()}</div>
+      <div>
+        <PlaceBid
+          vaultState={vaultState}
+          placeBid={roundActions.placeBid}
+          optionRoundState={currentRoundState}
+        />
+        <UpdateBid
+          vaultState={vaultState}
+          updateBid={roundActions.updateBid}
+          optionRoundState={currentRoundState}
+        />
+      </div>
+      <RefundBids
+        vaultState={vaultState}
+        refundBids={roundActions.refundUnusedBids}
+        optionRoundState={currentRoundState}
+      />
+      <MintOptions
+        vaultState={vaultState}
+        mintOptions={roundActions.tokenizeOptions}
+        optionRoundState={currentRoundState}
+      />
+      <ExerciseOptions
+        vaultState={vaultState}
+        exerciseOptions={roundActions.exerciseOptions}
+        optionRoundState={currentRoundState}
+      />
     </div>
   );
 }

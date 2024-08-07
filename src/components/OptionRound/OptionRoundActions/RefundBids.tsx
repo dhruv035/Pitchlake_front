@@ -15,22 +15,22 @@ import { useState } from "react";
 import {
   OptionRoundState,
   PlaceBidArgs,
-  TransactionResult,
+  RefundBidsArgs,
   VaultState,
 } from "@/lib/types";
 import useERC20 from "@/hooks/erc20/useERC20";
 import { useAccount } from "@starknet-react/core";
 import { useTransactionContext } from "@/context/TransactionProvider";
 
-export default function PlaceBid({
+export default function RefundBids({
   vaultState,
   optionRoundState,
-  placeBid,
+  refundBids,
 }: {
   vaultState: VaultState;
   optionRoundState: OptionRoundState;
-  placeBid: (
-    placeBidArgs: PlaceBidArgs
+  refundBids: (
+    refundBidArgs: RefundBidsArgs
   ) => Promise<void>;
 }) {
   const [amount, setAmount] = useState<string>("");
@@ -61,54 +61,28 @@ export default function PlaceBid({
 
   return (
     <div className={classes.container}>
-      <p className={classes.title}>{"Place Bid"}</p>
+      <p className={classes.title}>{"Refund Bids"}</p>
       <div style={{ width: "100%" }}>
         {
           <>
           <div style={{}}>
-            <InputNumber
-              className={inputs.input}
-              placeholder="Bid Amount"
-              onChange={handleAmountChange}
-              controls={false}
-            />
-            <InputNumber
-              className={inputs.input}
-              placeholder="Bid Price (ETH)"
-              onChange={handlePriceChange}
-              controls={false}
-            /></div>
-            <div className={classes.controls}>
-              <Button
-                style={{ flex: 1 }}
-                className={buttons.button}
-                title="approve"
-                disabled={false}
-                onClick={async () =>
-                  await approve({
-                    amount: BigInt(amount),
-                    spender: vaultState.address,
-                  })
-                }
-              >
-                Approve
-              </Button>
+            
               <Button
                 style={{ flex: 1 }}
                 className={[buttons.button, buttons.confirm].join(" ")}
-                title="Place Bid"
+                title="Refund Bids"
                 disabled={
                   //!isDepositClickable || displayInsufficientBalance
                   false
                 }
                 onClick={async () => {
-                    await placeBid({
-                      amount: BigInt(amount),
-                      price: BigInt(price),
+                    if(account)
+                    await refundBids({
+                      optionBuyer:account.address
                     });
                 }}
               >
-                PlaceBid
+                Refund Bids
               </Button>
             </div>
           </>

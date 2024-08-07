@@ -107,8 +107,8 @@ export type Vault = {
 
 export type UpdateBidArgs = {
   bidId: string;
-  amount: number;
-  price: number;
+  amount: number | bigint;
+  price: number | bigint;
 };
 export type PlaceBidArgs = {
   amount: number | bigint;
@@ -117,6 +117,6 @@ export type PlaceBidArgs = {
 export type RefundableBidsArgs = {
   optionBuyer: string;
 };
-export type RefundUnusedBidsArgs = {
+export type RefundBidsArgs = {
   optionBuyer: string;
 };

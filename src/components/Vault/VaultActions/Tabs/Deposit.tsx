@@ -8,7 +8,7 @@ import React, { useMemo } from "react";
 // import { Vault } from "types";
 import buttons from "@/styles/Button.module.css";
 import classes from "./Deposit.module.css";
-import inputs from "@/styles/Input.module.css";
+import inputs from "@/styles/Input.module.css"
 import { useState } from "react";
 // import useTransaction from "hooks/useTransaction";
 // import { DepositsRoundToken } from "cloud/types";
