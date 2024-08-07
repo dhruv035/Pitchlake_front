@@ -10,7 +10,6 @@ import { erc20ABI } from "@/abi";
 import { Account, RpcProvider } from "starknet";
 import { useTransactionContext } from "@/context/TransactionProvider";
 import { getDevAccount } from "@/lib/constants";
-import useContractReads from "../useContractReads";
 
 const useERC20 = (tokenAddress: string | undefined, target?: string) => {
   //   const typedContract = useContract({abi:erc20ABI,address}).contract?.typedv2(erc20ABI)
@@ -58,22 +57,6 @@ const useERC20 = (tokenAddress: string | undefined, target?: string) => {
     watch: true,
   });
 
-  const data = useContractReads({
-    contractData: contractData,
-    states: [
-      {
-        functionName: "allowance",
-        args:
-          account?.address && target ? [account.address, target] : undefined,
-        watch: true,
-      },
-      {
-        functionName: "balance_of",
-        args: account ? [account.address] : undefined,
-        watch: true,
-      },
-    ],
-  });
   const approve = useCallback(
     async (approvalArgs: ApprovalArgs) => {
       if (!typedContract) return;
@@ -92,7 +75,8 @@ const useERC20 = (tokenAddress: string | undefined, target?: string) => {
   );
 
   return {
-  data,
+  balance,
+  allowance,
     approve,
   };
 };

@@ -37,27 +37,6 @@ export default function RefundBids({
   const { isDev, devAccount } = useTransactionContext();
   const [displayInsufficientBalance, setDisplayInsufficientBalance] =
     useState<boolean>(false);
-  const { data, approve } = useERC20(
-    vaultState.ethAddress,
-    optionRoundState.address
-  );
-
-  //Update is approved when allowance is greater than amount
-  const isApproved = useMemo(() => {
-    if (data[0] && data[0] >= BigInt(amount)) {
-      return true;
-    } else return false;
-  }, [data[0], amount]);
-
-  const handleAmountChange = (value: string | null) => {
-    if (value) setAmount(value);
-    else setAmount("");
-  };
-
-  const handlePriceChange = (value: string | null) => {
-    if (value) setPrice(value);
-    else setPrice("");
-  };
 
   return (
     <div className={classes.container}>

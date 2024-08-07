@@ -31,58 +31,27 @@ export default function MintOptions({
   optionRoundState: OptionRoundState;
   mintOptions: () => Promise<void>;
 }) {
-  const [amount, setAmount] = useState<string>("");
-  const [price, setPrice] = useState<string>("");
   const { account } = useAccount();
-  const { isDev, devAccount } = useTransactionContext();
-  const [displayInsufficientBalance, setDisplayInsufficientBalance] =
-    useState<boolean>(false);
-  const { data, approve } = useERC20(
-    vaultState.ethAddress,
-    optionRoundState.address
-  );
-
-  //Update is approved when allowance is greater than amount
-  const isApproved = useMemo(() => {
-    if (data[0] && data[0] >= BigInt(amount)) {
-      return true;
-    } else return false;
-  }, [data[0], amount]);
-
-  const handleAmountChange = (value: string | null) => {
-    if (value) setAmount(value);
-    else setAmount("");
-  };
-
-  const handlePriceChange = (value: string | null) => {
-    if (value) setPrice(value);
-    else setPrice("");
-  };
+  useState<boolean>(false);
 
   return (
     <div className={classes.container}>
       <p className={classes.title}>{"Mint Options"}</p>
       <div style={{ width: "100%" }}>
-        {
-          <>
-            <div style={{}}>
-              <Button
-                style={{ flex: 1 }}
-                className={[buttons.button, buttons.confirm].join(" ")}
-                title="Mint Options"
-                disabled={
-                  //!isDepositClickable || displayInsufficientBalance
-                  false
-                }
-                onClick={async () => {
-                  if (account) await mintOptions();
-                }}
-              >
-                Mint Options
-              </Button>
-            </div>
-          </>
-        }
+        <Button
+          style={{ flex: 1 }}
+          className={[buttons.button, buttons.confirm].join(" ")}
+          title="Mint Options"
+          disabled={
+            //!isDepositClickable || displayInsufficientBalance
+            false
+          }
+          onClick={async () => {
+            if (account) await mintOptions();
+          }}
+        >
+          Mint Options
+        </Button>
       </div>
     </div>
   );

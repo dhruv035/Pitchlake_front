@@ -8,7 +8,7 @@ import React, { useMemo } from "react";
 // import { Vault } from "types";
 import buttons from "@/styles/Button.module.css";
 import classes from "./Deposit.module.css";
-import inputs from "@/styles/Input.module.css"
+import inputs from "@/styles/Input.module.css";
 import { useState } from "react";
 // import useTransaction from "hooks/useTransaction";
 // import { DepositsRoundToken } from "cloud/types";
@@ -35,19 +35,10 @@ export default function Deposit({
   const { isDev, devAccount } = useTransactionContext();
   const [displayInsufficientBalance, setDisplayInsufficientBalance] =
     useState<boolean>(false);
-  const {data, approve } = useERC20(
+  const { balance, allowance, approve } = useERC20(
     vaultState.ethAddress,
-    vaultState.address,
+    vaultState.address
   );
-
-  console.log("READSDATA",data)
-
-  //Update is approved when allowance is greater than amount
-  const isApproved = useMemo(() => {
-    if (data[0] && data[0] >= BigInt(amount)) {
-      return true;
-    } else return false;
-  }, [data[0], amount]);
 
   const handleAmountChange = (value: string | null) => {
     if (value) setAmount(value);
@@ -81,7 +72,6 @@ export default function Deposit({
             <InputNumber
               className={inputs.input}
               placeholder="Deposit Amount (ETH)"
-              
               onChange={handleAmountChange}
               controls={false}
             />
