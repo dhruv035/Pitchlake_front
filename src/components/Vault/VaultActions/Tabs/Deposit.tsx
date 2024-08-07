@@ -13,9 +13,7 @@ import { useState } from "react";
 // import useTransaction from "hooks/useTransaction";
 // import { DepositsRoundToken } from "cloud/types";
 import {
-  ApprovalArgs,
   DepositArgs,
-  TransactionResult,
   VaultState,
 } from "@/lib/types";
 import useERC20 from "@/hooks/erc20/useERC20";

@@ -74,6 +74,14 @@ export type OptionRoundState = {
   optionSettleDate: Date;
 };
 
+export type OptionRoundActionsType = {
+  placeBid:(placeBids:PlaceBidArgs)=>Promise<void>,
+  updateBid:(updateBid:UpdateBidArgs)=>Promise<void>,
+  refundUnusedBids:(refundBids:RefundBidsArgs)=>Promise<void>,
+  tokenizeOptions:()=>Promise<void>,
+  exerciseOptions:()=>Promise<void>,
+}
+
 export type Vault = {
   address: string;
   underlying: string;

@@ -8,16 +8,30 @@ import {
 } from "@/lib/types";
 import { useAccount, useContract } from "@starknet-react/core";
 import { useCallback, useMemo } from "react";
+import { Account } from "starknet";
 
 const useOptionRoundActions = (address: string | undefined) => {
-  const contractData = useMemo(() => {
-    return { abi: optionRoundABI, address };
-  }, [address]);
+  const { contract } = useContract({
+    abi: optionRoundABI,
+    address,
+  });
+
+  const { isDev, devAccount } = useTransactionContext();
+  const { account: connectorAccount } = useAccount();
   const { setPendingTx } = useTransactionContext();
-  const { account } = useAccount();
-  const typedContract = useContract({
-    ...contractData,
-  }).contract?.typedv2(optionRoundABI);
+
+  const account = useMemo(() => {
+    if (isDev === true) {
+      return devAccount;
+    } else return connectorAccount;
+  }, [connectorAccount, isDev, devAccount]);
+
+  const typedContract = useMemo(() => {
+    if (!contract) return;
+    const typedContract = contract.typedv2(optionRoundABI);
+    if (account) typedContract.connect(account as Account);
+    return typedContract;
+  }, [contract, account]);
 
   //Write Calls
 
