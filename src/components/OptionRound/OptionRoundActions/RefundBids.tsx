@@ -29,9 +29,7 @@ export default function RefundBids({
 }: {
   vaultState: VaultState;
   optionRoundState: OptionRoundState;
-  refundBids: (
-    refundBidArgs: RefundBidsArgs
-  ) => Promise<void>;
+  refundBids: (refundBidArgs: RefundBidsArgs) => Promise<void>;
 }) {
   const [amount, setAmount] = useState<string>("");
   const [price, setPrice] = useState<string>("");
@@ -39,8 +37,10 @@ export default function RefundBids({
   const { isDev, devAccount } = useTransactionContext();
   const [displayInsufficientBalance, setDisplayInsufficientBalance] =
     useState<boolean>(false);
-  const { data, approve } = useERC20(vaultState.ethAddress, optionRoundState.address);
-
+  const { data, approve } = useERC20(
+    vaultState.ethAddress,
+    optionRoundState.address
+  );
 
   //Update is approved when allowance is greater than amount
   const isApproved = useMemo(() => {
@@ -63,30 +63,23 @@ export default function RefundBids({
     <div className={classes.container}>
       <p className={classes.title}>{"Refund Bids"}</p>
       <div style={{ width: "100%" }}>
-        {
-          <>
-          <div style={{}}>
-            
-              <Button
-                style={{ flex: 1 }}
-                className={[buttons.button, buttons.confirm].join(" ")}
-                title="Refund Bids"
-                disabled={
-                  //!isDepositClickable || displayInsufficientBalance
-                  false
-                }
-                onClick={async () => {
-                    if(account)
-                    await refundBids({
-                      optionBuyer:account.address
-                    });
-                }}
-              >
-                Refund Bids
-              </Button>
-            </div>
-          </>
-        }
+        <Button
+          style={{ flex: 1 }}
+          className={[buttons.button, buttons.confirm].join(" ")}
+          title="Refund Bids"
+          disabled={
+            //!isDepositClickable || displayInsufficientBalance
+            false
+          }
+          onClick={async () => {
+            if (account)
+              await refundBids({
+                optionBuyer: account.address,
+              });
+          }}
+        >
+          Refund Bids
+        </Button>
       </div>
     </div>
   );

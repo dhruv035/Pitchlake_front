@@ -148,22 +148,22 @@ export default function Home({
           updateBid={roundActions.updateBid}
           optionRoundState={currentRoundState}
         />
+        <RefundBids
+          vaultState={vaultState}
+          refundBids={roundActions.refundUnusedBids}
+          optionRoundState={currentRoundState}
+        />
+        <MintOptions
+          vaultState={vaultState}
+          mintOptions={roundActions.tokenizeOptions}
+          optionRoundState={currentRoundState}
+        />
+        <ExerciseOptions
+          vaultState={vaultState}
+          exerciseOptions={roundActions.exerciseOptions}
+          optionRoundState={currentRoundState}
+        />
       </div>
-      <RefundBids
-        vaultState={vaultState}
-        refundBids={roundActions.refundUnusedBids}
-        optionRoundState={currentRoundState}
-      />
-      <MintOptions
-        vaultState={vaultState}
-        mintOptions={roundActions.tokenizeOptions}
-        optionRoundState={currentRoundState}
-      />
-      <ExerciseOptions
-        vaultState={vaultState}
-        exerciseOptions={roundActions.exerciseOptions}
-        optionRoundState={currentRoundState}
-      />
     </div>
   );
 }
