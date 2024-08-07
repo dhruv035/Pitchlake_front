@@ -48,16 +48,17 @@ export type VaultState = {
 export type VaultActionsType = {
   depositLiquidity: (
     depositArgs: DepositArgs,
-  ) => Promise<TransactionResult | undefined>;
+  ) => Promise<void>;
   withdrawLiquidity: (
     withdrawArgs: WithdrawArgs,
-  ) => Promise<TransactionResult | undefined>;
+  ) => Promise<void>;
   startAuction: () => Promise<void>;
   endAuction: () => Promise<void>;
   settleOptionRound: () => Promise<void>;
 };
 
 export type OptionRoundState = {
+  address:string|undefined;
   reservePrice: bigint | number | string;
   strikePrice: bigint | number | string;
   capLevel: bigint | number | string;
@@ -106,8 +107,8 @@ export type Vault = {
 
 export type UpdateBidArgs = {
   bidId: string;
-  amount: number;
-  price: number;
+  amount: number | bigint;
+  price: number | bigint;
 };
 export type PlaceBidArgs = {
   amount: number | bigint;
@@ -116,6 +117,6 @@ export type PlaceBidArgs = {
 export type RefundableBidsArgs = {
   optionBuyer: string;
 };
-export type RefundUnusedBidsArgs = {
+export type RefundBidsArgs = {
   optionBuyer: string;
 };

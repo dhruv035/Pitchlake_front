@@ -28,7 +28,7 @@ const useERC20 = (tokenAddress: string | undefined, target?: string) => {
     if (isDev === true) {
       return devAccount;
     } else return connectorAccount;
-  }, [connectorAccount, isDev,devAccount]);
+  }, [connectorAccount, isDev, devAccount]);
 
   const typedContract = useMemo(() => {
     if (!contract) return;
@@ -56,13 +56,14 @@ const useERC20 = (tokenAddress: string | undefined, target?: string) => {
     args: account?.address && target ? [account.address, target] : undefined,
     watch: true,
   });
+
   const approve = useCallback(
     async (approvalArgs: ApprovalArgs) => {
       if (!typedContract) return;
       try {
         const data = await typedContract.approve(
           approvalArgs.spender,
-          approvalArgs.amount,
+          approvalArgs.amount
         );
         const typedData = data as TransactionResult;
         setPendingTx(typedData.transaction_hash);
@@ -70,12 +71,12 @@ const useERC20 = (tokenAddress: string | undefined, target?: string) => {
         console.log("ERR", err);
       }
     },
-    [typedContract, setPendingTx],
+    [typedContract, setPendingTx]
   );
 
   return {
-    balance: balance.data ? BigInt(balance.data.toString()) : undefined,
-    allowance: allowance.data ? BigInt(allowance.data.toString()) : undefined,
+  balance,
+  allowance,
     approve,
   };
 };

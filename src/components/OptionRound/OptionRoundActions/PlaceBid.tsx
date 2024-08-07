@@ -7,74 +7,71 @@ import { Button, InputNumber } from "antd";
 import React, { useMemo } from "react";
 // import { Vault } from "types";
 import buttons from "@/styles/Button.module.css";
-import classes from "./Deposit.module.css";
+import classes from "./PlaceBid.module.css";
 import inputs from "@/styles/Input.module.css";
 import { useState } from "react";
 // import useTransaction from "hooks/useTransaction";
 // import { DepositsRoundToken } from "cloud/types";
 import {
-  ApprovalArgs,
-  DepositArgs,
-  TransactionResult,
+  OptionRoundState,
+  PlaceBidArgs,
   VaultState,
 } from "@/lib/types";
 import useERC20 from "@/hooks/erc20/useERC20";
 import { useAccount } from "@starknet-react/core";
-import { stringToHex } from "@/lib/utils";
 import { useTransactionContext } from "@/context/TransactionProvider";
 
-export default function Deposit({
+export default function PlaceBid({
   vaultState,
-  deposit,
+  optionRoundState,
+  placeBid,
 }: {
   vaultState: VaultState;
-  deposit: (depositArgs: DepositArgs) => Promise<void>;
+  optionRoundState: OptionRoundState;
+  placeBid: (
+    placeBidArgs: PlaceBidArgs
+  ) => Promise<void>;
 }) {
   const [amount, setAmount] = useState<string>("");
+  const [price, setPrice] = useState<string>("");
   const { account } = useAccount();
   const { isDev, devAccount } = useTransactionContext();
   const [displayInsufficientBalance, setDisplayInsufficientBalance] =
     useState<boolean>(false);
-  const { balance, allowance, approve } = useERC20(
-    vaultState.ethAddress,
-    vaultState.address
-  );
+  const {  approve } = useERC20(vaultState.ethAddress, optionRoundState.address);
+
+
+  //Update is approved when allowance is greater than amount
 
   const handleAmountChange = (value: string | null) => {
     if (value) setAmount(value);
     else setAmount("");
   };
-  // const approveShares = async () => {
-  //   const approveTx = await getERC20Instance(roundTokenData.depositsToken).populateTransaction.approve(
-  //     vault.depositsController,
-  //     roundTokenBalance
-  //   );
-  //   sendTransactionWithToasts(approveTx, () => setIsDepositClickable(true));
-  // };
 
-  //   const claim = async () => {
-  //     const depositTx = await getDepositsControllerInstance(
-  //       vault.depositsController
-  //     ).populateTransaction.claimVaultShares(
-  //       selectedRound,
-  //       roundTokenBalance,
-  //       account
-  //     );
-  //     sendTransactionWithToasts(depositTx);
-  //   };
+  const handlePriceChange = (value: string | null) => {
+    if (value) setPrice(value);
+    else setPrice("");
+  };
 
   return (
     <div className={classes.container}>
-      <p className={classes.title}>{"Deposit"}</p>
+      <p className={classes.title}>{"Place Bid"}</p>
       <div style={{ width: "100%" }}>
         {
           <>
+          <div style={{}}>
             <InputNumber
               className={inputs.input}
-              placeholder="Deposit Amount (ETH)"
+              placeholder="Bid Amount"
               onChange={handleAmountChange}
               controls={false}
             />
+            <InputNumber
+              className={inputs.input}
+              placeholder="Bid Price (ETH)"
+              onChange={handlePriceChange}
+              controls={false}
+            /></div>
             <div className={classes.controls}>
               <Button
                 style={{ flex: 1 }}
@@ -93,27 +90,19 @@ export default function Deposit({
               <Button
                 style={{ flex: 1 }}
                 className={[buttons.button, buttons.confirm].join(" ")}
-                title="deposit"
+                title="Place Bid"
                 disabled={
                   //!isDepositClickable || displayInsufficientBalance
                   false
                 }
                 onClick={async () => {
-                  if (isDev) {
-                    if (devAccount)
-                      await deposit({
-                        amount: BigInt(amount),
-                        beneficiary: devAccount.address,
-                      });
-                  }
-                  if (account)
-                    await deposit({
+                    await placeBid({
                       amount: BigInt(amount),
-                      beneficiary: account.address,
+                      price: BigInt(price),
                     });
                 }}
               >
-                Deposit
+                PlaceBid
               </Button>
             </div>
           </>

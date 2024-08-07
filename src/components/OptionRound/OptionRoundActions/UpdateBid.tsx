@@ -7,74 +7,88 @@ import { Button, InputNumber } from "antd";
 import React, { useMemo } from "react";
 // import { Vault } from "types";
 import buttons from "@/styles/Button.module.css";
-import classes from "./Deposit.module.css";
+import classes from "./PlaceBid.module.css";
 import inputs from "@/styles/Input.module.css";
 import { useState } from "react";
 // import useTransaction from "hooks/useTransaction";
 // import { DepositsRoundToken } from "cloud/types";
 import {
-  ApprovalArgs,
-  DepositArgs,
+  OptionRoundState,
+  PlaceBidArgs,
   TransactionResult,
+  UpdateBidArgs,
   VaultState,
 } from "@/lib/types";
 import useERC20 from "@/hooks/erc20/useERC20";
 import { useAccount } from "@starknet-react/core";
-import { stringToHex } from "@/lib/utils";
 import { useTransactionContext } from "@/context/TransactionProvider";
 
-export default function Deposit({
+export default function UpdateBid({
   vaultState,
-  deposit,
+  optionRoundState,
+  updateBid,
 }: {
   vaultState: VaultState;
-  deposit: (depositArgs: DepositArgs) => Promise<void>;
+  optionRoundState: OptionRoundState;
+  updateBid: (updateBid: UpdateBidArgs) => Promise<void>;
 }) {
   const [amount, setAmount] = useState<string>("");
+  const [price, setPrice] = useState<string>("");
+  const [bidId, setBidId] = useState<string>("");
   const { account } = useAccount();
   const { isDev, devAccount } = useTransactionContext();
   const [displayInsufficientBalance, setDisplayInsufficientBalance] =
     useState<boolean>(false);
-  const { balance, allowance, approve } = useERC20(
+  const { approve } = useERC20(
     vaultState.ethAddress,
-    vaultState.address
+    optionRoundState.address
   );
 
+  
   const handleAmountChange = (value: string | null) => {
     if (value) setAmount(value);
     else setAmount("");
   };
-  // const approveShares = async () => {
-  //   const approveTx = await getERC20Instance(roundTokenData.depositsToken).populateTransaction.approve(
-  //     vault.depositsController,
-  //     roundTokenBalance
-  //   );
-  //   sendTransactionWithToasts(approveTx, () => setIsDepositClickable(true));
-  // };
 
-  //   const claim = async () => {
-  //     const depositTx = await getDepositsControllerInstance(
-  //       vault.depositsController
-  //     ).populateTransaction.claimVaultShares(
-  //       selectedRound,
-  //       roundTokenBalance,
-  //       account
-  //     );
-  //     sendTransactionWithToasts(depositTx);
-  //   };
+  const handlePriceChange = (value: string | null) => {
+    if (value) setPrice(value);
+    else setPrice("");
+  };
+
+  const handleBidIdChange = (value: string | null) => {
+    if (value) setBidId(value);
+    else setBidId("");
+  };
 
   return (
     <div className={classes.container}>
-      <p className={classes.title}>{"Deposit"}</p>
+      <p className={classes.title}>{"Place Bid"}</p>
       <div style={{ width: "100%" }}>
         {
           <>
-            <InputNumber
-              className={inputs.input}
-              placeholder="Deposit Amount (ETH)"
-              onChange={handleAmountChange}
-              controls={false}
-            />
+            <div style={{}}>
+              {
+                //Change to select Element with list of placed bids
+                <InputNumber
+                  className={inputs.input}
+                  placeholder="Bid Id"
+                  onChange={handleBidIdChange}
+                  controls={false}
+                />
+              }
+              <InputNumber
+                className={inputs.input}
+                placeholder="Bid Amount"
+                onChange={handleAmountChange}
+                controls={false}
+              />
+              <InputNumber
+                className={inputs.input}
+                placeholder="Bid Price (ETH)"
+                onChange={handlePriceChange}
+                controls={false}
+              />
+            </div>
             <div className={classes.controls}>
               <Button
                 style={{ flex: 1 }}
@@ -93,7 +107,7 @@ export default function Deposit({
               <Button
                 style={{ flex: 1 }}
                 className={[buttons.button, buttons.confirm].join(" ")}
-                title="deposit"
+                title="Update Bid"
                 disabled={
                   //!isDepositClickable || displayInsufficientBalance
                   false
@@ -101,19 +115,21 @@ export default function Deposit({
                 onClick={async () => {
                   if (isDev) {
                     if (devAccount)
-                      await deposit({
+                      await updateBid({
+                        bidId,
                         amount: BigInt(amount),
-                        beneficiary: devAccount.address,
+                        price: BigInt(price),
                       });
                   }
                   if (account)
-                    await deposit({
+                    await updateBid({
+                      bidId,
                       amount: BigInt(amount),
-                      beneficiary: account.address,
+                      price: BigInt(price),
                     });
                 }}
               >
-                Deposit
+                UpdateBid
               </Button>
             </div>
           </>

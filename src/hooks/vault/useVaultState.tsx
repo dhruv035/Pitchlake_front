@@ -5,6 +5,7 @@ import { CairoCustomEnum } from "starknet";
 import { stringToHex } from "@/lib/utils";
 import { useMemo } from "react";
 import useOptionRoundState from "../optionRound/useOptionRoundState";
+import { useTransactionContext } from "@/context/TransactionProvider";
 
 const useVaultState = (address: string) => {
   const contractData = {
@@ -13,6 +14,7 @@ const useVaultState = (address: string) => {
   };
 
   const { address: accountAddress } = useAccount();
+  const {devAccount} = useTransactionContext();
   //Read States
 
   const ethAddress = useContractRead({

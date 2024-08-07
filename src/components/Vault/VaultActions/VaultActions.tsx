@@ -12,6 +12,7 @@ import {
   VaultState,
   WithdrawArgs,
 } from "@/lib/types";
+import Withdraw from "./Tabs/Withdraw";
 
 type Props = {
   vaultState: VaultState;
@@ -57,7 +58,7 @@ export default function VaultActions(props: Props) {
         vaultState={vaultState}
         deposit={vaultActions.depositLiquidity}
       />
-
+      <Withdraw vaultState={vaultState} withdraw={vaultActions.withdrawLiquidity} />
       {/* {
         //Debug container should be removed
         account === "0x8a7f1b9ABC33083aecd0d7f024B5aC9BB78DC04f" && <Debug vault={vault} />
