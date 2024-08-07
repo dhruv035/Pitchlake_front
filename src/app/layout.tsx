@@ -7,6 +7,7 @@ import { Header } from "@/components/LayoutComponents";
 import TransactionProvider from "@/context/TransactionProvider";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { AntdRegistry } from "@ant-design/nextjs-registry";
 const inter = Inter({ subsets: ["latin"] });
 const shareTech = Share_Tech({
   subsets: ["latin"],
@@ -28,9 +29,11 @@ export default function RootLayout({
       <body>
         <StarknetProvider>
           <TransactionProvider>
+          <AntdRegistry>
             <Header />
             <ToastContainer />
             {children}
+            </AntdRegistry>
           </TransactionProvider>
         </StarknetProvider>
       </body>

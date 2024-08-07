@@ -1,4 +1,4 @@
-import Deposit from "./Tabs/Deposit";
+import Deposit from "./Deposit";
 import React from "react";
 import { Tabs } from "antd";
 //import Withdraw from "./Tabs/Withdraw";
@@ -12,6 +12,7 @@ import {
   VaultState,
   WithdrawArgs,
 } from "@/lib/types";
+import Withdraw from "./Withdraw";
 
 type Props = {
   vaultState: VaultState;
@@ -57,7 +58,7 @@ export default function VaultActions(props: Props) {
         vaultState={vaultState}
         deposit={vaultActions.depositLiquidity}
       />
-
+      <Withdraw vaultState={vaultState} withdraw={vaultActions.withdrawLiquidity} />
       {/* {
         //Debug container should be removed
         account === "0x8a7f1b9ABC33083aecd0d7f024B5aC9BB78DC04f" && <Debug vault={vault} />

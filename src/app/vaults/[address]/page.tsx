@@ -3,11 +3,16 @@ import classes from "./page.module.css";
 import { useAccount } from "@starknet-react/core";
 import { useState } from "react";
 import Head from "next/head";
+import buttons from "@/styles/Button.module.css";
+import inputs from "@/styles/Input.module.css"
 import { shortenString } from "@/lib/utils";
 import VaultHeader from "@/components/Vault/VaultHeader/VaultHeader";
 import VaultActions from "@/components/Vault/VaultActions";
 import useVaultState from "@/hooks/vault/useVaultState";
 import useVaultActions from "@/hooks/vault/useVaultActions";
+import { Button, InputNumber } from "antd";
+import PlaceBid from "@/components/OptionRound/OptionRoundActions/PlaceBid";
+import useOptionRoundActions from "@/hooks/optionRound/useOptionRoundActions";
 
 export default function Home({
   params: { address: vaultAddress },
@@ -16,6 +21,7 @@ export default function Home({
 }) {
   const { currentRoundState, state: vaultState } = useVaultState(vaultAddress);
   const vaultActions = useVaultActions(vaultAddress);
+  const roundActions = useOptionRoundActions(currentRoundState.address)
   const { account } = useAccount();
   const [isModalVisible, setIsModalVisible] = useState<boolean>();
 
@@ -26,6 +32,7 @@ export default function Home({
         <title>Vault {shortenString(vaultAddress) || "..."} on PitchLake</title>
       </Head>
       {/* <VaultTimeline disabled vault={vault} /> */}
+      
       <VaultHeader vault={vaultState} currentRoundState={currentRoundState} />
       <div className={classes.chartRow}>
         <div className={classes.chart}>
@@ -81,6 +88,7 @@ export default function Home({
       </div>
     </div>
     <VaultHistory vault={vault} /> */}
+      
     </div>
   );
 }

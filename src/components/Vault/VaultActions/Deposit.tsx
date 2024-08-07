@@ -12,7 +12,6 @@ import inputs from "@/styles/Input.module.css";
 import { useState } from "react";
 // import useTransaction from "hooks/useTransaction";
 // import { DepositsRoundToken } from "cloud/types";
-import styles from "../../VaultTimeline/VaultTimeline.module.css";
 import {
   ApprovalArgs,
   DepositArgs,
@@ -29,24 +28,26 @@ export default function Deposit({
   deposit,
 }: {
   vaultState: VaultState;
-  deposit: (depositArgs: DepositArgs) => Promise<TransactionResult | undefined>;
+  deposit: (depositArgs: DepositArgs) => Promise<void>;
 }) {
   const [amount, setAmount] = useState<string>("");
   const { account } = useAccount();
   const { isDev, devAccount } = useTransactionContext();
   const [displayInsufficientBalance, setDisplayInsufficientBalance] =
     useState<boolean>(false);
-  const { allowance, approve, balance } = useERC20(
+  const {data, approve } = useERC20(
     vaultState.ethAddress,
     vaultState.address,
   );
 
+  console.log("READSDATA",data)
+
   //Update is approved when allowance is greater than amount
   const isApproved = useMemo(() => {
-    if (allowance && allowance >= BigInt(amount)) {
+    if (data[0] && data[0] >= BigInt(amount)) {
       return true;
     } else return false;
-  }, [allowance, amount]);
+  }, [data[0], amount]);
 
   const handleAmountChange = (value: string | null) => {
     if (value) setAmount(value);
@@ -80,6 +81,7 @@ export default function Deposit({
             <InputNumber
               className={inputs.input}
               placeholder="Deposit Amount (ETH)"
+              
               onChange={handleAmountChange}
               controls={false}
             />

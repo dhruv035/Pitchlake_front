@@ -10,6 +10,7 @@ import { erc20ABI } from "@/abi";
 import { Account, RpcProvider } from "starknet";
 import { useTransactionContext } from "@/context/TransactionProvider";
 import { getDevAccount } from "@/lib/constants";
+import useContractReads from "../useContractReads";
 
 const useERC20 = (tokenAddress: string | undefined, target?: string) => {
   //   const typedContract = useContract({abi:erc20ABI,address}).contract?.typedv2(erc20ABI)
@@ -28,7 +29,7 @@ const useERC20 = (tokenAddress: string | undefined, target?: string) => {
     if (isDev === true) {
       return devAccount;
     } else return connectorAccount;
-  }, [connectorAccount, isDev,devAccount]);
+  }, [connectorAccount, isDev, devAccount]);
 
   const typedContract = useMemo(() => {
     if (!contract) return;
@@ -56,13 +57,30 @@ const useERC20 = (tokenAddress: string | undefined, target?: string) => {
     args: account?.address && target ? [account.address, target] : undefined,
     watch: true,
   });
+
+  const data = useContractReads({
+    contractData: contractData,
+    states: [
+      {
+        functionName: "allowance",
+        args:
+          account?.address && target ? [account.address, target] : undefined,
+        watch: true,
+      },
+      {
+        functionName: "balance_of",
+        args: account ? [account.address] : undefined,
+        watch: true,
+      },
+    ],
+  });
   const approve = useCallback(
     async (approvalArgs: ApprovalArgs) => {
       if (!typedContract) return;
       try {
         const data = await typedContract.approve(
           approvalArgs.spender,
-          approvalArgs.amount,
+          approvalArgs.amount
         );
         const typedData = data as TransactionResult;
         setPendingTx(typedData.transaction_hash);
@@ -70,12 +88,11 @@ const useERC20 = (tokenAddress: string | undefined, target?: string) => {
         console.log("ERR", err);
       }
     },
-    [typedContract, setPendingTx],
+    [typedContract, setPendingTx]
   );
 
   return {
-    balance: balance.data ? BigInt(balance.data.toString()) : undefined,
-    allowance: allowance.data ? BigInt(allowance.data.toString()) : undefined,
+  data,
     approve,
   };
 };

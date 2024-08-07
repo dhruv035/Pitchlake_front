@@ -1,21 +1,26 @@
 .input {
   width: 100%;
   border: 1px solid var(--main);
-  background-color: transparent;
+  background-color: white;
   text-transform: capitalize;
-  color: var(--text);
+  color:white !important;
   font-size: 14px;
   height: auto;
   line-height: 1.5715;
 
   border-radius: 10px;
-}
 
+  
+}
+.input::-webkit-input-placeholder{
+    color: red !important;
+    opacity: 1; /* Firefox */
+  }
 .input:hover,
 .input:active,
 .input:focus {
   background-color: var(--paleMain);
-  color: var(--main);
+  color:white !important;
   border-color: var(--main);
 }
 

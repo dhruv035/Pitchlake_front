@@ -132,20 +132,21 @@ const useOptionRoundState = (address: string | undefined) => {
   //Write Calls
 
   return {
-    reservePrice,
-    strikePrice,
-    capLevel,
-    refundableBids,
-    tokenizableOptions,
-    roundId,
-    totalOptionsAvailable,
+    address,
+    reservePrice:reservePrice?reservePrice.toString():0,
+    strikePrice:strikePrice?(strikePrice.toString()):0,
+    capLevel:capLevel?capLevel.toString():0,
+    refundableBids:refundableBids?refundableBids.toString():0,
+    tokenizableOptions:tokenizableOptions?tokenizableOptions.toString():0,
+    roundId:roundId?roundId.toString():0,
+    totalOptionsAvailable:totalOptionsAvailable?totalOptionsAvailable.toString():0,
     roundState: roundState as CairoCustomEnum,
-    clearingPrice,
-    optionsSold,
+    clearingPrice:clearingPrice?clearingPrice.toString():0,
+    optionsSold:optionsSold?optionsSold.toString():0,
     auctionStartDate: new Date(Number(auctionStartDate) * 1000),
     auctionEndDate: new Date(Number(auctionEndDate) * 1000),
     optionSettleDate: new Date(Number(optionSettleDate) * 1000),
-  } as OptionRoundState;
+  }
 };
 
 export default useOptionRoundState;
