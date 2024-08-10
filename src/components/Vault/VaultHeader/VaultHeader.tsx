@@ -2,14 +2,14 @@ import { LeftOutlined } from "@ant-design/icons";
 import Link from "next/link";
 
 import styles from "./VaultHeader.module.css";
-import { OptionRoundState, VaultState } from "@/lib/types";
+import { OptionRoundStateType, VaultStateType } from "@/lib/types";
 
 export default function VaultHeader({
   vault,
   currentRoundState,
 }: {
-  vault: VaultState;
-  currentRoundState: OptionRoundState;
+  vault: VaultStateType;
+  currentRoundState: OptionRoundStateType;
 }) {
   return (
     <div className={styles.container}>

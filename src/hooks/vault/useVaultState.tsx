@@ -1,50 +1,103 @@
-import { useAccount, useContractRead } from "@starknet-react/core";
+import {
+  useAccount,
+  useContractRead,
+  useContractWrite,
+} from "@starknet-react/core";
 import { vaultABI } from "@/abi";
-import { VaultState } from "@/lib/types";
+import { OptionRoundStateType, VaultStateType } from "@/lib/types";
 import { CairoCustomEnum } from "starknet";
 import { stringToHex } from "@/lib/utils";
 import { useMemo } from "react";
 import useOptionRoundState from "../optionRound/useOptionRoundState";
 import { useTransactionContext } from "@/context/TransactionProvider";
+import useContractReads from "../../lib/useContractReads";
+import { stat } from "fs";
 
 const useVaultState = (address: string) => {
-  const contractData = {
-    abi: vaultABI,
-    address,
-  };
+  const contractData = useMemo(
+    () => ({
+      abi: vaultABI,
+      address,
+    }),
+    [address]
+  );
 
   const { address: accountAddress } = useAccount();
-  const {devAccount} = useTransactionContext();
   //Read States
 
-  const ethAddress = useContractRead({
-    ...contractData,
-    functionName: "eth_address",
-    args: [],
-    watch: true,
-  });
-  const currentRoundId = useContractRead({
-    ...contractData,
-    functionName: "current_option_round_id",
-    args: [],
-    watch: true,
-  });
-  const { data: currentRoundAddress } = useContractRead({
-    ...contractData,
-    functionName: "get_option_round_address",
-    args: currentRoundId?.data ? [Number(currentRoundId.data)] : undefined,
-    watch: true,
-  });
+  //States without a param
+  const {
+    currentRoundId,
+    auctionRunTime,
+    optionRunTime,
+    roundTransitionPeriod,
+    ethAddress,
+    vaultType,
+    vaultLockedAmount,
+    vaultUnlockedAmount,
+  } = useContractReads({
+    contractData,
+    states: [
+      { functionName: "eth_address", key: "ethAddress" },
+      {
+        functionName: "current_option_round_id",
+        key: "currentRoundId",
+      },
+      { functionName: "vault_type", key: "vaultType" },
+      { functionName: "get_auction_run_time", key: "auctionRunTime" },
+      { functionName: "get_option_run_time", key: "optionRunTime" },
+      {
+        functionName: "get_round_transition_period",
+        key: "roundTransitionPeriod",
+      },
+      {
+        functionName: "get_total_locked_balance",
+        key: "vaultLockedAmount",
+      },
+      {
+        functionName: "get_total_unlocked_balance",
+        key: "vaultUnlockedAmount",
+      },
+    ],
+  }) as unknown as VaultStateType;
 
-  const { data: previousRoundAddress } = useContractRead({
-    ...contractData,
-    functionName: "get_option_round_address",
-    args:
-      currentRoundId?.data && Number(currentRoundId.data) > 0
-        ? [Number(currentRoundId.data) - 1]
-        : undefined,
-    watch: true,
-  });
+  //Wallet states
+  const { lpLockedAmount, lpUnlockedAmount } = useContractReads({
+    contractData,
+    states: [
+      {
+        functionName: "get_lp_locked_balance",
+        args: [accountAddress as string],
+        key: "lpLockedAmount",
+      },
+      {
+        functionName: "get_lp_unlocked_balance",
+        args: [accountAddress as string],
+        key: "lpUnlockedAmount",
+      },
+    ],
+  }) as unknown as VaultStateType;
+
+  //Round Addresses and States
+  const { currentRoundAddress, previousRoundAddress } = useContractReads({
+    contractData,
+    states: [
+      {
+        functionName: "get_option_round_address",
+        args: currentRoundId ? [Number(currentRoundId)] : undefined,
+        key: "currentRoundAddress",
+      },
+      {
+        functionName: "get_option_round_address",
+        args: currentRoundId ? [Number(currentRoundId) - 1] : undefined,
+        key: "previousRoundAddress",
+      },
+    ],
+  }) as unknown as {
+    currentRoundAddress: string;
+    previousRoundAddress: string;
+  };
+  
   const currentRoundState = useOptionRoundState(
     currentRoundAddress
       ? stringToHex(currentRoundAddress.toString())
@@ -56,78 +109,22 @@ const useVaultState = (address: string) => {
       : undefined
   );
 
-  const { data: vaultType } = useContractRead({
-    ...contractData,
-    functionName: "vault_type",
-    args: [],
-    watch: true,
-  });
-
-  const { data: auctionRunTime } = useContractRead({
-    ...contractData,
-    functionName: "get_auction_run_time",
-    args: [],
-    watch: true,
-  });
-  const { data: optionRunTime } = useContractRead({
-    ...contractData,
-    functionName: "get_option_run_time",
-    args: [],
-    watch: true,
-  });
-  const { data: roundTransitionPeriod } = useContractRead({
-    ...contractData,
-    functionName: "get_round_transition_period",
-    args: [],
-    watch: true,
-  });
-
-  const { data: lpLockedAmount } = useContractRead({
-    ...contractData,
-    functionName: "get_lp_locked_balance",
-    args: [accountAddress as string],
-    watch: true,
-  });
-
-  const { data: lpUnlockedAmount } = useContractRead({
-    ...contractData,
-    functionName: "get_lp_unlocked_balance",
-    args: [accountAddress as string],
-    watch: true,
-  });
-  const { data: vaultLockedAmount } = useContractRead({
-    ...contractData,
-    functionName: "get_total_locked_balance",
-    watch: true,
-    args: [],
-  });
-
-  const { data: vaultUnlockedAmount } = useContractRead({
-    ...contractData,
-    functionName: "get_total_unlocked_balance",
-    watch: true,
-    args: [],
-  });
+  console.log("currentRound",currentRoundState);
+  const state = {
+    ethAddress: ethAddress ? stringToHex(ethAddress?.toString()) : "",
+    address,
+    vaultType: vaultType,
+    vaultLockedAmount,
+    vaultUnlockedAmount,
+    lpLockedAmount,
+    lpUnlockedAmount,
+    currentRoundId,
+    auctionRunTime,
+    optionRunTime,
+    roundTransitionPeriod,
+  };
   return {
-    state: {
-      ethAddress: ethAddress.data
-        ? stringToHex(ethAddress.data.toString())
-        : undefined,
-      address,
-      vaultType: vaultType as CairoCustomEnum,
-      vaultLockedAmount: vaultLockedAmount
-        ? Number(vaultLockedAmount)
-        : undefined,
-      vaultUnlockedAmount,
-      lpLockedAmount,
-      lpUnlockedAmount,
-      currentRoundId: currentRoundId.isSuccess
-        ? Number(currentRoundId.data)
-        : 0,
-      auctionRunTime,
-      optionRunTime,
-      roundTransitionPeriod,
-    } as VaultState,
+    state,
     currentRoundAddress,
     previousRoundAddress,
     currentRoundState,

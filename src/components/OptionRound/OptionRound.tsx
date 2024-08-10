@@ -1,7 +1,7 @@
 import {
   OptionRoundActionsType,
-  OptionRoundState,
-  VaultState,
+  OptionRoundStateType,
+  VaultStateType,
 } from "@/lib/types";
 import classes from "./OptionRound.module.css"
 import ExerciseOptions from "./OptionRoundActions/ExerciseOptions";
@@ -15,9 +15,9 @@ export const OptionRound = ({
   roundActions,
   roundState,
 }: {
-  vaultState: VaultState;
+  vaultState: VaultStateType;
   roundActions: OptionRoundActionsType;
-  roundState: OptionRoundState;
+  roundState: OptionRoundStateType;
 }) => {
   return (
     <div className={classes.container}>

@@ -13,10 +13,10 @@ import { useState } from "react";
 // import useTransaction from "hooks/useTransaction";
 // import { DepositsRoundToken } from "cloud/types";
 import {
-  OptionRoundState,
+  OptionRoundStateType,
   PlaceBidArgs,
   RefundBidsArgs,
-  VaultState,
+  VaultStateType,
 } from "@/lib/types";
 import useERC20 from "@/hooks/erc20/useERC20";
 import { useAccount } from "@starknet-react/core";
@@ -27,8 +27,8 @@ export default function RefundBids({
   optionRoundState,
   refundBids,
 }: {
-  vaultState: VaultState;
-  optionRoundState: OptionRoundState;
+  vaultState: VaultStateType;
+  optionRoundState: OptionRoundStateType;
   refundBids: (refundBidArgs: RefundBidsArgs) => Promise<void>;
 }) {
   const [amount, setAmount] = useState<string>("");

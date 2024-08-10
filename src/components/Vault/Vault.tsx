@@ -9,9 +9,11 @@ import VaultHeader from "./VaultHeader/VaultHeader";
 import VaultActions from "./VaultActions";
 import OptionRound from "../OptionRound/OptionRound";
 import Head from "next/head";
+import StateTransition from "./VaultActions/StateTransition";
 
 export const Vault = ({ vaultAddress }: { vaultAddress: string }) => {
   const { currentRoundState, state: vaultState } = useVaultState(vaultAddress);
+  console.log("HEY",currentRoundState,vaultState);
   const vaultActions = useVaultActions(vaultAddress);
   const roundActions = useOptionRoundActions(currentRoundState.address);
   return (
@@ -44,7 +46,7 @@ export const Vault = ({ vaultAddress }: { vaultAddress: string }) => {
           <BaseFeeChart vault={vault} selectedRound={selectedRound} setSelectedRound={setSelectedRound} />
         )} */}
         </div>
-        {
+        
           <VaultActions
             vaultState={vaultState}
             vaultActions={vaultActions}
@@ -52,7 +54,7 @@ export const Vault = ({ vaultAddress }: { vaultAddress: string }) => {
             // chart={chart}
             // setChart={setChart}
           />
-        }
+        
       </div>
       {/* <div className={classes.actions}>
       <VaultActions vault={vault} selectedRound={selectedRound} />
@@ -76,51 +78,7 @@ export const Vault = ({ vaultAddress }: { vaultAddress: string }) => {
       </div>
     </div>
     <VaultHistory vault={vault} /> */}
-      <div>
-        State Transitions
-        <Button
-          style={{ flex: 1 }}
-          className={[buttons.button, buttons.confirm].join(" ")}
-          title="deposit"
-          disabled={
-            //!isDepositClickable || displayInsufficientBalance
-            false
-          }
-          onClick={async () => {
-            await vaultActions.startAuction();
-          }}
-        >
-          Start Auction
-        </Button>
-        <Button
-          style={{ flex: 1 }}
-          className={[buttons.button, buttons.confirm].join(" ")}
-          title="deposit"
-          disabled={
-            //!isDepositClickable || displayInsufficientBalance
-            false
-          }
-          onClick={async () => {
-            await vaultActions.endAuction();
-          }}
-        >
-          End Auction
-        </Button>
-        <Button
-          style={{ flex: 1 }}
-          className={[buttons.button, buttons.confirm].join(" ")}
-          title="deposit"
-          disabled={
-            //!isDepositClickable || displayInsufficientBalance
-            false
-          }
-          onClick={async () => {
-            await vaultActions.settleOptionRound();
-          }}
-        >
-          Settle Option Round
-        </Button>
-      </div>
+<StateTransition vaultActions={vaultActions} vaultState={vaultState}/>
       <OptionRound
           vaultState={vaultState}
           roundState={currentRoundState}

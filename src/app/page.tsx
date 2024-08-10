@@ -8,7 +8,7 @@ import VaultCard from "@/components/Vault/VaultCard/VaultCard";
 
 export default function Home() {
   const vaults = [
-    "0x7a2f70d96ab0ce3de438dec33b822da36a5efc5a9b5de6972508d1defad2204",
+    "0x4152d66b8ed9079734fc6d60694011bf76f5d1dfe27e39b69d37344e5069c91",
   ];
 
   const [isModalVisible, setIsModalVisible] = useState<boolean>();

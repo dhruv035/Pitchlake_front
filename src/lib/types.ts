@@ -31,7 +31,7 @@ export const RoundStateLabels: { [key in RoundState]: string } = {
   [RoundState.Settled]: "Settled",
 };
 
-export type VaultState = {
+export type VaultStateType = {
   ethAddress: string;
   address: string;
   vaultType: CairoCustomEnum;
@@ -57,7 +57,7 @@ export type VaultActionsType = {
   settleOptionRound: () => Promise<void>;
 };
 
-export type OptionRoundState = {
+export type OptionRoundStateType = {
   address:string|undefined;
   reservePrice: bigint | number | string;
   strikePrice: bigint | number | string;
@@ -81,37 +81,6 @@ export type OptionRoundActionsType = {
   tokenizeOptions:()=>Promise<void>,
   exerciseOptions:()=>Promise<void>,
 }
-
-export type Vault = {
-  address: string;
-  underlying: string;
-  strikePrice: string;
-  capLevel: string;
-  totalLocked: string;
-  totalUnlocked: string;
-  currentRoundId: string;
-  auctionRunTime: string | number;
-  optionSettleTime: string | number;
-
-  /*Contract storage
-  eth_address: ContractAddress,
-  option_round_class_hash: ClassHash,
-  positions: LegacyMap<(ContractAddress, u256), u256>,
-  withdraw_checkpoints: LegacyMap<ContractAddress, u256>,
-  total_unlocked_balance: u256,
-  total_locked_balance: u256,
-  premiums_collected: LegacyMap<(ContractAddress, u256), u256>,
-  unsold_liquidity: LegacyMap<u256, u256>,
-  current_option_round_id: u256,
-  vault_manager: ContractAddress,
-  vault_type: VaultType,
-  market_aggregator: ContractAddress,
-  round_addresses: LegacyMap<u256, ContractAddress>,
-  round_transition_period: u64,
-  auction_run_time: u64,
-  option_run_time: u64,
-   */
-};
 
 export type UpdateBidArgs = {
   bidId: string;

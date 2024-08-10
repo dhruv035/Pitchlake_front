@@ -34,18 +34,14 @@ const useVaultActions = (address: string) => {
     if (isDev === true) {
       return devAccount;
     } else return connectorAccount;
-  }, [connectorAccount, isDev, devAccount]);
+  }, [connectorAccount, isDev,devAccount]);
 
   const typedContract = useMemo(() => {
     if (!contract) return;
     const typedContract = contract.typedv2(vaultABI);
-    if (isDev) {
-      if (devAccount) typedContract.connect(devAccount as Account);
-    } else {
-      if (account) typedContract.connect(account as Account);
-    }
+    if (account) typedContract.connect(account as Account);
     return typedContract;
-  }, [contract, account, isDev,devAccount]);
+  }, [contract, account]);
 
   //Maybe used later to rewrite calls as useMemos with and writeAsync
   //May not be required if we watch our transactions off the plugin
