@@ -50,7 +50,7 @@ export default function UpdateBid({
 
   return (
     <div className={classes.container}>
-      <p className={classes.title}>{"Place Bid"}</p>
+      <p className={classes.title}>{"Update Bid"}</p>
       <div style={{ width: "100%" }}>
         {
           <>
