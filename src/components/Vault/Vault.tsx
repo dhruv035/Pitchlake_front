@@ -13,6 +13,7 @@ import StateTransition from "./VaultActions/StateTransition";
 
 export const Vault = ({ vaultAddress }: { vaultAddress: string }) => {
   const { currentRoundState, state: vaultState } = useVaultState(vaultAddress);
+  console.log("HEY",currentRoundState,vaultState);
   const vaultActions = useVaultActions(vaultAddress);
   const roundActions = useOptionRoundActions(currentRoundState.address);
   return (
@@ -45,7 +46,7 @@ export const Vault = ({ vaultAddress }: { vaultAddress: string }) => {
           <BaseFeeChart vault={vault} selectedRound={selectedRound} setSelectedRound={setSelectedRound} />
         )} */}
         </div>
-        {
+        
           <VaultActions
             vaultState={vaultState}
             vaultActions={vaultActions}
@@ -53,7 +54,7 @@ export const Vault = ({ vaultAddress }: { vaultAddress: string }) => {
             // chart={chart}
             // setChart={setChart}
           />
-        }
+        
       </div>
       {/* <div className={classes.actions}>
       <VaultActions vault={vault} selectedRound={selectedRound} />

@@ -32,7 +32,7 @@ export const StarknetProvider = ({
       chains={[mainnet, sepolia, devnet]}
       provider={jsonRpcProvider({
         rpc: (chain: Chain) => {
-          return { nodeUrl: "http://127.0.0.1:5050/" };
+          return { nodeUrl: "http://127.0.0.1:5050" };
         },
       })}
       connectors={connectors}

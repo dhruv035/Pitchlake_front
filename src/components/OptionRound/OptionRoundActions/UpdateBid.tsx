@@ -1,21 +1,10 @@
 import { Button, InputNumber } from "antd";
-// import { formatEther, parseEther } from "@ethersproject/units";
-// import { getDepositsControllerInstance, getERC20Instance, getPitchlakeVaultInstance } from "utils";
-// import { useEthers, useTokenAllowance, useTokenBalance } from "@usedapp/core";
-
-// import { BigNumber, ethers } from "ethers";
-import React, { useMemo } from "react";
-// import { Vault } from "types";
 import buttons from "@/styles/Button.module.css";
 import classes from "./PlaceBid.module.css";
 import inputs from "@/styles/Input.module.css";
 import { useState } from "react";
-// import useTransaction from "hooks/useTransaction";
-// import { DepositsRoundToken } from "cloud/types";
 import {
   OptionRoundStateType,
-  PlaceBidArgs,
-  TransactionResult,
   UpdateBidArgs,
   VaultStateType,
 } from "@/lib/types";
@@ -37,8 +26,7 @@ export default function UpdateBid({
   const [bidId, setBidId] = useState<string>("");
   const { account } = useAccount();
   const { isDev, devAccount } = useTransactionContext();
-  const [displayInsufficientBalance, setDisplayInsufficientBalance] =
-    useState<boolean>(false);
+
   const { approve } = useERC20(
     vaultState.ethAddress,
     optionRoundState.address
