@@ -12,8 +12,12 @@ const useContractReads = ({
   states: Array<{ functionName: string; args?: Array<any>; key: string }>;
 }) => {
 
+  
   const obj:{[key:string]:Result|undefined}={};
   states.forEach((state) => {
+
+    //Looped hooks, need to disable rules, the sequentially declaration is ensured here
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     const { data } = useContractRead({
       ...contractData,
       ...state,
