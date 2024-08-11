@@ -1,6 +1,6 @@
 import { optionRoundABI } from "@/abi";
 import {
-  OptionRoundState,
+  OptionRoundStateType,
 } from "@/lib/types";
 import { useAccount, useContract, useContractRead } from "@starknet-react/core";
 import { useMemo } from "react";

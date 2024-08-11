@@ -14,7 +14,7 @@ import { useState } from "react";
 // import { DepositsRoundToken } from "cloud/types";
 import {
   DepositArgs,
-  VaultState,
+  VaultStateType,
 } from "@/lib/types";
 import useERC20 from "@/hooks/erc20/useERC20";
 import { useAccount } from "@starknet-react/core";
@@ -25,7 +25,7 @@ export default function Deposit({
   vaultState,
   deposit,
 }: {
-  vaultState: VaultState;
+  vaultState: VaultStateType;
   deposit: (depositArgs: DepositArgs) => Promise<void>;
 }) {
   const [amount, setAmount] = useState<string>("");

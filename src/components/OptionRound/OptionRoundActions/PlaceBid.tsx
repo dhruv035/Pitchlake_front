@@ -13,9 +13,9 @@ import { useState } from "react";
 // import useTransaction from "hooks/useTransaction";
 // import { DepositsRoundToken } from "cloud/types";
 import {
-  OptionRoundState,
+  OptionRoundStateType,
   PlaceBidArgs,
-  VaultState,
+  VaultStateType,
 } from "@/lib/types";
 import useERC20 from "@/hooks/erc20/useERC20";
 import { useAccount } from "@starknet-react/core";
@@ -26,8 +26,8 @@ export default function PlaceBid({
   optionRoundState,
   placeBid,
 }: {
-  vaultState: VaultState;
-  optionRoundState: OptionRoundState;
+  vaultState: VaultStateType;
+  optionRoundState: OptionRoundStateType;
   placeBid: (
     placeBidArgs: PlaceBidArgs
   ) => Promise<void>;

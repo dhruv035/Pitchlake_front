@@ -9,13 +9,13 @@ import {
   DepositArgs,
   TransactionResult,
   VaultActionsType,
-  VaultState,
+  VaultStateType,
   WithdrawArgs,
 } from "@/lib/types";
 import Withdraw from "./Tabs/Withdraw";
 
 type Props = {
-  vaultState: VaultState;
+  vaultState: VaultStateType;
   vaultActions: VaultActionsType;
   selectedRound: number;
   chart?: string;

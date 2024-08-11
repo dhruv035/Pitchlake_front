@@ -9,6 +9,7 @@ import VaultHeader from "./VaultHeader/VaultHeader";
 import VaultActions from "./VaultActions";
 import OptionRound from "../OptionRound/OptionRound";
 import Head from "next/head";
+import StateTransition from "./VaultActions/StateTransition";
 
 export const Vault = ({ vaultAddress }: { vaultAddress: string }) => {
   const { currentRoundState, state: vaultState } = useVaultState(vaultAddress);
@@ -76,51 +77,7 @@ export const Vault = ({ vaultAddress }: { vaultAddress: string }) => {
       </div>
     </div>
     <VaultHistory vault={vault} /> */}
-      <div>
-        State Transitions
-        <Button
-          style={{ flex: 1 }}
-          className={[buttons.button, buttons.confirm].join(" ")}
-          title="deposit"
-          disabled={
-            //!isDepositClickable || displayInsufficientBalance
-            false
-          }
-          onClick={async () => {
-            await vaultActions.startAuction();
-          }}
-        >
-          Start Auction
-        </Button>
-        <Button
-          style={{ flex: 1 }}
-          className={[buttons.button, buttons.confirm].join(" ")}
-          title="deposit"
-          disabled={
-            //!isDepositClickable || displayInsufficientBalance
-            false
-          }
-          onClick={async () => {
-            await vaultActions.endAuction();
-          }}
-        >
-          End Auction
-        </Button>
-        <Button
-          style={{ flex: 1 }}
-          className={[buttons.button, buttons.confirm].join(" ")}
-          title="deposit"
-          disabled={
-            //!isDepositClickable || displayInsufficientBalance
-            false
-          }
-          onClick={async () => {
-            await vaultActions.settleOptionRound();
-          }}
-        >
-          Settle Option Round
-        </Button>
-      </div>
+      <StateTransition vaultActions={vaultActions} optionRoundState={currentRoundState}/>
       <OptionRound
           vaultState={vaultState}
           roundState={currentRoundState}

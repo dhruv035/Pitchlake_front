@@ -13,11 +13,11 @@ import { useState } from "react";
 // import useTransaction from "hooks/useTransaction";
 // import { DepositsRoundToken } from "cloud/types";
 import {
-  OptionRoundState,
+  OptionRoundStateType,
   PlaceBidArgs,
   TransactionResult,
   UpdateBidArgs,
-  VaultState,
+  VaultStateType,
 } from "@/lib/types";
 import useERC20 from "@/hooks/erc20/useERC20";
 import { useAccount } from "@starknet-react/core";
@@ -28,8 +28,8 @@ export default function UpdateBid({
   optionRoundState,
   updateBid,
 }: {
-  vaultState: VaultState;
-  optionRoundState: OptionRoundState;
+  vaultState: VaultStateType;
+  optionRoundState: OptionRoundStateType;
   updateBid: (updateBid: UpdateBidArgs) => Promise<void>;
 }) {
   const [amount, setAmount] = useState<string>("");
@@ -62,7 +62,7 @@ export default function UpdateBid({
 
   return (
     <div className={classes.container}>
-      <p className={classes.title}>{"Place Bid"}</p>
+      <p className={classes.title}>{"Update Bid"}</p>
       <div style={{ width: "100%" }}>
         {
           <>

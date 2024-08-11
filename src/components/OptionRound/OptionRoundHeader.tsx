@@ -1,7 +1,6 @@
 import { LeftOutlined } from "@ant-design/icons";
 import Link from "next/link";
-
-import styles from "./VaultHeader.module.css";
+import styles from "./OptionRoundHeader.module.css"
 import { OptionRoundStateType, VaultStateType } from "@/lib/types";
 
 export default function VaultHeader({

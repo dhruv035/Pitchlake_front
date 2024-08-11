@@ -5,13 +5,13 @@ import classes from "./Deposit.module.css";
 import inputs from "@/styles/Input.module.css";
 import { useState } from "react";
 import { useAccount } from "@starknet-react/core";
-import { TransactionResult, VaultState, WithdrawArgs } from "@/lib/types";
+import { TransactionResult, VaultStateType, WithdrawArgs } from "@/lib/types";
 
 export default function Withdraw({
   vaultState,
   withdraw,
 }: {
-  vaultState: VaultState;
+  vaultState: VaultStateType;
   withdraw: (
     withdrawArgs: WithdrawArgs
   ) => Promise<void>;

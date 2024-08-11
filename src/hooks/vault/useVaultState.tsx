@@ -1,6 +1,6 @@
 import { useAccount, useContractRead } from "@starknet-react/core";
 import { vaultABI } from "@/abi";
-import { VaultState } from "@/lib/types";
+import { VaultStateType } from "@/lib/types";
 import { CairoCustomEnum } from "starknet";
 import { stringToHex } from "@/lib/utils";
 import { useMemo } from "react";
@@ -127,7 +127,7 @@ const useVaultState = (address: string) => {
       auctionRunTime,
       optionRunTime,
       roundTransitionPeriod,
-    } as VaultState,
+    } as VaultStateType,
     currentRoundAddress,
     previousRoundAddress,
     currentRoundState,
