@@ -41,61 +41,62 @@ const RoundPerformanceChart = () => {
   };
 
   return (
-    <div className="w-full h-[561px] bg-[#121212] p-6 rounded-lg border border-[#262626]">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-white text-lg">Round Performance</h2>
-        <div className="flex flex-wrap space-x-4">
-          <button 
-            className={`flex items-center ${activeLines.TWAP ? 'text-green-500' : 'text-gray-500'}`}
-            onClick={() => toggleLine('TWAP')}
-          >
-            <EyeIcon className="w-4 h-4 mr-1" /> TWAP
-          </button>
-          <button 
-            className={`flex items-center ${activeLines.BASEFEE ? 'text-white' : 'text-gray-500'}`}
-            onClick={() => toggleLine('BASEFEE')}
-          >
-            <CircleDollarSign className="w-4 h-4 mr-1" /> BASEFEE
-          </button>
-          <button 
-            className={`flex items-center ${activeLines.STRIKE ? 'text-red-500' : 'text-gray-500'}`}
-            onClick={() => toggleLine('STRIKE')}
-          >
-            <TrendingUp className="w-4 h-4 mr-1" /> STRIKE
-          </button>
-          <button 
-            className={`flex items-center ${activeLines.CAP_LEVEL ? 'text-purple-500' : 'text-gray-500'}`}
-            onClick={() => toggleLine('CAP_LEVEL')}
-          >
-            <ActivityIcon className="w-4 h-4 mr-1" /> CAP LEVEL
-          </button>
-        </div>
-      </div>
-      <ResponsiveContainer width="100%" height={300}>
-        <LineChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-          <XAxis dataKey="date" stroke="#666" />
-          <YAxis stroke="#666" />
-          <Tooltip content={<CustomTooltip />} />
-          {activeLines.TWAP && <Line type="monotone" dataKey="TWAP" stroke="#10B981" dot={false} />}
-          {activeLines.BASEFEE && <Line type="monotone" dataKey="BASEFEE" stroke="#E5E7EB" dot={false} />}
-          {activeLines.STRIKE && <Line type="monotone" dataKey="STRIKE" stroke="#EF4444" dot={false} />}
-          {activeLines.CAP_LEVEL && <Line type="monotone" dataKey="CAP_LEVEL" stroke="#8B5CF6" dot={false} />}
-        </LineChart>
-      </ResponsiveContainer>
-      <div className="flex justify-between items-center mt-4">
-        <button className="bg-[#1E1E1E] text-white px-3 py-1 rounded flex items-center">
-          <ChevronLeft className="w-4 h-4 mr-1" />
+<div className="w-full h-[561px] bg-[#121212] p-6 rounded-lg border border-[#262626] flex flex-col">
+  <div className="flex justify-between items-center mb-4">
+    <h2 className="text-white text-lg font-semibold">Round Performance</h2>
+    <div className="flex flex-wrap gap-4">
+      {['TWAP', 'BASEFEE', 'STRIKE', 'CAP_LEVEL'].map((line) => (
+        <button 
+          key={line}
+          className={`flex items-center ${
+            activeLines[line] 
+              ? line === 'TWAP' 
+                ? 'text-green-500' 
+                : line === 'BASEFEE' 
+                  ? 'text-white' 
+                  : line === 'STRIKE' 
+                    ? 'text-red-500' 
+                    : 'text-purple-500'
+              : 'text-gray-500'
+          }`}
+          onClick={() => toggleLine(line)}
+        >
+          {line === 'TWAP' && <EyeIcon className="w-4 h-4 mr-1" />}
+          {line === 'BASEFEE' && <CircleDollarSign className="w-4 h-4 mr-1" />}
+          {line === 'STRIKE' && <TrendingUp className="w-4 h-4 mr-1" />}
+          {line === 'CAP_LEVEL' && <ActivityIcon className="w-4 h-4 mr-1" />}
+          {line}
         </button>
-        <div className="bg-[#1E1E1E] text-white px-3 py-1 rounded flex items-center">
-          <AlignJustify className="w-4 h-4 mr-2" />
-          Round 05 (Live)
-        </div>
-        <button className="bg-[#1E1E1E] text-white px-3 py-1 rounded flex items-center">
-          <ChevronRight className="w-4 h-4 ml-1" />
-        </button>
-      </div>
+      ))}
     </div>
+  </div>
+  <div className="flex-grow">
+    <ResponsiveContainer width="100%" height="100%">
+      <LineChart data={data}>
+        <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+        <XAxis dataKey="date" stroke="#666" />
+        <YAxis stroke="#666" />
+        <Tooltip content={<CustomTooltip />} />
+        {activeLines.TWAP && <Line type="monotone" dataKey="TWAP" stroke="#10B981" dot={false} />}
+        {activeLines.BASEFEE && <Line type="monotone" dataKey="BASEFEE" stroke="#E5E7EB" dot={false} />}
+        {activeLines.STRIKE && <Line type="monotone" dataKey="STRIKE" stroke="#EF4444" dot={false} />}
+        {activeLines.CAP_LEVEL && <Line type="monotone" dataKey="CAP_LEVEL" stroke="#8B5CF6" dot={false} />}
+      </LineChart>
+    </ResponsiveContainer>
+  </div>
+  <div className="flex justify-between items-center mt-4">
+    <button className="bg-[#1E1E1E] text-white px-3 py-1 rounded flex items-center">
+      <ChevronLeft className="w-4 h-4 mr-1" />
+    </button>
+    <div className="bg-[#1E1E1E] text-white px-3 py-1 rounded flex items-center">
+      <AlignJustify className="w-4 h-4 mr-2" />
+      Round 05 (Live)
+    </div>
+    <button className="bg-[#1E1E1E] text-white px-3 py-1 rounded flex items-center">
+      <ChevronRight className="w-4 h-4 ml-1" />
+    </button>
+  </div>
+</div>
   );
 };
 
