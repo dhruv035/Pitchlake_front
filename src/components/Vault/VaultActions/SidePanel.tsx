@@ -3,8 +3,23 @@ import { ArrowLeftIcon, ChevronDownIcon } from "lucide-react";
 import ToggleSwitch from "./ToggleSwitch";
 import collect from "@/../public/collect.svg";
 
-const SidePanel = () => {
-  const [state, setState] = useState({
+type TabType = "Deposit" | "Withdraw" | "My Info";
+type WithdrawTabType = "Liquidity" | "Queue" | "Collect";
+
+interface SidePanelState {
+  activeTab: TabType;
+  activeWithdrawTab: WithdrawTabType;
+  amount: string;
+  isDepositAsBeneficiary: boolean;
+  showConfirmation: boolean;
+  showSuccess: boolean;
+  isButtonDisabled: boolean;
+  percentage: number;
+  queuedPercentage: number;
+}
+
+const SidePanel: React.FC = () => {
+  const [state, setState] = useState<SidePanelState>({
     activeTab: "Deposit",
     activeWithdrawTab: "Liquidity",
     amount: "",
@@ -17,32 +32,37 @@ const SidePanel = () => {
   });
 
   useEffect(() => {
-    setState(prevState => ({
+    setState((prevState) => ({
       ...prevState,
-      isButtonDisabled: prevState.amount === "" || parseFloat(prevState.amount) <= 0
+      isButtonDisabled:
+        prevState.amount === "" || parseFloat(prevState.amount) <= 0,
     }));
   }, [state.amount]);
 
-  const updateState = (updates) => {
-    setState(prevState => ({ ...prevState, ...updates }));
+  const updateState = (updates: Partial<SidePanelState>): void => {
+    setState((prevState) => ({ ...prevState, ...updates }));
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = (): void => {
     if (!state.isButtonDisabled) {
       updateState({ showConfirmation: true });
     }
   };
 
-  const handleConfirm = () => {
+  const handleConfirm = (): void => {
     updateState({ showConfirmation: false, showSuccess: true });
   };
 
-  const handleSliderChange = (e) => {
+  const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const value = parseInt(e.target.value);
     updateState({ percentage: value, isButtonDisabled: false });
   };
 
-  const renderTabs = (tabs, activeTab, setActiveTab) => (
+  const renderTabs = (
+    tabs: string[],
+    activeTab: string,
+    setActiveTab: (tab: string) => void
+  ): JSX.Element => (
     <div className="flex mb-4 border-b border-gray-700">
       {tabs.map((tab) => (
         <button
@@ -61,7 +81,19 @@ const SidePanel = () => {
     </div>
   );
 
-  const InputField = ({ label, value, onChange, placeholder }) => (
+  interface InputFieldProps {
+    label: string;
+    value: string;
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    placeholder: string;
+  }
+
+  const InputField: React.FC<InputFieldProps> = ({
+    label,
+    value,
+    onChange,
+    placeholder,
+  }) => (
     <div className="mb-4">
       <label className="block text-sm font-medium text-gray-400 mb-1">
         {label}
@@ -80,7 +112,17 @@ const SidePanel = () => {
     </div>
   );
 
-  const ActionButton = ({ onClick, disabled, text }) => (
+  interface ActionButtonProps {
+    onClick: () => void;
+    disabled: boolean;
+    text: string;
+  }
+
+  const ActionButton: React.FC<ActionButtonProps> = ({
+    onClick,
+    disabled,
+    text,
+  }) => (
     <button
       onClick={onClick}
       disabled={disabled}
@@ -94,7 +136,13 @@ const SidePanel = () => {
     </button>
   );
 
-  const Modal = ({ title, children, onClose }) => (
+  interface ModalProps {
+    title: string;
+    children: React.ReactNode;
+    onClose: () => void;
+  }
+
+  const Modal: React.FC<ModalProps> = ({ title, children, onClose }) => (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
       <div className="bg-[#121212] p-6 rounded-lg max-w-sm w-full">
         <div className="flex items-center mb-4">
@@ -106,7 +154,7 @@ const SidePanel = () => {
     </div>
   );
 
-  const renderDepositContent = () => (
+  const renderDepositContent = (): JSX.Element => (
     <>
       <InputField
         label="Enter Amount"
@@ -120,15 +168,21 @@ const SidePanel = () => {
       </div>
       <ToggleSwitch
         isChecked={state.isDepositAsBeneficiary}
-        onChange={() => updateState({ isDepositAsBeneficiary: !state.isDepositAsBeneficiary })}
+        onChange={() =>
+          updateState({ isDepositAsBeneficiary: !state.isDepositAsBeneficiary })
+        }
         label="Deposit as Beneficiary"
       />
     </>
   );
 
-  const renderWithdrawContent = () => (
+  const renderWithdrawContent = (): JSX.Element => (
     <>
-      {renderTabs(["Liquidity", "Queue", "Collect"], state.activeWithdrawTab, (tab) => updateState({ activeWithdrawTab: tab }))}
+      {renderTabs(
+        ["Liquidity", "Queue", "Collect"],
+        state.activeWithdrawTab,
+        (tab) => updateState({ activeWithdrawTab: tab as WithdrawTabType })
+      )}
       {state.activeWithdrawTab === "Liquidity" && (
         <>
           <InputField
@@ -172,7 +226,9 @@ const SidePanel = () => {
                     [&::-moz-range-thumb]:hover:bg-[#F5EBB8]"
                 />
               </div>
-              <span className="text-sm w-12 text-right">{state.percentage}%</span>
+              <span className="text-sm w-12 text-right">
+                {state.percentage}%
+              </span>
             </div>
           </div>
           <div className="flex justify-between items-center text-sm">
@@ -185,7 +241,11 @@ const SidePanel = () => {
         <div className="flex flex-col h-full">
           <div className="flex-grow flex flex-col items-center justify-center space-y-4">
             <div className="bg-[#1E1E1E] rounded-lg p-4">
-              <img src={collect} alt="Collect icon" className="w-16 h-16 mx-auto" />
+              <img
+                src={collect}
+                alt="Collect icon"
+                className="w-16 h-16 mx-auto"
+              />
             </div>
             <p className="text-gray-400 text-center">
               Your current stashed balance is
@@ -197,7 +257,7 @@ const SidePanel = () => {
     </>
   );
 
-  const renderMyInfoContent = () => (
+  const renderMyInfoContent = (): JSX.Element => (
     <div className="flex flex-col space-y-4">
       <div>
         <label className="block text-sm font-medium text-gray-400 mb-1">
@@ -225,8 +285,10 @@ const SidePanel = () => {
 
   return (
     <div className="bg-[#121212] border border-[#262626] rounded-lg p-4 w-full flex flex-col h-full">
-      {renderTabs(["Deposit", "Withdraw", "My Info"], state.activeTab, (tab) => updateState({ activeTab: tab }))}
-      
+      {renderTabs(["Deposit", "Withdraw", "My Info"], state.activeTab, (tab) =>
+        updateState({ activeTab: tab as TabType })
+      )}
+
       <div className="flex-grow">
         {state.activeTab === "Deposit" && renderDepositContent()}
         {state.activeTab === "Withdraw" && renderWithdrawContent()}
@@ -237,21 +299,32 @@ const SidePanel = () => {
         <ActionButton
           onClick={handleSubmit}
           disabled={state.isButtonDisabled}
-          text={state.activeTab === "Withdraw" 
-            ? `${state.activeWithdrawTab === "Queue" ? "Queue" : state.activeWithdrawTab} Withdrawal`
-            : state.activeTab === "My Info" ? "Update Info" : "Deposit"}
+          text={
+            state.activeTab === "Withdraw"
+              ? `${
+                  state.activeWithdrawTab === "Queue"
+                    ? "Queue"
+                    : state.activeWithdrawTab
+                } Withdrawal`
+              : state.activeTab === "My Info"
+              ? "Update Info"
+              : "Deposit"
+          }
         />
       </div>
 
       {state.showConfirmation && (
-        <Modal title={`${state.activeTab} Confirmation`} onClose={() => updateState({ showConfirmation: false })}>
+        <Modal
+          title={`${state.activeTab} Confirmation`}
+          onClose={() => updateState({ showConfirmation: false })}
+        >
           <div className="bg-yellow-500 bg-opacity-20 rounded-lg p-4 mb-4">
             <div className="bg-yellow-500 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-2">
               !
             </div>
             <p className="text-center">
-              Are you sure you want to {state.activeTab.toLowerCase()} {state.amount} ETH to
-              this round?
+              Are you sure you want to {state.activeTab.toLowerCase()}{" "}
+              {state.amount} ETH to this round?
             </p>
           </div>
           <div className="flex space-x-4">
@@ -272,15 +345,22 @@ const SidePanel = () => {
       )}
 
       {state.showSuccess && (
-        <Modal title={`Liquidity ${state.activeTab} Confirmation`} onClose={() => updateState({ showSuccess: false })}>
+        <Modal
+          title={`Liquidity ${state.activeTab} Confirmation`}
+          onClose={() => updateState({ showSuccess: false })}
+        >
           <div className="bg-green-500 bg-opacity-20 rounded-lg p-4 mb-4">
             <div className="bg-green-500 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-2">
               ✓
             </div>
             <p className="text-center">
               You have successfully{" "}
-              {state.activeTab === "Deposit" ? "deposited" : "withdrawn"} {state.amount} ETH
-              {state.activeTab === "Withdraw" ? " to your unlocked balance" : ""}.
+              {state.activeTab === "Deposit" ? "deposited" : "withdrawn"}{" "}
+              {state.amount} ETH
+              {state.activeTab === "Withdraw"
+                ? " to your unlocked balance"
+                : ""}
+              .
             </p>
           </div>
           <button
