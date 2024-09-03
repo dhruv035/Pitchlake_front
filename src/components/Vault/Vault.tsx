@@ -5,28 +5,43 @@ import classes from "./Vault.module.css";
 import buttons from "@/styles/Button.module.css";
 import { shortenString } from "@/lib/utils";
 import { Button } from "antd";
-import VaultHeader from "./VaultHeader/VaultHeader";
+import VaultData from "./VaultHeader/VaultData";
 import VaultActions from "./VaultActions";
 import OptionRound from "../OptionRound/OptionRound";
 import Head from "next/head";
 import StateTransition from "./VaultActions/StateTransition";
+import SidePanel from "./VaultActions/SidePanel";
+import RoundPerformanceChart from "./VaultChart/Chart";
+import {mockVaultDetails} from "../Vault/MockData";
 
 export const Vault = ({ vaultAddress }: { vaultAddress: string }) => {
   const { currentRoundState, state: vaultState } = useVaultState(vaultAddress);
-  console.log("HEY",currentRoundState,vaultState);
   const vaultActions = useVaultActions(vaultAddress);
   const roundActions = useOptionRoundActions(currentRoundState.address);
   return (
-    <div>
+    <div className="h-full flex flex-col overflow-hidden">
       <Head>
         <title>Vault {shortenString(vaultAddress) || "..."} on PitchLake</title>
       </Head>
-      {/* <VaultTimeline disabled vault={vault} /> */}
 
-      <VaultHeader vault={vaultState} currentRoundState={currentRoundState} />
-      <div className={classes.chartRow}>
+      <div className="px-7 py-7 flex-grow overflow-auto">
+        <VaultData {...mockVaultDetails} />
+
+        <div className="mt-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div className="lg:col-span-9">
+            <RoundPerformanceChart />
+          </div>
+          <div className="w-full lg:col-span-3 flex justify-center lg:justify-start">
+            <div className="w-full sm:w-[350px] lg:w-full">
+              <SidePanel />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* <div className={classes.chartRow}>
         <div className={classes.chart}>
-          {/* <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <p className={classes.baseFee}>
             Current Base Fee:&nbsp;
             {vault.baseFeeRecords
@@ -39,12 +54,12 @@ export const Vault = ({ vaultAddress }: { vaultAddress: string }) => {
               : "loading ..."}{" "}
             gwei
           </p>
-        </div> */}
-          {/* {chart == "current" ? (
+        </div>
+          {chart == "current" ? (
           <CurrentBaseFeeChart vault={vault} />
         ) : (
           <BaseFeeChart vault={vault} selectedRound={selectedRound} setSelectedRound={setSelectedRound} />
-        )} */}
+        )}
         </div>
         
           <VaultActions
@@ -55,7 +70,7 @@ export const Vault = ({ vaultAddress }: { vaultAddress: string }) => {
             // setChart={setChart}
           />
         
-      </div>
+      </div> */}
       {/* <div className={classes.actions}>
       <VaultActions vault={vault} selectedRound={selectedRound} />
        <div>
@@ -78,12 +93,12 @@ export const Vault = ({ vaultAddress }: { vaultAddress: string }) => {
       </div>
     </div>
     <VaultHistory vault={vault} /> */}
-      <StateTransition vaultActions={vaultActions} optionRoundState={currentRoundState}/>
+      {/* <StateTransition vaultActions={vaultActions} optionRoundState={currentRoundState}/>
       <OptionRound
           vaultState={vaultState}
           roundState={currentRoundState}
           roundActions={roundActions}
-        />
+        /> */}
     </div>
   );
 };
