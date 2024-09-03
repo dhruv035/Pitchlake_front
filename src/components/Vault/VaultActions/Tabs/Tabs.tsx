@@ -1,10 +1,5 @@
 import React from "react";
-
-interface TabsProps {
-  tabs: string[];
-  activeTab: string;
-  setActiveTab: (tab: string) => void;
-}
+import { TabsProps } from "@/lib/types";
 
 const Tabs: React.FC<TabsProps> = ({ tabs, activeTab, setActiveTab }) => (
   <div className="flex mb-4 border-b border-gray-700">
