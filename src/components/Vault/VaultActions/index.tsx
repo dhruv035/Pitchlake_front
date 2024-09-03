@@ -1,1 +1,1 @@
-export { default } from "./VaultActions";
+export { default } from "./SidePanel";
