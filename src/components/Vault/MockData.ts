@@ -2,7 +2,7 @@ import { VaultDetailsProps, RoundState } from "@/lib/types";
 
 const mockVaultDetails: VaultDetailsProps = {
   vaultAddress: "0x1234567890abcdef1234567890abcdef12345678",
-  status: RoundState.Open,
+  status: RoundState.Running,
   strike: 2500,
   tvl: 5000000,
   round: 2,
