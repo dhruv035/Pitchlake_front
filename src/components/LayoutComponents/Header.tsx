@@ -16,6 +16,7 @@ import {
 } from "@starknet-react/core";
 import { copyToClipboard, shortenString } from "@/lib/utils";
 import { useTransactionContext } from "@/context/TransactionProvider";
+import {Navbar} from "@/components/BaseComponents/Navbar";
 
 export default function Header() {
   const { connect, connectors } = useConnect();
@@ -57,8 +58,9 @@ export default function Header() {
     [transactions],
   );
   return (
-    <div className={classes.header}>
-      <div className={classes.logo}>
+    <div>
+      <Navbar />
+      {/* <div className={classes.logo}>
         <Link legacyBehavior href="https://www.oiler.network/" passHref>
           <a target="_blank" rel="noreferrer">
             <Image
@@ -72,8 +74,8 @@ export default function Header() {
         <Link legacyBehavior href="/" passHref>
           <a>PitchLake</a>
         </Link>
-      </div>
-      <div className={classes.wallet}>
+      </div> */}
+      {/* <div className={classes.wallet}>
         {account ? (
           <>
             <Popover
@@ -138,7 +140,7 @@ export default function Header() {
         >
           {isDev ? "Wallet Mode" : "Dev Mode"}
         </Button>
-      </div>
+      </div> */}
     </div>
   );
 }
