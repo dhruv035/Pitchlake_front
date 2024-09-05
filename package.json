@@ -16,6 +16,7 @@
     "@starknet-react/chains": "^0.1.7",
     "@starknet-react/core": "^2.8.3",
     "antd": "^5.19.3",
+    "font-awesome": "^4.7.0",
     "get-starknet-core": "^3.3.2",
     "jotai": "^2.9.3",
     "lucide-react": "^0.436.0",
