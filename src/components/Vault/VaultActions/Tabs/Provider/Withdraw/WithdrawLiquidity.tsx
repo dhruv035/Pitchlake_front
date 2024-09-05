@@ -1,22 +1,26 @@
-import React from "react";
-import { VaultStateType, SidePanelState } from "@/lib/types";
+import React, { useState } from "react";
+import { VaultStateType } from "@/lib/types";
 import InputField from "@/components/Vault/Utils/InputField";
 import { ChevronDown } from "lucide-react";
 import ActionButton from "@/components/Vault/Utils/ActionButton";
 
 interface WithdrawLiquidityProps {
   vaultState: VaultStateType;
-  state: SidePanelState;
-  updateState: (updates: Partial<SidePanelState>) => void;
   showConfirmation: (amount: string, action: string) => void;
 }
 
 const WithdrawLiquidity: React.FC<WithdrawLiquidityProps> = ({
   vaultState,
-  state,
-  updateState,
   showConfirmation,
 }) => {
+  const [state, setState] = useState({
+    amount: "",
+  });
+
+  const updateState = (updates: Partial<typeof state>) => {
+    setState((prevState: typeof state) => ({ ...prevState, ...updates }));
+  };
+
   const handleSubmit = () => {
     if (state.amount) {
       showConfirmation(state.amount, "Withdraw");
