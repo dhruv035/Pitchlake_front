@@ -20,11 +20,13 @@ const SidePanel: React.FC<VaultDetailsProps> = ({ status, vaultAddress }) => {
     type: "confirmation" | "success";
     amount: string;
     action: string;
+    onConfirm: () => void;
   }>({
     show: false,
     type: "confirmation",
     amount: "",
     action: "",
+    onConfirm: () => {},
   });
 
   const { getTabs, getTabContent } = useTabContent(
@@ -45,8 +47,8 @@ const SidePanel: React.FC<VaultDetailsProps> = ({ status, vaultAddress }) => {
     setActiveTab(tab);
   };
 
-  const showConfirmation = (amount: string, action: string) => {
-    setModalState({ show: true, type: "confirmation", amount, action });
+  const showConfirmation = (amount: string, action: string, onConfirm: () => void) => {
+    setModalState({ show: true, type: "confirmation", amount, action, onConfirm });
   };
 
   const hideModal = () => {
@@ -55,11 +57,12 @@ const SidePanel: React.FC<VaultDetailsProps> = ({ status, vaultAddress }) => {
       type: "confirmation",
       amount: "",
       action: "",
+      onConfirm: () => {},
     });
   };
 
   const handleConfirm = async () => {
-    console.log(`Confirmed ${modalState.action} of ${modalState.amount} ETH`);
+    await modalState.onConfirm();
     setModalState((prev) => ({ ...prev, type: "success" }));
   };
 
