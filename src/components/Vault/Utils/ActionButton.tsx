@@ -16,7 +16,7 @@ const ActionButton: React.FC<ActionButtonProps> = ({
     disabled={disabled}
     className={`w-full py-2 rounded-md ${
       disabled
-        ? "bg-gray-600 text-gray-400 cursor-not-allowed"
+        ? "bg-[#373632] text-[#8C8C8C] cursor-not-allowed"
         : "bg-[#F5EBB8] text-[#121212]"
     }`}
   >
