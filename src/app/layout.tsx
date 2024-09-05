@@ -7,6 +7,7 @@ import TransactionProvider from "@/context/TransactionProvider";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./globals.css";
+import Footer from "@/components/LayoutComponents/Footer";
 
 const montserrat = Montserrat({
   subsets: ["latin"],
@@ -38,6 +39,7 @@ export default function RootLayout({
             <Header />
             <ToastContainer />
             {children}
+            <Footer />
           </TransactionProvider>
         </StarknetProvider>
       </body>
