@@ -33,7 +33,7 @@ export const Vault = ({ vaultAddress }: { vaultAddress: string }) => {
           </div>
           <div className="w-full lg:col-span-3 flex justify-center lg:justify-start">
             <div className="w-full sm:w-[350px] lg:w-full">
-              <SidePanel />
+              <SidePanel {...mockVaultDetails}/>
             </div>
           </div>
         </div>
