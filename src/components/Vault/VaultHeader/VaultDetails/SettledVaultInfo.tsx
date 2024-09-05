@@ -1,13 +1,13 @@
 import React from "react";
 import { VaultDetailsProps } from "@/lib/types";
 import { InfoItem } from "../InfoItem";
-import { StatusBadge } from "../StatusBadge";
+import { StatusAuctionSettleBadge } from "../StatusBadge";
 import { AddressLink } from "../AddressLink";
 
 export const SettledVaultInfo: React.FC<{ details: VaultDetailsProps }> = ({ details }) => (
   <>
     <InfoItem label="RUN TIME" value="1 Month" />
-    <InfoItem label="STATUS" value={<StatusBadge status="Settled" />} />
+    <InfoItem label="STATUS" value={<StatusAuctionSettleBadge status="Settled" />} />
     <InfoItem label="CL" value="90%" />
     <InfoItem label="TVL" value="1,000 ETH" />
     <InfoItem label="SELECTED ROUND" value={<AddressLink text="Round 01" />} />

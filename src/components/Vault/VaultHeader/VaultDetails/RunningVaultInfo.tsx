@@ -1,13 +1,13 @@
 import React from "react";
 import { VaultDetailsProps } from "@/lib/types";
 import { InfoItem } from "../InfoItem";
-import { StatusBadge } from "../StatusBadge";
+import { StatusAuctionRunningBadge } from "../StatusBadge";
 import { AddressLink } from "../AddressLink";
 
 export const RunningVaultInfo: React.FC<{ details: VaultDetailsProps }> = ({ details }) => (
   <>
     <InfoItem label="RUN TIME" value="1 Month" />
-    <InfoItem label="STATUS" value={<StatusBadge status="Running" />} />
+    <InfoItem label="STATUS" value={<StatusAuctionRunningBadge status="Running" />} />
     <InfoItem label="STRIKE" value={details.strike || "161.82 GWEI"} />
     <InfoItem label="AUCTION CLEARING PRICE" value="180 GWEI" />
     <InfoItem label="TOTAL PREMIUM" value="500 ETH" />

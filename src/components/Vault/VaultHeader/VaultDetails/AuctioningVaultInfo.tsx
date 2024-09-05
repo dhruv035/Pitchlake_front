@@ -1,7 +1,7 @@
 import React from "react";
 import { VaultDetailsProps } from "@/lib/types";
 import { InfoItem } from "../InfoItem";
-import { StatusBadge } from "../StatusBadge";
+import { StatusAuctioningBadge } from "../StatusBadge";
 import { AddressLink } from "../AddressLink";
 import { BalanceTooltip } from "@/components/BaseComponents/Tooltip";
 import { Info } from "lucide-react";
@@ -9,7 +9,7 @@ import { Info } from "lucide-react";
 export const AuctioningVaultInfo: React.FC<{ details: VaultDetailsProps }> = ({ details }) => (
   <>
     <InfoItem label="RUN TIME" value="1 Month" />
-    <InfoItem label="STATUS" value={<StatusBadge status="Auctioning" />} />
+    <InfoItem label="STATUS" value={<StatusAuctioningBadge status="Auctioning" />} />
     <InfoItem label="STRIKE" value={details.strike || "161.82 GWEI"} />
     <InfoItem label="CL" value="90%" />
     <InfoItem label="TVL" value="500/1,000 ETH" />

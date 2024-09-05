@@ -2,14 +2,14 @@
 import React from "react";
 import { VaultDetailsProps } from "@/lib/types";
 import { InfoItem } from "../InfoItem";
-import { StatusBadge } from "@/components/Vault/VaultHeader/StatusBadge";
+import { StatusOpenBadge } from "@/components/Vault/VaultHeader/StatusBadge";
 import { AddressLink } from "@/components/Vault/VaultHeader/AddressLink";
 import { BalanceTooltip } from "@/components/BaseComponents/Tooltip";
 
 export const OpenVaultInfo: React.FC<{ details: VaultDetailsProps }> = ({ details }) => (
   <>
     <InfoItem label="RUN TIME" value="1 Month" />
-    <InfoItem label="STATUS" value={<StatusBadge status="OPEN" />} />
+    <InfoItem label="STATUS" value={<StatusOpenBadge status="OPEN" />} />
     <InfoItem label="STRIKE" value={details.strike || "161.82 GWEI"} />
     <InfoItem label="CL" value="90%" />
     <InfoItem label="TVL" value="500/1,000 ETH" />
