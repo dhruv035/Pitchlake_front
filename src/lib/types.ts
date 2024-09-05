@@ -66,9 +66,9 @@ export type OptionRoundStateType = {
   roundState: CairoCustomEnum;
   clearingPrice: bigint | number | string;
   optionsSold: bigint | number | string;
-  auctionStartDate: Date;
-  auctionEndDate: Date;
-  optionSettleDate: Date;
+  auctionStartDate?: Date;
+  auctionEndDate?: Date;
+  optionSettleDate?: Date;
 };
 
 export interface VaultDetailsProps {
@@ -105,19 +105,44 @@ export interface BalanceTooltipProps {
   };
 }
 
-export type TabType = "Deposit" | "Withdraw" | "My Info";
-export type WithdrawTabType = "Liquidity" | "Queue" | "Collect";
+export enum CommonTabs {
+  MyInfo = "My Info",
+}
 
-export interface SidePanelState {
-  activeTab: TabType;
-  activeWithdrawTab: WithdrawTabType;
-  amount: string;
-  isDepositAsBeneficiary: boolean;
-  showConfirmation: boolean;
-  showSuccess: boolean;
-  isButtonDisabled: boolean;
-  percentage: number;
-  queuedPercentage: number;
+export enum ProviderTabs {
+  Deposit = "Deposit",
+  Withdraw = "Withdraw",
+}
+
+export enum BuyerTabs {
+  PlaceBid = "Place Bid",
+  History = "History",
+  Refund = "Refund",
+  Mint = "Mint",
+  Exercise = "Exercise",
+}
+
+export enum WithdrawSubTabs {
+  Liquidity = "Liquidity",
+  Queue = "Queue",
+  Collect = "Collect",
+}
+
+// Define a type for the user role
+export enum VaultUserRole {
+  Provider = "Provider",
+  Buyer = "Buyer",
+}
+
+// Define a discriminated union for tabs based on user role
+export type TabType =
+  | { role: VaultUserRole.Provider; tab: ProviderTabs | CommonTabs }
+  | { role: VaultUserRole.Buyer; tab: BuyerTabs | CommonTabs; state: RoundState };
+
+export interface TabsProps {
+  tabs: string[];
+  activeTab: string;
+  setActiveTab: (tab: string) => void;
 }
 
 export type OptionRoundActionsType = {
