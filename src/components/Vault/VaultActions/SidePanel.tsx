@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, ReactElement } from "react";
 import { useAtomValue } from "jotai";
 import { VaultUserRole, RoundState } from "@/lib/types";
 import Tabs from "./Tabs/Tabs";
@@ -12,6 +12,10 @@ interface VaultDetailsProps {
   vaultAddress: string;
 }
 
+interface TabContentProps {
+  showConfirmation: (amount: string, action: string, onConfirm: () => Promise<void>) => void;
+}
+
 const SidePanel: React.FC<VaultDetailsProps> = ({ status, vaultAddress }) => {
   const vaultUser = useAtomValue(vaultUserType);
   const [activeTab, setActiveTab] = useState<string>("");
@@ -20,13 +24,13 @@ const SidePanel: React.FC<VaultDetailsProps> = ({ status, vaultAddress }) => {
     type: "confirmation" | "success";
     amount: string;
     action: string;
-    onConfirm: () => void;
+    onConfirm: () => Promise<void>;
   }>({
     show: false,
     type: "confirmation",
     amount: "",
     action: "",
-    onConfirm: () => {},
+    onConfirm: async () => {},
   });
 
   const { getTabs, getTabContent } = useTabContent(
@@ -47,7 +51,7 @@ const SidePanel: React.FC<VaultDetailsProps> = ({ status, vaultAddress }) => {
     setActiveTab(tab);
   };
 
-  const showConfirmation = (amount: string, action: string, onConfirm: () => void) => {
+  const showConfirmation = (amount: string, action: string, onConfirm: () => Promise<void>) => {
     setModalState({ show: true, type: "confirmation", amount, action, onConfirm });
   };
 
@@ -57,7 +61,7 @@ const SidePanel: React.FC<VaultDetailsProps> = ({ status, vaultAddress }) => {
       type: "confirmation",
       amount: "",
       action: "",
-      onConfirm: () => {},
+      onConfirm: async () => {},
     });
   };
 
@@ -72,7 +76,7 @@ const SidePanel: React.FC<VaultDetailsProps> = ({ status, vaultAddress }) => {
       return null;
     }
     return React.isValidElement(content)
-      ? React.cloneElement(content, { showConfirmation })
+      ? React.cloneElement(content as ReactElement<TabContentProps>, { showConfirmation })
       : content;
   };
 
