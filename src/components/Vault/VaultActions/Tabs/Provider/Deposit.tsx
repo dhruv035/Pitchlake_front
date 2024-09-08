@@ -10,11 +10,22 @@ import ButtonTabs from "../../ButtonTabs";
 
 interface DepositProps {
   vaultState: VaultStateType;
-  showConfirmation: (amount: string, action: string) => void;
+  showConfirmation: (
+    amount: string,
+    action: string,
+    onConfirm: () => Promise<void>
+  ) => void;
+}
+
+interface DepositState {
+  amount: string;
+  isDepositAsBeneficiary: boolean;
+  beneficiaryAddress: string;
+  activeWithdrawTab: "For Myself" | "As Beneficiary";
 }
 
 const Deposit: React.FC<DepositProps> = ({ vaultState, showConfirmation }) => {
-  const [state, setState] = useState({
+  const [state, setState] = useState<DepositState>({
     amount: "",
     isDepositAsBeneficiary: false,
     beneficiaryAddress: "",
@@ -25,21 +36,27 @@ const Deposit: React.FC<DepositProps> = ({ vaultState, showConfirmation }) => {
   const { isDev, devAccount } = useTransactionContext();
   const { balance } = useERC20(vaultState.ethAddress, vaultState.address);
 
-  const updateState = (updates: Partial<typeof state>) => {
+  const updateState = (updates: Partial<DepositState>) => {
     setState((prevState) => ({ ...prevState, ...updates }));
   };
 
+  const handleDeposit = async (): Promise<void> => {
+    console.log("Depositing", state.amount);
+  };
+
   const handleSubmit = () => {
-    showConfirmation(state.amount, "Deposit");
+    console.log("Deposit confirmation");
+    showConfirmation(state.amount, "Deposit", handleDeposit);
   };
 
   const isDepositDisabled = (): boolean => {
     if (state.isDepositAsBeneficiary) {
       return (
-        BigInt(state.amount) <= 0 || state.beneficiaryAddress.trim() === ""
+        BigInt(state.amount) <= BigInt(0) ||
+        state.beneficiaryAddress.trim() === ""
       );
     }
-    return BigInt(state.amount) <= 0;
+    return BigInt(state.amount) <= BigInt(0);
   };
 
   return (
