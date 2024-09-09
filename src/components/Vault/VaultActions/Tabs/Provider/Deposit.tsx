@@ -11,7 +11,7 @@ import ButtonTabs from "../../ButtonTabs";
 interface DepositProps {
   vaultState: VaultStateType;
   showConfirmation: (
-    amount: string,
+    modalHeader: string,
     action: string,
     onConfirm: () => Promise<void>
   ) => void;
@@ -46,7 +46,11 @@ const Deposit: React.FC<DepositProps> = ({ vaultState, showConfirmation }) => {
 
   const handleSubmit = () => {
     console.log("Deposit confirmation");
-    showConfirmation(state.amount, "Deposit", handleDeposit);
+    showConfirmation(
+      "Deposit",
+      `deposit ${state.amount} ETH to this round?`,
+      handleDeposit
+    );
   };
 
   const isDepositDisabled = (): boolean => {
@@ -79,9 +83,10 @@ const Deposit: React.FC<DepositProps> = ({ vaultState, showConfirmation }) => {
               type="text"
               value={state.beneficiaryAddress}
               label="Enter Address"
-              onChange={(e) =>
-                updateState({ beneficiaryAddress: e.target.value })
-              }
+              onChange={(e) => {
+                updateState({ beneficiaryAddress: e.target.value });
+                // TODO: Check address regex 
+              }}
               placeholder="Depositor's Address"
               icon={
                 <User className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400" />
