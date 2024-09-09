@@ -5,7 +5,11 @@ import collect from "@/../public/collect.svg";
 
 interface WithdrawCollectProps {
   vaultState: VaultStateType;
-  showConfirmation: (amount: string, action: string) => void;
+  showConfirmation: (
+    modalHeader: string,
+    action: string,
+    onConfirm: () => Promise<void>
+  ) => void;
 }
 
 const WithdrawCollect: React.FC<WithdrawCollectProps> = ({
@@ -20,7 +24,23 @@ const WithdrawCollect: React.FC<WithdrawCollectProps> = ({
     setState((prevState) => ({ ...prevState, ...updates }));
   };
 
-  const handleSubmit = () => {};
+  const collectStakedBalance = async (): Promise<void> => {
+    // apply logic for collectin
+    console.log("Collecting");
+  };
+
+  const handleSubmit = () => {
+    console.log("Collect confirmation");
+    showConfirmation(
+      "Collect Withdrawals",
+      `claim your queued withdrawals of ${0} ETH`,  //  TODO: staked ETH instead of 0
+      collectStakedBalance
+    );
+  };
+
+  const isButtonDisabled = (): boolean => {
+    return false; // Button should be disabled is staked ETH is 0
+  }
 
   return (
     <div className="flex flex-col h-full">
@@ -45,7 +65,7 @@ const WithdrawCollect: React.FC<WithdrawCollectProps> = ({
         <div className="flex justify-between text-sm mb-4 pt-4 border-t border-[#262626]">
           <ActionButton
             onClick={handleSubmit}
-            disabled={false}
+            disabled={isButtonDisabled()}
             text="Collect"
           />
         </div>

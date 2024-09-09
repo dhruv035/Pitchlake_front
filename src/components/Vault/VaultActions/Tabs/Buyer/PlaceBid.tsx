@@ -4,7 +4,11 @@ import { Layers3, Currency } from "lucide-react";
 import ActionButton from "@/components/Vault/Utils/ActionButton";
 
 interface PlaceBidProps {
-  showConfirmation: (amount: string, price: string, action: string) => void;
+  showConfirmation: (
+    modalHeader: string,
+    action: string,
+    onConfirm: () => Promise<void>
+  ) => void;
 }
 
 const PlaceBid: React.FC<PlaceBidProps> = ({ showConfirmation }) => {
@@ -32,14 +36,25 @@ const PlaceBid: React.FC<PlaceBidProps> = ({ showConfirmation }) => {
     updateState({ bidPrice: e.target.value });
   };
 
+  const handlePlaceBid = async (): Promise<void> => {
+    console.log("Placing bid..");
+  };
+
   const handleSubmit = () => {
-    if (state.bidAmount && state.bidPrice) {
-      showConfirmation(state.bidAmount, state.bidPrice, "Place Bid");
-    }
+    console.log("Place Bid confirmation");
+    showConfirmation(
+      "Bid",
+      `bid for ${state.bidAmount} options at ${
+        state.bidPrice
+      } ETH each, for a total of ${
+        Number(state.bidAmount) * Number(state.bidPrice)
+      } ETH?`,
+      handlePlaceBid
+    );
   };
 
   const total = parseFloat(state.bidAmount) * parseFloat(state.bidPrice) || 0;
-  const balance = 0; // This should be fetched from somewhere in a real application
+  const balance = 0;
 
   return (
     <div className="flex flex-col h-full">

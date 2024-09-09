@@ -6,7 +6,11 @@ import ActionButton from "@/components/Vault/Utils/ActionButton";
 
 interface WithdrawLiquidityProps {
   vaultState: VaultStateType;
-  showConfirmation: (amount: string, action: string) => void;
+  showConfirmation: (
+    modalHeader: string,
+    action: string,
+    onConfirm: () => Promise<void>
+  ) => void;
 }
 
 const WithdrawLiquidity: React.FC<WithdrawLiquidityProps> = ({
@@ -21,10 +25,17 @@ const WithdrawLiquidity: React.FC<WithdrawLiquidityProps> = ({
     setState((prevState: typeof state) => ({ ...prevState, ...updates }));
   };
 
+  const liquidityWithdraw = async (): Promise<void> => {
+    console.log("queue withdraw", state.amount);
+  };
+
   const handleSubmit = () => {
-    if (state.amount) {
-      showConfirmation(state.amount, "Withdraw");
-    }
+    console.log("Collect confirmation");
+    showConfirmation(
+      "Liquidity Withdraw",
+      `withdraw ${state.amount} ETH to your unlocked balance?`,
+      liquidityWithdraw
+    );
   };
 
   const isWithdrawDisabled = (): boolean => {

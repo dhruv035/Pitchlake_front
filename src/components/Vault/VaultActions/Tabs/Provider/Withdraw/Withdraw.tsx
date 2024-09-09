@@ -7,7 +7,11 @@ import WithdrawCollect from "@/components/Vault/VaultActions/Tabs/Provider/Withd
 
 interface WithdrawProps {
   vaultState: VaultStateType;
-  showConfirmation: (amount: string, action: string) => void;
+  showConfirmation: (
+    modalHeader: string,
+    action: string,
+    onConfirm: () => Promise<void>
+  ) => void;
 }
 
 const Withdraw: React.FC<WithdrawProps> = ({

@@ -2,12 +2,16 @@ import React from "react";
 import { VaultStateType } from "@/lib/types";
 import ActionButton from "@/components/Vault/Utils/ActionButton";
 
-interface WithdrawLiquidityProps {
+interface WithdrawQueueProps {
   vaultState: VaultStateType;
-  showConfirmation: (amount: string, action: string) => void;
+  showConfirmation: (
+    modalHeader: string,
+    action: string,
+    onConfirm: () => Promise<void>
+  ) => void;
 }
 
-const WithdrawLiquidity: React.FC<WithdrawLiquidityProps> = ({
+const WithdrawLiquidity: React.FC<WithdrawQueueProps> = ({
   showConfirmation,
 }) => {
   const [state, setState] = React.useState({
@@ -24,11 +28,17 @@ const WithdrawLiquidity: React.FC<WithdrawLiquidityProps> = ({
     updateState({ percentage: value, isButtonDisabled: false });
   };
 
+  const liquidityWithdraw = async (): Promise<void> => {
+    console.log("queue withdraw", state.percentage);
+  };
+
   const handleSubmit = () => {
-    if (state.percentage) {
-      const amount = state.percentage / 100;
-      showConfirmation(amount.toString(), "Withdraw");
-    }
+    console.log("Collect confirmation");
+    showConfirmation(
+      "Liquidity Withdraw",
+      `change the current queued withdrawal limit to ${state.percentage}% from 25%`, // TODO: Modify it to show the current percentage via the props
+      liquidityWithdraw
+    );
   };
 
   React.useEffect(() => {
