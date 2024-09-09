@@ -3,13 +3,13 @@ import { Check } from "lucide-react";
 
 interface SuccessModalProps {
   activeTab: string;
-  amount: string;
+  action: string;
   onClose: () => void;
 }
 
 const SuccessModal: React.FC<SuccessModalProps> = ({
   activeTab,
-  amount,
+  action,
   onClose,
 }) => (
   <div className="bg-[#121212] border border-[#262626] rounded-lg p-4 w-full flex flex-col h-full">
@@ -20,24 +20,21 @@ const SuccessModal: React.FC<SuccessModalProps> = ({
           <path d="M12 19L5 12L12 5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
       </button>
-      <h2 className="text-white text-xl font-semibold">Liquidity {activeTab} Successful</h2>
+      <h2 className="text-white text-md font-semibold">{activeTab}</h2>
     </div>
     <div className="flex-grow flex flex-col items-center justify-center">
-      <div className="bg-[#1E1E1E] rounded-lg p-6 mb-6">
-        <div className="bg-yellow-500 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-          <Check className="text-black w-8 h-8" />
+      <div className="rounded-lg p-6 mb-6">
+        <div className="bg-[#F5EBB8] rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-3">
+          <Check className="text-black w-6 h-6" />
         </div>
         <p className="text-center text-white">
-          You have successfully{" "}
-          {activeTab === "Deposit" ? "deposited" : "withdrawn"}{" "}
-          <span className="font-bold">{amount} ETH</span>
-          {activeTab === "Withdraw" ? " to your unlocked balance" : ""}.
+          You have successfully {action}.
         </p>
       </div>
     </div>
     <button
       onClick={onClose}
-      className="w-full bg-yellow-500 text-black py-3 rounded-md font-semibold"
+      className="w-full bg-[#F5EBB8] text-black py-3 rounded-md font-semibold"
     >
       Got it
     </button>
