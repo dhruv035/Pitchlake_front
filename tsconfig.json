@@ -27,6 +27,6 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "src/app/optionRound/[address]"
-  ],
+, "postcss.config.js"  ],
   "exclude": ["node_modules"]
 }

@@ -24,6 +24,7 @@ export enum RoundState {
   Running = 2, // Auction has ended, waiting for option round expiry date to settle
   Settled = 3,
 }
+
 export const RoundStateLabels: { [key in RoundState]: string } = {
   [RoundState.Open]: "Open",
   [RoundState.Auctioning]: "Auctioning",
@@ -46,19 +47,15 @@ export type VaultStateType = {
 };
 
 export type VaultActionsType = {
-  depositLiquidity: (
-    depositArgs: DepositArgs,
-  ) => Promise<void>;
-  withdrawLiquidity: (
-    withdrawArgs: WithdrawArgs,
-  ) => Promise<void>;
+  depositLiquidity: (depositArgs: DepositArgs) => Promise<void>;
+  withdrawLiquidity: (withdrawArgs: WithdrawArgs) => Promise<void>;
   startAuction: () => Promise<void>;
   endAuction: () => Promise<void>;
   settleOptionRound: () => Promise<void>;
 };
 
 export type OptionRoundStateType = {
-  address:string|undefined;
+  address: string | undefined;
   reservePrice: bigint | number | string;
   strikePrice: bigint | number | string;
   capLevel: bigint | number | string;
@@ -69,18 +66,92 @@ export type OptionRoundStateType = {
   roundState: CairoCustomEnum;
   clearingPrice: bigint | number | string;
   optionsSold: bigint | number | string;
-  auctionStartDate: Date;
-  auctionEndDate: Date;
-  optionSettleDate: Date;
+  auctionStartDate?: Date;
+  auctionEndDate?: Date;
+  optionSettleDate?: Date;
 };
 
-export type OptionRoundActionsType = {
-  placeBid:(placeBids:PlaceBidArgs)=>Promise<void>,
-  updateBid:(updateBid:UpdateBidArgs)=>Promise<void>,
-  refundUnusedBids:(refundBids:RefundBidsArgs)=>Promise<void>,
-  tokenizeOptions:()=>Promise<void>,
-  exerciseOptions:()=>Promise<void>,
+export interface VaultDetailsProps {
+  vaultAddress: string;
+  status: RoundState;
+  strike: number;
+  tvl: number;
+  round: number;
+  timeLeft?: string;
+  capLevel: number;
+  roundID: number;
+  type: string;
+  fees: number;
+  apy?: number;
+  pnl?: number;
+  lastRoundPerf: number;
+  currRoundPerf?: number;
+  actions: string;
+  auctionStartDate: Date;
+  auctionEndDate: Date;
+  optionSettleDate?: Date;
 }
+
+export interface InfoItemProps {
+  label: string;
+  value: React.ReactNode;
+}
+
+export interface BalanceTooltipProps {
+  balance: {
+    locked: string;
+    unlocked: string;
+    stashed: string;
+  };
+}
+
+export enum CommonTabs {
+  MyInfo = "My Info",
+}
+
+export enum ProviderTabs {
+  Deposit = "Deposit",
+  Withdraw = "Withdraw",
+}
+
+export enum BuyerTabs {
+  PlaceBid = "Place Bid",
+  History = "History",
+  Refund = "Refund",
+  Mint = "Mint",
+  Exercise = "Exercise",
+}
+
+export enum WithdrawSubTabs {
+  Liquidity = "Liquidity",
+  Queue = "Queue",
+  Collect = "Collect",
+}
+
+// Define a type for the user role
+export enum VaultUserRole {
+  Provider = "Provider",
+  Buyer = "Buyer",
+}
+
+// Define a discriminated union for tabs based on user role
+export type TabType =
+  | { role: VaultUserRole.Provider; tab: ProviderTabs | CommonTabs }
+  | { role: VaultUserRole.Buyer; tab: BuyerTabs | CommonTabs; state: RoundState };
+
+export interface TabsProps {
+  tabs: string[];
+  activeTab: string;
+  setActiveTab: (tab: string) => void;
+}
+
+export type OptionRoundActionsType = {
+  placeBid: (placeBids: PlaceBidArgs) => Promise<void>;
+  updateBid: (updateBid: UpdateBidArgs) => Promise<void>;
+  refundUnusedBids: (refundBids: RefundBidsArgs) => Promise<void>;
+  tokenizeOptions: () => Promise<void>;
+  exerciseOptions: () => Promise<void>;
+};
 
 export type UpdateBidArgs = {
   bidId: string;
