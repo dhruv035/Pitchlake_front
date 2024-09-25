@@ -23,6 +23,7 @@ InfoItem.ITMTooltip = () => (
     ITM <Info className="inline h-4 w-4 ml-1 text-[#F5EBB8]" />
   </Tooltip>
 );
+InfoItem.ITMTooltip.displayName = "InfoItem.ITMTooltip";
 
 InfoItem.Performance = ({ value }) => (
   <span className="text-[#F5EBB8]">
@@ -30,8 +31,10 @@ InfoItem.Performance = ({ value }) => (
   </span>
 );
 
+InfoItem.Performance.displayName = "InfoItem.Performance";
 InfoItem.Action = ({ text }) => (
   <span className="text-[#F5EBB8]">
     {text} <ChartLine className="inline h-3 w-3 ml-1" />
   </span>
 );
+InfoItem.Action.displayName = "InfoItem.Action";  

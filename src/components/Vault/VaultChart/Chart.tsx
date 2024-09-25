@@ -22,7 +22,7 @@ import {
 } from "lucide-react";
 
 const RoundPerformanceChart = () => {
-  const [activeLines, setActiveLines] = useState({
+  const [activeLines, setActiveLines] = useState<{[key:string]:boolean}>({
     TWAP: true,
     BASEFEE: true,
     STRIKE: true,
@@ -31,9 +31,10 @@ const RoundPerformanceChart = () => {
 
   const [activeDate, setActiveDate] = useState(data[0].date);
   const [zoomDomain, setZoomDomain] = useState(null);
+  const [brushIndex, setBrushIndex] = useState(0);
   const chartRef = useRef(null);
 
-  const handleZoom = (domain) => {
+  const handleZoom = (domain:any) => {
     setZoomDomain(domain);
   };
 
@@ -42,24 +43,24 @@ const RoundPerformanceChart = () => {
   };
 
   const handlePrev = () => {
-    setBrushIndex((prevIndex) => Math.max(prevIndex - 1, 0));
+    setBrushIndex((prevIndex:any) => Math.max(prevIndex - 1, 0));
   };
 
   const handleNext = () => {
-    setBrushIndex((prevIndex) => Math.min(prevIndex + 1, data.length - 1));
+    setBrushIndex((prevIndex:any) => Math.min(prevIndex + 1, data.length - 1));
   };
 
-  const toggleLine = (line) => {
+  const toggleLine = (line:string) => {
     setActiveLines((prev) => ({ ...prev, [line]: !prev[line] }));
   };
 
-  const CustomTooltip = ({ active, payload, label }) => {
+  const CustomTooltip = ({ active, payload, label }:{active:any,payload:any,label:any}) => {
     if (active && payload && payload.length) {
       return (
         <div className="bg-[#1E1E1E] p-4 rounded-lg shadow-lg">
           <p className="text-white text-sm mb-2">{label}</p>
           <div className="space-y-2">
-            {payload.map((entry, index) => (
+            {payload.map((entry:any, index:any) => (
               <div key={index} className="flex items-center">
                 <div
                   className="w-4 h-4 rounded-full mr-2"
@@ -138,7 +139,9 @@ const RoundPerformanceChart = () => {
             <CartesianGrid strokeDasharray="3 3" stroke="#333" />
             <XAxis dataKey="date" stroke="#666" />
             <YAxis stroke="#666" />
-            <Tooltip content={<CustomTooltip />} />
+            {
+              //<Tooltip content={<CustomTooltip />} />
+              }
             {activeLines.TWAP && (
               <Area
                 type="monotone"

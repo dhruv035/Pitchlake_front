@@ -41,7 +41,7 @@ const History: React.FC<HistoryProps> = ({ items }) => {
   return (
     <div className="space-y-2">
       {items.map((item, index) => (
-        <HistoryItem key={index} item={item} />
+        <HistoryItem key={index} item={item} isLast={true}/>
       ))}
     </div>
   );

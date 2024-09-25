@@ -58,7 +58,7 @@ const WithdrawCollect: React.FC<WithdrawCollectProps> = ({
           Your current stashed balance is
         </p>
         <p className="text-2xl font-bold text-center">
-          {vaultState.stakedBalance?.toString() || "0"} ETH
+          {vaultState.stashedBalance?.toString() || "0"} ETH
         </p>
       </div>
       <div className="mt-auto">

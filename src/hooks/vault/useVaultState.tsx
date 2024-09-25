@@ -112,6 +112,7 @@ const useVaultState = (address: string) => {
     vaultLockedAmount,
     vaultUnlockedAmount,
     lpLockedAmount,
+    stashedBalance:0,
     lpUnlockedAmount,
     currentRoundId,
     auctionRunTime,

@@ -38,6 +38,7 @@ export type VaultStateType = {
   vaultType: CairoCustomEnum;
   vaultLockedAmount: number | bigint | string;
   vaultUnlockedAmount: number | bigint | string;
+  stashedBalance: number | bigint | string;
   lpLockedAmount: number | bigint | string;
   lpUnlockedAmount: number | bigint | string;
   currentRoundId: number | bigint | string;

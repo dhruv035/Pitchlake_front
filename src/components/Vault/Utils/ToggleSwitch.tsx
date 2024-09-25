@@ -8,7 +8,7 @@ interface ToggleSwitchProps {
 
 const renderBNFUnlockedBalance = () => (
   <div className="flex justify-between text-sm mb-4">
-    <span className="text-gray-400">BNF's Unlocked Balance</span>
+    <span className="text-gray-400">BNF&apos;s Unlocked Balance</span>
     <span>12.8 ETH</span>
   </div>
 );

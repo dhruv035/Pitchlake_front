@@ -113,7 +113,7 @@ const SidePanel: React.FC<VaultDetailsProps> = ({ status, vaultAddress }) => {
           <div className="flex-grow">{renderTabContent()}</div>
         </>
       ) : (
-        <div className="text-white">Round hasn't started yet</div>
+        <div className="text-white">Round hasn&apos;t started yet</div>
       )}
     </div>
   );
