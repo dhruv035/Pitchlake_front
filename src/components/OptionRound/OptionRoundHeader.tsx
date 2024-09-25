@@ -89,7 +89,7 @@ export default function VaultHeader({
       <div className={styles.box}>
         <p>End Date:</p>
         <p>
-          <strong>{currentRoundState.auctionEndDate.toDateString()}</strong>
+          <strong>{currentRoundState.auctionEndDate?.toDateString()}</strong>
         </p>
       </div>
     </div>

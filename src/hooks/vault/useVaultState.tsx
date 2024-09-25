@@ -1,17 +1,12 @@
 import {
   useAccount,
-  useContractRead,
-  useContractWrite,
 } from "@starknet-react/core";
 import { vaultABI } from "@/abi";
-import { OptionRoundStateType, VaultStateType } from "@/lib/types";
-import { CairoCustomEnum } from "starknet";
+import { VaultStateType } from "@/lib/types";
 import { stringToHex } from "@/lib/utils";
 import { useMemo } from "react";
 import useOptionRoundState from "../optionRound/useOptionRoundState";
-import { useTransactionContext } from "@/context/TransactionProvider";
 import useContractReads from "../../lib/useContractReads";
-import { stat } from "fs";
 
 const useVaultState = (address: string) => {
   const contractData = useMemo(

@@ -1,13 +1,17 @@
 "use client";
 import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
-import { BellIcon, ChevronDownIcon, CopyIcon, LogOutIcon } from "lucide-react";
-import Link from "next/link";
-import classes from "../LayoutComponents/Header.module.css";
+
+import { BellIcon, ChevronDownIcon } from "lucide-react";
 import logo_full from "@/../public/logo_full.svg";
+import login from "@/../public/login.svg";
+import braavosIcon from "@/../public/braavos.svg";
+import argent from "@/../public/argent.svg";
+import AuctionIcon from "@/../public/icons/auction";
 import avatar from "@/../public/avatar.svg";
 import { toast } from "react-toastify";
 import {
+  braavos,
   useAccount,
   useBalance,
   useConnect,
@@ -18,6 +22,7 @@ import { copyToClipboard } from "@/lib/utils";
 
 export default function Header() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const isDropdownOpenRef = useRef(isDropdownOpen);
   const { connect, connectors } = useConnect();
   const { disconnect } = useDisconnect();
   const { account } = useAccount();
@@ -25,7 +30,7 @@ export default function Header() {
     address: account?.address,
     watch: true,
   });
-  const dropdownRef = useRef(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const balanceData = {
     wallet: "36.05",
@@ -35,14 +40,21 @@ export default function Header() {
   };
 
   useEffect(() => {
-    const handleClickOutside = (event: any) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+    isDropdownOpenRef.current = isDropdownOpen;
+  }, [isDropdownOpen]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        isDropdownOpenRef.current &&
+        !dropdownRef?.current?.contains(event.target as HTMLDivElement)
+      ) {
         setIsDropdownOpen(false);
       }
     };
 
-    const handleEscKey = (event: any) => {
-      if (event.key === "Escape") {
+    const handleEscKey = (event: KeyboardEvent) => {
+      if (isDropdownOpenRef.current && event.key === "Escape") {
         setIsDropdownOpen(false);
       }
     };
@@ -74,7 +86,7 @@ export default function Header() {
   };
 
   return (
-    <nav className="sticky top-0 z-50 w-full h-[92px] bg-[#121212] px-8 py-6 flex justify-between items-center border-b border-[#262626]">
+    <nav className="absolute top-0 z-50 w-full h-[92px] bg-[#121212] px-8 py-6 flex justify-between items-center border-b border-[#262626]">
       <div className="flex-shrink-0">
         <Image
           src={logo_full}
@@ -87,15 +99,15 @@ export default function Header() {
       </div>
 
       <div className="flex items-center space-x-4">
-        <div className="cursor-pointer bg-[#0D0D0D] border border-[#262626] p-2 rounded-md">
-          <BellIcon className="h-6 w-6 text-[#C1C1C1]" />
+        <div className="cursor-pointer border-[1px] border-greyscale-800 p-2 rounded-md">
+          <BellIcon className="h-6 w-6 text-primary" />
         </div>
         <div className="relative" ref={dropdownRef}>
           {account ? (
             <>
               <button
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="flex items-center space-x-2 bg-[#111111] py-2 px-3 rounded-md border border-[#262626]"
+                className="flex items-center space-x-2 bg- py-2 px-3 rounded-md border border-greyscale-800"
               >
                 <Image
                   src={avatar}
@@ -120,17 +132,56 @@ export default function Header() {
               )}
             </>
           ) : (
-            <div className="flex space-x-2">
-              {connectors.map((connector) => (
-                <button
-                  key={connector.name}
-                  onClick={() => connect({ connector })}
-                  className="bg-[#111111] py-2 px-3 rounded-md border border-[#262626] text-white"
-                >
-                  Connect {connector.name}
-                </button>
-              ))}
-            </div>
+            <>
+              <button
+                className="flex flex-row min-w-16 bg-primary-400 text-black text-sm px-8 py-4 rounded-md"
+                onClick={() => setIsDropdownOpen((state) => !state)}
+              >
+                <p>Connect</p>
+                <Image
+                  src={login}
+                  alt="Login"
+                  width={20}
+                  height={30}
+                  className="ml-2"
+                  style={{ objectFit: "contain" }}
+                />
+              </button>
+              {isDropdownOpen && (
+                <div className="absolute right-0 w-[196px] text-sm flex flex-col mt-2 ">
+                  <div className="bg-greyscale-900 rounded-md">
+                    <div className="p-4">CHOOSE A WALLET</div>
+                    {connectors.map((connector) => (
+                      <div
+                        key={connector.name}
+                        onClick={() => connect({ connector })}
+                        className="sticky p-2 bg-black w-full text-white"
+                      >
+                        {
+                          <div className="flex flex-row items-center">
+                            <Image
+                              src={
+                                connector.name === "braavos"
+                                  ? braavosIcon
+                                  : argent
+                              }
+                              alt="Login"
+                              width={20}
+                              height={30}
+                              className="m-2"
+                              style={{ objectFit: "contain" }}
+                            />
+                            {connector.name === "braavos"
+                              ? "Braavos "
+                              : "Argent "}
+                          </div>
+                        }
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>

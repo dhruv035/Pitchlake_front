@@ -10,7 +10,7 @@ import {
 
 const Footer: React.FC = () => {
   return (
-    <footer className="w-full bg-[#121212] h-[82px] pt-8 justify-between items-start text-white py-6 px-8 border-t border-[#262626] opacity-90">
+    <footer className="absolute bottom-0 w-full bg-[#121212] h-[82px] pt-8 justify-between items-start text-white py-6 px-8 border-t border-[#262626] opacity-90">
       <div className="container mx-auto flex flex-col md:flex-row justify-between items-center">
         <div className="text-sm mb-4 md:mb-0">
           Copyright © {new Date().getFullYear()} by Oiler
