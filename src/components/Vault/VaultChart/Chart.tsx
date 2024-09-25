@@ -81,7 +81,7 @@ const RoundPerformanceChart = () => {
   const hourlyData = data.find((item) => item.date === activeDate)?.data || [];
 
   return (
-    <div className="w-full h-[561px] bg-[#121212] p-6 rounded-lg border border-greyscale-800 flex flex-col">
+    <div className="w-full h-[800px] bg-[#121212] p-6 rounded-lg border border-greyscale-800 flex flex-col">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-white text-lg font-semibold">Round Performance</h2>
         <div className="flex gap-4">
