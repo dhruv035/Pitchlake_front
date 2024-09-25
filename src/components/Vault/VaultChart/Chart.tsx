@@ -80,10 +80,10 @@ const RoundPerformanceChart = () => {
   const hourlyData = data.find((item) => item.date === activeDate)?.data || [];
 
   return (
-    <div className="w-full h-[561px] bg-[#121212] p-6 rounded-lg border border-[#262626] flex flex-col">
+    <div className="w-full h-[561px] bg-[#121212] p-6 rounded-lg border border-greyscale-800 flex flex-col">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-white text-lg font-semibold">Round Performance</h2>
-        <div className="flex flex-wrap gap-4">
+        <div className="flex gap-4">
           {["TWAP", "BASEFEE", "STRIKE", "CAP_LEVEL"].map((line) => (
             <button
               key={line}
@@ -106,7 +106,7 @@ const RoundPerformanceChart = () => {
           ))}
         </div>
       </div>
-      <div className="flex-grow">
+    
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart
             data={hourlyData}
@@ -183,7 +183,6 @@ const RoundPerformanceChart = () => {
             )}
           </ComposedChart>
         </ResponsiveContainer>
-      </div>
       <div className="flex justify-between items-center mt-4">
         <button
           className="bg-[#1E1E1E] text-white px-3 py-1 rounded flex items-center"

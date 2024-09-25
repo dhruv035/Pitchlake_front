@@ -33,11 +33,10 @@ export default function RootLayout({
 }>) {
   return (
     <html className={`${montserrat.variable}`} lang="en">
-      <body>
+      <body className="flex flex-col min-h-[100vh]">
         <StarknetProvider>
           <TransactionProvider>
             <Header />
-            <ToastContainer />
             {children}
             <Footer />
           </TransactionProvider>

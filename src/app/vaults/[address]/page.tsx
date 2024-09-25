@@ -8,8 +8,8 @@ export default function Home({
   params: { address: string };
 }) {
   return (
-    <div className="h-full overflow-hidden flex flex-col">
+  
       <Vault vaultAddress={vaultAddress} />
-    </div>
+
   );
 }
