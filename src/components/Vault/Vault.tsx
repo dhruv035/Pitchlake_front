@@ -5,8 +5,8 @@ import SidePanel from "./VaultActions/SidePanel";
 import RoundPerformanceChart from "./VaultChart/Chart";
 import { mockVaultDetails } from "../Vault/MockData";
 import { useState } from "react";
-import AuctionIcon from "../../../public/icons/Auction";
-import CoinStackedIcon from "../../../public/icons/CoinStacked";
+import AuctionIcon from "../icons/Auction";
+import CoinStackedIcon from "../icons/CoinStacked";
 
 export const Vault = ({ vaultAddress }: { vaultAddress: string }) => {
   const { currentRoundState, state: vaultState } = useVaultState(vaultAddress);
