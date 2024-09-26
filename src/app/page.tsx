@@ -15,8 +15,7 @@ export default function Home() {
   const handleCreateClick = () => {};
 
   return (
-    <main className={styles.main}>
-      <>
+    <div className='flex flex-grow flex-col items-center justify-center '>
         <div className={styles.menu}>
           {/* <HandledDropdown
             onChange={handleDropdown}
@@ -37,12 +36,7 @@ export default function Home() {
               <DownOutlined />
             </Button>
           </HandledDropdown> */}
-          <Button
-            className={[buttonClass.button, buttonClass.confirm].join(" ")}
-            onClick={handleCreateClick}
-          >
-            Create vault
-          </Button>
+
         </div>
         <div className={styles.vaultList}>
           {vaults?.map((vault: string, index: number) => (
@@ -54,7 +48,6 @@ export default function Home() {
         {
           // <CreateVaultModal isModalVisible={isModalVisible} closeModal={() => setIsModalVisible(false)} />
         }
-      </>
-    </main>
+    </div>
   );
 }

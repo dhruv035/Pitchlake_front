@@ -1,12 +1,14 @@
 import useOptionRoundActions from "@/hooks/optionRound/useOptionRoundActions";
 import useVaultActions from "@/hooks/vault/useVaultActions";
 import useVaultState from "@/hooks/vault/useVaultState";
-import SidePanel from "./VaultActions/SidePanel";
+import SidePanel from "./VaultActions/PanelRight";
 import RoundPerformanceChart from "./VaultChart/Chart";
 import { mockVaultDetails } from "../Vault/MockData";
 import { useState } from "react";
 import AuctionIcon from "../icons/Auction";
 import CoinStackedIcon from "../icons/CoinStacked";
+import PanelRight from "./VaultActions/PanelRight";
+import PanelLeft from "./VaultActions/PanelLeft";
 
 export const Vault = ({ vaultAddress }: { vaultAddress: string }) => {
   const { currentRoundState, state: vaultState } = useVaultState(vaultAddress);
@@ -41,11 +43,14 @@ export const Vault = ({ vaultAddress }: { vaultAddress: string }) => {
         </div>
         <div className="mt-6 flex flex-row">
        
+        <div className="w-full mr-6 max-w-[350px]">
+              <PanelLeft {...mockVaultDetails} />
+            </div>
             <RoundPerformanceChart />
      
   
             <div className="w-full ml-6 max-w-[350px]">
-              <SidePanel {...mockVaultDetails} />
+              <PanelRight {...mockVaultDetails} />
             </div>
     
         </div>

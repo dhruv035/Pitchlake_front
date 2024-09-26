@@ -17,16 +17,16 @@ interface ProfileDropdownProps {
 
 const ProfileDropdown: React.FC<ProfileDropdownProps> = ({ account, balance, disconnect, copyToClipboard }) => {
   return (
-    <div className="absolute right-0 mt-2 w-64 bg-[#111111] rounded-md shadow-lg py-1 border border-[#262626]">
-      <div className="px-4 py-2 text-sm text-white border-b border-[#262626] flex justify-between items-center">
+    <div className="absolute right-0 mt-2 w-64 bg-black rounded-md shadow-lg py-1 border border-greyscale-800">
+      <div className="px-4 py-2 text-sm text-white border-b border-greyscale-800 flex justify-between items-center">
         <span>{account.address.slice(0, 6)}...{account.address.slice(-4)}</span>
         <CopyIcon
-          className="h-4 w-4 text-[#C1C1C1] cursor-pointer"
+          className="h-4 w-4 text-white-alt cursor-pointer"
           onClick={() => copyToClipboard(account.address)}
         />
       </div>
-      <div className="px-4 py-2 text-sm text-white border-b border-[#262626]">
-        <h3 className="text-[#C1C1C1] mb-2">MY BALANCE</h3>
+      <div className="px-4 py-2 text-sm text-white border-b border-greyscale-800">
+        <h3 className="text-white-alt mb-2">MY BALANCE</h3>
         <div className="space-y-1">
           <div className="flex justify-between">
             <span>Wallet</span>
@@ -47,11 +47,11 @@ const ProfileDropdown: React.FC<ProfileDropdownProps> = ({ account, balance, dis
         </div>
       </div>
       <div
-        className="px-4 py-2 text-sm text-white hover:bg-[#262626] cursor-pointer flex justify-between items-center"
+        className="px-4 py-2 text-sm text-white hover:bg-greyscale-800 cursor-pointer flex justify-between items-center"
         onClick={disconnect}
       >
         <span>Disconnect</span>
-        <LogOutIcon className="h-4 w-4 text-[#BFBFBF]" />
+        <LogOutIcon className="h-4 w-4 text-greyscale" />
       </div>
     </div>
   );

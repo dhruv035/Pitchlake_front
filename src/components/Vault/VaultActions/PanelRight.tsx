@@ -16,7 +16,7 @@ interface TabContentProps {
   showConfirmation: (amount: string, action: string, onConfirm: () => Promise<void>) => void;
 }
 
-const SidePanel: React.FC<VaultDetailsProps> = ({ status, vaultAddress }) => {
+const PanelRight: React.FC<VaultDetailsProps> = ({ status, vaultAddress }) => {
   const vaultUser = useAtomValue(vaultUserType);
   const [activeTab, setActiveTab] = useState<string>("");
   const [modalState, setModalState] = useState<{
@@ -119,4 +119,4 @@ const SidePanel: React.FC<VaultDetailsProps> = ({ status, vaultAddress }) => {
   );
 };
 
-export default SidePanel;
+export default PanelRight;

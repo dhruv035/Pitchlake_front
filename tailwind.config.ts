@@ -84,6 +84,7 @@ const config: Config = {
         'greyscale-900':"var(--greyscale-900)",
         black:"var(--black)",
         white:"var(--white)",
+        'white-alt':"var(--white-alt)"
       }, 
       backgroundImage:{
         'greyscale-gradient':'var(--greyscale-gradient)',

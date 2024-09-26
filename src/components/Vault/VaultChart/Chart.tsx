@@ -81,7 +81,7 @@ const RoundPerformanceChart = () => {
   const hourlyData = data.find((item) => item.date === activeDate)?.data || [];
 
   return (
-    <div className="w-full h-[800px] bg-[#121212] p-6 rounded-lg border border-greyscale-800 flex flex-col">
+    <div className="w-full h-[650px] bg-[#121212] p-6 rounded-lg border border-greyscale-800 flex flex-col">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-white text-lg font-semibold">Round Performance</h2>
         <div className="flex gap-4">
@@ -128,12 +128,12 @@ const RoundPerformanceChart = () => {
           >
             <defs>
               <linearGradient id="twapGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#000000" stopOpacity={0.2} />
+                <stop offset="0%" stopColor="var(--success-700)" stopOpacity={0.2} />
                 <stop offset="50%" stopColor="var(--success-700)" stopOpacity={0} />
               </linearGradient>
               <linearGradient id="basefeeGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#000000" stopOpacity={0.2} />
-                <stop offset="100%" stopColor="var(--greyscale-600)" stopOpacity={0} />
+                <stop offset="0%" stopColor="var(--greyscale-600)" stopOpacity={0.2} />
+                <stop offset="50%" stopColor="var(--greyscale-600)" stopOpacity={0} />
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" stroke="#333" />
@@ -144,6 +144,7 @@ const RoundPerformanceChart = () => {
               }
             {activeLines.TWAP && (
               <Area
+              height={400}
                 type="monotone"
                 dataKey="TWAP"
                 stroke="#10B981"
