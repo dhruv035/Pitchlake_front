@@ -1,11 +1,6 @@
 import useOptionRoundActions from "@/hooks/optionRound/useOptionRoundActions";
 import useVaultActions from "@/hooks/vault/useVaultActions";
 import useVaultState from "@/hooks/vault/useVaultState";
-import Image from "next/image";
-import { shortenString } from "@/lib/utils";
-import Head from "next/head";
-import coinstacked from "@/../public/coinstacked.svg";
-import auction from "@/../public/auction.svg";
 import SidePanel from "./VaultActions/SidePanel";
 import RoundPerformanceChart from "./VaultChart/Chart";
 import { mockVaultDetails } from "../Vault/MockData";
