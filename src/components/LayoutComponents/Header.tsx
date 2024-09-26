@@ -7,7 +7,6 @@ import logo_full from "@/../public/logo_full.svg";
 import login from "@/../public/login.svg";
 import braavosIcon from "@/../public/braavos.svg";
 import argent from "@/../public/argent.svg";
-import AuctionIcon from "@/../public/icons/auction";
 import avatar from "@/../public/avatar.svg";
 import { toast } from "react-toastify";
 import {
@@ -107,7 +106,7 @@ export default function Header() {
             <>
               <button
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="flex items-center space-x-2 bg- py-2 px-3 rounded-md border border-greyscale-800"
+                className="flex items-center space-x-2 py-2 px-3 rounded-md border border-greyscale-800"
               >
                 <Image
                   src={avatar}

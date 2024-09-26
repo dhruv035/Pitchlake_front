@@ -10,6 +10,8 @@ import SidePanel from "./VaultActions/SidePanel";
 import RoundPerformanceChart from "./VaultChart/Chart";
 import { mockVaultDetails } from "../Vault/MockData";
 import { useState } from "react";
+import AuctionIcon from "../../../public/icons/Auction";
+import CoinStackedIcon from "../../../public/icons/CoinStacked";
 
 export const Vault = ({ vaultAddress }: { vaultAddress: string }) => {
   const { currentRoundState, state: vaultState } = useVaultState(vaultAddress);
@@ -20,22 +22,15 @@ export const Vault = ({ vaultAddress }: { vaultAddress: string }) => {
 
       <div className="px-7 py-7 flex-grow overflow-auto">
         <div className="flex flex-row-reverse mt-6 text-primary p-4">
-          <div className="flex flex-row mt-10 rounded-md bg-greyscale-800">
+          <div className="flex flex-row mt-10 rounded-md border-[1px] border-greyscale-800">
             <div
             onClick={() => setIsProviderView(true)}
               className={`flex flex-row items-center m-[1px] hover:cursor-pointer p-4 rounded-md ${
                 isProviderView ? "bg-primary-900" : ""
               }`}
             >
-              <Image
-                src={coinstacked}
-                alt="Coinstack"
-                width={16}
-                
-                  className="mr-2"
-                style={{ objectFit: "contain" }}
-              />
-              <p>Provider</p>
+              <CoinStackedIcon classname="mr-2" stroke={isProviderView?"var(--primary)":"var(--greyscale)"}/>
+              <p className={`${isProviderView?"text-primary":"text-greyscale"}`}>Provider</p>
             </div>
             <div
             onClick={() => setIsProviderView(false)}  
@@ -43,15 +38,8 @@ export const Vault = ({ vaultAddress }: { vaultAddress: string }) => {
                 !isProviderView ? "bg-primary-900" : ""
               }`}
             >
-              <Image
-                src={auction}
-                alt="Pitchlake logo"
-                width={16}
-              
-              className="mr-2"
-                style={{ objectFit: "contain", fill: "#000000" }}
-              />
-              <p>Buyer</p>
+             <AuctionIcon classname="mr-2" fill={isProviderView?"var(--greyscale)":"var(--primary)"}/>
+              <p className={`${!isProviderView?"text-primary":"text-greyscale"}`}>Buyer</p>
             </div>
           </div>
         

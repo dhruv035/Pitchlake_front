@@ -91,13 +91,13 @@ const RoundPerformanceChart = () => {
               className={`flex items-center ${
                 activeLines[line]
                   ? line === "TWAP"
-                    ? "text-green-500"
+                    ? "text-success"
                     : line === "BASEFEE"
-                    ? "text-white"
+                    ? "text-greyscale"
                     : line === "STRIKE"
-                    ? "text-red-500"
-                    : "text-purple-500"
-                  : "text-gray-500"
+                    ? "text-warning-300"
+                    : "text-error-300"
+                  : "text-greyscale"
               }`}
               onClick={() => toggleLine(line)}
             >
@@ -128,12 +128,12 @@ const RoundPerformanceChart = () => {
           >
             <defs>
               <linearGradient id="twapGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#10B981" stopOpacity={0.2} />
-                <stop offset="100%" stopColor="#10B981" stopOpacity={0} />
+                <stop offset="0%" stopColor="#000000" stopOpacity={0.2} />
+                <stop offset="50%" stopColor="var(--success-700)" stopOpacity={0} />
               </linearGradient>
               <linearGradient id="basefeeGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#E5E7EB" stopOpacity={0.2} />
-                <stop offset="100%" stopColor="#E5E7EB" stopOpacity={0} />
+                <stop offset="0%" stopColor="#000000" stopOpacity={0.2} />
+                <stop offset="100%" stopColor="var(--greyscale-600)" stopOpacity={0} />
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" stroke="#333" />
@@ -164,7 +164,7 @@ const RoundPerformanceChart = () => {
               <Line
                 type="monotone"
                 dataKey="STRIKE"
-                stroke="#EF4444"
+                stroke="var(--warning-300)"
                 dot={false}
               />
             )}
