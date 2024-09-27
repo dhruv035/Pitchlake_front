@@ -3,6 +3,7 @@ import styles from "./VaultCard.module.css";
 import { useRouter } from "next/navigation";
 import { shortenString } from "@/lib/utils";
 import useVaultState from "@/hooks/vault/useVaultState";
+import { ActivityIcon, BarChartIcon, HourglassIcon, PieChartIcon, SpeedometerIcon, TagIcon } from "@/components/Icons";
 
 export default function VaultCard({ vaultAddress }: { vaultAddress: string }) {
   const vaultNew = useVaultState(vaultAddress);
@@ -14,163 +15,117 @@ export default function VaultCard({ vaultAddress }: { vaultAddress: string }) {
 
   return (
     <div
-      className={styles.container}
+    className="col-span-1 w-full border-[1px] border-greyscale-800 rounded-lg"
       onClick={() => {
         router.push(`/vaults/${vaultAddress}`);
       }}
     >
-      <div className={`${styles.titleBox} ${styles.row}`}>
-        <p className={styles.title}>
+      <div className="bg-faded-black rounded-t-lg p-4 text-white">
+          <div className="flex flex-row items-center">
+          <p>
+            {
+              //Add date logic
+              "1 Month"
+            }
+           
+          </p>
+          <div className="bg-primary-800 rounded-full w-[5px] h-[5px] m-2"/>
+          <p>
+            {
+              //Add vault type here
+              "ATM"
+            }
+          </p>
+          </div>
+          <p className="text-greyscale">
           {shortenString(vaultAddress)} |{" "}
           {vaultNew.state.vaultType?.activeVariant()}
         </p>
       </div>
-
-      <div className={styles.flexGap}>
-        <div
-          className={styles.row}
-          style={{ flex: 1, flexDirection: "column" }}
-        >
+      <div className="flex flex-row w-full ">
+        <div className="flex flex-col p-2 w-full border-r-[1px] border-greyscale-800">
+         <div className="flex flex-row justify-between m-2">
+          <div className="flex flex-row items-center">
+          <SpeedometerIcon classname="w-4 h-4 mr-2" stroke={"var(--greyscale)"}/>
+          <p>APY:</p>
+          </div>
+          
           <p>
-            <strong>Previous Round</strong>
-          </p>
-
-          <div style={{ display: "flex" }}>
-            <p>Round Id: &nbsp;</p>
-            <p>
-              <strong>
-                {vaultNew.previousRoundState.roundId?.toString()}
-              </strong>
+            {
+              "12.3%"
+              //Add APY from state here
+            }
             </p>
+         </div>
+         <div className="flex flex-row justify-between m-2">
+          <div className="flex flex-row items-center">
+          <PieChartIcon classname="w-4 h-4 mr-2" stroke={"var(--greyscale)"}/>
+          <p>CL:</p>
           </div>
-          <div style={{ display: "flex" }}>
-            <p>CapLevel: &nbsp;</p>
-            <p>
-              <strong>
-                {Number(vaultNew.previousRoundState.capLevel || 0) / 100}%
-              </strong>
+          
+          <p>
+            {
+              "78%"
+              //Add CL from state here
+            }
             </p>
+         </div>
+         <div className="flex flex-row justify-between m-2">
+          <div className="flex flex-row items-center">
+          <ActivityIcon classname="w-4 h-4 mr-2" stroke={"var(--greyscale)"}/>
+          <p>Strike:</p>
           </div>
-          <div style={{ display: "flex" }}>
-            <p>State: &nbsp;</p>
-            <p>
-              <strong>
-                {vaultNew.previousRoundState.roundState?.activeVariant()}
-              </strong>
+          
+          <p>
+            {
+              "5123.32"
+              //Add Strike price from state here
+            }&nbsp; GWEI
             </p>
-          </div>
+         </div>
         </div>
-        <div
-          className={styles.row}
-          style={{ flex: 1, flexDirection: "column" }}
-        >
+        <div className="flex flex-col p-2 w-full border-l-[1px] border-greyscale-800">
+        <div className="flex flex-row justify-between m-2">
+          <div className="flex flex-row items-center">
+          <TagIcon classname="w-4 h-4 mr-2" stroke={"var(--greyscale)"}/>
+          <p>FEES:</p>
+          </div>
+          
           <p>
-            <strong>Current Round</strong>
-          </p>
-
-          <div style={{ display: "flex" }}>
-            <p>Round Id: &nbsp;</p>
-            <p>
-              <strong>{vaultNew.currentRoundState.roundId?.toString()}</strong>
+            {
+              "12.3"
+              //Add APY from state here
+            }%
             </p>
+         </div>
+         <div className="flex flex-row justify-between m-2">
+          <div className="flex flex-row items-center">
+          <BarChartIcon classname="w-4 h-4 mr-2" stroke={"var(--greyscale)"}/>
+          <p>TVL:</p>
           </div>
-          <div style={{ display: "flex" }}>
-            <p>CapLevel: &nbsp;</p>
-            <p>
-              <strong>
-                {Number(vaultNew.currentRoundState.capLevel || 0) / 100}%
-              </strong>
+          
+          <p>
+            {
+              "12.3"
+              //Add TVL from state here
+            }&nbsp; ETH
             </p>
+         </div>
+         <div className="flex flex-row justify-between m-2">
+          <div className="flex flex-row items-center">
+          <HourglassIcon classname="w-4 h-4 mr-2" stroke={"var(--greyscale)"}/>
+          <p>TIME LEFT:</p>
           </div>
-          <div style={{ display: "flex" }}>
-            <p>State: &nbsp;</p>
-            <p>
-              <strong>
-                {vaultNew.currentRoundState.roundState?.activeVariant()}
-              </strong>
+          
+          <p>
+            {
+              "5 Days"
+              //Add Time left from state here
+            }&nbsp; LEFT
             </p>
-          </div>
-          <div style={{ display: "flex" }}>
-            <p>StartDate: &nbsp;</p>
-            <p>
-              <strong>
-                {vaultNew.currentRoundState.auctionStartDate?.toUTCString()}
-              </strong>
-            </p>
-          </div>
-          <div style={{ display: "flex" }}>
-            <p>Auction End Date: &nbsp;</p>
-            <p>
-              <strong>
-                {vaultNew.currentRoundState.auctionEndDate?.toUTCString()}
-              </strong>
-            </p>
-          </div>
-          <div style={{ display: "flex" }}>
-            <p>Option Settle Date: &nbsp;</p>
-            <p>
-              <strong>
-                {vaultNew.currentRoundState.optionSettleDate?.toUTCString()}
-              </strong>
-            </p>
-          </div>
+         </div>
         </div>
 
-        {/* <div
-          className={styles.flexGap}
-          style={{ flex: 1, flexDirection: "column" }}
-        >
-          <div className={styles.row}>
-            <p>APY:&nbsp;</p>
-            <p>
-              <strong>{0}%</strong>
-            </p>
-          </div>
-          <div className={styles.row}>
-            <p>Fees:</p>
-            <p>
-              <strong>{0}%</strong>
-            </p>
-          </div>
-        </div> */}
-      </div>
-
-      <div className={styles.row} style={{ gap: "5px", whiteSpace: "nowrap" }}>
-        {/* <p>
-            <strong>{formatEther(vault.tvl || 0).toString()} weth</strong>
-          </p> */}
-        <p>
-          TLV:{" "}
-          <strong>
-            {(
-              Number(vaultNew.state.vaultLockedAmount) +
-                Number(vaultNew.state.vaultUnlockedAmount) / 1000000000 || 0
-            ).toString()}
-            &nbsp;gwei
-          </strong>
-        </p>
-        <Progress
-          percent={50}
-          status="active"
-          showInfo={false}
-          strokeColor={"var(--orange)"}
-        />
-      </div>
-
-      <div
-        className={styles.row}
-        style={{
-          justifyContent: "flex-end",
-          borderRadius: "0px 0px 10px 10px",
-        }}
-      >
-        <p>
-          Time Left:&nbsp;
-          {vaultNew.currentRoundState.auctionEndDate?.toString()}
-        </p>
-        <p>
-          <strong></strong>
-        </p>
       </div>
     </div>
   );

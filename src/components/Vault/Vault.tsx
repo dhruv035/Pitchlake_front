@@ -5,8 +5,8 @@ import SidePanel from "./VaultActions/PanelRight";
 import RoundPerformanceChart from "./VaultChart/Chart";
 import { mockVaultDetails } from "../Vault/MockData";
 import { useState } from "react";
-import AuctionIcon from "../icons/Auction";
-import CoinStackedIcon from "../icons/CoinStacked";
+import AuctionIcon from "../Icons/AuctionIcon";
+import CoinStackedIcon from "../Icons/CoinStackedIcon";
 import PanelRight from "./VaultActions/PanelRight";
 import PanelLeft from "./VaultActions/PanelLeft";
 

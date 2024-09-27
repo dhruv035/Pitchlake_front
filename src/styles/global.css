@@ -1,6 +1,5 @@
 :root {
   /* Colors */
-  --main: rgb(243, 231, 169);
   --red: rgb(243, 65, 32);
   --deepRed: rgb(197, 30, 72);
   --greyscale-gradient: linear-gradient(180deg, rgba(89, 89, 89, 0.5) -28.5%, rgba(0, 0, 0, 0) 95.56%);
@@ -72,8 +71,10 @@
   --greyscale-900:#1F1F1F;
   --greyscale:var(--greyscale-400);
   --black:#111111;
+  --faded-black: #1A1A16;
   --white:#FFFFFF;
   --white-alt:#FAFAFA;
+
   
 
 
