@@ -18,8 +18,8 @@ export const Vault = ({ vaultAddress }: { vaultAddress: string }) => {
   return (
 
       <div className="px-7 py-7 flex-grow overflow-auto">
-        <div className="flex flex-row-reverse mt-6 text-primary p-4">
-          <div className="flex flex-row mt-10 rounded-md border-[1px] border-greyscale-800">
+        <div className="flex flex-row-reverse text-primary p-4">
+          <div className="flex flex-row rounded-md border-[1px] border-greyscale-800">
             <div
             onClick={() => setIsProviderView(true)}
               className={`flex flex-row items-center m-[1px] hover:cursor-pointer p-4 rounded-md ${
