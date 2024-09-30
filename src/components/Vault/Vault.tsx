@@ -43,9 +43,9 @@ export const Vault = ({ vaultAddress }: { vaultAddress: string }) => {
         </div>
         <div className="mt-6 flex flex-row">
        
-        <div className="w-full mr-6 max-w-[350px]">
+       
               <PanelLeft {...mockVaultDetails} />
-            </div>
+
             <RoundPerformanceChart />
      
   

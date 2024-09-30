@@ -6,6 +6,7 @@ import { vaultUserType } from "@/lib/atom/user-tab";
 import { useTabContent } from "@/hooks/vault/useTabContent";
 import ConfirmationModal from "@/components/Vault/Utils/ConfirmationModal";
 import SuccessModal from "@/components/Vault/Utils/SuccessModal";
+import { ArrowDownIcon, LayerStackIcon, SafeIcon } from "@/components/Icons";
 
 interface VaultDetailsProps {
   status: RoundState;
@@ -102,20 +103,28 @@ const PanelLeft: React.FC<VaultDetailsProps> = ({ status, vaultAddress }) => {
   }
 
   return (
-    <div className="bg-[#121212] border border-[#262626] rounded-lg p-4 w-full flex flex-col h-full">
-      {tabs.length > 0 ? (
-        <>
-          <Tabs
-            tabs={tabs}
-            activeTab={activeTab}
-            setActiveTab={handleTabChange}
-          />
-          <div className="flex-grow">{renderTabContent()}</div>
-        </>
-      ) : (
-        <div className="text-white">Round hasn&apos;t started yet</div>
-      )}
-    </div>
+    <div className="flex flex-col mr-4 max-w-[350px] w-[84px] hover:w-full transition-all duration-300 ">
+    
+    <div className="group bg-black-alt border-[1px] border-greyscale-800 items-start rounded-lg p-4 w-full flex flex-col flex-grow h-full">
+    
+        <div className="flex flex-row w-full">
+          <div>
+            <SafeIcon classname="w-6 h-6 text-primary-800" />
+          </div>
+          <div className="hidden group-hover:flex flex-row w-full">
+        <div className="ml-2 text-white w-fit overflow-clip  text-nowrap">Vault</div>
+        <div className="flex flex-row-reverse w-full"><ArrowDownIcon fill="white" classname="w-6 h-6"/></div></div>
+      </div>
+
+      <div className="flex flex-row w-full mt-6">
+          <div>
+            <LayerStackIcon classname="w-6 h-6" fill="black" stroke="white"/>
+          </div>
+          <div className="hidden group-hover:flex flex-row w-full">
+        <div className="ml-2 text-white w-fit overflow-clip  text-nowrap">Option Round</div>
+        <div className="flex flex-row-reverse w-full"><ArrowDownIcon fill="white" classname="w-6 h-6"/></div></div>
+      </div>
+    </div></div>
   );
 };
 

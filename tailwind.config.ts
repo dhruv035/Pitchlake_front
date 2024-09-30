@@ -86,6 +86,7 @@ const config: Config = {
         white:"var(--white)",
         'white-alt':"var(--white-alt)",
         'faded-black':"var(--faded-black)",
+        'black-alt':"var(--black-alt)",
       }, 
       backgroundImage:{
         'greyscale-gradient':'var(--greyscale-gradient)',
