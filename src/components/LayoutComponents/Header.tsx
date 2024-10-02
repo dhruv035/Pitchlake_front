@@ -71,7 +71,6 @@ export default function Header() {
     navigator.clipboard
       .writeText(text)
       .then(() => {
-        console.log("Copied to clipboard");
         // Add a toast message
         toast("Copied to clipboard", { autoClose: 1000 });
       })

@@ -6,7 +6,13 @@ import { vaultUserType } from "@/lib/atom/user-tab";
 import { useTabContent } from "@/hooks/vault/useTabContent";
 import ConfirmationModal from "@/components/Vault/Utils/ConfirmationModal";
 import SuccessModal from "@/components/Vault/Utils/SuccessModal";
-import { ArrowDownIcon, LayerStackIcon, SafeIcon } from "@/components/Icons";
+import {
+  ArrowDownIcon,
+  ArrowUpIcon,
+  LayerStackIcon,
+  LineChartDownIcon,
+  SafeIcon,
+} from "@/components/Icons";
 
 interface VaultDetailsProps {
   status: RoundState;
@@ -14,12 +20,18 @@ interface VaultDetailsProps {
 }
 
 interface TabContentProps {
-  showConfirmation: (amount: string, action: string, onConfirm: () => Promise<void>) => void;
+  showConfirmation: (
+    amount: string,
+    action: string,
+    onConfirm: () => Promise<void>
+  ) => void;
 }
 
 const PanelLeft: React.FC<VaultDetailsProps> = ({ status, vaultAddress }) => {
   const vaultUser = useAtomValue(vaultUserType);
   const [activeTab, setActiveTab] = useState<string>("");
+  const [vaultIsOpen, setVaultIsOpen] = useState<boolean>(false);
+  const [optionRoundIsOpen, setOptionRoundIsOpen] = useState<boolean>(false);
   const [modalState, setModalState] = useState<{
     show: boolean;
     type: "confirmation" | "success";
@@ -52,8 +64,18 @@ const PanelLeft: React.FC<VaultDetailsProps> = ({ status, vaultAddress }) => {
     setActiveTab(tab);
   };
 
-  const showConfirmation = (modalHeader: string, action: string, onConfirm: () => Promise<void>) => {
-    setModalState({ show: true, type: "confirmation", modalHeader, action, onConfirm });
+  const showConfirmation = (
+    modalHeader: string,
+    action: string,
+    onConfirm: () => Promise<void>
+  ) => {
+    setModalState({
+      show: true,
+      type: "confirmation",
+      modalHeader,
+      action,
+      onConfirm,
+    });
   };
 
   const hideModal = () => {
@@ -77,7 +99,9 @@ const PanelLeft: React.FC<VaultDetailsProps> = ({ status, vaultAddress }) => {
       return null;
     }
     return React.isValidElement(content)
-      ? React.cloneElement(content as ReactElement<TabContentProps>, { showConfirmation })
+      ? React.cloneElement(content as ReactElement<TabContentProps>, {
+          showConfirmation,
+        })
       : content;
   };
 
@@ -103,28 +127,192 @@ const PanelLeft: React.FC<VaultDetailsProps> = ({ status, vaultAddress }) => {
   }
 
   return (
-    <div className="flex flex-col mr-4 max-w-[350px] w-[84px] hover:w-full transition-all duration-300 ">
-    
-    <div className="group bg-black-alt border-[1px] border-greyscale-800 items-start rounded-lg p-4 w-full flex flex-col flex-grow h-full">
-    
-        <div className="flex flex-row w-full">
-          <div>
-            <SafeIcon classname="w-6 h-6 text-primary-800" />
+    <div className="flex flex-col mr-4 max-w-[350px] w-[110px] hover:w-full transition-all duration-300 max-h-[650px] overflow-hidden ">
+      <div className="group bg-black-alt border-[1px] border-greyscale-800 items-start rounded-lg p-4 w-full flex flex-col flex-grow h-full max-h-full">
+        <div className="flex flex-col w-full">
+          <div className="flex flex-row w-full rounded-md p-2 bg-faded-black">
+            <div>
+              <SafeIcon
+                fill="black"
+                stroke="white"
+                classname="w-6 h-6 text-primary-800"
+              />
+            </div>
+            <div
+              className="hidden group-hover:flex flex-row w-full"
+              onClick={() => setVaultIsOpen((state) => !state)}
+            >
+              <div className="ml-2 text-white w-fit overflow-clip  text-nowrap">
+                Vault
+              </div>
+              <div className="flex flex-row-reverse w-full">
+                {!vaultIsOpen ? (
+                  <ArrowDownIcon fill="white" classname="w-6 h-6" />
+                ) : (
+                  <ArrowUpIcon fill="white" classname="w-6 h-6" />
+                )}
+              </div>
+            </div>
           </div>
-          <div className="hidden group-hover:flex flex-row w-full">
-        <div className="ml-2 text-white w-fit overflow-clip  text-nowrap">Vault</div>
-        <div className="flex flex-row-reverse w-full"><ArrowDownIcon fill="white" classname="w-6 h-6"/></div></div>
-      </div>
+          <div
+            className={`hidden group-hover:flex flex-col mt-2 overflow-scroll no-scrollbar ${
+              vaultIsOpen ? "h-0" : "h-[160px]"
+            } transition-all duration-400 `}
+          >
+            <div className="flex flex-row justify-between p-2 w-full">
+              <p>Run Time:</p>
+              <p>
+                {
+                  "1 MONTH"
+                  //Add round duration from state here
+                }
+              </p>
+            </div>
+            <div className="flex flex-row justify-between p-2 w-full">
+              <p>Type:</p>
+              <p>
+                {
+                  "ITM"
+                  //Add vault type from state here
+                }
+              </p>
+            </div>
+            <div className="flex flex-row justify-between p-2 w-full">
+              <p>Addess:</p>
+              <p>
+                {
+                  "1 MONTH"
+                  //Add vault address short string from state here
+                }
+              </p>
+            </div>
+            <div className="flex flex-row justify-between p-2 w-full">
+              <p>TVL:</p>
+              <p>
+                {
+                  "2.45"
+                  //Add vault TVL from state here
+                } &nbsp;ETH
+              </p>
+            </div>
+          </div>
+        </div>
+        <div className="flex flex-col w-full">
+          <div className="flex flex-row w-full mt-6 rounded-md p-2 bg-faded-black">
+            <div>
+              <LayerStackIcon classname="w-6 h-6" fill="black" stroke="white" />
+            </div>
+            <div
+              className="hidden group-hover:flex flex-row w-full"
+              onClick={() => setOptionRoundIsOpen((state) => !state)}
+            >
+              <div className="ml-2 text-white w-fit overflow-clip  text-nowrap">
+                Option Round
+              </div>
 
-      <div className="flex flex-row w-full mt-6">
-          <div>
-            <LayerStackIcon classname="w-6 h-6" fill="black" stroke="white"/>
+              <div className="flex flex-row-reverse w-full">
+                {!optionRoundIsOpen ? (
+                  <ArrowDownIcon fill="white" classname="w-6 h-6" />
+                ) : (
+                  <ArrowUpIcon fill="white" classname="w-6 h-6" />
+                )}
+              </div>
+            </div>
           </div>
-          <div className="hidden group-hover:flex flex-row w-full">
-        <div className="ml-2 text-white w-fit overflow-clip  text-nowrap">Option Round</div>
-        <div className="flex flex-row-reverse w-full"><ArrowDownIcon fill="white" classname="w-6 h-6"/></div></div>
+          <div
+            className={`hidden group-hover:flex flex-col mt-2 overflow-scroll no-scrollbar ${
+              optionRoundIsOpen ? "h-0" : "h-[250px]"
+            } transition-all duration-900 max-h-full`}
+          >
+            <div className="max-h-full flex flex-row justify-between p-2 w-full">
+              <p>Selected Round:</p>
+              <p>
+                {
+                  "1 MONTH"
+                  //Add round duration from state here
+                }
+              </p>
+            </div>
+            <div className="max-h-full flex flex-row justify-between p-2 w-full">
+              <p>Status:</p>
+              <p>
+                {
+                  "1 MONTH"
+                  //Add round duration from state here
+                }
+              </p>
+            </div>
+            <div className="max-h-full flex flex-row justify-between p-2 w-full">
+              <p>Last Round Perf.:</p>
+              <p>
+                {
+                  "1 MONTH"
+                  //Add round duration from state here
+                }
+              </p>
+            </div>
+            <div className="max-h-full flex flex-row justify-between p-2 w-full">
+              <p>Strike:</p>
+              <p>
+                {
+                  "1 MONTH"
+                  //Add round duration from state here
+                }
+              </p>
+            </div>
+            <div className="max-h-full flex flex-row justify-between p-2 w-full">
+              <p>CL:</p>
+              <p>
+                {
+                  "1 MONTH"
+                  //Add round duration from state here
+                }
+              </p>
+            </div>
+            <div className="max-h-full flex flex-row justify-between p-2 w-full">
+              <p>Reserve Price:</p>
+              <p>
+                {
+                  "1 MONTH"
+                  //Add round duration from state here
+                }
+              </p>
+            </div>
+            <div className="max-h-full flex flex-row justify-between p-2 w-full">
+              <p>Total Options:</p>
+              <p>
+                {
+                  "1 MONTH"
+                  //Add round duration from state here
+                }
+              </p>
+            </div>
+            <div className="max-h-full flex flex-row justify-between p-2 w-full">
+              <p>Time to End:</p>
+              <p>
+                {
+                  "1 MONTH"
+                  //Add round duration from state here
+                }
+              </p>
+            </div>
+          </div>
+        </div>
+        <div className="flex flex-col w-full">
+          <button className="hidden group-hover:flex border border-greyscale-700 text-primary rounded-md mt-4 p-2 w-full justify-center items-center"  onClick={()=>{
+            //Trigger contract call here
+          }}>
+                <p>{
+                  "End Auction"
+                  //Enter text based on state
+                }</p>
+                <LineChartDownIcon classname="w-4 h-4 ml-2" stroke={"var(--primary"}/>
+                
+
+          </button>
+        </div>
       </div>
-    </div></div>
+    </div>
   );
 };
 

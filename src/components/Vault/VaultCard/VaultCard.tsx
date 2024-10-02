@@ -7,7 +7,6 @@ import { ActivityIcon, BarChartIcon, HourglassIcon, PieChartIcon, SpeedometerIco
 
 export default function VaultCard({ vaultAddress }: { vaultAddress: string }) {
   const vaultNew = useVaultState(vaultAddress);
-  console.log("vaultNew",vaultNew)
   const router = useRouter();
   var myHeaders = new Headers();
   myHeaders.append("accept", "application/json");

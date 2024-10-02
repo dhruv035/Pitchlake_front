@@ -104,7 +104,6 @@ const useVaultState = (address: string) => {
       : undefined
   );
 
-  console.log("currentRound",currentRoundState);
   const state = {
     ethAddress: ethAddress ? stringToHex(ethAddress?.toString()) : "",
     address,
