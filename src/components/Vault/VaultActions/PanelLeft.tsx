@@ -10,6 +10,7 @@ import {
   ArrowDownIcon,
   ArrowUpIcon,
   LayerStackIcon,
+  LayoutLeftIcon,
   LineChartDownIcon,
   SafeIcon,
 } from "@/components/Icons";
@@ -128,9 +129,15 @@ const PanelLeft: React.FC<VaultDetailsProps> = ({ status, vaultAddress }) => {
 
   return (
     <div className="flex flex-col mr-4 max-w-[350px] w-[110px] hover:w-full transition-all duration-300 max-h-[800px] overflow-hidden ">
-      <div className="group bg-black-alt border-[1px] border-greyscale-800 items-start rounded-lg p-4 w-full flex flex-col flex-grow h-full max-h-full">
-        <div className="flex flex-col w-full">
-          <div className="flex flex-row w-full rounded-md p-2 bg-faded-black">
+      <div className="group bg-black-alt border-[1px] border-greyscale-800 items-start rounded-lg w-full flex flex-col flex-grow h-full max-h-full">
+        <div className="w-full border-b-1 p-3 border-white">
+          <div className="flex flex-row w-full rounded-md px-3 justify-center group-hover:justify-between">
+            <p className="hidden group-hover:flex">Statistics</p>
+            <LayoutLeftIcon classname="w-6 h-6"/>
+          </div>
+        </div>
+        <div className="flex flex-col w-full px-3 border-t-[1px] border-greyscale-800">
+          <div className="flex flex-row w-full justify-center group-hover:justify-between rounded-md p-3 mt-2 group-hover:bg-faded-black">
             <div>
               <SafeIcon
                 fill="black"
@@ -146,7 +153,7 @@ const PanelLeft: React.FC<VaultDetailsProps> = ({ status, vaultAddress }) => {
                 Vault
               </div>
               <div className="flex flex-row-reverse w-full">
-                {!vaultIsOpen ? (
+                {vaultIsOpen ? (
                   <ArrowDownIcon fill="white" classname="w-6 h-6" />
                 ) : (
                   <ArrowUpIcon fill="white" classname="w-6 h-6" />
@@ -198,8 +205,8 @@ const PanelLeft: React.FC<VaultDetailsProps> = ({ status, vaultAddress }) => {
             </div>
           </div>
         </div>
-        <div className="flex flex-col w-full">
-          <div className="flex flex-row w-full mt-6 rounded-md p-2 bg-faded-black">
+        <div className="flex flex-col w-full px-3 border-t-[1px] border-greyscale-800">
+          <div className="flex flex-row w-full mt-2 rounded-md p-3 group-hover:bg-faded-black justify-center group-hover:justify-between">
             <div>
               <LayerStackIcon classname="w-6 h-6" fill="black" stroke="white" />
             </div>
@@ -208,11 +215,11 @@ const PanelLeft: React.FC<VaultDetailsProps> = ({ status, vaultAddress }) => {
               onClick={() => setOptionRoundIsOpen((state) => !state)}
             >
               <div className="ml-2 text-white w-fit overflow-clip  text-nowrap">
-                Option Round
+                Round
               </div>
 
               <div className="flex flex-row-reverse w-full">
-                {!optionRoundIsOpen ? (
+                {optionRoundIsOpen ? (
                   <ArrowDownIcon fill="white" classname="w-6 h-6" />
                 ) : (
                   <ArrowUpIcon fill="white" classname="w-6 h-6" />
@@ -236,9 +243,9 @@ const PanelLeft: React.FC<VaultDetailsProps> = ({ status, vaultAddress }) => {
             </div>
             <div className="max-h-full flex flex-row justify-between items-center p-2 w-full">
               <p>Status:</p>
-              <p className="bg-[#6D1D0D59] border-[1px] border-warning text-warning rounded-full p-2">
+              <p className="bg-[#6D1D0D59] border-[1px] border-warning text-warning rounded-full px-2 py-[1px]">
                 {
-                  "Running"
+                  "RUNNING"
                   //Add round duration from state here
                   //Add appropriate bg
                 }
