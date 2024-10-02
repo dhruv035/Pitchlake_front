@@ -11,5 +11,8 @@ export {default as ArrowDownIcon} from "./ArrowDownIcon";
 export {default as ArrowUpIcon} from "./ArrowUpIcon";
 export {default as LayerStackIcon} from "./LayerStackIcon"
 export {default as LineChartDownIcon} from "./LineChartDownIcon"
+export {default as ArrowLeftIcon} from "./ArrowLeftIcon"
+export {default as ArrowRightIcon} from "./ArrowRightIcon"
+
 // To create a new tailwind compatible icon component, create a new file in pitchlake-ui/public/icons/ using other icons as a template.
 // Export the icon here to make it available to other components.

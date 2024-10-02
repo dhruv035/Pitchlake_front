@@ -1,4 +1,4 @@
-const PieChartIcon = ({
+const LineChartDownIcon = ({
   classname,
   stroke,
   fill,
@@ -27,4 +27,4 @@ const PieChartIcon = ({
   );
 };
 
-export default PieChartIcon;
+export default LineChartDownIcon;

@@ -127,7 +127,7 @@ const PanelLeft: React.FC<VaultDetailsProps> = ({ status, vaultAddress }) => {
   }
 
   return (
-    <div className="flex flex-col mr-4 max-w-[350px] w-[110px] hover:w-full transition-all duration-300 max-h-[650px] overflow-hidden ">
+    <div className="flex flex-col mr-4 max-w-[350px] w-[110px] hover:w-full transition-all duration-300 max-h-[800px] overflow-hidden ">
       <div className="group bg-black-alt border-[1px] border-greyscale-800 items-start rounded-lg p-4 w-full flex flex-col flex-grow h-full max-h-full">
         <div className="flex flex-col w-full">
           <div className="flex flex-row w-full rounded-md p-2 bg-faded-black">
@@ -192,7 +192,8 @@ const PanelLeft: React.FC<VaultDetailsProps> = ({ status, vaultAddress }) => {
                 {
                   "2.45"
                   //Add vault TVL from state here
-                } &nbsp;ETH
+                }{" "}
+                &nbsp;ETH
               </p>
             </div>
           </div>
@@ -224,7 +225,7 @@ const PanelLeft: React.FC<VaultDetailsProps> = ({ status, vaultAddress }) => {
               optionRoundIsOpen ? "h-0" : "h-[250px]"
             } transition-all duration-900 max-h-full`}
           >
-            <div className="max-h-full flex flex-row justify-between p-2 w-full">
+            <div className="max-h-full flex flex-row justify-between items-center p-2 w-full">
               <p>Selected Round:</p>
               <p>
                 {
@@ -233,16 +234,17 @@ const PanelLeft: React.FC<VaultDetailsProps> = ({ status, vaultAddress }) => {
                 }
               </p>
             </div>
-            <div className="max-h-full flex flex-row justify-between p-2 w-full">
+            <div className="max-h-full flex flex-row justify-between items-center p-2 w-full">
               <p>Status:</p>
-              <p>
+              <p className="bg-[#6D1D0D59] border-[1px] border-warning text-warning rounded-full p-2">
                 {
-                  "1 MONTH"
+                  "Running"
                   //Add round duration from state here
+                  //Add appropriate bg
                 }
               </p>
             </div>
-            <div className="max-h-full flex flex-row justify-between p-2 w-full">
+            <div className="max-h-full flex flex-row justify-between items-center p-2 w-full">
               <p>Last Round Perf.:</p>
               <p>
                 {
@@ -251,7 +253,7 @@ const PanelLeft: React.FC<VaultDetailsProps> = ({ status, vaultAddress }) => {
                 }
               </p>
             </div>
-            <div className="max-h-full flex flex-row justify-between p-2 w-full">
+            <div className="max-h-full flex flex-row justify-between items-center p-2 w-full">
               <p>Strike:</p>
               <p>
                 {
@@ -260,7 +262,7 @@ const PanelLeft: React.FC<VaultDetailsProps> = ({ status, vaultAddress }) => {
                 }
               </p>
             </div>
-            <div className="max-h-full flex flex-row justify-between p-2 w-full">
+            <div className="max-h-full flex flex-row justify-between items-center   p-2 w-full">
               <p>CL:</p>
               <p>
                 {
@@ -269,7 +271,7 @@ const PanelLeft: React.FC<VaultDetailsProps> = ({ status, vaultAddress }) => {
                 }
               </p>
             </div>
-            <div className="max-h-full flex flex-row justify-between p-2 w-full">
+            <div className="max-h-full flex flex-row justify-between items-center   p-2 w-full">
               <p>Reserve Price:</p>
               <p>
                 {
@@ -278,7 +280,7 @@ const PanelLeft: React.FC<VaultDetailsProps> = ({ status, vaultAddress }) => {
                 }
               </p>
             </div>
-            <div className="max-h-full flex flex-row justify-between p-2 w-full">
+            <div className="max-h-full flex flex-row justify-between items-center   p-2 w-full">
               <p>Total Options:</p>
               <p>
                 {
@@ -287,7 +289,7 @@ const PanelLeft: React.FC<VaultDetailsProps> = ({ status, vaultAddress }) => {
                 }
               </p>
             </div>
-            <div className="max-h-full flex flex-row justify-between p-2 w-full">
+            <div className="max-h-full flex flex-row justify-between items-center   p-2 w-full">
               <p>Time to End:</p>
               <p>
                 {
@@ -299,16 +301,22 @@ const PanelLeft: React.FC<VaultDetailsProps> = ({ status, vaultAddress }) => {
           </div>
         </div>
         <div className="flex flex-col w-full">
-          <button className="hidden group-hover:flex border border-greyscale-700 text-primary rounded-md mt-4 p-2 w-full justify-center items-center"  onClick={()=>{
-            //Trigger contract call here
-          }}>
-                <p>{
-                  "End Auction"
-                  //Enter text based on state
-                }</p>
-                <LineChartDownIcon classname="w-4 h-4 ml-2" stroke={"var(--primary"}/>
-                
-
+          <button
+            className="hidden group-hover:flex border border-greyscale-700 text-primary rounded-md mt-4 p-2 w-full justify-center items-center"
+            onClick={() => {
+              //Trigger contract call here
+            }}
+          >
+            <p>
+              {
+                "End Auction"
+                //Enter text based on state
+              }
+            </p>
+            <LineChartDownIcon
+              classname="w-4 h-4 ml-2"
+              stroke={"var(--primary"}
+            />
           </button>
         </div>
       </div>
