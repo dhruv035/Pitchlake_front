@@ -33,6 +33,7 @@ const PanelLeft: React.FC<VaultDetailsProps> = ({ status, vaultAddress }) => {
   const [activeTab, setActiveTab] = useState<string>("");
   const [vaultIsOpen, setVaultIsOpen] = useState<boolean>(false);
   const [optionRoundIsOpen, setOptionRoundIsOpen] = useState<boolean>(false);
+  const [drawerIsOpen, setDrawerIsOpen] = useState<boolean>(false);
   const [modalState, setModalState] = useState<{
     show: boolean;
     type: "confirmation" | "success";

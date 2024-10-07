@@ -25,7 +25,7 @@ export default function Home() {
       console.log("WebSocket connection established");
       // Optionally, send a message to the server
 
-      ws.current?.send(JSON.stringify({ address: Math.random().toString(), userType: "lp", optionRound:0 }));
+      ws.current?.send(JSON.stringify({ address: Math.random().toString(), userType: "lp", optionRound:0, vaultAddress:"16"}));
     };
 
     const wsCurrent = ws.current;

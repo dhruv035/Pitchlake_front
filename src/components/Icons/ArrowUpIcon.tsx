@@ -19,9 +19,9 @@ const ArrowUpIcon = ({
       <path
         d="M4 10L8 6L12 10"
         stroke={stroke}
-        stroke-width="1.5"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </svg>
   );
