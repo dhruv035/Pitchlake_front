@@ -33,18 +33,30 @@ export const RoundStateLabels: { [key in RoundState]: string } = {
 };
 
 export type VaultStateType = {
-  ethAddress: string;
+  ethAddress?: string;
   address: string;
-  vaultType: CairoCustomEnum;
-  vaultLockedAmount: number | bigint | string;
-  vaultUnlockedAmount: number | bigint | string;
+  vaultType?: CairoCustomEnum;
+  lockedBalance: number | bigint | string;
+  unlockedBalance: number | bigint | string;
   stashedBalance: number | bigint | string;
-  lpLockedAmount: number | bigint | string;
-  lpUnlockedAmount: number | bigint | string;
   currentRoundId: number | bigint | string;
   auctionRunTime: number | bigint | string;
   optionRunTime: number | bigint | string;
   roundTransitionPeriod: number | bigint | string;
+};
+
+export type LiquidityProviderStateType = {
+  address: string;
+  lockedBalance: number | bigint | string;
+  unlockedBalance: number | bigint | string;
+  stashedBalance: number | bigint | string;
+};
+
+export type OptionBuyerStateType = {
+  address: string;
+  roundId: bigint | number | string;
+  tokenizableOptions: bigint | number | string;
+  refundableBalance: bigint | number | string;
 };
 
 export type VaultActionsType = {
@@ -57,21 +69,35 @@ export type VaultActionsType = {
 
 export type OptionRoundStateType = {
   address: string | undefined;
-  reservePrice: bigint | number | string;
-  strikePrice: bigint | number | string;
-  capLevel: bigint | number | string;
-  refundableBids: bigint | number | string;
-  tokenizableOptions: bigint | number | string;
   roundId: bigint | number | string;
-  totalOptionsAvailable: bigint | number | string;
-  roundState: CairoCustomEnum;
-  clearingPrice: bigint | number | string;
-  optionsSold: bigint | number | string;
+  capLevel: bigint | number | string;
   auctionStartDate?: Date;
   auctionEndDate?: Date;
   optionSettleDate?: Date;
+  startingLiquidity?: bigint | number | string;
+  availableOptions: bigint | number | string;
+  clearingPrice: bigint | number | string;
+  settlementPrice: bigint | number | string;
+  strikePrice: bigint | number | string;
+  optionsSold: bigint | number | string;
+  roundState: CairoCustomEnum | string;
+  premiums: bigint | number | string;
+  queuedLiquidity?: bigint | number | string;
+  payoutPerOption: bigint | number | string;
+  vaultAddress: string;
+  reservePrice: bigint | number | string;
+  refundableBids: bigint | number | string;
+  tokenizableOptions: bigint | number | string;
 };
 
+export type BidsType = {
+  address: string;
+  roundId: bigint | number | string;
+  bidId: string;
+  treeNonce: string;
+  amount: bigint | number | string;
+  price: bigint | number | string;
+};
 export interface VaultDetailsProps {
   vaultAddress: string;
   status: RoundState;
@@ -138,7 +164,11 @@ export enum VaultUserRole {
 // Define a discriminated union for tabs based on user role
 export type TabType =
   | { role: VaultUserRole.Provider; tab: ProviderTabs | CommonTabs }
-  | { role: VaultUserRole.Buyer; tab: BuyerTabs | CommonTabs; state: RoundState };
+  | {
+      role: VaultUserRole.Buyer;
+      tab: BuyerTabs | CommonTabs;
+      state: RoundState;
+    };
 
 export interface TabsProps {
   tabs: string[];

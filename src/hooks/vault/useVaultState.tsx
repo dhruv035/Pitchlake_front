@@ -2,7 +2,7 @@ import {
   useAccount,
 } from "@starknet-react/core";
 import { vaultABI } from "@/abi";
-import { VaultStateType } from "@/lib/types";
+import { LiquidityProviderStateType, VaultStateType } from "@/lib/types";
 import { stringToHex } from "@/lib/utils";
 import { useMemo } from "react";
 import useOptionRoundState from "../optionRound/useOptionRoundState";
@@ -28,8 +28,8 @@ const useVaultState = (address: string) => {
     roundTransitionPeriod,
     ethAddress,
     vaultType,
-    vaultLockedAmount,
-    vaultUnlockedAmount,
+    lockedBalance,
+    unlockedBalance,
   } = useContractReads({
     contractData,
     states: [
@@ -47,17 +47,17 @@ const useVaultState = (address: string) => {
       },
       {
         functionName: "get_total_locked_balance",
-        key: "vaultLockedAmount",
+        key: "lockedBalance",
       },
       {
         functionName: "get_total_unlocked_balance",
-        key: "vaultUnlockedAmount",
+        key: "unlockedBalance",
       },
     ],
   }) as unknown as VaultStateType;
 
   //Wallet states
-  const { lpLockedAmount, lpUnlockedAmount } = useContractReads({
+  const { lockedBalance:lpLockedAmount, unlockedBalance:lpUnlockedAmount } = useContractReads({
     contractData,
     states: [
       {
@@ -71,7 +71,7 @@ const useVaultState = (address: string) => {
         key: "lpUnlockedAmount",
       },
     ],
-  }) as unknown as VaultStateType;
+  }) as unknown as LiquidityProviderStateType;
 
   //Round Addresses and States
   const { currentRoundAddress, previousRoundAddress } = useContractReads({
@@ -103,27 +103,28 @@ const useVaultState = (address: string) => {
       ? stringToHex(previousRoundAddress.toString())
       : undefined
   );
-
-  const state = {
+  const vaultState = {
     ethAddress: ethAddress ? stringToHex(ethAddress?.toString()) : "",
     address,
     vaultType: vaultType,
-    vaultLockedAmount,
-    vaultUnlockedAmount,
-    lpLockedAmount,
+    lockedBalance,
+    unlockedBalance,
     stashedBalance:0,
-    lpUnlockedAmount,
     currentRoundId,
     auctionRunTime,
     optionRunTime,
     roundTransitionPeriod,
-  };
+  } as VaultStateType;
+  const lpState = {
+    address:accountAddress,
+    lockedBalance:lpLockedAmount,
+    unlockedBalance:lpUnlockedAmount,
+    stashedBalance:0
+  } as LiquidityProviderStateType
   return {
-    state,
-    currentRoundAddress,
-    previousRoundAddress,
-    currentRoundState,
-    previousRoundState,
+    vaultState,
+    lpState,
+    currentRoundAddress
   };
 };
 
