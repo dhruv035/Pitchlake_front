@@ -31,7 +31,6 @@ type wsResponseType = {
   optionRoundStates?: OptionRoundStateType[];
 };
 
-
 export const Vault = ({ vaultAddress }: { vaultAddress: string }) => {
   const ws = useRef<WebSocket | null>(null);
   const { address: accountAddress } = useAccount();
@@ -61,27 +60,43 @@ export const Vault = ({ vaultAddress }: { vaultAddress: string }) => {
         );
       };
 
-      const wsCurrent = ws.current;
       ws.current.onmessage = (event: MessageEvent) => {
         console.log("Message from server:");
         const wsResponse: wsResponseType = JSON.parse(event.data);
         if (event.data.payloadType === "initial") {
           setWsVaultState(wsResponse.vaultState);
           setWsOptionRoundStates(wsResponse.optionRoundStates ?? []);
-        } else if (wsResponse.payloadType === "lp_update ") {
-          setWsLiquidityProviderState(
-            wsResponse.liquidityProviderState ?? null
-          );
-        } else if (wsResponse.payloadType === "or_update") {
-          setWsOptionRoundStates((states) => {
-            if (wsResponse.optionRoundStates)
-              states[Number(wsResponse.optionRoundStates?.[0].roundId)-1] =
-                wsResponse.optionRoundStates[0];
-            return states;
+        } else if (
+          wsResponse.payloadType === "lp_update " &&
+          wsResponse.liquidityProviderState
+        ) {
+          setWsLiquidityProviderState(wsResponse.liquidityProviderState);
+        } else if (
+          wsResponse.payloadType === "or_update" &&
+          wsResponse.optionRoundStates
+        ) {
+          setWsOptionRoundStates((prevStates) => {
+            const newStates = [...prevStates];
+            if (
+              wsResponse.optionRoundStates &&
+              wsResponse.optionRoundStates.length > 0
+            ) {
+              const updatedRound = wsResponse.optionRoundStates[0];
+              const updatedRoundIndex = Number(updatedRound.roundId) - 1;
+              newStates[updatedRoundIndex] = updatedRound;
+            }
+            return newStates;
           });
-        }
-        else if (wsResponse.payloadType === "ob_update") {
-          setWsOptionBuyerState(wsResponse.optionBuyerState ?? null);
+        } else if (
+          wsResponse.payloadType === "ob_update" &&
+          wsResponse.optionBuyerState
+        ) {
+          setWsOptionBuyerState(wsResponse.optionBuyerState);
+        } else if (
+          wsResponse.payloadType === "vault_update" &&
+          wsResponse.vaultState
+        ) {
+          setWsVaultState(wsResponse.vaultState);
         }
       };
 
@@ -101,15 +116,22 @@ export const Vault = ({ vaultAddress }: { vaultAddress: string }) => {
     };
   }, [isRPC]);
 
-  const { lpState: rpcLiquidityProviderState, vaultState: rpcVaultState, currentRoundAddress } = useVaultState(
-    isRPC ? vaultAddress : ""
-  );
+  const {
+    lpState: rpcLiquidityProviderState,
+    vaultState: rpcVaultState,
+    currentRoundAddress,
+  } = useVaultState(isRPC ? vaultAddress : "");
   const vaultState = isRPC ? rpcVaultState : wsVaultState;
   const vaultActions = useVaultActions(vaultAddress);
   const lpState = isRPC ? rpcLiquidityProviderState : wsLiquidityProviderState;
-  const {optionRoundState:rpcCurrentRoundState, optionBuyerState:rpcOptionBuyerState}   = useOptionRoundState(currentRoundAddress);
+  const {
+    optionRoundState: rpcCurrentRoundState,
+    optionBuyerState: rpcOptionBuyerState,
+  } = useOptionRoundState(currentRoundAddress);
   const optionBuyerState = isRPC ? rpcOptionBuyerState : wsOptionBuyerState;
-  const currentRoundState = isRPC ? rpcCurrentRoundState : wsOptionRoundStates[Number(vaultState?.currentRoundId)-1];
+  const currentRoundState = isRPC
+    ? rpcCurrentRoundState
+    : wsOptionRoundStates[Number(vaultState?.currentRoundId) - 1];
   const roundActions = useOptionRoundActions(currentRoundAddress);
   const [isProviderView, setIsProviderView] = useState(true);
   return (
