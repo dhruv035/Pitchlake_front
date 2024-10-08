@@ -49,7 +49,6 @@ export default function Home() {
 
   return (
     <div className='flex flex-grow flex-col px-8 mt-10 w-full '>
-      <button onClick={()=>{ws.current?.send(JSON.stringify({msg:"HI"}))}}>WEBSOCKET MESSAGE</button>
         <p className="my-2 text-base text-white-alt py-2">
           Popular Vaults
         </p>

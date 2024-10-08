@@ -6,19 +6,12 @@ import {
   XAxis,
   YAxis,
   CartesianGrid,
-  Tooltip,
   ResponsiveContainer,
-  Brush,
   ReferenceArea,
 } from "recharts";
 import data from "@/chart_data.json";
 import {
   EyeIcon,
-  ChevronLeft,
-  ChevronRight,
-  AlignJustify,
-  ZoomIn,
-  ZoomOut,
 } from "lucide-react";
 import { ArrowDownIcon, ArrowLeftIcon, ArrowRightIcon, ArrowUpIcon } from "@/components/Icons";
 

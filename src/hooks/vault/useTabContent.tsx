@@ -5,6 +5,7 @@ import {
   ProviderTabs,
   BuyerTabs,
   CommonTabs,
+  VaultStateType,
 } from "@/lib/types";
 import DepositContent from "@/components/Vault/VaultActions/Tabs/Provider/Deposit";
 import Withdraw from "@/components/Vault/VaultActions/Tabs/Provider/Withdraw/Withdraw";
@@ -18,32 +19,29 @@ import MyInfo from "@/components/Vault/VaultActions/Tabs/Provider/MyInfo";
 import { mockHistoryItems } from "@/components/Vault/MockData";
 
 export const useTabContent = (
-  userRole: VaultUserRole,
-  roundState: RoundState,
-  vaultAddress: string
+  userType:string,
+  roundState: string,
+  vaultState: VaultStateType,
 ) => {
-  const {
-    state: vaultState,
-  } = useVaultState(vaultAddress);
 
   const getTabs = (): string[] => {
     const commonTabs = [CommonTabs.MyInfo];
 
-    if (userRole === VaultUserRole.Provider) {
-      if (roundState === RoundState.Settled) {
+    if (userType === VaultUserRole.Provider) {
+      if (roundState === "Settle") {
         return commonTabs;
       } else {
         return [...Object.values(ProviderTabs), ...commonTabs];
       }
     } else {
       switch (roundState) {
-        case RoundState.Open:
+        case "Open":
           return [];
-        case RoundState.Auctioning:
+        case "Auctioning":
           return [BuyerTabs.PlaceBid, BuyerTabs.History, ...commonTabs];
-        case RoundState.Running:
+        case "Running":
           return [BuyerTabs.Refund, BuyerTabs.Mint, ...commonTabs];
-        case RoundState.Settled:
+        case "Settled":
           return [BuyerTabs.Refund, BuyerTabs.Exercise, ...commonTabs];
         default:
           return [];
