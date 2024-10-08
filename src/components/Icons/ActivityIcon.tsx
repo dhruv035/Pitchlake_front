@@ -19,8 +19,8 @@ const PieChartIcon = ({
       <path
         d="M14.6663 8.5H11.9997L9.99967 14.5L5.99967 2.5L3.99967 8.5H1.33301"
         stroke={stroke}
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </svg>
   );
