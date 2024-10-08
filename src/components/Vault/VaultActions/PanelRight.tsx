@@ -1,23 +1,35 @@
 import React, { useState, useEffect, ReactElement } from "react";
 import { useAtomValue } from "jotai";
-import { VaultUserRole, RoundState } from "@/lib/types";
+import {
+  VaultUserRole,
+  RoundState,
+  VaultStateType,
+  OptionRoundStateType,
+} from "@/lib/types";
 import Tabs from "./Tabs/Tabs";
-import { vaultUserType } from "@/lib/atom/user-tab";
 import { useTabContent } from "@/hooks/vault/useTabContent";
 import ConfirmationModal from "@/components/Vault/Utils/ConfirmationModal";
 import SuccessModal from "@/components/Vault/Utils/SuccessModal";
 
 interface VaultDetailsProps {
-  status: RoundState;
-  vaultAddress: string;
+  userType: string;
+  roundState: OptionRoundStateType;
+  vaultState: VaultStateType;
 }
 
 interface TabContentProps {
-  showConfirmation: (amount: string, action: string, onConfirm: () => Promise<void>) => void;
+  showConfirmation: (
+    amount: string,
+    action: string,
+    onConfirm: () => Promise<void>
+  ) => void;
 }
 
-const PanelRight: React.FC<VaultDetailsProps> = ({ status, vaultAddress }) => {
-  const vaultUser = useAtomValue(vaultUserType);
+const PanelRight: React.FC<VaultDetailsProps> = ({
+  userType,
+  vaultState,
+  roundState,
+}) => {
   const [activeTab, setActiveTab] = useState<string>("");
   const [modalState, setModalState] = useState<{
     show: boolean;
@@ -34,9 +46,14 @@ const PanelRight: React.FC<VaultDetailsProps> = ({ status, vaultAddress }) => {
   });
 
   const { getTabs, getTabContent } = useTabContent(
-    vaultUser,
-    status,
-    vaultAddress
+    userType,
+
+    roundState.roundState
+      ? typeof roundState.roundState === "string"
+        ? roundState.roundState
+        : roundState.roundState.activeVariant()
+      : "",
+    vaultState
   );
 
   const tabs = getTabs();
@@ -51,8 +68,18 @@ const PanelRight: React.FC<VaultDetailsProps> = ({ status, vaultAddress }) => {
     setActiveTab(tab);
   };
 
-  const showConfirmation = (modalHeader: string, action: string, onConfirm: () => Promise<void>) => {
-    setModalState({ show: true, type: "confirmation", modalHeader, action, onConfirm });
+  const showConfirmation = (
+    modalHeader: string,
+    action: string,
+    onConfirm: () => Promise<void>
+  ) => {
+    setModalState({
+      show: true,
+      type: "confirmation",
+      modalHeader,
+      action,
+      onConfirm,
+    });
   };
 
   const hideModal = () => {
@@ -76,7 +103,9 @@ const PanelRight: React.FC<VaultDetailsProps> = ({ status, vaultAddress }) => {
       return null;
     }
     return React.isValidElement(content)
-      ? React.cloneElement(content as ReactElement<TabContentProps>, { showConfirmation })
+      ? React.cloneElement(content as ReactElement<TabContentProps>, {
+          showConfirmation,
+        })
       : content;
   };
 

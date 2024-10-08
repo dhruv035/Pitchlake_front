@@ -14,7 +14,7 @@ import {
   OptionRoundStateType,
   VaultStateType,
 } from "@/lib/types";
-import { useAccount } from "@starknet-react/core/hooks";
+import { useAccount } from "@starknet-react/core";
 import useOptionRoundState from "@/hooks/optionRound/useOptionRoundState";
 
 type wsMessageType = {
@@ -32,17 +32,20 @@ type wsResponseType = {
 };
 
 export const Vault = ({ vaultAddress }: { vaultAddress: string }) => {
-  const ws = useRef<WebSocket | null>(null);
-  const { address: accountAddress } = useAccount();
-  const [wsVaultState, setWsVaultState] = useState<VaultStateType | null>(null);
+  const [isProviderView, setIsProviderView] = useState(true);
+  const [isRPC, setIsRPC] = useState(true);
+  const [wsVaultState, setWsVaultState] = useState<
+    VaultStateType | undefined
+  >();
   const [wsOptionRoundStates, setWsOptionRoundStates] = useState<
     OptionRoundStateType[]
   >([] as OptionRoundStateType[]);
+  const { address: accountAddress } = useAccount();
   const [wsLiquidityProviderState, setWsLiquidityProviderState] =
     useState<LiquidityProviderStateType | null>(null);
   const [wsOptionBuyerState, setWsOptionBuyerState] =
     useState<OptionBuyerStateType | null>(null);
-  const [isRPC, setIsRPC] = useState(true);
+  const ws = useRef<WebSocket | null>(null);
   useEffect(() => {
     if (!isRPC) {
       ws.current = new WebSocket("ws://localhost:8080/subscribeVault");
@@ -54,7 +57,7 @@ export const Vault = ({ vaultAddress }: { vaultAddress: string }) => {
         ws.current?.send(
           JSON.stringify({
             address: accountAddress,
-            userType: "lp",
+            userType: isProviderView ? "lp" : "ob",
             vaultAddress: vaultAddress,
           })
         );
@@ -97,6 +100,7 @@ export const Vault = ({ vaultAddress }: { vaultAddress: string }) => {
           wsResponse.vaultState
         ) {
           setWsVaultState(wsResponse.vaultState);
+        } else if (wsResponse.payloadType === "switch") {
         }
       };
 
@@ -133,7 +137,7 @@ export const Vault = ({ vaultAddress }: { vaultAddress: string }) => {
     ? rpcCurrentRoundState
     : wsOptionRoundStates[Number(vaultState?.currentRoundId) - 1];
   const roundActions = useOptionRoundActions(currentRoundAddress);
-  const [isProviderView, setIsProviderView] = useState(true);
+
   return (
     <div className="px-7 py-7 flex-grow overflow-auto">
       <div className="flex flex-row-reverse text-primary p-4">
@@ -177,12 +181,20 @@ export const Vault = ({ vaultAddress }: { vaultAddress: string }) => {
         </div>
       </div>
       <div className="mt-6 flex flex-row">
-        <PanelLeft {...mockVaultDetails} />
+        {vaultState && (
+          <PanelLeft vaultState={vaultState} roundState={currentRoundState} />
+        )}
 
         <RoundPerformanceChart />
 
         <div className="w-full ml-6 max-w-[350px]">
-          <PanelRight {...mockVaultDetails} />
+          {vaultState && (
+            <PanelRight
+              userType={isProviderView ? "lp" : "ob"}
+              roundState={currentRoundState}
+              vaultState={vaultState}
+            />
+          )}
         </div>
       </div>
     </div>

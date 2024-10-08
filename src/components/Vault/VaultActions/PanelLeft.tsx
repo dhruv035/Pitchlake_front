@@ -1,9 +1,10 @@
-import React, { useState, useEffect, ReactElement } from "react";
+import React, { useState } from "react";
 import { useAtomValue } from "jotai";
-import { VaultUserRole, RoundState } from "@/lib/types";
-import Tabs from "./Tabs/Tabs";
+import {
+  VaultStateType,
+  OptionRoundStateType,
+} from "@/lib/types";
 import { vaultUserType } from "@/lib/atom/user-tab";
-import { useTabContent } from "@/hooks/vault/useTabContent";
 import ConfirmationModal from "@/components/Vault/Utils/ConfirmationModal";
 import SuccessModal from "@/components/Vault/Utils/SuccessModal";
 import {
@@ -14,10 +15,11 @@ import {
   LineChartDownIcon,
   SafeIcon,
 } from "@/components/Icons";
+import { shortenString } from "@/lib/utils";
 
 interface VaultDetailsProps {
-  status: RoundState;
-  vaultAddress: string;
+  roundState: OptionRoundStateType;
+  vaultState: VaultStateType;
 }
 
 interface TabContentProps {
@@ -28,12 +30,10 @@ interface TabContentProps {
   ) => void;
 }
 
-const PanelLeft: React.FC<VaultDetailsProps> = ({ status, vaultAddress }) => {
-  const vaultUser = useAtomValue(vaultUserType);
-  const [activeTab, setActiveTab] = useState<string>("");
+const PanelLeft: React.FC<VaultDetailsProps> = ({ roundState, vaultState }) => {
+
   const [vaultIsOpen, setVaultIsOpen] = useState<boolean>(false);
   const [optionRoundIsOpen, setOptionRoundIsOpen] = useState<boolean>(false);
-  const [drawerIsOpen, setDrawerIsOpen] = useState<boolean>(false);
   const [modalState, setModalState] = useState<{
     show: boolean;
     type: "confirmation" | "success";
@@ -47,24 +47,6 @@ const PanelLeft: React.FC<VaultDetailsProps> = ({ status, vaultAddress }) => {
     action: "",
     onConfirm: async () => {},
   });
-
-  const { getTabs, getTabContent } = useTabContent(
-    vaultUser,
-    status,
-    vaultAddress
-  );
-
-  const tabs = getTabs();
-
-  useEffect(() => {
-    if (tabs.length > 0 && !activeTab) {
-      setActiveTab(tabs[0]);
-    }
-  }, [tabs, activeTab]);
-
-  const handleTabChange = (tab: string) => {
-    setActiveTab(tab);
-  };
 
   const showConfirmation = (
     modalHeader: string,
@@ -95,18 +77,6 @@ const PanelLeft: React.FC<VaultDetailsProps> = ({ status, vaultAddress }) => {
     setModalState((prev) => ({ ...prev, type: "success" }));
   };
 
-  const renderTabContent = () => {
-    const content = getTabContent(activeTab);
-    if (!content) {
-      return null;
-    }
-    return React.isValidElement(content)
-      ? React.cloneElement(content as ReactElement<TabContentProps>, {
-          showConfirmation,
-        })
-      : content;
-  };
-
   if (modalState.show) {
     if (modalState.type === "confirmation") {
       return (
@@ -134,7 +104,7 @@ const PanelLeft: React.FC<VaultDetailsProps> = ({ status, vaultAddress }) => {
         <div className="w-full border-b-1 p-3 border-white">
           <div className="flex flex-row w-full rounded-md px-3 justify-center group-hover:justify-between">
             <p className="hidden group-hover:flex">Statistics</p>
-            <LayoutLeftIcon classname="w-6 h-6"/>
+            <LayoutLeftIcon classname="w-6 h-6" />
           </div>
         </div>
         <div className="flex flex-col w-full px-3 border-t-[1px] border-greyscale-800">
@@ -171,7 +141,7 @@ const PanelLeft: React.FC<VaultDetailsProps> = ({ status, vaultAddress }) => {
               <p>Run Time:</p>
               <p>
                 {
-                  "1 MONTH"
+                  vaultState.auctionRunTime
                   //Add round duration from state here
                 }
               </p>
@@ -180,7 +150,7 @@ const PanelLeft: React.FC<VaultDetailsProps> = ({ status, vaultAddress }) => {
               <p>Type:</p>
               <p>
                 {
-                  "ITM"
+                  vaultState.vaultType?.activeVariant()
                   //Add vault type from state here
                 }
               </p>
@@ -189,7 +159,7 @@ const PanelLeft: React.FC<VaultDetailsProps> = ({ status, vaultAddress }) => {
               <p>Addess:</p>
               <p>
                 {
-                  "1 MONTH"
+                 shortenString(vaultState.address)
                   //Add vault address short string from state here
                 }
               </p>
@@ -198,7 +168,8 @@ const PanelLeft: React.FC<VaultDetailsProps> = ({ status, vaultAddress }) => {
               <p>TVL:</p>
               <p>
                 {
-                  "2.45"
+                  vaultState.lockedBalance &&
+                  (BigInt(vaultState.lockedBalance) + BigInt(vaultState.unlockedBalance)).toString()
                   //Add vault TVL from state here
                 }{" "}
                 &nbsp;ETH
@@ -236,8 +207,8 @@ const PanelLeft: React.FC<VaultDetailsProps> = ({ status, vaultAddress }) => {
             <div className="max-h-full flex flex-row justify-between items-center p-2 w-full">
               <p>Selected Round:</p>
               <p>
-                {
-                  "1 MONTH"
+                Round &nbsp;{
+                  Number(roundState.roundId).toPrecision(2)
                   //Add round duration from state here
                 }
               </p>
@@ -246,8 +217,11 @@ const PanelLeft: React.FC<VaultDetailsProps> = ({ status, vaultAddress }) => {
               <p>Status:</p>
               <p className="bg-[#6D1D0D59] border-[1px] border-warning text-warning rounded-full px-2 py-[1px]">
                 {
-                  "RUNNING"
-                  //Add round duration from state here
+                  roundState.roundState?
+                  typeof roundState.roundState === "string"
+                    ? roundState.roundState //If string received from websocket
+                    : roundState.roundState.activeVariant() //If cairo enum received from RPC
+                    :""
                   //Add appropriate bg
                 }
               </p>
@@ -265,7 +239,7 @@ const PanelLeft: React.FC<VaultDetailsProps> = ({ status, vaultAddress }) => {
               <p>Strike:</p>
               <p>
                 {
-                  "1 MONTH"
+                  roundState.strikePrice
                   //Add round duration from state here
                 }
               </p>
@@ -274,7 +248,7 @@ const PanelLeft: React.FC<VaultDetailsProps> = ({ status, vaultAddress }) => {
               <p>CL:</p>
               <p>
                 {
-                  "1 MONTH"
+                  roundState.capLevel
                   //Add round duration from state here
                 }
               </p>
@@ -283,7 +257,7 @@ const PanelLeft: React.FC<VaultDetailsProps> = ({ status, vaultAddress }) => {
               <p>Reserve Price:</p>
               <p>
                 {
-                  "1 MONTH"
+                  roundState.reservePrice
                   //Add round duration from state here
                 }
               </p>
@@ -292,7 +266,7 @@ const PanelLeft: React.FC<VaultDetailsProps> = ({ status, vaultAddress }) => {
               <p>Total Options:</p>
               <p>
                 {
-                  "1 MONTH"
+                  roundState.availableOptions
                   //Add round duration from state here
                 }
               </p>
@@ -301,7 +275,7 @@ const PanelLeft: React.FC<VaultDetailsProps> = ({ status, vaultAddress }) => {
               <p>Time to End:</p>
               <p>
                 {
-                  "1 MONTH"
+                  Date.now()- Number(roundState.auctionEndDate)
                   //Add round duration from state here
                 }
               </p>
