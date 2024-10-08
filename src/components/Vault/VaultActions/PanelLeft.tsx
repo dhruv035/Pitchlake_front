@@ -168,6 +168,7 @@ const PanelLeft: React.FC<VaultDetailsProps> = ({ roundState, vaultState }) => {
               <p>TVL:</p>
               <p>
                 {
+                  vaultState.lockedBalance &&
                   (BigInt(vaultState.lockedBalance) + BigInt(vaultState.unlockedBalance)).toString()
                   //Add vault TVL from state here
                 }{" "}
@@ -216,9 +217,11 @@ const PanelLeft: React.FC<VaultDetailsProps> = ({ roundState, vaultState }) => {
               <p>Status:</p>
               <p className="bg-[#6D1D0D59] border-[1px] border-warning text-warning rounded-full px-2 py-[1px]">
                 {
+                  roundState.roundState?
                   typeof roundState.roundState === "string"
                     ? roundState.roundState //If string received from websocket
                     : roundState.roundState.activeVariant() //If cairo enum received from RPC
+                    :""
                   //Add appropriate bg
                 }
               </p>

@@ -14,7 +14,7 @@ import {
   OptionRoundStateType,
   VaultStateType,
 } from "@/lib/types";
-import { useAccount } from "@starknet-react/core/hooks";
+import { useAccount } from "@starknet-react/core";
 import useOptionRoundState from "@/hooks/optionRound/useOptionRoundState";
 
 type wsMessageType = {
