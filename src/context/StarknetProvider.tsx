@@ -30,11 +30,7 @@ export const StarknetProvider = ({
   return (
     <StarknetConfig
       chains={[mainnet, sepolia, devnet]}
-      provider={jsonRpcProvider({
-        rpc: (chain: Chain) => {
-          return { nodeUrl: "http://127.0.0.1:5050" };
-        },
-      })}
+      provider={publicProvider()}
       connectors={connectors}
       explorer={voyager}
     >

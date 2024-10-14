@@ -24,6 +24,7 @@ const useOptionRoundState = (address: string | undefined) => {
     capLevel,
     reservePrice,
     strikePrice,
+    premiums,
   } = useContractReads({
     contractData,
     watch: true,
@@ -41,11 +42,11 @@ const useOptionRoundState = (address: string | undefined) => {
         key: "optionSettleDate",
       },
       {
-        functionName: "get_auction_clearing_price",
+        functionName: "get_clearing_price",
         key: "clearingPrice",
       },
       {
-        functionName: "total_options_sold",
+        functionName: "get_options_sold",
         key: "optionsSold",
       },
       {
@@ -53,7 +54,7 @@ const useOptionRoundState = (address: string | undefined) => {
         key: "roundId",
       },
       {
-        functionName: "get_total_options_available",
+        functionName: "get_options_available",
         key: "availableOptions",
       },
       {
@@ -71,6 +72,10 @@ const useOptionRoundState = (address: string | undefined) => {
       {
         functionName: "get_strike_price",
         key: "strikePrice",
+      },
+      {
+        functionName: "get_total_premium",
+        key: "premiums",
       },
     ],
   }) as unknown as OptionRoundStateType;

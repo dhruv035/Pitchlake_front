@@ -40,9 +40,6 @@ export type VaultStateType = {
   unlockedBalance: number | bigint | string;
   stashedBalance: number | bigint | string;
   currentRoundId: number | bigint | string;
-  auctionRunTime: number | bigint | string;
-  optionRunTime: number | bigint | string;
-  roundTransitionPeriod: number | bigint | string;
 };
 
 export type LiquidityProviderStateType = {

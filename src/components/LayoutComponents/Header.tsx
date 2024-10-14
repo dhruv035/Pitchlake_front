@@ -169,9 +169,7 @@ export default function Header() {
                               className="m-2"
                               style={{ objectFit: "contain" }}
                             />
-                            {connector.name === "braavos"
-                              ? "Braavos "
-                              : "Argent "}
+                            {connector.name.toLocaleUpperCase()}
                           </div>
                         }
                       </div>

@@ -33,8 +33,8 @@ export default function RootLayout({
 }>) {
   return (
     <html className={`${montserrat.variable}`} lang="en">
-        <StarknetProvider>
       <body className="flex flex-col min-h-[100vh]">
+        <StarknetProvider>
           <TransactionProvider>
             <Header />
             <div className="mt-24">
@@ -44,8 +44,8 @@ export default function RootLayout({
             <Footer />
             </div>
           </TransactionProvider>
-      </body>
         </StarknetProvider>
+      </body>
     </html>
   );
 }

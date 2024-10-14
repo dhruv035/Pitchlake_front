@@ -22,40 +22,37 @@ const useVaultState = (address: string) => {
 
   //States without a param
   const {
-    currentRoundId,
-    auctionRunTime,
-    optionRunTime,
-    roundTransitionPeriod,
     ethAddress,
+    currentRoundId,
     vaultType,
     lockedBalance,
     unlockedBalance,
+    stashedBalance,
   } = useContractReads({
     contractData,
     states: [
       { functionName: "eth_address", key: "ethAddress" },
       {
-        functionName: "current_option_round_id",
+        functionName: "get_current_round_id",
         key: "currentRoundId",
       },
-      { functionName: "vault_type", key: "vaultType" },
-      { functionName: "get_auction_run_time", key: "auctionRunTime" },
-      { functionName: "get_option_run_time", key: "optionRunTime" },
+      { functionName: "get_vault_type", key: "vaultType" },
       {
-        functionName: "get_round_transition_period",
-        key: "roundTransitionPeriod",
-      },
-      {
-        functionName: "get_total_locked_balance",
+        functionName: "get_vault_locked_balance",
         key: "lockedBalance",
       },
       {
-        functionName: "get_total_unlocked_balance",
+        functionName: "get_vault_unlocked_balance",
         key: "unlockedBalance",
       },
+      {
+        functionName: "get_vault_stashed_balance",
+        key: "stashedBalance",
+      }
     ],
   }) as unknown as VaultStateType;
 
+  console.log("VAULT LOCKED", lockedBalance, "UNLOCKED", unlockedBalance, "STASHED", stashedBalance);
   //Wallet states
   const { lockedBalance:lpLockedAmount, unlockedBalance:lpUnlockedAmount } = useContractReads({
     contractData,
@@ -109,11 +106,8 @@ const useVaultState = (address: string) => {
     vaultType: vaultType,
     lockedBalance,
     unlockedBalance,
-    stashedBalance:0,
+    stashedBalance:stashedBalance,
     currentRoundId,
-    auctionRunTime,
-    optionRunTime,
-    roundTransitionPeriod,
   } as VaultStateType;
   const lpState = {
     address:accountAddress,

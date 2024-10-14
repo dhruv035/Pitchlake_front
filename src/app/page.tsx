@@ -8,7 +8,7 @@ import VaultCard from "@/components/Vault/VaultCard/VaultCard";
 
 export default function Home() {
   const vaults = [
-    "0x5d3641202cb46479772cfe3be1fa1e3ef15c53c498c8f131fb5762f36470657",
+    "0x078c96c4238c1d0294b6cfacfbfdba1cc289e978685231284a3bd2ae00dd3f56",
     "0x5d3641202cb46479772cfe3be1fa1e3ef15c53c498c8f131fb5762f36470657",
     "0x5d3641202cb46479772cfe3be1fa1e3ef15c53c498c8f131fb5762f36470657",
   ];

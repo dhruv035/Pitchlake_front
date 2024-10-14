@@ -14,7 +14,7 @@ import {
   OptionRoundStateType,
   VaultStateType,
 } from "@/lib/types";
-import { useAccount } from "@starknet-react/core";
+import { useAccount, useNetwork } from "@starknet-react/core";
 import useOptionRoundState from "@/hooks/optionRound/useOptionRoundState";
 
 type wsMessageType = {
@@ -34,6 +34,8 @@ type wsResponseType = {
 export const Vault = ({ vaultAddress }: { vaultAddress: string }) => {
   const [isProviderView, setIsProviderView] = useState(true);
   const [isRPC, setIsRPC] = useState(true);
+  const network = useNetwork();
+  console.log("NETWORK", network);
   const [wsVaultState, setWsVaultState] = useState<
     VaultStateType | undefined
   >();
@@ -125,6 +127,7 @@ export const Vault = ({ vaultAddress }: { vaultAddress: string }) => {
     vaultState: rpcVaultState,
     currentRoundAddress,
   } = useVaultState(isRPC ? vaultAddress : "");
+  console.log("RPC VAULT STATE", rpcVaultState);
   const vaultState = isRPC ? rpcVaultState : wsVaultState;
   const vaultActions = useVaultActions(vaultAddress);
   const lpState = isRPC ? rpcLiquidityProviderState : wsLiquidityProviderState;
