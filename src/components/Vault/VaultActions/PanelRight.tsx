@@ -1,8 +1,5 @@
 import React, { useState, useEffect, ReactElement } from "react";
-import { useAtomValue } from "jotai";
 import {
-  VaultUserRole,
-  RoundState,
   VaultStateType,
   OptionRoundStateType,
   LiquidityProviderStateType,

@@ -1,20 +1,17 @@
-import {
-  useAccount,
-} from "@starknet-react/core";
+import { useAccount } from "@starknet-react/core";
 import { vaultABI } from "@/abi";
 import { LiquidityProviderStateType, VaultStateType } from "@/lib/types";
 import { stringToHex } from "@/lib/utils";
 import { useMemo } from "react";
 import useContractReads from "../../lib/useContractReads";
 
-const useVaultState = (address: string) => {
-  const contractData = useMemo(
-    () => ({
+const useVaultState = (isRPC: boolean, address: string) => {
+  const contractData = useMemo(() => {
+    return {
       abi: vaultABI,
-      address,
-    }),
-    [address]
-  );
+      address: isRPC ? "" : address,
+    };
+  }, [address, isRPC]);
 
   const { address: accountAddress } = useAccount();
   //Read States
@@ -47,7 +44,7 @@ const useVaultState = (address: string) => {
       {
         functionName: "get_vault_stashed_balance",
         key: "stashedBalance",
-      }
+      },
     ],
   }) as unknown as VaultStateType;
 
@@ -74,7 +71,7 @@ const useVaultState = (address: string) => {
   }) as unknown as LiquidityProviderStateType;
 
   //Round Addresses and States
-  const { currentRoundAddress, previousRoundAddress } = useContractReads({
+  const { currentRoundAddress } = useContractReads({
     contractData,
     states: [
       {
@@ -82,31 +79,25 @@ const useVaultState = (address: string) => {
         args: currentRoundId ? [Number(currentRoundId)] : undefined,
         key: "currentRoundAddress",
       },
-      {
-        functionName: "get_option_round_address",
-        args: currentRoundId ? [Number(currentRoundId) - 1] : undefined,
-        key: "previousRoundAddress",
-      },
     ],
   }) as unknown as {
     currentRoundAddress: string;
-    previousRoundAddress: string;
   };
-  
+
   const vaultState = {
     ethAddress: ethAddress ? stringToHex(ethAddress?.toString()) : "",
     address,
     vaultType: vaultType,
     lockedBalance,
     unlockedBalance,
-    stashedBalance:stashedBalance,
+    stashedBalance: stashedBalance,
     currentRoundId,
   } as VaultStateType;
-  
+
   return {
     vaultState,
     lpState,
-    currentRoundAddress
+    currentRoundAddress,
   };
 };
 

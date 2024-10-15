@@ -35,7 +35,7 @@ export const RoundStateLabels: { [key in RoundState]: string } = {
 export type VaultStateType = {
   ethAddress?: string;
   address: string;
-  vaultType?: CairoCustomEnum;
+  vaultType?: string;
   lockedBalance: number | bigint | string;
   unlockedBalance: number | bigint | string;
   stashedBalance: number | bigint | string;

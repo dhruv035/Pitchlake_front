@@ -1,10 +1,8 @@
 import React, { useState } from "react";
-import { useAtomValue } from "jotai";
 import {
   VaultStateType,
   OptionRoundStateType,
 } from "@/lib/types";
-import { vaultUserType } from "@/lib/atom/user-tab";
 import ConfirmationModal from "@/components/Vault/Utils/ConfirmationModal";
 import SuccessModal from "@/components/Vault/Utils/SuccessModal";
 import {
@@ -150,7 +148,7 @@ const PanelLeft: React.FC<VaultDetailsProps> = ({ roundState, vaultState }) => {
               <p>Type:</p>
               <p>
                 {
-                  vaultState.vaultType?.activeVariant()
+                  vaultState.vaultType
                   //Add vault type from state here
                 }
               </p>

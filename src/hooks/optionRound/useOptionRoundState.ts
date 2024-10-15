@@ -78,7 +78,7 @@ const useOptionRoundState = (address: string | undefined) => {
         key: "premiums",
       },
     ],
-  })
+  });
   //Wallet States
   const {
     biddingNonce,
@@ -124,36 +124,36 @@ const useOptionRoundState = (address: string | undefined) => {
   // );
   //Write Calls
 
-  return {optionRoundState:{
-    address,
-    roundId: roundId ? roundId.toString() : 0,
-    capLevel: capLevel ? capLevel.toString() : 0,
-    auctionStartDate: auctionStartDate?.toString(),
-    auctionEndDate: auctionEndDate?.toString(),
-    optionSettleDate: optionSettleDate?.toString(),
-    startingLiquidity: 0, //Add startingLiquidity
-    availableOptions: availableOptions
-      ? availableOptions.toString()
-      : 0,
-    clearingPrice: clearingPrice ? clearingPrice.toString() : 0,
-    settlementPrice: 0,  //Add settlementPrice
-    strikePrice: strikePrice ? strikePrice.toString() : 0,
-    optionsSold: optionsSold ? optionsSold.toString() : 0,
-    roundState: (roundState as CairoCustomEnum).activeVariant(),
-    premiums: 0, //Add premiums
-    queuedLiquidity: 0, //Add queuedLiquidity
-    payoutPerOption: 0, //Add payoutPerOption
-    vaultAddress: "", //Add vaultAddress
-    reservePrice: reservePrice ? reservePrice.toString() : 0,
-   
-  } as OptionRoundStateType,
-optionBuyerState:{
-  address: account?.address as string,
-  roundId: roundId ? roundId.toString() : 0,
-  tokenizableOptions: tokenizableOptions ? tokenizableOptions.toString() : 0,
-  refundableBalance: refundableBids ? refundableBids.toString() : 0,
-} as OptionBuyerStateType
-};
+  return {
+    optionRoundState: {
+      address,
+      roundId: roundId ? roundId.toString() : 0,
+      capLevel: capLevel ? capLevel.toString() : 0,
+      auctionStartDate: auctionStartDate?.toString(),
+      auctionEndDate: auctionEndDate?.toString(),
+      optionSettleDate: optionSettleDate?.toString(),
+      startingLiquidity: 0, //Add startingLiquidity
+      availableOptions: availableOptions ? availableOptions.toString() : 0,
+      clearingPrice: clearingPrice ? clearingPrice.toString() : 0,
+      settlementPrice: 0, //Add settlementPrice
+      strikePrice: strikePrice ? strikePrice.toString() : 0,
+      optionsSold: optionsSold ? optionsSold.toString() : 0,
+      roundState: (roundState as CairoCustomEnum).activeVariant(),
+      premiums: 0, //Add premiums
+      queuedLiquidity: 0, //Add queuedLiquidity
+      payoutPerOption: 0, //Add payoutPerOption
+      vaultAddress: "", //Add vaultAddress
+      reservePrice: reservePrice ? reservePrice.toString() : 0,
+    } as OptionRoundStateType,
+    optionBuyerState: {
+      address: account?.address as string,
+      roundId: roundId ? roundId.toString() : 0,
+      tokenizableOptions: tokenizableOptions
+        ? tokenizableOptions.toString()
+        : 0,
+      refundableBalance: refundableBids ? refundableBids.toString() : 0,
+    } as OptionBuyerStateType,
+  };
 };
 
 export default useOptionRoundState;

@@ -13,7 +13,8 @@ import {
 } from "@/components/Icons";
 
 export default function VaultCard({ vaultAddress }: { vaultAddress: string }) {
-  const { vaultState } = useVaultState(vaultAddress);
+  
+  const { vaultState } = useVaultState(true,vaultAddress); //isRPC arguement hardcoded here. Make isRPC a context variable to feed everywhere
   const router = useRouter();
   var myHeaders = new Headers();
   myHeaders.append("accept", "application/json");
@@ -37,16 +38,14 @@ export default function VaultCard({ vaultAddress }: { vaultAddress: string }) {
           <div className="bg-primary-800 rounded-full w-[5px] h-[5px] m-2" />
           <p>
             {
-              typeof vaultState.vaultType === "string"
-                ? vaultState.vaultType
-                : vaultState.vaultType?.activeVariant()
+            vaultState.vaultType
               //Add vault type here
             }
           </p>
         </div>
         <p className="text-greyscale">
           {shortenString(vaultAddress)} |{" "}
-          {vaultState.vaultType?.activeVariant()}
+          {vaultState.vaultType}
         </p>
       </div>
       <div className="flex flex-row w-full ">

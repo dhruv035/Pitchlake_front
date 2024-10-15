@@ -19,7 +19,7 @@ export default function VaultHeader({
       </Link>
       <div className={`${styles.box} ${styles.titleBox}`}>
         <p className={styles.title}>
-          {vault.address} | {vault.vaultType?.activeVariant()}
+          {vault.address} | {vault.vaultType}
         </p>
       </div>
       <div className={styles.box}>

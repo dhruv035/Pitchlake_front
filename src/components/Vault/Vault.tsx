@@ -16,6 +16,7 @@ import {
 } from "@/lib/types";
 import { useAccount, useNetwork } from "@starknet-react/core";
 import useOptionRoundState from "@/hooks/optionRound/useOptionRoundState";
+import useWebSocketVault from "@/hooks/useWebSocket";
 
 type wsMessageType = {
   address: string;
@@ -36,97 +37,19 @@ export const Vault = ({ vaultAddress }: { vaultAddress: string }) => {
   const [isRPC, setIsRPC] = useState(true);
   const network = useNetwork();
   console.log("NETWORK", network);
-  const [wsVaultState, setWsVaultState] = useState<
-    VaultStateType | undefined
-  >();
-  const [wsOptionRoundStates, setWsOptionRoundStates] = useState<
-    OptionRoundStateType[]
-  >([] as OptionRoundStateType[]);
   const { address: accountAddress } = useAccount();
-  const [wsLiquidityProviderState, setWsLiquidityProviderState] =
-    useState<LiquidityProviderStateType | null>(null);
-  const [wsOptionBuyerState, setWsOptionBuyerState] =
-    useState<OptionBuyerStateType | null>(null);
-  const ws = useRef<WebSocket | null>(null);
-  useEffect(() => {
-    if (!isRPC) {
-      ws.current = new WebSocket("ws://localhost:8080/subscribeVault");
-
-      ws.current.onopen = () => {
-        console.log("WebSocket connection established");
-        // Optionally, send a message to the server
-
-        ws.current?.send(
-          JSON.stringify({
-            address: accountAddress,
-            userType: isProviderView ? "lp" : "ob",
-            vaultAddress: vaultAddress,
-          })
-        );
-      };
-
-      ws.current.onmessage = (event: MessageEvent) => {
-        console.log("Message from server:");
-        const wsResponse: wsResponseType = JSON.parse(event.data);
-        if (event.data.payloadType === "initial") {
-          setWsVaultState(wsResponse.vaultState);
-          setWsOptionRoundStates(wsResponse.optionRoundStates ?? []);
-        } else if (
-          wsResponse.payloadType === "lp_update " &&
-          wsResponse.liquidityProviderState
-        ) {
-          setWsLiquidityProviderState(wsResponse.liquidityProviderState);
-        } else if (
-          wsResponse.payloadType === "or_update" &&
-          wsResponse.optionRoundStates
-        ) {
-          setWsOptionRoundStates((prevStates) => {
-            const newStates = [...prevStates];
-            if (
-              wsResponse.optionRoundStates &&
-              wsResponse.optionRoundStates.length > 0
-            ) {
-              const updatedRound = wsResponse.optionRoundStates[0];
-              const updatedRoundIndex = Number(updatedRound.roundId) - 1;
-              newStates[updatedRoundIndex] = updatedRound;
-            }
-            return newStates;
-          });
-        } else if (
-          wsResponse.payloadType === "ob_update" &&
-          wsResponse.optionBuyerState
-        ) {
-          setWsOptionBuyerState(wsResponse.optionBuyerState);
-        } else if (
-          wsResponse.payloadType === "vault_update" &&
-          wsResponse.vaultState
-        ) {
-          setWsVaultState(wsResponse.vaultState);
-        } else if (wsResponse.payloadType === "switch") {
-        }
-      };
-
-      ws.current.onerror = (error: Event) => {
-        console.error("WebSocket error:", error);
-      };
-
-      ws.current.onclose = () => {
-        console.log("WebSocket connection closed");
-      };
-    } else {
-      ws.current = null;
-    }
-    // Cleanup function to close the WebSocket connection when the component unmounts
-    return () => {
-      ws.current?.close();
-    };
-  }, [isRPC]);
+  const {
+    wsVaultState,
+    wsOptionRoundStates,
+    wsLiquidityProviderState,
+    wsOptionBuyerState,
+  } = useWebSocketVault(isRPC, vaultAddress);
 
   const {
     lpState: rpcLiquidityProviderState,
     vaultState: rpcVaultState,
     currentRoundAddress,
-  } = useVaultState(isRPC ? vaultAddress : "");
+  } = useVaultState(isRPC,vaultAddress);
   console.log("RPC VAULT STATE", rpcVaultState);
   const vaultState = isRPC ? rpcVaultState : wsVaultState;
   const vaultActions = useVaultActions(vaultAddress);
