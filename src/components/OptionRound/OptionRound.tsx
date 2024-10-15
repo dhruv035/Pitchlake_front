@@ -26,7 +26,7 @@ export const OptionRound = ({
       <div>
         <div>Round Id {roundState?.roundId?.toString()}</div>
         <div>
-          {roundState?.roundState?.activeVariant() === "Auctioning" && (
+          {roundState?.roundState === "Auctioning" && (
             <>
               {" "}
               <PlaceBid
@@ -41,8 +41,8 @@ export const OptionRound = ({
               />
             </>
           )}
-          {(roundState?.roundState?.activeVariant() === "Running" ||
-            roundState?.roundState?.activeVariant() === "Settled") && (
+          {(roundState?.roundState === "Running" ||
+            roundState?.roundState === "Settled") && (
             <>
               <RefundBids
                 vaultState={vaultState}
@@ -56,7 +56,7 @@ export const OptionRound = ({
               />
             </>
           )}
-          {roundState?.roundState?.activeVariant() === "Settled" && (
+          {roundState?.roundState === "Settled" && (
             <ExerciseOptions
               vaultState={vaultState}
               exerciseOptions={roundActions.exerciseOptions}

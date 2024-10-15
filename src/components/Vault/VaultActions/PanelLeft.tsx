@@ -141,7 +141,7 @@ const PanelLeft: React.FC<VaultDetailsProps> = ({ roundState, vaultState }) => {
               <p>Run Time:</p>
               <p>
                 {
-                  vaultState.auctionRunTime
+                  BigInt(roundState?.auctionEndDate)-BigInt(roundState?.auctionStartDate)
                   //Add round duration from state here
                 }
               </p>
@@ -217,11 +217,7 @@ const PanelLeft: React.FC<VaultDetailsProps> = ({ roundState, vaultState }) => {
               <p>Status:</p>
               <p className="bg-[#6D1D0D59] border-[1px] border-warning text-warning rounded-full px-2 py-[1px]">
                 {
-                  roundState.roundState?
-                  typeof roundState.roundState === "string"
-                    ? roundState.roundState //If string received from websocket
-                    : roundState.roundState.activeVariant() //If cairo enum received from RPC
-                    :""
+                  roundState.roundState
                   //Add appropriate bg
                 }
               </p>

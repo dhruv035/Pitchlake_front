@@ -51,7 +51,7 @@ export default function VaultHeader({
             %
           </strong>{" "}
           | TVL:&nbsp;
-          <strong>{vault.vaultLockedAmount} weth</strong>
+          <strong>{vault.lockedBalance} weth</strong>
         </p>
         <p>
           TVL Cap:&nbsp;
@@ -89,7 +89,7 @@ export default function VaultHeader({
       <div className={styles.box}>
         <p>End Date:</p>
         <p>
-          <strong>{currentRoundState.auctionEndDate?.toDateString()}</strong>
+          <strong>{new Date(Number(currentRoundState.auctionEndDate)*1000).toDateString()}</strong>
         </p>
       </div>
     </div>

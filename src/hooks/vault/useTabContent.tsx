@@ -6,6 +6,7 @@ import {
   BuyerTabs,
   CommonTabs,
   VaultStateType,
+  LiquidityProviderStateType,
 } from "@/lib/types";
 import DepositContent from "@/components/Vault/VaultActions/Tabs/Provider/Deposit";
 import Withdraw from "@/components/Vault/VaultActions/Tabs/Provider/Withdraw/Withdraw";
@@ -22,6 +23,7 @@ export const useTabContent = (
   userType:string,
   roundState: string,
   vaultState: VaultStateType,
+  lpState: LiquidityProviderStateType,
 ) => {
 
   const getTabs = (): string[] => {
@@ -61,6 +63,7 @@ export const useTabContent = (
       case ProviderTabs.Withdraw:
         return (
           <Withdraw
+            lpState={lpState}
             vaultState={vaultState}
             showConfirmation={(amount, action) => {}}
           />

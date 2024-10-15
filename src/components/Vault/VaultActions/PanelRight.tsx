@@ -5,6 +5,7 @@ import {
   RoundState,
   VaultStateType,
   OptionRoundStateType,
+  LiquidityProviderStateType,
 } from "@/lib/types";
 import Tabs from "./Tabs/Tabs";
 import { useTabContent } from "@/hooks/vault/useTabContent";
@@ -15,6 +16,7 @@ interface VaultDetailsProps {
   userType: string;
   roundState: OptionRoundStateType;
   vaultState: VaultStateType;
+  lpState: LiquidityProviderStateType;
 }
 
 interface TabContentProps {
@@ -28,6 +30,7 @@ interface TabContentProps {
 const PanelRight: React.FC<VaultDetailsProps> = ({
   userType,
   vaultState,
+  lpState,
   roundState,
 }) => {
   const [activeTab, setActiveTab] = useState<string>("");
@@ -47,13 +50,9 @@ const PanelRight: React.FC<VaultDetailsProps> = ({
 
   const { getTabs, getTabContent } = useTabContent(
     userType,
-
-    roundState.roundState
-      ? typeof roundState.roundState === "string"
-        ? roundState.roundState
-        : roundState.roundState.activeVariant()
-      : "",
-    vaultState
+    roundState.roundState,
+    vaultState,
+    lpState
   );
 
   const tabs = getTabs();

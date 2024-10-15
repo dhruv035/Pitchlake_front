@@ -1,11 +1,12 @@
 import React, { useState } from "react";
-import { VaultStateType } from "@/lib/types";
+import { LiquidityProviderStateType, VaultStateType } from "@/lib/types";
 import InputField from "@/components/Vault/Utils/InputField";
 import { ChevronDown } from "lucide-react";
 import ActionButton from "@/components/Vault/Utils/ActionButton";
 
 interface WithdrawLiquidityProps {
   vaultState: VaultStateType;
+  lpState: LiquidityProviderStateType;
   showConfirmation: (
     modalHeader: string,
     action: string,
@@ -15,6 +16,7 @@ interface WithdrawLiquidityProps {
 
 const WithdrawLiquidity: React.FC<WithdrawLiquidityProps> = ({
   vaultState,
+  lpState,
   showConfirmation,
 }) => {
   const [state, setState] = useState({
@@ -64,7 +66,7 @@ const WithdrawLiquidity: React.FC<WithdrawLiquidityProps> = ({
         <div className="flex justify-between text-sm mb-4">
           <span className="text-gray-400">Unlocked Balance</span>
           <span className="text-white">
-            {vaultState.lpUnlockedAmount?.toString() || "0"} ETH
+            {lpState.unlockedBalance?.toString() || "0"} ETH
           </span>
         </div>
         <div className="flex justify-between text-sm mb-4 pt-4 border-t border-[#262626]">

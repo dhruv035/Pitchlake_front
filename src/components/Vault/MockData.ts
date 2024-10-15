@@ -16,9 +16,9 @@ const mockVaultDetails: VaultDetailsProps = {
   lastRoundPerf: 12,
   currRoundPerf: 10,
   actions: "withdraw",
-  auctionStartDate: new Date("2024-09-01T10:00:00Z"),
-  auctionEndDate: new Date("2024-09-03T10:00:00Z"),
-  optionSettleDate: new Date("2024-09-05T10:00:00Z")
+  auctionStartDate: new Date("2024-09-01T10:00:00Z").toString(),
+  auctionEndDate: new Date("2024-09-03T10:00:00Z").toString(),
+  optionSettleDate: new Date("2024-09-05T10:00:00Z").toString()
 };
 
 const mockHistoryItems = [

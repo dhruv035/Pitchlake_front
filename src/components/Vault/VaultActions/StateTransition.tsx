@@ -12,7 +12,7 @@ const StateTransition = ({
   return (
     <div>
       State Transitions
-      {optionRoundState?.roundState?.activeVariant()==="Open" &&
+      {optionRoundState?.roundState==="Open" &&
       <Button
         style={{ flex: 1 }}
         className={[buttons.button, buttons.confirm].join(" ")}
@@ -27,7 +27,7 @@ const StateTransition = ({
       >
         Start Auction
       </Button>}
-     { optionRoundState?.roundState?.activeVariant()==="Auctioning" &&
+     { optionRoundState?.roundState==="Auctioning" &&
       <Button
         style={{ flex: 1 }}
         className={[buttons.button, buttons.confirm].join(" ")}
@@ -42,7 +42,7 @@ const StateTransition = ({
       >
         End Auction
       </Button>}
-      {optionRoundState?.roundState?.activeVariant()==="Settled" &&
+      {optionRoundState?.roundState==="Settled" &&
         <Button
         style={{ flex: 1 }}
         className={[buttons.button, buttons.confirm].join(" ")}

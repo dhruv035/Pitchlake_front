@@ -68,23 +68,21 @@ export type OptionRoundStateType = {
   address: string | undefined;
   roundId: bigint | number | string;
   capLevel: bigint | number | string;
-  auctionStartDate?: Date;
-  auctionEndDate?: Date;
-  optionSettleDate?: Date;
   startingLiquidity?: bigint | number | string;
   availableOptions: bigint | number | string;
   clearingPrice: bigint | number | string;
   settlementPrice: bigint | number | string;
   strikePrice: bigint | number | string;
   optionsSold: bigint | number | string;
-  roundState: CairoCustomEnum | string;
+  roundState: string;
   premiums: bigint | number | string;
   queuedLiquidity?: bigint | number | string;
   payoutPerOption: bigint | number | string;
   vaultAddress: string;
   reservePrice: bigint | number | string;
-  refundableBids: bigint | number | string;
-  tokenizableOptions: bigint | number | string;
+  auctionStartDate: string|number|bigint;
+  auctionEndDate: string|number|bigint;
+  optionSettleDate?: string|number|bigint;
 };
 
 export type BidsType = {
@@ -111,9 +109,9 @@ export interface VaultDetailsProps {
   lastRoundPerf: number;
   currRoundPerf?: number;
   actions: string;
-  auctionStartDate: Date;
-  auctionEndDate: Date;
-  optionSettleDate?: Date;
+  auctionStartDate: string|number|bigint;
+  auctionEndDate: string|number|bigint;
+  optionSettleDate?: string|number|bigint;
 }
 
 export interface InfoItemProps {

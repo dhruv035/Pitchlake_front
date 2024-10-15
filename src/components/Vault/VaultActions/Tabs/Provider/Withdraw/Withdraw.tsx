@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { VaultStateType, WithdrawSubTabs } from "@/lib/types";
+import { LiquidityProviderStateType, VaultStateType, WithdrawSubTabs } from "@/lib/types";
 import ButtonTabs from "../../../ButtonTabs";
 import WithdrawLiquidity from "@/components/Vault/VaultActions/Tabs/Provider/Withdraw/WithdrawLiquidity";
 import WithdrawQueue from "@/components/Vault/VaultActions/Tabs/Provider/Withdraw/WithdrawQueue";
@@ -7,6 +7,7 @@ import WithdrawCollect from "@/components/Vault/VaultActions/Tabs/Provider/Withd
 
 interface WithdrawProps {
   vaultState: VaultStateType;
+  lpState: LiquidityProviderStateType;
   showConfirmation: (
     modalHeader: string,
     action: string,
@@ -16,6 +17,7 @@ interface WithdrawProps {
 
 const Withdraw: React.FC<WithdrawProps> = ({
   vaultState,
+  lpState,
   showConfirmation,
 }) => {
   const [state, setState] = useState({
@@ -39,6 +41,7 @@ const Withdraw: React.FC<WithdrawProps> = ({
       <div className="flex-grow">
         {state.activeWithdrawTab === "Liquidity" && (
           <WithdrawLiquidity
+            lpState={lpState}
             vaultState={vaultState}
             showConfirmation={showConfirmation}
           />

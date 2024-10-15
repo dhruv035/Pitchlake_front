@@ -191,11 +191,12 @@ export const Vault = ({ vaultAddress }: { vaultAddress: string }) => {
         <RoundPerformanceChart />
 
         <div className="w-full ml-6 max-w-[350px]">
-          {vaultState && (
+          {vaultState && lpState && (
             <PanelRight
               userType={isProviderView ? "lp" : "ob"}
               roundState={currentRoundState}
               vaultState={vaultState}
+              lpState={lpState}
             />
           )}
         </div>

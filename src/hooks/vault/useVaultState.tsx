@@ -5,7 +5,6 @@ import { vaultABI } from "@/abi";
 import { LiquidityProviderStateType, VaultStateType } from "@/lib/types";
 import { stringToHex } from "@/lib/utils";
 import { useMemo } from "react";
-import useOptionRoundState from "../optionRound/useOptionRoundState";
 import useContractReads from "../../lib/useContractReads";
 
 const useVaultState = (address: string) => {
@@ -52,20 +51,24 @@ const useVaultState = (address: string) => {
     ],
   }) as unknown as VaultStateType;
 
-  console.log("VAULT LOCKED", lockedBalance, "UNLOCKED", unlockedBalance, "STASHED", stashedBalance);
   //Wallet states
-  const { lockedBalance:lpLockedAmount, unlockedBalance:lpUnlockedAmount } = useContractReads({
+  const lpState = useContractReads({
     contractData,
     states: [
       {
-        functionName: "get_lp_locked_balance",
+        functionName: "get_account_locked_balance",
         args: [accountAddress as string],
-        key: "lpLockedAmount",
+        key: "lockedBalance",
       },
       {
-        functionName: "get_lp_unlocked_balance",
+        functionName: "get_account_unlocked_balance",
         args: [accountAddress as string],
-        key: "lpUnlockedAmount",
+        key: "unlockedBalance",
+      },
+      {
+        functionName: "get_account_stashed_balance",
+        args: [accountAddress as string],
+        key: "stashedBalance",
       },
     ],
   }) as unknown as LiquidityProviderStateType;
@@ -90,16 +93,6 @@ const useVaultState = (address: string) => {
     previousRoundAddress: string;
   };
   
-  const currentRoundState = useOptionRoundState(
-    currentRoundAddress
-      ? stringToHex(currentRoundAddress.toString())
-      : undefined
-  );
-  const previousRoundState = useOptionRoundState(
-    previousRoundAddress
-      ? stringToHex(previousRoundAddress.toString())
-      : undefined
-  );
   const vaultState = {
     ethAddress: ethAddress ? stringToHex(ethAddress?.toString()) : "",
     address,
@@ -109,12 +102,7 @@ const useVaultState = (address: string) => {
     stashedBalance:stashedBalance,
     currentRoundId,
   } as VaultStateType;
-  const lpState = {
-    address:accountAddress,
-    lockedBalance:lpLockedAmount,
-    unlockedBalance:lpUnlockedAmount,
-    stashedBalance:0
-  } as LiquidityProviderStateType
+  
   return {
     vaultState,
     lpState,
