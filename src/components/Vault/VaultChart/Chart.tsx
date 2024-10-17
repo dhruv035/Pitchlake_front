@@ -96,7 +96,7 @@ const RoundPerformanceChart = () => {
         <div className="text-primary flex flex-row items-center ">
           Round &nbsp;
           {selectedRoundState?.roundId +
-            (selectedRoundState?.roundId.toString() === vaultState?.currentRoundId.toString()
+            (selectedRoundState?.roundId.toString() === vaultState?.currentRoundId?.toString()
               ? " (Live)"
               : " (Historic)")}
           {

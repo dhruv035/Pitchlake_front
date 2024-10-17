@@ -15,30 +15,11 @@ import {
   VaultStateType,
 } from "@/lib/types";
 import { useAccount, useNetwork } from "@starknet-react/core";
-import useOptionRoundState from "@/hooks/optionRound/useOptionRoundState";
-import useWebSocketVault from "@/hooks/useWebSocket";
-import useMockVault from "@/lib/mocks/useMockVault";
 import { useProtocolContext } from "@/context/ProtocolProvider";
 
-type wsMessageType = {
-  address: string;
-  userType: string;
-  vaultAddress: string;
-  data: VaultStateType;
-};
-type wsResponseType = {
-  payloadType: string;
-  liquidityProviderState?: LiquidityProviderStateType;
-  optionBuyerState?: OptionBuyerStateType;
-  vaultState: VaultStateType;
-  optionRoundStates?: OptionRoundStateType[];
-};
 
-export const Vault = ({ vaultAddress }: { vaultAddress: string }) => {
+export const Vault = () => {
   const [isProviderView, setIsProviderView] = useState(true);
-  const [conn, setConn] = useState("mock");
-  const network = useNetwork();
-  const { address: accountAddress } = useAccount();
   // const {
   //   wsVaultState,
   //   wsOptionRoundStates,
@@ -92,7 +73,7 @@ export const Vault = ({ vaultAddress }: { vaultAddress: string }) => {
   //     : optionRoundStatesMock[2];
   // const roundActions = conn==="mock"?roundActionsMock
 
-  const {vaultState,optionRoundStates} = useProtocolContext();
+  const {vaultState} = useProtocolContext();
   console.log("vaultState",vaultState)
   return (
     <div className="px-7 py-7 flex-grow overflow-auto">

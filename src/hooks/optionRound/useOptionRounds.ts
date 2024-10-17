@@ -8,7 +8,8 @@ const useOptionRounds = (roundAddresses: string[]) => {
   const roundStates: OptionRoundStateType[] = [];
   const buyerStates: OptionBuyerStateType[] = [];
   console.log("roundAddresses",roundAddresses);
-  roundAddresses?.length && roundAddresses?.forEach((round) => {
+  if(roundAddresses?.length>0)
+  roundAddresses.length && roundAddresses?.forEach((round) => {
     //Looped hooks, need to disable rules, the sequentially declaration is ensured here
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const { optionRoundState, optionBuyerState } = useOptionRoundState(round);

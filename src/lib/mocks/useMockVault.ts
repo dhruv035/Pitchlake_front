@@ -6,16 +6,17 @@ import {
   VaultStateType,
   WithdrawArgs,
 } from "@/lib/types";
-import { useCallback, useMemo, useState } from "react";
+import { useState } from "react";
 import useMockOptionRound from "./useMockOptionRound";
 
-const useMockVault = (address: string) => {
+const useMockVault = (address?: string) => {
   const { address: accountAddress } = useAccount();
   //Read States
 
+  console.log("ADDRESS2",address)
   const [vaultState, setVaultState] = useState<VaultStateType>({
     ethAddress: "0x00",
-    address: address,
+    address: address??"0x1",
     vaultType: "ATM",
     lockedBalance: "0",
     unlockedBalance: "1492",
@@ -29,7 +30,7 @@ const useMockVault = (address: string) => {
 
   //Wallet states
   const [lpState, setLPState] = useState<LiquidityProviderStateType>({
-    address: accountAddress ?? "",
+    address: accountAddress ?? "0x1",
     lockedBalance: "12.8",
     unlockedBalance: "1.5",
     stashedBalance: "0",

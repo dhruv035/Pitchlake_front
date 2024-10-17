@@ -32,6 +32,7 @@ import {
 //Make transactions accepted only after 2 confirmations
 
 export type ProtocolContextType = {
+    vaultAddress?:string;
   vaultActions: VaultActionsType;
   vaultState?: VaultStateType;
   roundActions?: OptionRoundActionsType;
@@ -41,18 +42,16 @@ export type ProtocolContextType = {
   selectedRound?: number | string;
   setSelectedRound: Dispatch<SetStateAction<number>>;
   selectedRoundState?: OptionRoundStateType;
+  setVaultAddress:Dispatch<SetStateAction<string|undefined>>
 };
 
 export const ProtocolContext = createContext<ProtocolContextType>(
   {} as ProtocolContextType
 );
 const ProtocolProvider = ({ children }: { children: ReactNode }) => {
-  const [isProviderView, setIsProviderView] = useState(true);
-  const [vaultAddress, setVaultAddress] = useState("");
-  const [conn, setConn] = useState("mock");
+  const [vaultAddress, setVaultAddress] = useState<string|undefined>();
+  const [conn, setConn] = useState("rpc");
 
-  const network = useNetwork();
-  const { address: accountAddress } = useAccount();
   const {
     wsVaultState,
     wsOptionRoundStates,
@@ -68,7 +67,6 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
     optionRoundActions: roundActionsMock,
     optionBuyerStates: optionBuyerStatesMock,
   } = useMockVault(vaultAddress);
-  console.log("MOCK",)
   const {
     lpState: rpcLiquidityProviderState,
     vaultState: rpcVaultState,
@@ -122,6 +120,7 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
   return (
     <ProtocolContext.Provider
       value={{
+        vaultAddress,
         vaultActions,
         vaultState,
         roundActions,
@@ -134,6 +133,7 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
           selectedRound && optionRoundStates.length > selectedRound
             ? optionRoundStates[selectedRound-1]
             : undefined,
+        setVaultAddress
       }}
     >
       {children}

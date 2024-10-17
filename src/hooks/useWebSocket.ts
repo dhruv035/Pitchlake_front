@@ -15,7 +15,7 @@ type wsResponseType = {
   optionRoundStates?: OptionRoundStateType[];
 };
 
-const useWebSocketVault = (conn: string, vaultAddress: string) => {
+const useWebSocketVault = (conn: string, vaultAddress?: string) => {
   const [wsVaultState, setWsVaultState] = useState<
     VaultStateType | undefined
   >();

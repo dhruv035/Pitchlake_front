@@ -123,7 +123,7 @@ const Deposit: React.FC<DepositProps> = ({
       <div className="mt-auto">
         <div className="flex justify-between text-sm mb-4 pt-4">
           <span className="text-gray-400">Unlocked Balance</span>
-          <span className="text-white">{lpState?.unlockedBalance.toString()} ETH</span>
+          <span className="text-white">{lpState?.unlockedBalance?.toString()} ETH</span>
         </div>
         <div className="flex justify-between text-sm mb-4 pt-4 border-t border-[#262626]">
           <ActionButton

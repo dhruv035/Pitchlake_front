@@ -7,17 +7,15 @@ const useContractReads = ({
   states,
   watch,
 }: {
-  contractData: { abi?: Abi,address?:string };
+  contractData: { abi?: Abi; address?: string };
   watch?: boolean;
-  states: Array<{ address?: string,functionName: string; args?: Array<any>; key: string }>;
+  states: Array<{ functionName: string; args?: Array<any>; key: string }>;
 }) => {
 
   
   const obj:{[key:string]:Result|undefined}={};
   states.forEach((state) => {
 
-    if(!state.address&&!contractData.address)
-      return
     //Looped hooks, need to disable rules, the sequentially declaration is ensured here
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const { data } = useContractRead({
@@ -30,6 +28,7 @@ const useContractReads = ({
     {
       obj[state.key]=data;
     }
+    return data
   });
   return {...obj};
 };

@@ -14,7 +14,7 @@ const useVaultState = ({
   getRounds,
 }: {
   conn: string;
-  address: string;
+  address?: string;
   selectedRound?: number | string;
   getRounds: boolean;
 }) => {
@@ -102,22 +102,20 @@ const useVaultState = ({
     ],
   }) as unknown as LiquidityProviderStateType;
 
+  let roundArgs=[];
+  if(currentRoundId){
+    for (let i = 0; i < Number(currentRoundId); i++) {
+      roundArgs.push({
+        functionName: "get_option_round_address",
+        args: [i],
+        key: "currentRoundAddress",
+      });
+    }
+  }
   //Round Addresses and States
   const roundAddresses = useContractReads({
     contractData,
-    states: currentRoundId
-      ? (() => {
-          let states = [];
-          for (let i = 0; i < Number(currentRoundId); i++) {
-            states.push({
-              functionName: "get_option_round_address",
-              args: [i],
-              key: "currentRoundAddress",
-            });
-          }
-          return states;
-        })()
-      : [],
+    states: roundArgs,
   }) as unknown as string[];
 
   const { roundStates, buyerStates } = useOptionRounds(
