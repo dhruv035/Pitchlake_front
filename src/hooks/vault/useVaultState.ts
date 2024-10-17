@@ -5,13 +5,13 @@ import { stringToHex } from "@/lib/utils";
 import { useMemo } from "react";
 import useContractReads from "../../lib/useContractReads";
 
-const useVaultState = (isRPC: boolean, address: string) => {
+const useVaultState = (conn: string, address: string) => {
   const contractData = useMemo(() => {
     return {
       abi: vaultABI,
-      address: isRPC ? "" : address,
+      address: conn==='ws' ? address:"",
     };
-  }, [address, isRPC]);
+  }, [address, conn]);
 
   const { address: accountAddress } = useAccount();
   //Read States

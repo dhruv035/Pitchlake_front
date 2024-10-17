@@ -138,7 +138,7 @@ const useOptionRoundState = (address: string | undefined) => {
       settlementPrice: 0, //Add settlementPrice
       strikePrice: strikePrice ? strikePrice.toString() : 0,
       optionsSold: optionsSold ? optionsSold.toString() : 0,
-      roundState: (roundState as CairoCustomEnum).activeVariant(),
+      roundState: roundState?(roundState as CairoCustomEnum).activeVariant():"",
       premiums: 0, //Add premiums
       queuedLiquidity: 0, //Add queuedLiquidity
       payoutPerOption: 0, //Add payoutPerOption
@@ -146,6 +146,7 @@ const useOptionRoundState = (address: string | undefined) => {
       reservePrice: reservePrice ? reservePrice.toString() : 0,
     } as OptionRoundStateType,
     optionBuyerState: {
+      bids,
       address: account?.address as string,
       roundId: roundId ? roundId.toString() : 0,
       tokenizableOptions: tokenizableOptions

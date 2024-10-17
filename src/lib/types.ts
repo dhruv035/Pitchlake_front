@@ -54,6 +54,7 @@ export type OptionBuyerStateType = {
   roundId: bigint | number | string;
   tokenizableOptions: bigint | number | string;
   refundableBalance: bigint | number | string;
+  bids:string[]
 };
 
 export type VaultActionsType = {
@@ -85,7 +86,7 @@ export type OptionRoundStateType = {
   optionSettleDate?: string|number|bigint;
 };
 
-export type BidsType = {
+export type Bid = {
   address: string;
   roundId: bigint | number | string;
   bidId: string;
@@ -113,6 +114,43 @@ export interface VaultDetailsProps {
   auctionEndDate: string|number|bigint;
   optionSettleDate?: string|number|bigint;
 }
+
+
+export type OptionRoundActionsType = {
+  placeBid: (placeBids: PlaceBidArgs) => Promise<void>;
+  updateBid: (updateBid: UpdateBidArgs) => Promise<void>;
+  refundUnusedBids: (refundBids: RefundBidsArgs) => Promise<void>;
+  tokenizeOptions: () => Promise<void>;
+  exerciseOptions: () => Promise<void>;
+};
+
+export type UpdateBidArgs = {
+  bidId: string;
+  amount: number | bigint;
+  price: number | bigint;
+};
+export type PlaceBidArgs = {
+  amount: number | bigint;
+  price: number | bigint;
+};
+export type RefundableBidsArgs = {
+  optionBuyer: string;
+};
+export type RefundBidsArgs = {
+  optionBuyer: string;
+};
+
+
+
+
+
+
+
+
+
+
+
+
 
 export interface InfoItemProps {
   label: string;
@@ -170,27 +208,3 @@ export interface TabsProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
 }
-
-export type OptionRoundActionsType = {
-  placeBid: (placeBids: PlaceBidArgs) => Promise<void>;
-  updateBid: (updateBid: UpdateBidArgs) => Promise<void>;
-  refundUnusedBids: (refundBids: RefundBidsArgs) => Promise<void>;
-  tokenizeOptions: () => Promise<void>;
-  exerciseOptions: () => Promise<void>;
-};
-
-export type UpdateBidArgs = {
-  bidId: string;
-  amount: number | bigint;
-  price: number | bigint;
-};
-export type PlaceBidArgs = {
-  amount: number | bigint;
-  price: number | bigint;
-};
-export type RefundableBidsArgs = {
-  optionBuyer: string;
-};
-export type RefundBidsArgs = {
-  optionBuyer: string;
-};

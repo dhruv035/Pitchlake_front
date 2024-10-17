@@ -15,7 +15,6 @@ import Mint from "@/components/Vault/VaultActions/Tabs/Buyer/Mint";
 import History from "@/components/Vault/VaultActions/Tabs/Buyer/History";
 import Exercise from "@/components/Vault/VaultActions/Tabs/Buyer/Exercise";
 import Refund from "@/components/Vault/VaultActions/Tabs/Buyer/Refund";
-import useVaultState from "@/hooks/vault/useVaultState";
 import MyInfo from "@/components/Vault/VaultActions/Tabs/Provider/MyInfo";
 import { mockHistoryItems } from "@/components/Vault/MockData";
 
@@ -29,21 +28,21 @@ export const useTabContent = (
   const getTabs = (): string[] => {
     const commonTabs = [CommonTabs.MyInfo];
 
-    if (userType === VaultUserRole.Provider) {
-      if (roundState === "Settle") {
+    if (userType === "lp") {
+      if (roundState === "SETTLED") {
         return commonTabs;
       } else {
         return [...Object.values(ProviderTabs), ...commonTabs];
       }
     } else {
       switch (roundState) {
-        case "Open":
+        case "OPEN":
           return [];
-        case "Auctioning":
+        case "AUCTIONING":
           return [BuyerTabs.PlaceBid, BuyerTabs.History, ...commonTabs];
-        case "Running":
+        case "RUNNING":
           return [BuyerTabs.Refund, BuyerTabs.Mint, ...commonTabs];
-        case "Settled":
+        case "SETTLED":
           return [BuyerTabs.Refund, BuyerTabs.Exercise, ...commonTabs];
         default:
           return [];

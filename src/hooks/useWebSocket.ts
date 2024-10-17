@@ -10,7 +10,7 @@ type wsResponseType = {
   optionRoundStates?: OptionRoundStateType[];
 };
 
-const useWebSocketVault = (isRPC: boolean, vaultAddress: string) => {
+const useWebSocketVault = (conn: string, vaultAddress: string) => {
   const [wsVaultState, setWsVaultState] = useState<VaultStateType | undefined>();
   const [wsOptionRoundStates, setWsOptionRoundStates] = useState<OptionRoundStateType[]>([]);
   const [wsLiquidityProviderState, setWsLiquidityProviderState] = useState<LiquidityProviderStateType | null>(null);
@@ -19,7 +19,7 @@ const useWebSocketVault = (isRPC: boolean, vaultAddress: string) => {
   const { address: accountAddress } = useAccount();
 
   useEffect(() => {
-    if (!isRPC) {
+    if (conn==="ws") {
       ws.current = new WebSocket("ws://localhost:8080/subscribeVault");
 
       ws.current.onopen = () => {
@@ -74,7 +74,7 @@ const useWebSocketVault = (isRPC: boolean, vaultAddress: string) => {
     return () => {
       ws.current?.close();
     };
-  }, [isRPC, vaultAddress, accountAddress]);
+  }, [conn, vaultAddress, accountAddress]);
 
   return {
     wsVaultState,

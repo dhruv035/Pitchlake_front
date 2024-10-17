@@ -1,8 +1,5 @@
 import React, { useState } from "react";
-import {
-  VaultStateType,
-  OptionRoundStateType,
-} from "@/lib/types";
+import { VaultStateType, OptionRoundStateType, VaultActionsType } from "@/lib/types";
 import ConfirmationModal from "@/components/Vault/Utils/ConfirmationModal";
 import SuccessModal from "@/components/Vault/Utils/SuccessModal";
 import {
@@ -18,6 +15,7 @@ import { shortenString } from "@/lib/utils";
 interface VaultDetailsProps {
   roundState: OptionRoundStateType;
   vaultState: VaultStateType;
+  vaultActions:VaultActionsType
 }
 
 interface TabContentProps {
@@ -28,8 +26,7 @@ interface TabContentProps {
   ) => void;
 }
 
-const PanelLeft: React.FC<VaultDetailsProps> = ({ roundState, vaultState }) => {
-
+const PanelLeft: React.FC<VaultDetailsProps> = ({ roundState, vaultState,vaultActions }) => {
   const [vaultIsOpen, setVaultIsOpen] = useState<boolean>(false);
   const [optionRoundIsOpen, setOptionRoundIsOpen] = useState<boolean>(false);
   const [modalState, setModalState] = useState<{
@@ -139,7 +136,8 @@ const PanelLeft: React.FC<VaultDetailsProps> = ({ roundState, vaultState }) => {
               <p>Run Time:</p>
               <p>
                 {
-                  BigInt(roundState?.auctionEndDate)-BigInt(roundState?.auctionStartDate)
+                  BigInt(roundState?.auctionEndDate) -
+                    BigInt(roundState?.auctionStartDate)
                   //Add round duration from state here
                 }
               </p>
@@ -157,7 +155,7 @@ const PanelLeft: React.FC<VaultDetailsProps> = ({ roundState, vaultState }) => {
               <p>Addess:</p>
               <p>
                 {
-                 shortenString(vaultState.address)
+                  shortenString(vaultState.address)
                   //Add vault address short string from state here
                 }
               </p>
@@ -167,7 +165,10 @@ const PanelLeft: React.FC<VaultDetailsProps> = ({ roundState, vaultState }) => {
               <p>
                 {
                   vaultState.lockedBalance &&
-                  (BigInt(vaultState.lockedBalance) + BigInt(vaultState.unlockedBalance)).toString()
+                    (
+                      BigInt(vaultState.lockedBalance) +
+                      BigInt(vaultState.unlockedBalance)
+                    ).toString()
                   //Add vault TVL from state here
                 }{" "}
                 &nbsp;ETH
@@ -205,7 +206,8 @@ const PanelLeft: React.FC<VaultDetailsProps> = ({ roundState, vaultState }) => {
             <div className="max-h-full flex flex-row justify-between items-center p-2 w-full">
               <p>Selected Round:</p>
               <p>
-                Round &nbsp;{
+                Round &nbsp;
+                {
                   Number(roundState.roundId).toPrecision(2)
                   //Add round duration from state here
                 }
@@ -269,7 +271,7 @@ const PanelLeft: React.FC<VaultDetailsProps> = ({ roundState, vaultState }) => {
               <p>Time to End:</p>
               <p>
                 {
-                  Date.now()- Number(roundState.auctionEndDate)
+                  Date.now() - Number(roundState.auctionEndDate)
                   //Add round duration from state here
                 }
               </p>
@@ -277,23 +279,30 @@ const PanelLeft: React.FC<VaultDetailsProps> = ({ roundState, vaultState }) => {
           </div>
         </div>
         <div className="flex flex-col w-full">
-          <button
-            className="hidden group-hover:flex border border-greyscale-700 text-primary rounded-md mt-4 p-2 w-full justify-center items-center"
-            onClick={() => {
-              //Trigger contract call here
-            }}
-          >
-            <p>
-              {
-                "End Auction"
-                //Enter text based on state
-              }
-            </p>
-            <LineChartDownIcon
-              classname="w-4 h-4 ml-2"
-              stroke={"var(--primary"}
-            />
-          </button>
+          {roundState.roundState !== "SETTLED" && (
+            <button
+              className="hidden group-hover:flex border border-greyscale-700 text-primary rounded-md mt-4 p-2 w-full justify-center items-center"
+              onClick={() => {
+                vaultActions.startAuction()
+                //Trigger contract call here
+              }}
+            >
+              <p>
+                {
+                  roundState.roundState === "OPEN"
+                    ? "Start Auction"
+                    : roundState.roundState === "AUCTIONING"
+                    ? "End Auction"
+                    : "Settle Round"
+                  //Enter text based on state
+                }
+              </p>
+              <LineChartDownIcon
+                classname="w-4 h-4 ml-2"
+                stroke={"var(--primary"}
+              />
+            </button>
+          )}
         </div>
       </div>
     </div>

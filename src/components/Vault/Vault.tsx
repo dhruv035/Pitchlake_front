@@ -17,6 +17,7 @@ import {
 import { useAccount, useNetwork } from "@starknet-react/core";
 import useOptionRoundState from "@/hooks/optionRound/useOptionRoundState";
 import useWebSocketVault from "@/hooks/useWebSocket";
+import useMockVault from "@/lib/mocks/useMockVault";
 
 type wsMessageType = {
   address: string;
@@ -34,36 +35,63 @@ type wsResponseType = {
 
 export const Vault = ({ vaultAddress }: { vaultAddress: string }) => {
   const [isProviderView, setIsProviderView] = useState(true);
-  const [isRPC, setIsRPC] = useState(true);
+  const [conn, setConn] = useState("mock");
   const network = useNetwork();
-  console.log("NETWORK", network);
   const { address: accountAddress } = useAccount();
   const {
     wsVaultState,
     wsOptionRoundStates,
     wsLiquidityProviderState,
     wsOptionBuyerState,
-  } = useWebSocketVault(isRPC, vaultAddress);
+  } = useWebSocketVault(conn, vaultAddress);
 
+  const {
+    optionRoundStates: optionRoundStatesMock,
+    lpState: lpStateMock,
+    vaultState: vaultStateMock,
+    vaultActions: vaultActionsMock,
+    optionRoundActions: optionRoundActionsMock,
+    optionBuyerStates: optionBuyerStatesMock,
+  } = useMockVault(vaultAddress);
   const {
     lpState: rpcLiquidityProviderState,
     vaultState: rpcVaultState,
     currentRoundAddress,
-  } = useVaultState(isRPC,vaultAddress);
+  } = useVaultState(conn, vaultAddress);
   console.log("RPC VAULT STATE", rpcVaultState);
-  const vaultState = isRPC ? rpcVaultState : wsVaultState;
-  const vaultActions = useVaultActions(vaultAddress);
-  const lpState = isRPC ? rpcLiquidityProviderState : wsLiquidityProviderState;
+  const vaultState =
+    conn === "rpc"
+      ? rpcVaultState
+      : conn === "ws"
+      ? wsVaultState
+      : vaultStateMock;
+  const vaultActionsChain = useVaultActions(vaultAddress);
+  const vaultActions = conn !=='mock'?vaultActionsChain:vaultActionsMock
+  const lpState =
+    conn === "rpc"
+      ? rpcLiquidityProviderState
+      : conn === "ws"
+      ? wsLiquidityProviderState
+      : lpStateMock;
   const {
     optionRoundState: rpcCurrentRoundState,
     optionBuyerState: rpcOptionBuyerState,
   } = useOptionRoundState(currentRoundAddress);
-  const optionBuyerState = isRPC ? rpcOptionBuyerState : wsOptionBuyerState;
-  const currentRoundState = isRPC
-    ? rpcCurrentRoundState
-    : wsOptionRoundStates[Number(vaultState?.currentRoundId) - 1];
+  const optionBuyerState =
+    conn === "rpc"
+      ? rpcOptionBuyerState
+      : conn === "ws"
+      ? wsOptionBuyerState
+      : optionBuyerStatesMock[2];
+  const currentRoundState =
+    conn === "rpc"
+      ? rpcCurrentRoundState
+      : conn === "ws"
+      ? wsOptionRoundStates[Number(vaultState?.currentRoundId) - 1]
+      : optionRoundStatesMock[2];
   const roundActions = useOptionRoundActions(currentRoundAddress);
 
+  console.log("vaultSTate",vaultState)
   return (
     <div className="px-7 py-7 flex-grow overflow-auto">
       <div className="flex flex-row-reverse text-primary p-4">
@@ -108,7 +136,7 @@ export const Vault = ({ vaultAddress }: { vaultAddress: string }) => {
       </div>
       <div className="mt-6 flex flex-row">
         {vaultState && (
-          <PanelLeft vaultState={vaultState} roundState={currentRoundState} />
+          <PanelLeft vaultState={vaultState} roundState={currentRoundState} vaultActions={vaultActions}/>
         )}
 
         <RoundPerformanceChart />
