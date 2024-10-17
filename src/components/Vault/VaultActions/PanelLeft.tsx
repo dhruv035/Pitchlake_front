@@ -1,5 +1,9 @@
 import React, { useState } from "react";
-import { VaultStateType, OptionRoundStateType, VaultActionsType } from "@/lib/types";
+import {
+  VaultStateType,
+  OptionRoundStateType,
+  VaultActionsType,
+} from "@/lib/types";
 import ConfirmationModal from "@/components/Vault/Utils/ConfirmationModal";
 import SuccessModal from "@/components/Vault/Utils/SuccessModal";
 import {
@@ -15,7 +19,7 @@ import { shortenString } from "@/lib/utils";
 interface VaultDetailsProps {
   roundState: OptionRoundStateType;
   vaultState: VaultStateType;
-  vaultActions:VaultActionsType
+  vaultActions: VaultActionsType;
 }
 
 interface TabContentProps {
@@ -26,7 +30,11 @@ interface TabContentProps {
   ) => void;
 }
 
-const PanelLeft: React.FC<VaultDetailsProps> = ({ roundState, vaultState,vaultActions }) => {
+const PanelLeft: React.FC<VaultDetailsProps> = ({
+  roundState,
+  vaultState,
+  vaultActions,
+}) => {
   const [vaultIsOpen, setVaultIsOpen] = useState<boolean>(false);
   const [optionRoundIsOpen, setOptionRoundIsOpen] = useState<boolean>(false);
   const [modalState, setModalState] = useState<{
@@ -282,8 +290,21 @@ const PanelLeft: React.FC<VaultDetailsProps> = ({ roundState, vaultState,vaultAc
           {roundState.roundState !== "SETTLED" && (
             <button
               className="hidden group-hover:flex border border-greyscale-700 text-primary rounded-md mt-4 p-2 w-full justify-center items-center"
-              onClick={() => {
-                vaultActions.startAuction()
+              onClick={async () => {
+                switch (roundState.roundState) {
+                  case "OPEN":
+                    await vaultActions.startAuction();
+                    break;
+                  case "AUCTIONING":
+                    await vaultActions.endAuction();
+                    break;
+                  case "RUNNING":
+                    await vaultActions.settleOptionRound();
+                    break;
+                  default: break
+                    
+                }
+
                 //Trigger contract call here
               }}
             >
