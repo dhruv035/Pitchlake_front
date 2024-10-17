@@ -18,12 +18,14 @@ import {
 } from "@starknet-react/core";
 import ProfileDropdown from "../BaseComponents/ProfileDropdown";
 import { copyToClipboard } from "@/lib/utils";
+import { useRouter } from "next/navigation";
 
 export default function Header() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const isDropdownOpenRef = useRef(isDropdownOpen);
   const { connect, connectors } = useConnect();
   const { disconnect } = useDisconnect();
+  const router = useRouter();
   const { account } = useAccount();
   const { data: balance } = useBalance({
     address: account?.address,
@@ -87,6 +89,9 @@ export default function Header() {
     <nav className="absolute top-0 z-50 w-full h-[92px] bg-[#121212] px-8 py-6 flex justify-between items-center border-b border-[#262626]">
       <div className="flex-shrink-0">
         <Image
+        onClick={()=>{
+          router.push('/')
+        }}
           src={logo_full}
           alt="Pitchlake logo"
           width={200}

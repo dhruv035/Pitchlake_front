@@ -91,7 +91,6 @@ const config: Config = {
       backgroundImage:{
         'greyscale-gradient':'var(--greyscale-gradient)',
         'success-gradient':"linear-gradient(180deg, rgba(52, 121, 18, 0.5) -28.5%, rgba(0, 0, 0, 0) 95.56%);",
-
       }
     },
   },

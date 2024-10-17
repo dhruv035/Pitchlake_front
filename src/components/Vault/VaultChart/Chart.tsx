@@ -10,12 +10,22 @@ import {
   ReferenceArea,
 } from "recharts";
 import data from "@/chart_data.json";
+import { EyeIcon } from "lucide-react";
 import {
-  EyeIcon,
-} from "lucide-react";
-import { ArrowDownIcon, ArrowLeftIcon, ArrowRightIcon, ArrowUpIcon } from "@/components/Icons";
+  ArrowDownIcon,
+  ArrowLeftIcon,
+  ArrowRightIcon,
+  ArrowUpIcon,
+} from "@/components/Icons";
+import { OptionRoundStateType } from "@/lib/types";
 
-const RoundPerformanceChart = () => {
+const RoundPerformanceChart = ({
+  roundState,
+  currentRoundId,
+}: {
+  roundState: OptionRoundStateType;
+  currentRoundId: string | number | bigint;
+}) => {
   const [activeLines, setActiveLines] = useState<{ [key: string]: boolean }>({
     TWAP: true,
     BASEFEE: true,
@@ -86,22 +96,26 @@ const RoundPerformanceChart = () => {
   return (
     <div className="w-full h-[800px] bg-black-alt rounded-[12px] border border-greyscale-800 flex flex-col">
       <div className="flex flex-row p-6 justify-between border-b-[1px] border-greyscale-800 pb-4">
-      <div className="text-primary flex flex-row items-center ">
-        Round &nbsp;{"05 (Live)"}
-        {
-          //Round number here
-          //Concat  (Live) if live
-        }
-        {!roundNavIsOpen ? (
-          <ArrowDownIcon stroke="var(--primary)" classname="ml-2 w-4 h-4" />
-        ) : (
-          <ArrowUpIcon stroke="var(--primary)" classname="ml-2 w-4 h-4" />
-        )}
-      </div>
-      <div className="flex flex-row items-center">
-        <ArrowLeftIcon stroke="var(--primary)" classname="w-3 h-3 mr-2" />
-        <ArrowRightIcon stroke="var(--primary)" classname="w-3 h-3 ml-2" />
-      </div>
+        <div className="text-primary flex flex-row items-center ">
+          Round &nbsp;
+          {roundState?.roundId +
+            (roundState?.roundId.toString() === currentRoundId.toString()
+              ? " (Live)"
+              : " Historic")}
+          {
+            //Round number here
+            //Concat  (Live) if live
+          }
+          {!roundNavIsOpen ? (
+            <ArrowDownIcon stroke="var(--primary)" classname="ml-2 w-4 h-4" />
+          ) : (
+            <ArrowUpIcon stroke="var(--primary)" classname="ml-2 w-4 h-4" />
+          )}
+        </div>
+        <div className="flex flex-row items-center">
+          <ArrowLeftIcon stroke="var(--primary)" classname="w-3 h-3 mr-2" />
+          <ArrowRightIcon stroke="var(--primary)" classname="w-3 h-3 ml-2" />
+        </div>
       </div>
       <div className="flex justify-center items-center my-4">
         <div className="flex gap-4">
@@ -223,7 +237,6 @@ const RoundPerformanceChart = () => {
           )}
         </ComposedChart>
       </ResponsiveContainer>
-      
     </div>
   );
 };

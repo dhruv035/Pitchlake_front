@@ -1,5 +1,9 @@
 import React, { useState } from "react";
-import { LiquidityProviderStateType, VaultStateType } from "@/lib/types";
+import {
+  LiquidityProviderStateType,
+  VaultStateType,
+  WithdrawArgs,
+} from "@/lib/types";
 import InputField from "@/components/Vault/Utils/InputField";
 import { ChevronDown } from "lucide-react";
 import ActionButton from "@/components/Vault/Utils/ActionButton";
@@ -7,6 +11,7 @@ import ActionButton from "@/components/Vault/Utils/ActionButton";
 interface WithdrawLiquidityProps {
   vaultState: VaultStateType;
   lpState: LiquidityProviderStateType;
+  withdraw: (withdrawArgs: WithdrawArgs) => Promise<void>;
   showConfirmation: (
     modalHeader: string,
     action: string,
@@ -18,6 +23,7 @@ const WithdrawLiquidity: React.FC<WithdrawLiquidityProps> = ({
   vaultState,
   lpState,
   showConfirmation,
+  withdraw,
 }) => {
   const [state, setState] = useState({
     amount: "",
@@ -28,6 +34,7 @@ const WithdrawLiquidity: React.FC<WithdrawLiquidityProps> = ({
   };
 
   const liquidityWithdraw = async (): Promise<void> => {
+    await withdraw({ amount: BigInt(state.amount) });
     console.log("queue withdraw", state.amount);
   };
 

@@ -102,7 +102,7 @@ const PanelLeft: React.FC<VaultDetailsProps> = ({
   }
 
   return (
-    <div className="flex flex-col mr-4 max-w-[350px] w-[110px] hover:w-full transition-all duration-300 max-h-[800px] overflow-hidden ">
+    <div className="flex flex-col mr-4 max-w-[350px] w-[110px] group hover:w-full transition-all duration-300 max-h-[800px] overflow-hidden ">
       <div className="group bg-black-alt border-[1px] border-greyscale-800 items-start rounded-lg w-full flex flex-col flex-grow h-full max-h-full">
         <div className="w-full border-b-1 p-3 border-white">
           <div className="flex flex-row w-full rounded-md px-3 justify-center group-hover:justify-between">
@@ -138,7 +138,7 @@ const PanelLeft: React.FC<VaultDetailsProps> = ({
           <div
             className={`hidden group-hover:flex flex-col mt-2 overflow-scroll no-scrollbar ${
               vaultIsOpen ? "h-0" : "h-[160px]"
-            } transition-all duration-400 `}
+            } transition-all duration-[4000ms] `}
           >
             <div className="flex flex-row justify-between p-2 w-full">
               <p>Run Time:</p>

@@ -31,6 +31,7 @@ export type TransactionContextType = {
   setIsDev: Dispatch<SetStateAction<boolean>>;
   setIsTxDisabled: Dispatch<SetStateAction<boolean>>;
   setPendingTx: Dispatch<SetStateAction<string | undefined>>;
+  status:"error"|"success"|"pending"
 };
 
 export const TransactionContext = createContext<TransactionContextType>(
@@ -106,6 +107,7 @@ const TransactionProvider = ({ children }: { children: ReactNode }) => {
         setIsDev,
         setIsTxDisabled,
         setPendingTx,
+        status,
       }}
     >
       {children}

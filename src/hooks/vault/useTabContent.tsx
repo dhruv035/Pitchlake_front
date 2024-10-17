@@ -7,6 +7,8 @@ import {
   CommonTabs,
   VaultStateType,
   LiquidityProviderStateType,
+  VaultActionsType,
+  OptionRoundActionsType,
 } from "@/lib/types";
 import DepositContent from "@/components/Vault/VaultActions/Tabs/Provider/Deposit";
 import Withdraw from "@/components/Vault/VaultActions/Tabs/Provider/Withdraw/Withdraw";
@@ -17,23 +19,21 @@ import Exercise from "@/components/Vault/VaultActions/Tabs/Buyer/Exercise";
 import Refund from "@/components/Vault/VaultActions/Tabs/Buyer/Refund";
 import MyInfo from "@/components/Vault/VaultActions/Tabs/Provider/MyInfo";
 import { mockHistoryItems } from "@/components/Vault/MockData";
+import VaultActions from "@/components/Vault/VaultActions";
 
 export const useTabContent = (
-  userType:string,
+  userType: string,
   roundState: string,
   vaultState: VaultStateType,
   lpState: LiquidityProviderStateType,
+  vaultActions:VaultActionsType,
+  roundActions:OptionRoundActionsType
 ) => {
-
   const getTabs = (): string[] => {
     const commonTabs = [CommonTabs.MyInfo];
 
     if (userType === "lp") {
-      if (roundState === "SETTLED") {
-        return commonTabs;
-      } else {
-        return [...Object.values(ProviderTabs), ...commonTabs];
-      }
+      return [...Object.values(ProviderTabs), ...commonTabs];
     } else {
       switch (roundState) {
         case "OPEN":
@@ -57,6 +57,8 @@ export const useTabContent = (
           <DepositContent
             showConfirmation={(amount, action) => {}}
             vaultState={vaultState}
+            lpState={lpState}
+            deposit={vaultActions.depositLiquidity}
           />
         );
       case ProviderTabs.Withdraw:
@@ -65,12 +67,13 @@ export const useTabContent = (
             lpState={lpState}
             vaultState={vaultState}
             showConfirmation={(amount, action) => {}}
+            withdraw={vaultActions.withdrawLiquidity}
           />
         );
       case BuyerTabs.PlaceBid:
-        return <PlaceBid showConfirmation={(amount, action) => {}} />;
+        return <PlaceBid placeBid={roundActions.placeBid} showConfirmation={(amount, action) => {}} />;
       case BuyerTabs.History:
-        return <History items = {mockHistoryItems}/>;
+        return <History items={mockHistoryItems} />;
       case BuyerTabs.Refund:
         return <Refund />;
       case BuyerTabs.Mint:

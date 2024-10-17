@@ -2,8 +2,6 @@ import { useAccount } from "@starknet-react/core";
 import {
   DepositArgs,
   LiquidityProviderStateType,
-  PlaceBidArgs,
-  RefundBidsArgs,
   VaultActionsType,
   VaultStateType,
   WithdrawArgs,
@@ -16,7 +14,7 @@ const useMockVault = (address: string) => {
   //Read States
 
   const [vaultState, setVaultState] = useState<VaultStateType>({
-    ethAddress: "",
+    ethAddress: "0x00",
     address: address,
     vaultType: "ATM",
     lockedBalance: "0",
@@ -28,10 +26,10 @@ const useMockVault = (address: string) => {
 
   //Wallet states
   const [lpState, setLPState] = useState<LiquidityProviderStateType>({
-    address: accountAddress??"",
-    lockedBalance: "",
-    unlockedBalance: "",
-    stashedBalance: "",
+    address: accountAddress ?? "",
+    lockedBalance: "12.8",
+    unlockedBalance: "1.5",
+    stashedBalance: "0",
   });
 
   const updateVaultState = (field: string, value: any) => {
@@ -53,6 +51,7 @@ const useMockVault = (address: string) => {
         ).toString(),
       };
     });
+    await new Promise((resolve) => setTimeout(resolve, 3000));
   };
 
   const withdrawLiquidity = async (withdrawArgs: WithdrawArgs) => {};
@@ -81,15 +80,21 @@ const useMockVault = (address: string) => {
       };
     });
   };
-  const { optionRoundState: round1State, roundActions: round1Actions, optionBuyerState:round1OB } =
-    useMockOptionRound(1);
-  const { optionRoundState: round2State, roundActions: round2Actions,optionBuyerState:round2OB } =
-    useMockOptionRound(2);
+  const {
+    optionRoundState: round1State,
+    roundActions: round1Actions,
+    optionBuyerState: round1OB,
+  } = useMockOptionRound(1);
+  const {
+    optionRoundState: round2State,
+    roundActions: round2Actions,
+    optionBuyerState: round2OB,
+  } = useMockOptionRound(2);
   const {
     optionRoundState: round3State,
     roundActions: round3Actions,
     setOptionRoundState: setRound3State,
-    optionBuyerState:round3OB
+    optionBuyerState: round3OB,
   } = useMockOptionRound(3);
 
   const vaultActions: VaultActionsType = {
@@ -105,9 +110,9 @@ const useMockVault = (address: string) => {
     lpState,
     currentRoundAddress,
     vaultActions,
-    optionRoundStates:[round1State,round2State,round3State],
-    optionRoundActions:[round1Actions,round2Actions,round3Actions],
-    optionBuyerStates:[round1OB,round2OB,round3OB]
+    optionRoundStates: [round1State, round2State, round3State],
+    optionRoundActions: [round1Actions, round2Actions, round3Actions],
+    optionBuyerStates: [round1OB, round2OB, round3OB],
   };
 };
 
