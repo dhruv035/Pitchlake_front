@@ -26,13 +26,18 @@ const useMockOptionRound = (roundId: number) => {
         optionsSold: "",
         roundState: "OPEN",
         premiums: "",
-        queuedLiquidity: "",
         payoutPerOption: "",
         vaultAddress: "",
         reservePrice: "",
         auctionStartDate: "",
         auctionEndDate: "",
         optionSettleDate: "",
+        deploymentDate:"",
+        soldLiquidity:"",
+        unsoldLiquidity:"",
+        optionSold:"",
+        totalPayout:"",
+        treeNonce:"",
         // Add other fields as necessary
       }
       // Add more mock states as needed

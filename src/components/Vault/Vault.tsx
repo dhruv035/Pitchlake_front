@@ -3,7 +3,6 @@ import useOptionRoundActions from "@/hooks/optionRound/useOptionRoundActions";
 import useVaultActions from "@/hooks/vault/useVaultActions";
 import useVaultState from "@/hooks/vault/useVaultState";
 import RoundPerformanceChart from "./VaultChart/Chart";
-import { mockVaultDetails } from "../Vault/MockData";
 import { useEffect, useRef, useState } from "react";
 import AuctionIcon from "../Icons/AuctionIcon";
 import CoinStackedIcon from "../Icons/CoinStackedIcon";

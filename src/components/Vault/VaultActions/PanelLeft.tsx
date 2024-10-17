@@ -1,3 +1,4 @@
+"use client";
 import React, { useState } from "react";
 import {
   VaultStateType,
@@ -276,10 +277,10 @@ const PanelLeft: React.FC<VaultDetailsProps> = ({
               </p>
             </div>
             <div className="max-h-full flex flex-row justify-between items-center   p-2 w-full">
-              <p>Time to End:</p>
+              <p>End date:</p>
               <p>
                 {
-                  Date.now() - Number(roundState.auctionEndDate)
+                  new Date(roundState.auctionEndDate.toString()).toString()
                   //Add round duration from state here
                 }
               </p>
@@ -301,8 +302,8 @@ const PanelLeft: React.FC<VaultDetailsProps> = ({
                   case "RUNNING":
                     await vaultActions.settleOptionRound();
                     break;
-                  default: break
-                    
+                  default:
+                    break;
                 }
 
                 //Trigger contract call here

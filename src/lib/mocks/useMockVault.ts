@@ -21,6 +21,9 @@ const useMockVault = (address: string) => {
     unlockedBalance: "1492",
     stashedBalance: "30",
     currentRoundId: 3,
+    alpha:"",
+    strikeLevel:"",
+    queuedBps:"",
   });
   //States without a param
 
@@ -30,6 +33,7 @@ const useMockVault = (address: string) => {
     lockedBalance: "12.8",
     unlockedBalance: "1.5",
     stashedBalance: "0",
+    queuedBps:"",
   });
 
   const updateVaultState = (field: string, value: any) => {
