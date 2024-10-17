@@ -1,4 +1,4 @@
-"use client";
+
 import { Vault } from "@/components/Vault/Vault";
 
 export default function Home({
@@ -6,9 +6,7 @@ export default function Home({
 }: {
   params: { address: string };
 }) {
-
   return (
-  
       <Vault vaultAddress={vaultAddress} />
 
   );

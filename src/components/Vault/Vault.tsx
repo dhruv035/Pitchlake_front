@@ -1,3 +1,4 @@
+"use client"
 import useOptionRoundActions from "@/hooks/optionRound/useOptionRoundActions";
 import useVaultActions from "@/hooks/vault/useVaultActions";
 import useVaultState from "@/hooks/vault/useVaultState";
@@ -50,7 +51,7 @@ export const Vault = ({ vaultAddress }: { vaultAddress: string }) => {
     lpState: lpStateMock,
     vaultState: vaultStateMock,
     vaultActions: vaultActionsMock,
-    optionRoundActions: optionRoundActionsMock,
+    optionRoundActions: roundActionsMock,
     optionBuyerStates: optionBuyerStatesMock,
   } = useMockVault(vaultAddress);
   const {
@@ -58,7 +59,6 @@ export const Vault = ({ vaultAddress }: { vaultAddress: string }) => {
     vaultState: rpcVaultState,
     currentRoundAddress,
   } = useVaultState(conn, vaultAddress);
-  console.log("RPC VAULT STATE", rpcVaultState);
   const vaultState =
     conn === "rpc"
       ? rpcVaultState
@@ -91,7 +91,7 @@ export const Vault = ({ vaultAddress }: { vaultAddress: string }) => {
       : optionRoundStatesMock[2];
   const roundActions = useOptionRoundActions(currentRoundAddress);
 
-  console.log("vaultSTate",vaultState)
+  console.log("vaultState",vaultState)
   return (
     <div className="px-7 py-7 flex-grow overflow-auto">
       <div className="flex flex-row-reverse text-primary p-4">
@@ -138,8 +138,10 @@ export const Vault = ({ vaultAddress }: { vaultAddress: string }) => {
         {vaultState && (
           <PanelLeft vaultState={vaultState} roundState={currentRoundState} vaultActions={vaultActions}/>
         )}
-
-        <RoundPerformanceChart />
+        {
+          //Update the roundState to multiple roundStates and set selected round in the component
+        }
+        <RoundPerformanceChart roundState={currentRoundState} currentRoundId={currentRoundState.roundId} />
 
         <div className="w-full ml-6 max-w-[350px]">
           {vaultState && lpState && (
@@ -148,6 +150,8 @@ export const Vault = ({ vaultAddress }: { vaultAddress: string }) => {
               roundState={currentRoundState}
               vaultState={vaultState}
               lpState={lpState}
+              vaultActions={vaultActions}
+              roundActions={roundActions}
             />
           )}
         </div>

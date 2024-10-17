@@ -2,7 +2,11 @@ import React, { useState } from "react";
 import { useAccount } from "@starknet-react/core";
 import { useTransactionContext } from "@/context/TransactionProvider";
 import useERC20 from "@/hooks/erc20/useERC20";
-import { VaultStateType } from "@/lib/types";
+import {
+  DepositArgs,
+  LiquidityProviderStateType,
+  VaultStateType,
+} from "@/lib/types";
 import InputField from "@/components/Vault/Utils/InputField";
 import { ChevronDown, User } from "lucide-react";
 import ActionButton from "@/components/Vault/Utils/ActionButton";
@@ -10,6 +14,8 @@ import ButtonTabs from "../../ButtonTabs";
 
 interface DepositProps {
   vaultState: VaultStateType;
+  lpState: LiquidityProviderStateType;
+  deposit: (depositArgs: DepositArgs) => Promise<void>;
   showConfirmation: (
     modalHeader: string,
     action: string,
@@ -24,7 +30,12 @@ interface DepositState {
   activeWithdrawTab: "For Myself" | "As Beneficiary";
 }
 
-const Deposit: React.FC<DepositProps> = ({ vaultState, showConfirmation }) => {
+const Deposit: React.FC<DepositProps> = ({
+  vaultState,
+  lpState,
+  deposit,
+  showConfirmation,
+}) => {
   const [state, setState] = useState<DepositState>({
     amount: "",
     isDepositAsBeneficiary: false,
@@ -32,8 +43,6 @@ const Deposit: React.FC<DepositProps> = ({ vaultState, showConfirmation }) => {
     activeWithdrawTab: "For Myself",
   });
 
-  const { account } = useAccount();
-  const { isDev, devAccount } = useTransactionContext();
   const { balance } = useERC20(vaultState.ethAddress, vaultState.address);
 
   const updateState = (updates: Partial<DepositState>) => {
@@ -42,6 +51,10 @@ const Deposit: React.FC<DepositProps> = ({ vaultState, showConfirmation }) => {
 
   const handleDeposit = async (): Promise<void> => {
     console.log("Depositing", state.amount);
+    await deposit({
+      amount: BigInt(state.amount),
+      beneficiary: state.beneficiaryAddress,
+    });
   };
 
   const handleSubmit = () => {
@@ -85,7 +98,7 @@ const Deposit: React.FC<DepositProps> = ({ vaultState, showConfirmation }) => {
               label="Enter Address"
               onChange={(e) => {
                 updateState({ beneficiaryAddress: e.target.value });
-                // TODO: Check address regex 
+                // TODO: Check address regex
               }}
               placeholder="Depositor's Address"
               icon={
@@ -111,7 +124,7 @@ const Deposit: React.FC<DepositProps> = ({ vaultState, showConfirmation }) => {
       <div className="mt-auto">
         <div className="flex justify-between text-sm mb-4 pt-4">
           <span className="text-gray-400">Unlocked Balance</span>
-          <span className="text-white">{balance.toString()} ETH</span>
+          <span className="text-white">{lpState.unlockedBalance.toString()} ETH</span>
         </div>
         <div className="flex justify-between text-sm mb-4 pt-4 border-t border-[#262626]">
           <ActionButton

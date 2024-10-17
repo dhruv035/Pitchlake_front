@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import InputField from "@/components/Vault/Utils/InputField";
 import { Layers3, Currency } from "lucide-react";
 import ActionButton from "@/components/Vault/Utils/ActionButton";
+import { PlaceBidArgs } from "@/lib/types";
 
 interface PlaceBidProps {
   showConfirmation: (
@@ -9,9 +10,10 @@ interface PlaceBidProps {
     action: string,
     onConfirm: () => Promise<void>
   ) => void;
+  placeBid: (placeBidArgs: PlaceBidArgs) => Promise<void>;
 }
 
-const PlaceBid: React.FC<PlaceBidProps> = ({ showConfirmation }) => {
+const PlaceBid: React.FC<PlaceBidProps> = ({ showConfirmation, placeBid }) => {
   const [state, setState] = useState({
     bidAmount: "",
     bidPrice: "",
@@ -37,6 +39,10 @@ const PlaceBid: React.FC<PlaceBidProps> = ({ showConfirmation }) => {
   };
 
   const handlePlaceBid = async (): Promise<void> => {
+    await placeBid({
+      amount: BigInt(state.bidAmount),
+      price: BigInt(state.bidPrice),
+    });
     console.log("Placing bid..");
   };
 
