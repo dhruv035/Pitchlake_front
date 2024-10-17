@@ -13,9 +13,16 @@ const useOptionRoundState = (address: string | undefined) => {
   //Read States
 
   const {
+    deploymentDate,
+
     auctionStartDate,
     auctionEndDate,
     optionSettleDate,
+
+    startingLiquidity,
+    soldLiquidity,
+    unsoldLiquidity,
+
     clearingPrice,
     optionsSold,
     roundId,
@@ -30,6 +37,18 @@ const useOptionRoundState = (address: string | undefined) => {
     watch: true,
     states: [
       {
+        functionName: "get_round_id",
+        key: "roundId",
+      },
+      {
+        functionName: "get_state",
+        key: "roundState",
+      },
+      {
+        functionName: "get_deployment_date",
+        key: "deploymentDate",
+      },
+      {
         functionName: "get_auction_start_date",
         key: "auctionStartDate",
       },
@@ -42,28 +61,17 @@ const useOptionRoundState = (address: string | undefined) => {
         key: "optionSettleDate",
       },
       {
-        functionName: "get_clearing_price",
-        key: "clearingPrice",
+        functionName: "get_starting_liquidity",
+        key: "startingLiquidity",
+      },
+      // get sold liquidity and unsold liquidity
+      {
+        functionName: "get_sold_liquidity",
+        key: "soldLiquidity",
       },
       {
-        functionName: "get_options_sold",
-        key: "optionsSold",
-      },
-      {
-        functionName: "get_round_id",
-        key: "roundId",
-      },
-      {
-        functionName: "get_options_available",
-        key: "availableOptions",
-      },
-      {
-        functionName: "get_state",
-        key: "roundState",
-      },
-      {
-        functionName: "get_cap_level",
-        key: "capLevel",
+        functionName: "get_unsold_liquidity",
+        key: "unsoldLiquidity",
       },
       {
         functionName: "get_reserve_price",
@@ -74,8 +82,32 @@ const useOptionRoundState = (address: string | undefined) => {
         key: "strikePrice",
       },
       {
+        functionName: "get_cap_level",
+        key: "capLevel",
+      },
+      {
+        functionName: "get_options_available",
+        key: "availableOptions",
+      },
+      {
+        functionName: "get_options_sold",
+        key: "optionsSold",
+      },
+      {
+        functionName: "get_clearing_price",
+        key: "clearingPrice",
+      },
+      {
         functionName: "get_total_premium",
         key: "premiums",
+      },
+      {
+        functionName: "get_settlement_price",
+        key: "settlementPrice",
+      },
+      {
+        functionName: "get_total_payout",
+        key: "payoutPerOption",
       },
     ],
   });
@@ -90,17 +122,21 @@ const useOptionRoundState = (address: string | undefined) => {
     contractData,
     states: [
       {
-        functionName: "get_bidding_nonce_for",
+        functionName: "get_account_bidding_nonce",
         args: [account?.address as string],
         key: "biddingNonce",
       },
       {
-        functionName: "get_bids_for",
+        functionName: "get_bid_tree_nonce",
+        key: "treeNonce",
+      },
+      {
+        functionName: "get_account_bids",
         args: [account?.address as string],
         key: "bids",
       },
       {
-        functionName: "get_refundable_bids_for",
+        functionName: "get_account_refundable_balance",
         args: [account?.address as string],
         key: "refundableBids",
       },

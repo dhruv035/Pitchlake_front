@@ -1,5 +1,5 @@
-import React from 'react';
-import { CopyIcon, LogOutIcon } from 'lucide-react';
+import React from "react";
+import { CopyIcon, LogOutIcon } from "lucide-react";
 
 interface ProfileDropdownProps {
   account: {
@@ -15,11 +15,18 @@ interface ProfileDropdownProps {
   copyToClipboard: (text: string) => void;
 }
 
-const ProfileDropdown: React.FC<ProfileDropdownProps> = ({ account, balance, disconnect, copyToClipboard }) => {
+const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
+  account,
+  balance,
+  disconnect,
+  copyToClipboard,
+}) => {
   return (
     <div className="absolute right-0 mt-2 w-64 bg-black rounded-md shadow-lg py-1 border border-greyscale-800">
       <div className="px-4 py-2 text-sm text-white border-b border-greyscale-800 flex justify-between items-center">
-        <span>{account.address.slice(0, 6)}...{account.address.slice(-4)}</span>
+        <span>
+          {account.address.slice(0, 6)}...{account.address.slice(-4)}
+        </span>
         <CopyIcon
           className="h-4 w-4 text-white-alt cursor-pointer"
           onClick={() => copyToClipboard(account.address)}
@@ -58,3 +65,4 @@ const ProfileDropdown: React.FC<ProfileDropdownProps> = ({ account, balance, dis
 };
 
 export default ProfileDropdown;
+
