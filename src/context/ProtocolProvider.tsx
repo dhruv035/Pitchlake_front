@@ -50,7 +50,7 @@ export const ProtocolContext = createContext<ProtocolContextType>(
 );
 const ProtocolProvider = ({ children }: { children: ReactNode }) => {
   const [vaultAddress, setVaultAddress] = useState<string|undefined>();
-  const [conn, setConn] = useState("rpc");
+  const [conn, setConn] = useState(process.env.NEXT_PUBLIC_ENVIRONMENT&&process.env.NEXT_PUBLIC_ENVIRONMENT==="mock"?"mock":"rpc");
 
   const {
     wsVaultState,
