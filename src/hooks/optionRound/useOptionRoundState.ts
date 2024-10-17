@@ -204,7 +204,6 @@ const useOptionRoundState = (address: string | undefined) => {
       //queuedLiquidity: 0, //Add queuedLiquidity (is on vault not round)
     } as OptionRoundStateType,
     optionBuyerState: {
-      bids,
       address: account?.address as string,
       roundId: roundId ? roundId.toString() : 0,
       bidderNonce: biddingNonce ? biddingNonce.toString() : 0,
