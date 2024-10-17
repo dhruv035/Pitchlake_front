@@ -1,9 +1,9 @@
 import React from "react";
 import { VaultStateType } from "@/lib/types";
 import ActionButton from "@/components/Vault/Utils/ActionButton";
+import { useProtocolContext } from "@/context/ProtocolProvider";
 
 interface WithdrawQueueProps {
-  vaultState: VaultStateType;
   showConfirmation: (
     modalHeader: string,
     action: string,
@@ -14,6 +14,7 @@ interface WithdrawQueueProps {
 const WithdrawLiquidity: React.FC<WithdrawQueueProps> = ({
   showConfirmation,
 }) => {
+  const {vaultActions} = useProtocolContext();
   const [state, setState] = React.useState({
     percentage: 0,
     isButtonDisabled: true,

@@ -1,15 +1,27 @@
 import { useAccount } from "@starknet-react/core";
 import { vaultABI } from "@/abi";
-import { LiquidityProviderStateType, VaultStateType } from "@/lib/types";
+import { LiquidityProviderStateType, OptionRoundActionsType, VaultStateType } from "@/lib/types";
 import { stringToHex } from "@/lib/utils";
 import { useMemo } from "react";
 import useContractReads from "../../lib/useContractReads";
+import useOptionRounds from "../optionRound/useOptionRounds";
+import useOptionRoundActions from "../optionRound/useOptionRoundActions";
 
-const useVaultState = (conn: string, address: string) => {
+const useVaultState = ({
+  conn,
+  address,
+  selectedRound,
+  getRounds,
+}: {
+  conn: string;
+  address: string;
+  selectedRound?: number | string;
+  getRounds: boolean;
+}) => {
   const contractData = useMemo(() => {
     return {
       abi: vaultABI,
-      address: conn==='rpc' ? address:"",
+      address: conn === "rpc" ? address : "",
     };
   }, [address, conn]);
 
@@ -91,19 +103,32 @@ const useVaultState = (conn: string, address: string) => {
   }) as unknown as LiquidityProviderStateType;
 
   //Round Addresses and States
-  const { currentRoundAddress } = useContractReads({
+  const roundAddresses = useContractReads({
     contractData,
-    states: [
-      {
-        functionName: "get_option_round_address",
-        args: currentRoundId ? [Number(currentRoundId)] : undefined,
-        key: "currentRoundAddress",
-      },
-    ],
-  }) as unknown as {
-    currentRoundAddress: string;
-  };
+    states: currentRoundId
+      ? (() => {
+          let states = [];
+          for (let i = 0; i < Number(currentRoundId); i++) {
+            states.push({
+              functionName: "get_option_round_address",
+              args: [i],
+              key: "currentRoundAddress",
+            });
+          }
+          return states;
+        })()
+      : [],
+  }) as unknown as string[];
 
+  const { roundStates, buyerStates } = useOptionRounds(
+    getRounds ? roundAddresses : []
+  );
+
+  const roundActions = useOptionRoundActions(
+    getRounds && roundAddresses.length > Number(selectedRound) - 1
+      ? roundAddresses[Number(selectedRound) - 1]
+      : undefined
+  );
   const vaultState = {
     address,
     vaultType,
@@ -120,7 +145,12 @@ const useVaultState = (conn: string, address: string) => {
   return {
     vaultState,
     lpState,
-    currentRoundAddress,
+    currentRoundAddress: roundAddresses
+      ? roundAddresses[roundAddresses.length - 1]
+      : "",
+    roundActions: getRounds ? roundActions : undefined,
+    roundStates: getRounds ? roundStates : [],
+    buyerStates: getRounds ? buyerStates : [],
   };
 };
 

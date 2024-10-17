@@ -32,14 +32,6 @@ export default function Header() {
     watch: true,
   });
   const dropdownRef = useRef<HTMLDivElement>(null);
-
-  const balanceData = {
-    wallet: "36.05",
-    locked: "45.82",
-    unlocked: "24.09",
-    stashed: "12.72",
-  };
-
   useEffect(() => {
     isDropdownOpenRef.current = isDropdownOpen;
   }, [isDropdownOpen]);

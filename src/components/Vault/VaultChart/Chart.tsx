@@ -18,14 +18,11 @@ import {
   ArrowUpIcon,
 } from "@/components/Icons";
 import { OptionRoundStateType } from "@/lib/types";
+import { useProtocolContext } from "@/context/ProtocolProvider";
 
-const RoundPerformanceChart = ({
-  roundState,
-  currentRoundId,
-}: {
-  roundState: OptionRoundStateType;
-  currentRoundId: string | number | bigint;
-}) => {
+const RoundPerformanceChart = () => {
+  const {selectedRoundState,vaultState} = useProtocolContext();
+  console.log("SelectedRoundState",selectedRoundState,vaultState)
   const [activeLines, setActiveLines] = useState<{ [key: string]: boolean }>({
     TWAP: true,
     BASEFEE: true,
@@ -98,10 +95,10 @@ const RoundPerformanceChart = ({
       <div className="flex flex-row p-6 justify-between border-b-[1px] border-greyscale-800 pb-4">
         <div className="text-primary flex flex-row items-center ">
           Round &nbsp;
-          {roundState?.roundId +
-            (roundState?.roundId.toString() === currentRoundId.toString()
+          {selectedRoundState?.roundId +
+            (selectedRoundState?.roundId.toString() === vaultState?.currentRoundId.toString()
               ? " (Live)"
-              : " Historic")}
+              : " (Historic)")}
           {
             //Round number here
             //Concat  (Live) if live

@@ -8,6 +8,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./globals.css";
 import Footer from "@/components/LayoutComponents/Footer";
+import ProtocolProvider from "@/context/ProtocolProvider";
 
 const montserrat = Montserrat({
   subsets: ["latin"],
@@ -36,6 +37,7 @@ export default function RootLayout({
       <body className="flex flex-col min-h-[100vh]">
         <StarknetProvider>
           <TransactionProvider>
+            <ProtocolProvider>
             <Header />
             <div className="mt-24">
             {children}
@@ -43,6 +45,7 @@ export default function RootLayout({
             <div className="flex flex-grow flex-col-reverse">
             <Footer />
             </div>
+            </ProtocolProvider>
           </TransactionProvider>
         </StarknetProvider>
       </body>
