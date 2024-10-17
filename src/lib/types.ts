@@ -33,13 +33,16 @@ export const RoundStateLabels: { [key in RoundState]: string } = {
 };
 
 export type VaultStateType = {
-  ethAddress?: string;
   address: string;
   vaultType?: string;
+  alpha?: number | bigint | string;
+  strikeLevel?: number | bigint | string;
+  ethAddress?: string;
+  currentRoundId: number | bigint | string;
   lockedBalance: number | bigint | string;
   unlockedBalance: number | bigint | string;
   stashedBalance: number | bigint | string;
-  currentRoundId: number | bigint | string;
+  queuedBps: number | bigint | string;
 };
 
 export type LiquidityProviderStateType = {
@@ -47,6 +50,7 @@ export type LiquidityProviderStateType = {
   lockedBalance: number | bigint | string;
   unlockedBalance: number | bigint | string;
   stashedBalance: number | bigint | string;
+  queuedBps: number | bigint | string;
 };
 
 export type OptionBuyerStateType = {
@@ -80,9 +84,9 @@ export type OptionRoundStateType = {
   payoutPerOption: bigint | number | string;
   vaultAddress: string;
   reservePrice: bigint | number | string;
-  auctionStartDate: string|number|bigint;
-  auctionEndDate: string|number|bigint;
-  optionSettleDate?: string|number|bigint;
+  auctionStartDate: string | number | bigint;
+  auctionEndDate: string | number | bigint;
+  optionSettleDate?: string | number | bigint;
 };
 
 export type BidsType = {
@@ -109,9 +113,9 @@ export interface VaultDetailsProps {
   lastRoundPerf: number;
   currRoundPerf?: number;
   actions: string;
-  auctionStartDate: string|number|bigint;
-  auctionEndDate: string|number|bigint;
-  optionSettleDate?: string|number|bigint;
+  auctionStartDate: string | number | bigint;
+  auctionEndDate: string | number | bigint;
+  optionSettleDate?: string | number | bigint;
 }
 
 export interface InfoItemProps {

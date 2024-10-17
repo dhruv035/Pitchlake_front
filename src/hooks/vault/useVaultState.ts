@@ -18,21 +18,35 @@ const useVaultState = (isRPC: boolean, address: string) => {
 
   //States without a param
   const {
+    vaultType,
+    alpha,
+    strikeLevel,
     ethAddress,
     currentRoundId,
-    vaultType,
     lockedBalance,
     unlockedBalance,
     stashedBalance,
+    queuedBps,
   } = useContractReads({
     contractData,
     states: [
+      { functionName: "get_vault_type", key: "vaultType" }, // will rm
+      {
+        functionName: "get_alpha",
+        key: "alpha",
+      },
+      {
+        functionName: "get_strike_level",
+        key: "strikeLevel",
+      },
+
       { functionName: "eth_address", key: "ethAddress" },
+      // fossil client address
       {
         functionName: "get_current_round_id",
         key: "currentRoundId",
       },
-      { functionName: "get_vault_type", key: "vaultType" },
+      // round addresses ?
       {
         functionName: "get_vault_locked_balance",
         key: "lockedBalance",
@@ -45,6 +59,7 @@ const useVaultState = (isRPC: boolean, address: string) => {
         functionName: "get_vault_stashed_balance",
         key: "stashedBalance",
       },
+      { functionName: "get_vault_queued_bps", key: "queuedBps" },
     ],
   }) as unknown as VaultStateType;
 
@@ -67,6 +82,11 @@ const useVaultState = (isRPC: boolean, address: string) => {
         args: [accountAddress as string],
         key: "stashedBalance",
       },
+      {
+        functionName: "get_account_queued_bps",
+        args: [accountAddress as string],
+        key: "queuedBps",
+      },
     ],
   }) as unknown as LiquidityProviderStateType;
 
@@ -85,13 +105,16 @@ const useVaultState = (isRPC: boolean, address: string) => {
   };
 
   const vaultState = {
-    ethAddress: ethAddress ? stringToHex(ethAddress?.toString()) : "",
     address,
-    vaultType: vaultType,
+    vaultType,
+    alpha,
+    strikeLevel,
+    ethAddress: ethAddress ? stringToHex(ethAddress?.toString()) : "",
+    currentRoundId,
     lockedBalance,
     unlockedBalance,
-    stashedBalance: stashedBalance,
-    currentRoundId,
+    stashedBalance,
+    queuedBps,
   } as VaultStateType;
 
   return {
