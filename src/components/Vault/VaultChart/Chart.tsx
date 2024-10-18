@@ -122,15 +122,16 @@ const RoundPerformanceChart = () => {
               key={line}
               className={`flex items-center
                 ${
-                  activeLines[line]
-                    ? line === "TWAP"
-                      ? "text-success"
-                      : line === "BASEFEE"
-                        ? "text-greyscale"
-                        : line === "STRIKE"
-                          ? "text-warning-300"
-                          : "text-error-300"
-                    : "text-greyscale"
+                  //activeLines[line]
+                  //?
+                  line === "TWAP"
+                    ? "text-success"
+                    : line === "BASEFEE"
+                      ? "text-greyscale"
+                      : line === "STRIKE"
+                        ? "text-warning-300"
+                        : "text-error-300"
+                  //: "text-greyscale"
                 }`}
               onClick={() => toggleLine(line)}
             >
