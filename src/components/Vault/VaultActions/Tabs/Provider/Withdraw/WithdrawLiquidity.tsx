@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import {
   LiquidityProviderStateType,
   VaultStateType,
-  WithdrawArgs,
+  WithdrawLiquidityArgs,
 } from "@/lib/types";
 import InputField from "@/components/Vault/Utils/InputField";
 import { ChevronDown } from "lucide-react";

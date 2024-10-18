@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import {
   LiquidityProviderStateType,
   VaultStateType,
-  WithdrawArgs,
   WithdrawSubTabs,
 } from "@/lib/types";
 import ButtonTabs from "../../../ButtonTabs";
@@ -20,11 +19,7 @@ interface WithdrawProps {
   ) => void;
 }
 
-const Withdraw: React.FC<WithdrawProps> = ({
-  showConfirmation,
-  //queueWithdrawal,
-  //withdrawStash,
-}) => {
+const Withdraw: React.FC<WithdrawProps> = ({ showConfirmation }) => {
   const [state, setState] = useState({
     activeWithdrawTab: "Liquidity" as WithdrawSubTabs,
   });
@@ -48,16 +43,10 @@ const Withdraw: React.FC<WithdrawProps> = ({
           <WithdrawLiquidity showConfirmation={showConfirmation} />
         )}
         {state.activeWithdrawTab === "Queue" && (
-          <QueueWithdrawal
-            showConfirmation={showConfirmation}
-            //queueWithdrawal={queueWithdrawal}
-          />
+          <QueueWithdrawal showConfirmation={showConfirmation} />
         )}
         {state.activeWithdrawTab === "Collect" && (
-          <WithdrawStash
-            showConfirmation={showConfirmation}
-            //withdrawStash={withdrawStash}
-          />
+          <WithdrawStash showConfirmation={showConfirmation} />
         )}
       </div>
     </div>
