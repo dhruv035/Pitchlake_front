@@ -10,7 +10,7 @@ import {
   ReferenceArea,
 } from "recharts";
 import data from "@/chart_data.json";
-import { EyeIcon } from "lucide-react";
+import { EyeIcon, EyeOffIcon } from "lucide-react";
 import {
   ArrowDownIcon,
   ArrowLeftIcon,
@@ -21,8 +21,8 @@ import { OptionRoundStateType } from "@/lib/types";
 import { useProtocolContext } from "@/context/ProtocolProvider";
 
 const RoundPerformanceChart = () => {
-  const {selectedRoundState,vaultState} = useProtocolContext();
-  console.log("SelectedRoundState",selectedRoundState,vaultState)
+  const { selectedRoundState, vaultState } = useProtocolContext();
+  console.log("SelectedRoundState", selectedRoundState, vaultState);
   const [activeLines, setActiveLines] = useState<{ [key: string]: boolean }>({
     TWAP: true,
     BASEFEE: true,
@@ -96,7 +96,8 @@ const RoundPerformanceChart = () => {
         <div className="text-primary flex flex-row items-center ">
           Round &nbsp;
           {selectedRoundState?.roundId +
-            (selectedRoundState?.roundId.toString() === vaultState?.currentRoundId?.toString()
+            (selectedRoundState?.roundId.toString() ===
+            vaultState?.currentRoundId?.toString()
               ? " (Live)"
               : " (Historic)")}
           {
@@ -119,20 +120,25 @@ const RoundPerformanceChart = () => {
           {["TWAP", "BASEFEE", "STRIKE", "CAP_LEVEL"].map((line) => (
             <button
               key={line}
-              className={`flex items-center ${
-                activeLines[line]
-                  ? line === "TWAP"
-                    ? "text-success"
-                    : line === "BASEFEE"
-                    ? "text-greyscale"
-                    : line === "STRIKE"
-                    ? "text-warning-300"
-                    : "text-error-300"
-                  : "text-greyscale"
-              }`}
+              className={`flex items-center
+                ${
+                  activeLines[line]
+                    ? line === "TWAP"
+                      ? "text-success"
+                      : line === "BASEFEE"
+                        ? "text-greyscale"
+                        : line === "STRIKE"
+                          ? "text-warning-300"
+                          : "text-error-300"
+                    : "text-greyscale"
+                }`}
               onClick={() => toggleLine(line)}
             >
-              <EyeIcon className="w-4 h-4 mr-1" />
+              {activeLines[line] ? (
+                <EyeIcon className="w-4 h-4 mr-1" />
+              ) : (
+                <EyeOffIcon className="w-4 h-4 mr-1" />
+              )}
               {line}
             </button>
           ))}
