@@ -29,6 +29,7 @@ import {
 //Make transactions accepted only after 2 confirmations
 
 export type ProtocolContextType = {
+    conn:string,
   vaultAddress?: string;
   vaultActions: VaultActionsType;
   vaultState?: VaultStateType;
@@ -41,6 +42,8 @@ export type ProtocolContextType = {
   selectedRoundState?: OptionRoundStateType;
   selectedRoundBuyerState?: OptionBuyerStateType;
   setVaultAddress: Dispatch<SetStateAction<string | undefined>>;
+  mockTimeForward:()=>void
+  timeStamp:Number
 };
 
 export const ProtocolContext = createContext<ProtocolContextType>(
@@ -62,6 +65,11 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
     wsOptionBuyerStates,
   } = useWebSocketVault(conn, vaultAddress);
   const [selectedRound, setSelectedRound] = useState<number>(0);
+  const [timeStamp,setTimeStamp]=useState(conn==="mock"?0:Number(Date.now().toString()));
+  const mockTimeForward = ()=>{
+    if(conn==="mock")
+        setTimeStamp(prevState=>prevState+100000)
+  }
   const {
     optionRoundStates: optionRoundStatesMock,
     lpState: lpStateMock,
@@ -128,6 +136,7 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
   return (
     <ProtocolContext.Provider
       value={{
+        conn,
         vaultAddress,
         vaultActions,
         vaultState,
@@ -152,6 +161,8 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
             ? optionBuyerStates[selectedRound - 1]
             : undefined
           : undefined,
+        mockTimeForward,
+        timeStamp
       }}
     >
       {children}

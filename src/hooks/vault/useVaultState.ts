@@ -8,7 +8,6 @@ import {
 import { stringToHex } from "@/lib/utils";
 import { useMemo } from "react";
 import useContractReads from "../../lib/useContractReads";
-import useOptionRounds from "../optionRound/useOptionRounds";
 import useOptionRoundActions from "../optionRound/useOptionRoundActions";
 import { CairoCustomEnum } from "starknet";
 import useOptionRoundState from "../optionRound/useOptionRoundState";
