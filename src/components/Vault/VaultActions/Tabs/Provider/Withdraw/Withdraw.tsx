@@ -1,18 +1,23 @@
 import React, { useState } from "react";
-import { LiquidityProviderStateType, VaultStateType, WithdrawArgs, WithdrawSubTabs } from "@/lib/types";
+import {
+  LiquidityProviderStateType,
+  VaultStateType,
+  WithdrawArgs,
+  WithdrawSubTabs,
+} from "@/lib/types";
 import ButtonTabs from "../../../ButtonTabs";
 import WithdrawLiquidity from "@/components/Vault/VaultActions/Tabs/Provider/Withdraw/WithdrawLiquidity";
-import WithdrawQueue from "@/components/Vault/VaultActions/Tabs/Provider/Withdraw/WithdrawQueue";
-import WithdrawCollect from "@/components/Vault/VaultActions/Tabs/Provider/Withdraw/WithdrawCollect";
+import QueueWithdrawal from "@/components/Vault/VaultActions/Tabs/Provider/Withdraw/WithdrawQueue";
+import WithdrawStash from "@/components/Vault/VaultActions/Tabs/Provider/Withdraw/WithdrawCollect";
 
 interface WithdrawProps {
   vaultState: VaultStateType;
   lpState: LiquidityProviderStateType;
-  withdraw:(withdrawArgs:WithdrawArgs)=>Promise<void>
+  withdraw: (withdrawArgs: WithdrawArgs) => Promise<void>;
   showConfirmation: (
     modalHeader: string,
     action: string,
-    onConfirm: () => Promise<void>
+    onConfirm: () => Promise<void>,
   ) => void;
 }
 
@@ -20,7 +25,9 @@ const Withdraw: React.FC<WithdrawProps> = ({
   vaultState,
   lpState,
   showConfirmation,
-  withdraw
+  withdraw,
+  //queueWithdrawal,
+  //withdrawStash,
 }) => {
   const [state, setState] = useState({
     activeWithdrawTab: "Liquidity" as WithdrawSubTabs,
@@ -50,15 +57,19 @@ const Withdraw: React.FC<WithdrawProps> = ({
           />
         )}
         {state.activeWithdrawTab === "Queue" && (
-          <WithdrawQueue
+          <QueueWithdrawal
             vaultState={vaultState}
+            lpState={lpState}
             showConfirmation={showConfirmation}
+            //queueWithdrawal={queueWithdrawal}
           />
         )}
         {state.activeWithdrawTab === "Collect" && (
-          <WithdrawCollect
+          <WithdrawStash
             vaultState={vaultState}
+            lpState={lpState}
             showConfirmation={showConfirmation}
+            //withdrawStash={withdrawStash}
           />
         )}
       </div>

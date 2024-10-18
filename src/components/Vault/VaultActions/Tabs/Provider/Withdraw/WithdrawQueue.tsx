@@ -1,32 +1,59 @@
 import React from "react";
-import { VaultStateType } from "@/lib/types";
+import { VaultStateType, LiquidityProviderStateType } from "@/lib/types";
 import ActionButton from "@/components/Vault/Utils/ActionButton";
 
 interface WithdrawQueueProps {
   vaultState: VaultStateType;
+  lpState: LiquidityProviderStateType;
   showConfirmation: (
     modalHeader: string,
     action: string,
-    onConfirm: () => Promise<void>
+    onConfirm: () => Promise<void>,
   ) => void;
 }
 
 const WithdrawLiquidity: React.FC<WithdrawQueueProps> = ({
+  vaultState,
+  lpState,
   showConfirmation,
 }) => {
   const [state, setState] = React.useState({
-    percentage: 0,
-    isButtonDisabled: true,
+    percentage: "0",
+    //isButtonDisabled: true,
   });
 
   const updateState = (updates: Partial<typeof state>) => {
     setState((prevState) => ({ ...prevState, ...updates }));
   };
 
+  const bpsToPercentage = (bps: string) => {
+    return ((100 * parseFloat(bps)) / 10_000).toFixed(0).toString();
+  };
+
+  const percentageToBps = (percentage: string): number => {
+    return (10_000 * parseFloat(percentage)) / 100;
+  };
+
   const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const value = parseInt(e.target.value);
-    updateState({ percentage: value, isButtonDisabled: false });
+    updateState({
+      percentage: value.toString(),
+      //isButtonDisabled: false
+    });
   };
+
+  const isButtonDisabled = (): boolean => {
+    if (state.percentage === bpsToPercentage(lpState.queuedBps.toString())) {
+      return true;
+    }
+
+    return false;
+  };
+
+  //  const isButtonDisabled = (): boolean => {
+  //  if (state.percentage === bpsToPercentage(lpState.queuedBps.toString())) {
+  //    return true;
+  //   }
 
   const liquidityWithdraw = async (): Promise<void> => {
     console.log("queue withdraw", state.percentage);
@@ -36,14 +63,19 @@ const WithdrawLiquidity: React.FC<WithdrawQueueProps> = ({
     console.log("Collect confirmation");
     showConfirmation(
       "Liquidity Withdraw",
-      `change the current queued withdrawal limit to ${state.percentage}% from 25%`, // TODO: Modify it to show the current percentage via the props
-      liquidityWithdraw
+      `update how much of your locked position will be stashed from ${bpsToPercentage(lpState.queuedBps.toString())}% to ${parseFloat(
+        state.percentage,
+      ).toFixed(0)}%`,
+      liquidityWithdraw,
     );
   };
 
   React.useEffect(() => {
     // Set the initial percentage to 25% and disable the button
-    updateState({ percentage: 25, isButtonDisabled: true });
+    updateState({
+      percentage: bpsToPercentage(lpState.queuedBps.toString()),
+      //isButtonDisabled: true,
+    });
   }, []);
 
   return (
@@ -60,7 +92,7 @@ const WithdrawLiquidity: React.FC<WithdrawQueueProps> = ({
               max="100"
               value={state.percentage}
               onChange={handleSliderChange}
-              className="w-full h-2 appearance-none bg-[#ADA478] rounded-full focus:outline-none 
+              className="w-full h-2 appearance-none bg-[#ADA478] rounded-full focus:outline-none
                 [&::-webkit-slider-thumb]:appearance-none
                 [&::-webkit-slider-thumb]:w-4
                 [&::-webkit-slider-thumb]:h-4
@@ -82,7 +114,7 @@ const WithdrawLiquidity: React.FC<WithdrawQueueProps> = ({
         <div className="flex justify-between text-sm mb-4 pt-4 border-t border-[#262626]">
           <ActionButton
             onClick={handleSubmit}
-            disabled={state.isButtonDisabled}
+            disabled={isButtonDisabled()}
             text="Withdraw"
           />
         </div>
