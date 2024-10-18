@@ -21,7 +21,7 @@ interface WithdrawLiquidityProps {
 const WithdrawLiquidity: React.FC<WithdrawLiquidityProps> = ({
   showConfirmation,
 }) => {
-  const {vaultState,lpState, vaultActions} = useProtocolContext();
+  const { lpState, vaultActions } = useProtocolContext();
   const [state, setState] = useState({
     amount: "0",
   });
@@ -51,10 +51,12 @@ const WithdrawLiquidity: React.FC<WithdrawLiquidityProps> = ({
     }
 
     // No more than unlocked balance
-    let unlockedBalance = lpState.unlockedBalance
-      ? parseFloat(
-          Number(formatEther(lpState.unlockedBalance.toString())).toString(),
-        )
+    let unlockedBalance = lpState?.unlockedBalance
+      ? lpState.unlockedBalance
+        ? parseFloat(
+            Number(formatEther(lpState.unlockedBalance.toString())).toString(),
+          )
+        : 0.0
       : 0.0;
 
     console.log("unlockedBalance as float", unlockedBalance);
@@ -64,9 +66,6 @@ const WithdrawLiquidity: React.FC<WithdrawLiquidityProps> = ({
     }
 
     return false;
-
-    const amount = state.amount ? BigInt(state.amount) : BigInt(0);
-    return amount <= BigInt(0);
   };
 
   return (

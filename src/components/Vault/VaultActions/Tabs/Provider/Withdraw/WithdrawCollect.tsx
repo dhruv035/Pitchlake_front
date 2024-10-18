@@ -6,8 +6,6 @@ import { formatEther, parseEther } from "ethers";
 import { useProtocolContext } from "@/context/ProtocolProvider";
 
 interface WithdrawStashProps {
-  vaultState?: VaultStateType;
-  lpState?: LiquidityProviderStateType;
   //withdrawStash: () => Promise<void>;
   showConfirmation: (
     modalHeader: string,
@@ -17,11 +15,10 @@ interface WithdrawStashProps {
 }
 
 const WithdrawStash: React.FC<WithdrawStashProps> = ({
-
   showConfirmation,
   //withdrawStash,
 }) => {
-  const {vaultState, lpState} = useProtocolContext();
+  const { vaultState, lpState } = useProtocolContext();
   const [state, setState] = React.useState({
     isButtonDisabled: true,
   });
@@ -31,7 +28,10 @@ const WithdrawStash: React.FC<WithdrawStashProps> = ({
   };
 
   const withdrawStashedBalance = async (): Promise<void> => {
-    console.log("Collecting", formatEther(vaultState.stashedBalance));
+    console.log(
+      "Collecting",
+      formatEther(vaultState?.stashedBalance ? vaultState.stashedBalance : "0"),
+    );
 
     //await withdrawStash();
   };
@@ -41,15 +41,19 @@ const WithdrawStash: React.FC<WithdrawStashProps> = ({
     showConfirmation(
       "Collect Withdrawals",
       `claim your queued withdrawals of ${parseFloat(
-        formatEther(lpState.stashedBalance.toString()),
-      ).toFixed(3)} ETH`, //  TODO: staked ETH instead of 0
+        formatEther(
+          lpState?.stashedBalance ? lpState.stashedBalance.toString() : "0",
+        ),
+      ).toFixed(3)} ETH`,
       withdrawStashedBalance,
     );
   };
 
   const isButtonDisabled = (): boolean => {
     // Only if stashed balance > 0
-    if (Number(vaultState.stashedBalance) > 0) {
+    if (
+      Number(vaultState?.stashedBalance ? vaultState.stashedBalance : 0) > 0
+    ) {
       return false;
     }
     return true;
@@ -77,8 +81,8 @@ const WithdrawStash: React.FC<WithdrawStashProps> = ({
           Your current stashed balance is
         </p>
         <p className="text-2xl font-bold text-center">
-          {lpState?.stashedBalance?
-             parseFloat(formatEther(lpState.stashedBalance.toString()))
+          {lpState?.stashedBalance
+            ? parseFloat(formatEther(lpState.stashedBalance.toString()))
                 .toFixed(3)
                 .toString()
             : "0"}{" "}

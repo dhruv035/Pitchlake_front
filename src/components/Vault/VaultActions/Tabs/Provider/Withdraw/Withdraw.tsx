@@ -13,8 +13,6 @@ import { ProtocolContext } from "@/context/ProtocolProvider";
 import { CairoCustomEnum } from "starknet";
 
 interface WithdrawProps {
-  vaultState: VaultStateType;
-  lpState: LiquidityProviderStateType;
   withdraw: (withdrawArgs: WithdrawArgs) => Promise<void>;
   showConfirmation: (
     modalHeader: string,
@@ -50,22 +48,16 @@ const Withdraw: React.FC<WithdrawProps> = ({
 
       <div className="flex-grow">
         {state.activeWithdrawTab === "Liquidity" && (
-          <WithdrawLiquidity
-            showConfirmation={showConfirmation}
-          />
+          <WithdrawLiquidity showConfirmation={showConfirmation} />
         )}
         {state.activeWithdrawTab === "Queue" && (
           <QueueWithdrawal
-            vaultState={vaultState}
-            lpState={lpState}
             showConfirmation={showConfirmation}
             //queueWithdrawal={queueWithdrawal}
           />
         )}
         {state.activeWithdrawTab === "Collect" && (
           <WithdrawStash
-            vaultState={vaultState}
-            lpState={lpState}
             showConfirmation={showConfirmation}
             //withdrawStash={withdrawStash}
           />

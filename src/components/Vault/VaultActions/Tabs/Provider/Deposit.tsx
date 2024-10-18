@@ -15,8 +15,6 @@ import { parseEther, formatEther } from "ethers";
 import { useProtocolContext } from "@/context/ProtocolProvider";
 
 interface DepositProps {
-  vaultState?: VaultStateType;
-  lpState?: LiquidityProviderStateType;
   deposit?: (depositArgs: DepositArgs) => Promise<void>;
   showConfirmation: (
     modalHeader: string,
@@ -32,11 +30,8 @@ interface DepositState {
   activeWithdrawTab: "For Myself" | "As Beneficiary";
 }
 
-const Deposit: React.FC<DepositProps> = ({
-  deposit,
-  showConfirmation,
-}) => {
-  const {vaultState,lpState,vaultActions} = useProtocolContext();
+const Deposit: React.FC<DepositProps> = ({ deposit, showConfirmation }) => {
+  const { vaultState, lpState, vaultActions } = useProtocolContext();
   const [state, setState] = useState<DepositState>({
     amount: "0",
     isDepositAsBeneficiary: false,
@@ -133,7 +128,10 @@ const Deposit: React.FC<DepositProps> = ({
         <div className="flex justify-between text-sm mb-4 pt-4">
           <span className="text-gray-400">Unlocked Balance</span>
           <span className="text-white">
-            {formatEther(lpState?.unlockedBalance? lpState.unlockedBalance.toString():0).toString()} ETH
+            {formatEther(
+              lpState?.unlockedBalance ? lpState.unlockedBalance.toString() : 0,
+            ).toString()}{" "}
+            ETH
           </span>
         </div>
         <div className="flex justify-between text-sm mb-4 pt-4 border-t border-[#262626]">
