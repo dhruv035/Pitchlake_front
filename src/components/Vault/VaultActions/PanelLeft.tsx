@@ -16,6 +16,7 @@ import {
   SafeIcon,
 } from "@/components/Icons";
 import { shortenString } from "@/lib/utils";
+import { formatEther, parseEther } from "ethers";
 
 interface VaultDetailsProps {
   roundState: OptionRoundStateType;
@@ -27,7 +28,7 @@ interface TabContentProps {
   showConfirmation: (
     amount: string,
     action: string,
-    onConfirm: () => Promise<void>
+    onConfirm: () => Promise<void>,
   ) => void;
 }
 
@@ -55,7 +56,7 @@ const PanelLeft: React.FC<VaultDetailsProps> = ({
   const showConfirmation = (
     modalHeader: string,
     action: string,
-    onConfirm: () => Promise<void>
+    onConfirm: () => Promise<void>,
   ) => {
     setModalState({
       show: true,
@@ -112,7 +113,7 @@ const PanelLeft: React.FC<VaultDetailsProps> = ({
           </div>
         </div>
         <div className="flex flex-col w-full px-3 border-t-[1px] border-greyscale-800">
-          <div className="flex flex-row w-full justify-center group-hover:justify-between rounded-md p-3 mt-2 group-hover:bg-faded-black">
+          <div className="flex flex-row w-full justify-center group-hover:justify-between group-hover:cursor-pointer rounded-md p-3 mt-2 group-hover:bg-faded-black">
             <div>
               <SafeIcon
                 fill="black"
@@ -139,7 +140,7 @@ const PanelLeft: React.FC<VaultDetailsProps> = ({
           <div
             className={`hidden group-hover:flex flex-col mt-2 overflow-scroll no-scrollbar ${
               vaultIsOpen ? "h-0" : "h-[160px]"
-            } transition-all duration-[4000ms] `}
+            } transition-all duration-900ms `}
           >
             <div className="flex flex-row justify-between p-2 w-full">
               <p>Run Time:</p>
@@ -150,6 +151,15 @@ const PanelLeft: React.FC<VaultDetailsProps> = ({
                   //Add round duration from state here
                 }
               </p>
+            </div>
+            <div className="flex flex-row justify-between p-2 w-full">
+              <p>Risk Level:</p>
+              <p>{Number(vaultState.alpha) / 100}%</p>
+            </div>
+
+            <div className="flex flex-row justify-between p-2 w-full">
+              <p>Strike Level:</p>
+              <p>{Number(vaultState.strikeLevel) / 100}%</p>
             </div>
             <div className="flex flex-row justify-between p-2 w-full">
               <p>Type:</p>
@@ -174,10 +184,14 @@ const PanelLeft: React.FC<VaultDetailsProps> = ({
               <p>
                 {
                   vaultState.lockedBalance &&
-                    (
-                      BigInt(vaultState.lockedBalance) +
-                      BigInt(vaultState.unlockedBalance)
-                    ).toString()
+                    parseFloat(
+                      formatEther(
+                        (
+                          BigInt(vaultState.lockedBalance) +
+                          BigInt(vaultState.unlockedBalance)
+                        ).toString(),
+                      ),
+                    ).toFixed(2)
                   //Add vault TVL from state here
                 }{" "}
                 &nbsp;ETH
@@ -186,7 +200,7 @@ const PanelLeft: React.FC<VaultDetailsProps> = ({
           </div>
         </div>
         <div className="flex flex-col w-full px-3 border-t-[1px] border-greyscale-800">
-          <div className="flex flex-row w-full mt-2 rounded-md p-3 group-hover:bg-faded-black justify-center group-hover:justify-between">
+          <div className="flex flex-row w-full mt-2 rounded-md p-3 group-hover:bg-faded-black group-hover:cursor-pointer justify-center group-hover:justify-between">
             <div>
               <LayerStackIcon classname="w-6 h-6" fill="black" stroke="white" />
             </div>
@@ -217,7 +231,7 @@ const PanelLeft: React.FC<VaultDetailsProps> = ({
               <p>
                 Round &nbsp;
                 {
-                  Number(roundState.roundId).toPrecision(2)
+                  Number(roundState.roundId).toPrecision(1)
                   //Add round duration from state here
                 }
               </p>
@@ -235,7 +249,7 @@ const PanelLeft: React.FC<VaultDetailsProps> = ({
               <p>Last Round Perf.:</p>
               <p>
                 {
-                  "1 MONTH"
+                  "+11.33%"
                   //Add round duration from state here
                 }
               </p>
@@ -314,8 +328,8 @@ const PanelLeft: React.FC<VaultDetailsProps> = ({
                   roundState.roundState === "OPEN"
                     ? "Start Auction"
                     : roundState.roundState === "AUCTIONING"
-                    ? "End Auction"
-                    : "Settle Round"
+                      ? "End Auction"
+                      : "Settle Round"
                   //Enter text based on state
                 }
               </p>
