@@ -1,10 +1,5 @@
 "use client";
 import React, { useState } from "react";
-import {
-  VaultStateType,
-  OptionRoundStateType,
-  VaultActionsType,
-} from "@/lib/types";
 import ConfirmationModal from "@/components/Vault/Utils/ConfirmationModal";
 import SuccessModal from "@/components/Vault/Utils/SuccessModal";
 import {
@@ -17,16 +12,7 @@ import {
 } from "@/components/Icons";
 import { shortenString } from "@/lib/utils";
 import { useProtocolContext } from "@/context/ProtocolProvider";
-
-interface TabContentProps {
-  showConfirmation: (
-    amount: string,
-    action: string,
-    onConfirm: () => Promise<void>
-  ) => void;
-}
-
-const PanelLeft: React.FC = ({}) => {
+const PanelLeft = () => {
   const { vaultState, selectedRoundState,vaultActions } = useProtocolContext();
   const [vaultIsOpen, setVaultIsOpen] = useState<boolean>(false);
   const [optionRoundIsOpen, setOptionRoundIsOpen] = useState<boolean>(false);
@@ -137,15 +123,15 @@ const PanelLeft: React.FC = ({}) => {
               <p>Run Time:</p>
               <p>
                 {
-                  selectedRoundState &&
-                    BigInt(selectedRoundState.auctionEndDate) -
-                      BigInt(selectedRoundState.auctionStartDate)
+                  selectedRoundState?
+                    (BigInt(selectedRoundState.auctionEndDate) -
+                      BigInt(selectedRoundState.auctionStartDate)).toString():""
                   //Add round duration from state here
                 }
               </p>
             </div>
             <div className="flex flex-row justify-between p-2 w-full">
-              <p>Type:</p>
+              <p>Type </p>
               <p>
                 {
                   vaultState?.vaultType
@@ -157,7 +143,7 @@ const PanelLeft: React.FC = ({}) => {
               <p>Addess:</p>
               <p>
                 {
-                  vaultState?.address && shortenString(vaultState?.address)
+                  vaultState?.address? shortenString(vaultState?.address):""
                   //Add vault address short string from state here
                 }
               </p>
@@ -166,11 +152,11 @@ const PanelLeft: React.FC = ({}) => {
               <p>TVL:</p>
               <p>
                 {
-                  vaultState?.lockedBalance &&
+                  vaultState?.lockedBalance?
                     (
                       BigInt(vaultState.lockedBalance) +
                       BigInt(vaultState.unlockedBalance)
-                    ).toString()
+                    ).toString():""
                   //Add vault TVL from state here
                 }{" "}
                 &nbsp;ETH
@@ -210,8 +196,8 @@ const PanelLeft: React.FC = ({}) => {
               <p>
                 Round &nbsp;
                 {
-                  selectedRoundState&&
-                  Number(selectedRoundState.roundId).toPrecision(2)
+                  selectedRoundState?
+                  Number(selectedRoundState.roundId).toPrecision(2):""
                   //Add round duration from state here
                 }
               </p>

@@ -1,20 +1,10 @@
 "use client"
-import useOptionRoundActions from "@/hooks/optionRound/useOptionRoundActions";
-import useVaultActions from "@/hooks/vault/useVaultActions";
-import useVaultState from "@/hooks/vault/useVaultState";
 import RoundPerformanceChart from "./VaultChart/Chart";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import AuctionIcon from "../Icons/AuctionIcon";
 import CoinStackedIcon from "../Icons/CoinStackedIcon";
 import PanelRight from "./VaultActions/PanelRight";
 import PanelLeft from "./VaultActions/PanelLeft";
-import {
-  LiquidityProviderStateType,
-  OptionBuyerStateType,
-  OptionRoundStateType,
-  VaultStateType,
-} from "@/lib/types";
-import { useAccount, useNetwork } from "@starknet-react/core";
 import { useProtocolContext } from "@/context/ProtocolProvider";
 
 

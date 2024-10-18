@@ -70,7 +70,6 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
   const {
     lpState: rpcLiquidityProviderState,
     vaultState: rpcVaultState,
-    currentRoundAddress,
     roundActions: roundActionsChain,
     roundStates: optionRoundStatesRPC,
     buyerStates: optionBuyerStatesRPC,

@@ -13,6 +13,6 @@ export default function Home({
     if (address){
        setVaultAddress(address);}
   }, []);
-  console.log("ADDRESS",vaultAddress)
+  console.log("ADDRESS")
   return <Vault />;
 }

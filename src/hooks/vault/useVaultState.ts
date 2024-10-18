@@ -1,11 +1,16 @@
-import { useAccount } from "@starknet-react/core";
+import { useAccount, useNetwork } from "@starknet-react/core";
 import { vaultABI } from "@/abi";
-import { LiquidityProviderStateType, OptionRoundActionsType, VaultStateType } from "@/lib/types";
+import {
+  LiquidityProviderStateType,
+  OptionRoundActionsType,
+  VaultStateType,
+} from "@/lib/types";
 import { stringToHex } from "@/lib/utils";
 import { useMemo } from "react";
 import useContractReads from "../../lib/useContractReads";
 import useOptionRounds from "../optionRound/useOptionRounds";
 import useOptionRoundActions from "../optionRound/useOptionRoundActions";
+import { CairoCustomEnum } from "starknet";
 
 const useVaultState = ({
   conn,
@@ -26,6 +31,8 @@ const useVaultState = ({
   }, [address, conn]);
 
   const { address: accountAddress } = useAccount();
+  const network = useNetwork();
+  console.log("Network", network);
   //Read States
 
   //States without a param
@@ -73,7 +80,7 @@ const useVaultState = ({
       },
       { functionName: "get_vault_queued_bps", key: "queuedBps" },
     ],
-  }) as unknown as VaultStateType;
+  });
 
   //Wallet states
   const lpState = useContractReads({
@@ -102,34 +109,17 @@ const useVaultState = ({
     ],
   }) as unknown as LiquidityProviderStateType;
 
-  let roundArgs=[];
-  if(currentRoundId){
-    for (let i = 0; i < Number(currentRoundId); i++) {
-      roundArgs.push({
-        functionName: "get_option_round_address",
-        args: [i],
-        key: "currentRoundAddress",
-      });
-    }
-  }
-  //Round Addresses and States
-  const roundAddresses = useContractReads({
-    contractData,
-    states: roundArgs,
-  }) as unknown as string[];
-
-  const { roundStates, buyerStates } = useOptionRounds(
-    getRounds ? roundAddresses : []
-  );
+  const { roundStates, buyerStates } = useOptionRounds({
+    currentRoundId: currentRoundId ? currentRoundId.toString() : "",
+    vaultAddress: address,
+  });
 
   const roundActions = useOptionRoundActions(
-    getRounds && roundAddresses.length > Number(selectedRound) - 1
-      ? roundAddresses[Number(selectedRound) - 1]
-      : undefined
+    getRounds ? roundStates[Number(selectedRound) - 1]?.address : undefined
   );
   const vaultState = {
     address,
-    vaultType,
+    vaultType: vaultType ? (vaultType as CairoCustomEnum).activeVariant() : "",
     alpha,
     strikeLevel,
     ethAddress: ethAddress ? stringToHex(ethAddress?.toString()) : "",
@@ -143,9 +133,10 @@ const useVaultState = ({
   return {
     vaultState,
     lpState,
-    currentRoundAddress: roundAddresses
-      ? roundAddresses[roundAddresses.length - 1]
-      : "",
+    currentRoundAddress:
+      roundStates?.length > 0 && roundStates[roundStates.length - 1]?.address
+        ? roundStates[roundStates.length - 1]?.address
+        : "",
     roundActions: getRounds ? roundActions : undefined,
     roundStates: getRounds ? roundStates : [],
     buyerStates: getRounds ? buyerStates : [],
