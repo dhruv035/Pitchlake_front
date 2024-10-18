@@ -11,10 +11,10 @@ import {
   SafeIcon,
 } from "@/components/Icons";
 import { shortenString } from "@/lib/utils";
-import { formatEther, parseEther } from "ethers";
+import { formatUnits, formatEther, parseEther } from "ethers";
 import { useProtocolContext } from "@/context/ProtocolProvider";
 const PanelLeft = () => {
-  const { vaultState, selectedRoundState,vaultActions } = useProtocolContext();
+  const { vaultState, selectedRoundState, vaultActions } = useProtocolContext();
   const [vaultIsOpen, setVaultIsOpen] = useState<boolean>(false);
   const [optionRoundIsOpen, setOptionRoundIsOpen] = useState<boolean>(false);
   const [modalState, setModalState] = useState<{
@@ -117,16 +117,20 @@ const PanelLeft = () => {
           </div>
           <div
             className={`hidden group-hover:flex flex-col mt-2 overflow-scroll no-scrollbar ${
-              vaultIsOpen ? "h-0" : "h-[160px]"
+              vaultIsOpen ? "h-0" : ""
             } transition-all duration-900ms `}
           >
             <div className="flex flex-row justify-between p-2 w-full">
               <p>Run Time:</p>
               <p>
                 {
-                 ( selectedRoundState?.auctionStartDate&&selectedRoundState?.auctionEndDate)?
-                    (BigInt(selectedRoundState.auctionEndDate) -
-                      BigInt(selectedRoundState.auctionStartDate)).toString():""
+                  selectedRoundState?.auctionStartDate &&
+                  selectedRoundState?.auctionEndDate
+                    ? (
+                        BigInt(selectedRoundState.auctionEndDate) -
+                        BigInt(selectedRoundState.auctionStartDate)
+                      ).toString()
+                    : ""
                   //Add round duration from state here
                 }
               </p>
@@ -153,7 +157,7 @@ const PanelLeft = () => {
               <p>Addess:</p>
               <p>
                 {
-                  vaultState?.address? shortenString(vaultState?.address):""
+                  vaultState?.address ? shortenString(vaultState?.address) : ""
                   //Add vault address short string from state here
                 }
               </p>
@@ -162,11 +166,16 @@ const PanelLeft = () => {
               <p>TVL:</p>
               <p>
                 {
-                  vaultState?.lockedBalance?
-                    parseFloat(formatEther((
-                      BigInt(vaultState.lockedBalance) +
-                      BigInt(vaultState.unlockedBalance)
-                    ).toString())).toFixed(2) : 0
+                  vaultState?.lockedBalance
+                    ? parseFloat(
+                        formatEther(
+                          (
+                            BigInt(vaultState.lockedBalance) +
+                            BigInt(vaultState.unlockedBalance)
+                          ).toString(),
+                        ),
+                      ).toFixed(2)
+                    : 0
                   //Add vault TVL from state here
                 }
                 &nbsp;ETH
@@ -198,7 +207,7 @@ const PanelLeft = () => {
           </div>
           <div
             className={`hidden group-hover:flex flex-col mt-2 overflow-scroll no-scrollbar ${
-              optionRoundIsOpen ? "h-0" : "h-[250px]"
+              optionRoundIsOpen ? "h-0" : vaultIsOpen ? "h-100px" : "h-[300px]"
             } transition-all duration-900 max-h-full`}
           >
             <div className="max-h-full flex flex-row justify-between items-center p-2 w-full">
@@ -206,8 +215,9 @@ const PanelLeft = () => {
               <p>
                 Round &nbsp;
                 {
-                  selectedRoundState?.roundId?
-                  Number(selectedRoundState.roundId).toPrecision(1):""
+                  selectedRoundState?.roundId
+                    ? Number(selectedRoundState.roundId).toPrecision(1)
+                    : ""
                   //Add round duration from state here
                 }
               </p>
@@ -216,8 +226,7 @@ const PanelLeft = () => {
               <p>Status:</p>
               <p className="bg-[#6D1D0D59] border-[1px] border-warning text-warning rounded-full px-2 py-[1px]">
                 {
-                  selectedRoundState &&
-                  selectedRoundState.roundState
+                  selectedRoundState && selectedRoundState.roundState
                   //Add appropriate bg
                 }
               </p>
@@ -232,30 +241,44 @@ const PanelLeft = () => {
               </p>
             </div>
             <div className="max-h-full flex flex-row justify-between items-center p-2 w-full">
-              <p>Strike:</p>
+              <p>Strike Price:</p>
               <p>
                 {
-                  selectedRoundState&&selectedRoundState.strikePrice
+                  selectedRoundState &&
+                    formatUnits(
+                      selectedRoundState.strikePrice.toString(),
+                      "gwei",
+                    )
                   //Add round duration from state here
-                }
+                }{" "}
+                gwei
               </p>
             </div>
             <div className="max-h-full flex flex-row justify-between items-center   p-2 w-full">
               <p>CL:</p>
               <p>
                 {
-                  selectedRoundState && selectedRoundState.capLevel
-                  //Add round duration from state here
+                  selectedRoundState &&
+                    (
+                      (100 * parseInt(selectedRoundState.capLevel.toString())) /
+                      10_000
+                    ).toFixed(2) //Add round duration from state here
                 }
+                %
               </p>
             </div>
             <div className="max-h-full flex flex-row justify-between items-center   p-2 w-full">
               <p>Reserve Price:</p>
               <p>
                 {
-                  selectedRoundState && selectedRoundState.reservePrice
+                  selectedRoundState &&
+                    formatUnits(
+                      selectedRoundState.reservePrice.toString(),
+                      "gwei",
+                    )
                   //Add round duration from state here
-                }
+                }{" "}
+                gwei
               </p>
             </div>
             <div className="max-h-full flex flex-row justify-between items-center   p-2 w-full">
@@ -272,51 +295,54 @@ const PanelLeft = () => {
               <p>
                 {
                   selectedRoundState?.auctionEndDate &&
-                  new Date(selectedRoundState.auctionEndDate.toString()).toString()
+                    new Date(
+                      selectedRoundState.auctionEndDate.toString(),
+                    ).toString()
                   //Add round duration from state here
                 }
               </p>
             </div>
           </div>
         </div>
-        <div className="flex flex-col w-full">
-          {selectedRoundState && selectedRoundState.roundState !== "SETTLED" && (
-            <button
-              className="hidden group-hover:flex border border-greyscale-700 text-primary rounded-md mt-4 p-2 w-full justify-center items-center"
-              onClick={async () => {
-                switch (selectedRoundState?.roundState) {
-                  case "OPEN":
-                    await vaultActions.startAuction();
-                    break;
-                  case "AUCTIONING":
-                    await vaultActions.endAuction();
-                    break;
-                  case "RUNNING":
-                    await vaultActions.settleOptionRound();
-                    break;
-                  default:
-                    break;
-                }
+        <div className="flex flex-col w-[90%] mx-[auto] mt-[auto] mb-[1rem]">
+          {selectedRoundState &&
+            selectedRoundState.roundState !== "SETTLED" && (
+              <button
+                className="hidden group-hover:flex border border-greyscale-700 text-primary rounded-md mt-4 p-2 w-full justify-center items-center"
+                onClick={async () => {
+                  switch (selectedRoundState?.roundState) {
+                    case "OPEN":
+                      await vaultActions.startAuction();
+                      break;
+                    case "AUCTIONING":
+                      await vaultActions.endAuction();
+                      break;
+                    case "RUNNING":
+                      await vaultActions.settleOptionRound();
+                      break;
+                    default:
+                      break;
+                  }
 
-                //Trigger contract call here
-              }}
-            >
-              <p>
-                {
-                  selectedRoundState.roundState === "OPEN"
-                    ? "Start Auction"
-                    : selectedRoundState.roundState === "AUCTIONING"
-                    ? "End Auction"
-                    : "Settle Round"
-                  //Enter text based on state
-                }
-              </p>
-              <LineChartDownIcon
-                classname="w-4 h-4 ml-2"
-                stroke={"var(--primary"}
-              />
-            </button>
-          )}
+                  //Trigger contract call here
+                }}
+              >
+                <p>
+                  {
+                    selectedRoundState.roundState === "OPEN"
+                      ? "Start Auction"
+                      : selectedRoundState.roundState === "AUCTIONING"
+                        ? "End Auction"
+                        : "Settle Round"
+                    //Enter text based on state
+                  }
+                </p>
+                <LineChartDownIcon
+                  classname="w-4 h-4 ml-2"
+                  stroke={"var(--primary"}
+                />
+              </button>
+            )}
         </div>
       </div>
     </div>
