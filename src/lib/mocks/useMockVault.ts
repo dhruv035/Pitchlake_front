@@ -6,16 +6,17 @@ import {
   VaultStateType,
   WithdrawArgs,
 } from "@/lib/types";
-import { useCallback, useMemo, useState } from "react";
+import { useState } from "react";
 import useMockOptionRound from "./useMockOptionRound";
 
-const useMockVault = (address: string) => {
+const useMockVault = (address?: string) => {
   const { address: accountAddress } = useAccount();
   //Read States
 
+  console.log("ADDRESS2",address)
   const [vaultState, setVaultState] = useState<VaultStateType>({
     ethAddress: "0x00",
-    address: address,
+    address: address??"0x1",
     vaultType: "ITM",
     lockedBalance: "0",
     unlockedBalance: "123456789123456789123",
@@ -29,7 +30,7 @@ const useMockVault = (address: string) => {
 
   //Wallet states
   const [lpState, setLPState] = useState<LiquidityProviderStateType>({
-    address: accountAddress ?? "",
+    address: accountAddress ?? "0x1",
     lockedBalance: "12800000000000000000",
     unlockedBalance: "1500000000000000000",
     stashedBalance: "123000000000000000",
@@ -47,14 +48,14 @@ const useMockVault = (address: string) => {
   const currentRoundAddress = "";
   //Round Addresses and States
   const depositLiquidity = async (depositArgs: DepositArgs) => {
-    setLPState((prevState) => {
-      return {
-        ...prevState,
-        unlockedBalance: (
-          BigInt(prevState.unlockedBalance) + BigInt(depositArgs.amount)
-        ).toString(),
-      };
-    });
+    // setLPState((prevState) => {
+    //   return {
+    //     ...prevState,
+    //     unlockedBalance: (
+    //       BigInt(prevState.unlockedBalance) + BigInt(depositArgs.amount)
+    //     ).toString(),
+    //   };
+    // });
     await new Promise((resolve) => setTimeout(resolve, 3000));
   };
 

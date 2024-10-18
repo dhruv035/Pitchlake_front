@@ -8,11 +8,9 @@ import InputField from "@/components/Vault/Utils/InputField";
 import { ChevronDown } from "lucide-react";
 import ActionButton from "@/components/Vault/Utils/ActionButton";
 import { formatEther, parseEther } from "ethers";
+import { useProtocolContext } from "@/context/ProtocolProvider";
 
 interface WithdrawLiquidityProps {
-  vaultState: VaultStateType;
-  lpState: LiquidityProviderStateType;
-  withdraw: (withdrawArgs: WithdrawArgs) => Promise<void>;
   showConfirmation: (
     modalHeader: string,
     action: string,
@@ -21,11 +19,9 @@ interface WithdrawLiquidityProps {
 }
 
 const WithdrawLiquidity: React.FC<WithdrawLiquidityProps> = ({
-  vaultState,
-  lpState,
   showConfirmation,
-  withdraw,
 }) => {
+  const {vaultState,lpState, vaultActions} = useProtocolContext();
   const [state, setState] = useState({
     amount: "0",
   });
@@ -35,7 +31,7 @@ const WithdrawLiquidity: React.FC<WithdrawLiquidityProps> = ({
   };
 
   const liquidityWithdraw = async (): Promise<void> => {
-    await withdraw({ amount: parseEther(state.amount) });
+    await vaultActions.withdrawLiquidity({ amount: parseEther(state.amount) });
     console.log("queue withdraw", state.amount);
   };
 
@@ -94,7 +90,7 @@ const WithdrawLiquidity: React.FC<WithdrawLiquidityProps> = ({
         <div className="flex justify-between text-sm mb-4">
           <span className="text-gray-400">Unlocked Balance</span>
           <span className="text-white">
-            {formatEther(lpState.unlockedBalance?.toString()) || "0"} ETH
+            {formatEther(lpState?.unlockedBalance?.toString() || "0")} ETH
           </span>
         </div>
         <div className="flex justify-between text-sm mb-4 pt-4 border-t border-[#262626]">

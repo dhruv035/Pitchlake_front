@@ -36,7 +36,8 @@ const useOptionRoundState = (address: string | undefined) => {
     contractData,
     watch: true,
     states: [
-      { functionName: "get_vault_address", key: "vaultAddress" },
+      { 
+        functionName: "get_vault_address", key: "vaultAddress" },
       {
         functionName: "get_round_id",
         key: "roundId",

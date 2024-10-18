@@ -12,11 +12,12 @@ import { ChevronDown, User } from "lucide-react";
 import ActionButton from "@/components/Vault/Utils/ActionButton";
 import ButtonTabs from "../../ButtonTabs";
 import { parseEther, formatEther } from "ethers";
+import { useProtocolContext } from "@/context/ProtocolProvider";
 
 interface DepositProps {
-  vaultState: VaultStateType;
-  lpState: LiquidityProviderStateType;
-  deposit: (depositArgs: DepositArgs) => Promise<void>;
+  vaultState?: VaultStateType;
+  lpState?: LiquidityProviderStateType;
+  deposit?: (depositArgs: DepositArgs) => Promise<void>;
   showConfirmation: (
     modalHeader: string,
     action: string,
@@ -32,11 +33,10 @@ interface DepositState {
 }
 
 const Deposit: React.FC<DepositProps> = ({
-  vaultState,
-  lpState,
   deposit,
   showConfirmation,
 }) => {
+  const {vaultState,lpState,vaultActions} = useProtocolContext();
   const [state, setState] = useState<DepositState>({
     amount: "0",
     isDepositAsBeneficiary: false,
@@ -44,7 +44,7 @@ const Deposit: React.FC<DepositProps> = ({
     activeWithdrawTab: "For Myself",
   });
 
-  const { balance } = useERC20(vaultState.ethAddress, vaultState.address);
+  const { balance } = useERC20(vaultState?.ethAddress, vaultState?.address);
 
   const updateState = (updates: Partial<DepositState>) => {
     setState((prevState) => ({ ...prevState, ...updates }));
@@ -53,7 +53,7 @@ const Deposit: React.FC<DepositProps> = ({
   const handleDeposit = async (): Promise<void> => {
     console.log("Depositing", state.amount);
 
-    await deposit({
+    await vaultActions.depositLiquidity({
       amount: parseEther(state.amount),
       beneficiary: state.beneficiaryAddress,
     });
@@ -133,7 +133,7 @@ const Deposit: React.FC<DepositProps> = ({
         <div className="flex justify-between text-sm mb-4 pt-4">
           <span className="text-gray-400">Unlocked Balance</span>
           <span className="text-white">
-            {formatEther(lpState.unlockedBalance.toString()).toString()} ETH
+            {formatEther(lpState?.unlockedBalance? lpState.unlockedBalance.toString():0).toString()} ETH
           </span>
         </div>
         <div className="flex justify-between text-sm mb-4 pt-4 border-t border-[#262626]">

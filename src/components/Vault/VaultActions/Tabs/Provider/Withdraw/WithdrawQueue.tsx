@@ -1,10 +1,9 @@
 import React from "react";
 import { VaultStateType, LiquidityProviderStateType } from "@/lib/types";
 import ActionButton from "@/components/Vault/Utils/ActionButton";
+import { useProtocolContext } from "@/context/ProtocolProvider";
 
 interface WithdrawQueueProps {
-  vaultState: VaultStateType;
-  lpState: LiquidityProviderStateType;
   showConfirmation: (
     modalHeader: string,
     action: string,
@@ -13,10 +12,10 @@ interface WithdrawQueueProps {
 }
 
 const WithdrawLiquidity: React.FC<WithdrawQueueProps> = ({
-  vaultState,
-  lpState,
+
   showConfirmation,
 }) => {
+  const {vaultActions, lpState} = useProtocolContext();
   const [state, setState] = React.useState({
     percentage: "0",
     //isButtonDisabled: true,
@@ -43,7 +42,7 @@ const WithdrawLiquidity: React.FC<WithdrawQueueProps> = ({
   };
 
   const isButtonDisabled = (): boolean => {
-    if (state.percentage === bpsToPercentage(lpState.queuedBps.toString())) {
+    if (state.percentage === bpsToPercentage(lpState?.queuedBps?.toString() || "0")) {
       return true;
     }
 
@@ -63,7 +62,7 @@ const WithdrawLiquidity: React.FC<WithdrawQueueProps> = ({
     console.log("Collect confirmation");
     showConfirmation(
       "Liquidity Withdraw",
-      `update how much of your locked position will be stashed from ${bpsToPercentage(lpState.queuedBps.toString())}% to ${parseFloat(
+      `update how much of your locked position will be stashed from ${bpsToPercentage(lpState?.queuedBps?.toString()||"0")}% to ${parseFloat(
         state.percentage,
       ).toFixed(0)}%`,
       liquidityWithdraw,
@@ -73,7 +72,7 @@ const WithdrawLiquidity: React.FC<WithdrawQueueProps> = ({
   React.useEffect(() => {
     // Set the initial percentage to 25% and disable the button
     updateState({
-      percentage: bpsToPercentage(lpState.queuedBps.toString()),
+      percentage: bpsToPercentage(lpState?.queuedBps?.toString() || "0")
       //isButtonDisabled: true,
     });
   }, []);

@@ -20,7 +20,7 @@ import { useTransactionContext } from "@/context/TransactionProvider";
 import { toast } from "react-toastify";
 import { displayToastError } from "@/lib/toasts";
 
-const useVaultActions = (address: string) => {
+const useVaultActions = (address?: string) => {
   const { contract } = useContract({
     abi: vaultABI,
     address,

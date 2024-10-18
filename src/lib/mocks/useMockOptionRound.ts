@@ -29,7 +29,7 @@ const useMockOptionRound = (roundId: number) => {
         payoutPerOption: "",
         vaultAddress: "",
         reservePrice: "",
-        auctionStartDate: "",
+        auctionStartDate: 20000,
         auctionEndDate: "",
         optionSettleDate: "",
         deploymentDate:"",

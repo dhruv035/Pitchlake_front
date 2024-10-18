@@ -3,10 +3,11 @@ import { VaultStateType, LiquidityProviderStateType } from "@/lib/types";
 import ActionButton from "@/components/Vault/Utils/ActionButton";
 import collect from "@/../public/collect.svg";
 import { formatEther, parseEther } from "ethers";
+import { useProtocolContext } from "@/context/ProtocolProvider";
 
 interface WithdrawStashProps {
-  vaultState: VaultStateType;
-  lpState: LiquidityProviderStateType;
+  vaultState?: VaultStateType;
+  lpState?: LiquidityProviderStateType;
   //withdrawStash: () => Promise<void>;
   showConfirmation: (
     modalHeader: string,
@@ -16,11 +17,11 @@ interface WithdrawStashProps {
 }
 
 const WithdrawStash: React.FC<WithdrawStashProps> = ({
-  vaultState,
-  lpState,
+
   showConfirmation,
   //withdrawStash,
 }) => {
+  const {vaultState, lpState} = useProtocolContext();
   const [state, setState] = React.useState({
     isButtonDisabled: true,
   });
@@ -76,8 +77,8 @@ const WithdrawStash: React.FC<WithdrawStashProps> = ({
           Your current stashed balance is
         </p>
         <p className="text-2xl font-bold text-center">
-          {lpState.stashedBalance
-            ? parseFloat(formatEther(lpState.stashedBalance.toString()))
+          {lpState?.stashedBalance?
+             parseFloat(formatEther(lpState.stashedBalance.toString()))
                 .toFixed(3)
                 .toString()
             : "0"}{" "}

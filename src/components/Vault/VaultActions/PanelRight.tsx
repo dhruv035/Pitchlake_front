@@ -11,14 +11,10 @@ import { useTabContent } from "@/hooks/vault/useTabContent";
 import ConfirmationModal from "@/components/Vault/Utils/ConfirmationModal";
 import SuccessModal from "@/components/Vault/Utils/SuccessModal";
 import { useTransactionContext } from "@/context/TransactionProvider";
+import { useProtocolContext } from "@/context/ProtocolProvider";
 
 interface VaultDetailsProps {
   userType: string;
-  roundState: OptionRoundStateType;
-  vaultState: VaultStateType;
-  lpState: LiquidityProviderStateType;
-  vaultActions: VaultActionsType;
-  roundActions: OptionRoundActionsType;
 }
 
 interface TabContentProps {
@@ -31,12 +27,8 @@ interface TabContentProps {
 
 const PanelRight: React.FC<VaultDetailsProps> = ({
   userType,
-  vaultState,
-  lpState,
-  roundState,
-  vaultActions,
-  roundActions,
 }) => {
+  const {vaultState,vaultActions} = useProtocolContext()
   const [activeTab, setActiveTab] = useState<string>("");
   const [modalState, setModalState] = useState<{
     show: boolean;
@@ -54,11 +46,6 @@ const PanelRight: React.FC<VaultDetailsProps> = ({
 
   const { getTabs, getTabContent } = useTabContent(
     userType,
-    roundState.roundState,
-    vaultState,
-    lpState,
-    vaultActions,
-    roundActions
   );
 
   const tabs = getTabs();
@@ -71,11 +58,15 @@ const PanelRight: React.FC<VaultDetailsProps> = ({
   }, [tabs, activeTab]);
 
   useEffect(() => {
+    console.log("STATES",pendingTx, modalState.type, status)
     if (modalState.type === "pending") {
       if (!pendingTx && status === "success") {
         setModalState((prevState) => ({ ...prevState, type: "success" }));
       } else if (!pendingTx && status === "error") {
         setModalState((prevState) => ({ ...prevState, type: "failure" }));
+      }
+      else if (!pendingTx && !status){
+        setModalState((prevState) => ({ ...prevState, type: "success" }));
       }
     }
   }, [pendingTx, modalState.type, status]);
