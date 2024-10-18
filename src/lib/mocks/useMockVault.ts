@@ -16,24 +16,24 @@ const useMockVault = (address: string) => {
   const [vaultState, setVaultState] = useState<VaultStateType>({
     ethAddress: "0x00",
     address: address,
-    vaultType: "ATM",
+    vaultType: "ITM",
     lockedBalance: "0",
-    unlockedBalance: "1492",
-    stashedBalance: "30",
+    unlockedBalance: "123456789123456789123",
+    stashedBalance: "112233445566778899",
     currentRoundId: 3,
-    alpha:"",
-    strikeLevel:"",
-    queuedBps:"",
+    alpha: "5555",
+    strikeLevel: "-1111",
+    queuedBps: "0",
   });
   //States without a param
 
   //Wallet states
   const [lpState, setLPState] = useState<LiquidityProviderStateType>({
     address: accountAddress ?? "",
-    lockedBalance: "12.8",
-    unlockedBalance: "1.5",
-    stashedBalance: "0",
-    queuedBps:"",
+    lockedBalance: "12800000000000000000",
+    unlockedBalance: "1500000000000000000",
+    stashedBalance: "123000000000000000",
+    queuedBps: "1234",
   });
 
   const updateVaultState = (field: string, value: any) => {
