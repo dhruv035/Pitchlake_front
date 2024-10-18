@@ -1,4 +1,4 @@
-import { useAccount, useNetwork } from "@starknet-react/core";
+import { useAccount, useContractRead, useNetwork } from "@starknet-react/core";
 import { vaultABI } from "@/abi";
 import {
   LiquidityProviderStateType,
@@ -11,6 +11,7 @@ import useContractReads from "../../lib/useContractReads";
 import useOptionRounds from "../optionRound/useOptionRounds";
 import useOptionRoundActions from "../optionRound/useOptionRoundActions";
 import { CairoCustomEnum } from "starknet";
+import useOptionRoundState from "../optionRound/useOptionRoundState";
 
 const useVaultState = ({
   conn,
@@ -109,13 +110,26 @@ const useVaultState = ({
     ],
   }) as unknown as LiquidityProviderStateType;
 
-  const { roundStates, buyerStates } = useOptionRounds({
-    currentRoundId: currentRoundId ? currentRoundId.toString() : "",
-    vaultAddress: address,
+  const { data: currentRoundAddress } = useContractRead({
+    ...contractData,
+    functionName: "get_option_round_address",
+    args: currentRoundId ? [currentRoundId.toString()] : [],
   });
-
+  const { data: selectedRoundAddress } = useContractRead({
+    ...contractData,
+    functionName: "get_option_round_address",
+    args: selectedRound
+      ? [selectedRound.toString()]
+      : currentRoundId
+      ? [currentRoundId as string]
+      : [],
+  });
+  const {
+    optionRoundState: selectedRoundState,
+    optionBuyerState: selectedRoundBuyerState,
+  } = useOptionRoundState(selectedRoundAddress as string);
   const roundActions = useOptionRoundActions(
-    getRounds ? roundStates[Number(selectedRound) - 1]?.address : undefined
+    getRounds ? (selectedRoundAddress as string) : undefined
   );
   const vaultState = {
     address,
@@ -133,13 +147,10 @@ const useVaultState = ({
   return {
     vaultState,
     lpState,
-    currentRoundAddress:
-      roundStates?.length > 0 && roundStates[roundStates.length - 1]?.address
-        ? roundStates[roundStates.length - 1]?.address
-        : "",
+    currentRoundAddress,
     roundActions: getRounds ? roundActions : undefined,
-    roundStates: getRounds ? roundStates : [],
-    buyerStates: getRounds ? buyerStates : [],
+    selectedRoundState,
+    selectedRoundBuyerState
   };
 };
 

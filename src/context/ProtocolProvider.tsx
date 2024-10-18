@@ -7,10 +7,7 @@ import {
   useContext,
   useState,
 } from "react";
-import {
-  useAccount,
-  useNetwork,
-} from "@starknet-react/core";
+import { useAccount, useNetwork } from "@starknet-react/core";
 import useWebSocketVault from "@/hooks/useWebSocket";
 import useMockVault from "@/lib/mocks/useMockVault";
 import useVaultState from "@/hooks/vault/useVaultState";
@@ -32,7 +29,7 @@ import {
 //Make transactions accepted only after 2 confirmations
 
 export type ProtocolContextType = {
-    vaultAddress?:string;
+  vaultAddress?: string;
   vaultActions: VaultActionsType;
   vaultState?: VaultStateType;
   roundActions?: OptionRoundActionsType;
@@ -42,15 +39,21 @@ export type ProtocolContextType = {
   selectedRound?: number | string;
   setSelectedRound: Dispatch<SetStateAction<number>>;
   selectedRoundState?: OptionRoundStateType;
-  setVaultAddress:Dispatch<SetStateAction<string|undefined>>
+  selectedRoundBuyerState?: OptionBuyerStateType;
+  setVaultAddress: Dispatch<SetStateAction<string | undefined>>;
 };
 
 export const ProtocolContext = createContext<ProtocolContextType>(
   {} as ProtocolContextType
 );
 const ProtocolProvider = ({ children }: { children: ReactNode }) => {
-  const [vaultAddress, setVaultAddress] = useState<string|undefined>();
-  const [conn, setConn] = useState(process.env.NEXT_PUBLIC_ENVIRONMENT&&process.env.NEXT_PUBLIC_ENVIRONMENT==="mock"?"mock":"rpc");
+  const [vaultAddress, setVaultAddress] = useState<string | undefined>();
+  const [conn, setConn] = useState(
+    process.env.NEXT_PUBLIC_ENVIRONMENT &&
+      process.env.NEXT_PUBLIC_ENVIRONMENT === "mock"
+      ? "mock"
+      : "rpc"
+  );
 
   const {
     wsVaultState,
@@ -58,7 +61,7 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
     wsLiquidityProviderState,
     wsOptionBuyerStates,
   } = useWebSocketVault(conn, vaultAddress);
-  const [selectedRound, setSelectedRound] = useState<number>(1);
+  const [selectedRound, setSelectedRound] = useState<number>(0);
   const {
     optionRoundStates: optionRoundStatesMock,
     lpState: lpStateMock,
@@ -71,8 +74,8 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
     lpState: rpcLiquidityProviderState,
     vaultState: rpcVaultState,
     roundActions: roundActionsChain,
-    roundStates: optionRoundStatesRPC,
-    buyerStates: optionBuyerStatesRPC,
+    selectedRoundState: selectedRoundStateRPC,
+    selectedRoundBuyerState: selectedRoundBuyerStateRPC,
   } = useVaultState({
     conn,
     address: vaultAddress,
@@ -99,13 +102,13 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
       ? optionRoundStatesMock
       : conn === "ws"
       ? wsOptionRoundStates
-      : optionRoundStatesRPC;
+      : [];
   const optionBuyerStates =
-    conn === "rpc"
-      ? optionBuyerStatesRPC
-      : conn === "ws"
+    conn === "ws"
       ? wsOptionBuyerStates
-      : optionBuyerStatesMock;
+      : conn === "mock"
+      ? optionBuyerStatesMock
+      : [];
   // const currentRoundState =
   //   conn === "rpc"
   //     ? rpcCurrentRoundState
@@ -113,9 +116,15 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
   //     ? wsOptionRoundStates[Number(vaultState?.currentRoundId) - 1]
   //     : optionRoundStatesMock[2];
   const roundActions =
-    conn === "mock" ? roundActionsMock[selectedRound] : roundActionsChain;
-
-    console.log("OBSTATES",optionRoundStates)
+    conn === "mock" ? roundActionsMock[selectedRound - 1] : roundActionsChain;
+  const selectedRoundState =
+    conn !== "rpc"
+      ? vaultState?.currentRoundId
+        ? optionRoundStates[Number(vaultState.currentRoundId) - 1]
+        : undefined
+      : selectedRoundStateRPC;
+  console.log("ASD", selectedRoundState);
+  console.log("OBSTATES", optionRoundStates);
   return (
     <ProtocolContext.Provider
       value={{
@@ -128,11 +137,21 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
         lpState,
         selectedRound,
         setSelectedRound,
-        selectedRoundState:
-          selectedRound && optionRoundStates.length > selectedRound
-            ? optionRoundStates[selectedRound-1]
-            : undefined,
-        setVaultAddress
+        selectedRoundState: selectedRound
+          ? conn === "rpc"
+            ? selectedRoundStateRPC
+            : optionRoundStates.length > selectedRound
+            ? optionRoundStates[selectedRound - 1]
+            : undefined
+          : undefined,
+        setVaultAddress,
+        selectedRoundBuyerState: selectedRound
+          ? conn === "rpc"
+            ? selectedRoundBuyerStateRPC
+            : optionBuyerStates.length > selectedRound
+            ? optionBuyerStates[selectedRound - 1]
+            : undefined
+          : undefined,
       }}
     >
       {children}

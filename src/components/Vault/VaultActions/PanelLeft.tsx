@@ -123,7 +123,7 @@ const PanelLeft = () => {
               <p>Run Time:</p>
               <p>
                 {
-                  selectedRoundState?
+                 ( selectedRoundState?.auctionStartDate&&selectedRoundState?.auctionEndDate)?
                     (BigInt(selectedRoundState.auctionEndDate) -
                       BigInt(selectedRoundState.auctionStartDate)).toString():""
                   //Add round duration from state here
@@ -196,7 +196,7 @@ const PanelLeft = () => {
               <p>
                 Round &nbsp;
                 {
-                  selectedRoundState?
+                  selectedRoundState?.roundId?
                   Number(selectedRoundState.roundId).toPrecision(2):""
                   //Add round duration from state here
                 }
@@ -261,7 +261,7 @@ const PanelLeft = () => {
               <p>End date:</p>
               <p>
                 {
-                  selectedRoundState &&
+                  selectedRoundState?.auctionEndDate &&
                   new Date(selectedRoundState.auctionEndDate.toString()).toString()
                   //Add round duration from state here
                 }
