@@ -7,13 +7,12 @@ import {
 } from "@/lib/types";
 import ButtonTabs from "../../../ButtonTabs";
 import WithdrawLiquidity from "@/components/Vault/VaultActions/Tabs/Provider/Withdraw/WithdrawLiquidity";
-import QueueWithdrawal from "@/components/Vault/VaultActions/Tabs/Provider/Withdraw/WithdrawQueue";
-import WithdrawStash from "@/components/Vault/VaultActions/Tabs/Provider/Withdraw/WithdrawCollect";
+import QueueWithdrawal from "@/components/Vault/VaultActions/Tabs/Provider/Withdraw/QueueWithdrawal";
+import WithdrawStash from "@/components/Vault/VaultActions/Tabs/Provider/Withdraw/WithdrawStash";
 import { ProtocolContext } from "@/context/ProtocolProvider";
 import { CairoCustomEnum } from "starknet";
 
 interface WithdrawProps {
-  withdraw: (withdrawArgs: WithdrawArgs) => Promise<void>;
   showConfirmation: (
     modalHeader: string,
     action: string,
@@ -23,11 +22,9 @@ interface WithdrawProps {
 
 const Withdraw: React.FC<WithdrawProps> = ({
   showConfirmation,
-  withdraw,
   //queueWithdrawal,
   //withdrawStash,
 }) => {
-  const { vaultState, lpState } = React.useContext(ProtocolContext);
   const [state, setState] = useState({
     activeWithdrawTab: "Liquidity" as WithdrawSubTabs,
   });

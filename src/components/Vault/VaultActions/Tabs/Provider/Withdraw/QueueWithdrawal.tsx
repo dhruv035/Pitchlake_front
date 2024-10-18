@@ -56,8 +56,9 @@ const WithdrawLiquidity: React.FC<WithdrawQueueProps> = ({
   //    return true;
   //   }
 
-  const liquidityWithdraw = async (): Promise<void> => {
-    console.log("queue withdraw", state.percentage);
+  const queueWithdrawal = async (): Promise<void> => {
+    console.log("queue withdrawal", state.percentage);
+    // queue withdrawal from vaultActions
   };
 
   const handleSubmit = () => {
@@ -67,7 +68,7 @@ const WithdrawLiquidity: React.FC<WithdrawQueueProps> = ({
       `update how much of your locked position will be stashed from ${bpsToPercentage(lpState?.queuedBps ? lpState.queuedBps.toString() : "0")}% to ${parseFloat(
         state.percentage,
       ).toFixed(0)}%`,
-      liquidityWithdraw,
+      queueWithdrawal,
     );
   };
 

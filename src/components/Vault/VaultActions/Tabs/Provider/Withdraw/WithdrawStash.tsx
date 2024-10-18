@@ -18,7 +18,7 @@ const WithdrawStash: React.FC<WithdrawStashProps> = ({
   showConfirmation,
   //withdrawStash,
 }) => {
-  const { vaultState, lpState } = useProtocolContext();
+  const { vaultState, lpState, vaultActions } = useProtocolContext();
   const [state, setState] = React.useState({
     isButtonDisabled: true,
   });
@@ -33,7 +33,7 @@ const WithdrawStash: React.FC<WithdrawStashProps> = ({
       formatEther(vaultState?.stashedBalance ? vaultState.stashedBalance : "0"),
     );
 
-    //await withdrawStash();
+    // withdrawStash from vaultActions
   };
 
   const handleSubmit = () => {
