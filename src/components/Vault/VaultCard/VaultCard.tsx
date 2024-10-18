@@ -14,7 +14,7 @@ import {
 
 export default function VaultCard({ vaultAddress }: { vaultAddress: string }) {
   
-  const { vaultState } = useVaultState("rpc",vaultAddress); //conn arguement hardcoded here. Make conn a context variable to feed everywhere
+  const { vaultState } = useVaultState({conn:"rpc",address:vaultAddress, getRounds:false}); //conn arguement hardcoded here. Make conn a context variable to feed everywhere
   const router = useRouter();
   var myHeaders = new Headers();
   myHeaders.append("accept", "application/json");

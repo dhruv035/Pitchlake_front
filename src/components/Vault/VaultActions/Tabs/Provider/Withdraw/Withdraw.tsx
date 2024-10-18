@@ -6,9 +6,6 @@ import WithdrawQueue from "@/components/Vault/VaultActions/Tabs/Provider/Withdra
 import WithdrawCollect from "@/components/Vault/VaultActions/Tabs/Provider/Withdraw/WithdrawCollect";
 
 interface WithdrawProps {
-  vaultState: VaultStateType;
-  lpState: LiquidityProviderStateType;
-  withdraw:(withdrawArgs:WithdrawArgs)=>Promise<void>
   showConfirmation: (
     modalHeader: string,
     action: string,
@@ -17,10 +14,7 @@ interface WithdrawProps {
 }
 
 const Withdraw: React.FC<WithdrawProps> = ({
-  vaultState,
-  lpState,
   showConfirmation,
-  withdraw
 }) => {
   const [state, setState] = useState({
     activeWithdrawTab: "Liquidity" as WithdrawSubTabs,
@@ -43,21 +37,16 @@ const Withdraw: React.FC<WithdrawProps> = ({
       <div className="flex-grow">
         {state.activeWithdrawTab === "Liquidity" && (
           <WithdrawLiquidity
-            lpState={lpState}
-            vaultState={vaultState}
             showConfirmation={showConfirmation}
-            withdraw={withdraw}
           />
         )}
         {state.activeWithdrawTab === "Queue" && (
           <WithdrawQueue
-            vaultState={vaultState}
             showConfirmation={showConfirmation}
           />
         )}
         {state.activeWithdrawTab === "Collect" && (
           <WithdrawCollect
-            vaultState={vaultState}
             showConfirmation={showConfirmation}
           />
         )}

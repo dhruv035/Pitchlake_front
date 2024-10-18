@@ -1,6 +1,7 @@
 import { optionRoundABI } from "@/abi";
 import { useTransactionContext } from "@/context/TransactionProvider";
 import {
+  OptionRoundActionsType,
   PlaceBidArgs,
   RefundBidsArgs,
   TransactionResult,
@@ -81,6 +82,6 @@ const useOptionRoundActions = (address: string | undefined) => {
     refundUnusedBids,
     tokenizeOptions,
     exerciseOptions,
-  };
+  } as OptionRoundActionsType;
 };
 export default useOptionRoundActions;

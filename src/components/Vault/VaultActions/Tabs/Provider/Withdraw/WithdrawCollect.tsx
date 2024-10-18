@@ -2,9 +2,9 @@ import React from "react";
 import { VaultStateType } from "@/lib/types";
 import ActionButton from "@/components/Vault/Utils/ActionButton";
 import collect from "@/../public/collect.svg";
+import { useProtocolContext } from "@/context/ProtocolProvider";
 
 interface WithdrawCollectProps {
-  vaultState: VaultStateType;
   showConfirmation: (
     modalHeader: string,
     action: string,
@@ -13,9 +13,9 @@ interface WithdrawCollectProps {
 }
 
 const WithdrawCollect: React.FC<WithdrawCollectProps> = ({
-  vaultState,
   showConfirmation,
 }) => {
+  const {vaultState} = useProtocolContext();
   const [state, setState] = React.useState({
     isButtonDisabled: true,
   });
@@ -58,7 +58,7 @@ const WithdrawCollect: React.FC<WithdrawCollectProps> = ({
           Your current stashed balance is
         </p>
         <p className="text-2xl font-bold text-center">
-          {vaultState.stashedBalance?.toString() || "0"} ETH
+          {vaultState?.stashedBalance?.toString() || "0"} ETH
         </p>
       </div>
       <div className="mt-auto">

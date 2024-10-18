@@ -19,8 +19,10 @@ import {
 import ProfileDropdown from "../BaseComponents/ProfileDropdown";
 import { copyToClipboard } from "@/lib/utils";
 import { useRouter } from "next/navigation";
+import { useProtocolContext } from "@/context/ProtocolProvider";
 
 export default function Header() {
+  const { conn, timeStamp,mockTimeForward } = useProtocolContext();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const isDropdownOpenRef = useRef(isDropdownOpen);
   const { connect, connectors } = useConnect();
@@ -89,9 +91,9 @@ export default function Header() {
     <nav className="absolute top-0 z-50 w-full h-[92px] bg-[#121212] px-8 py-6 flex justify-between items-center border-b border-[#262626]">
       <div className="flex-shrink-0">
         <Image
-        onClick={()=>{
-          router.push('/')
-        }}
+          onClick={() => {
+            router.push("/");
+          }}
           src={logo_full}
           alt="Pitchlake logo"
           width={200}
@@ -102,6 +104,14 @@ export default function Header() {
       </div>
 
       <div className="flex items-center space-x-4">
+        {conn === "mock" && (
+          <div>
+            <p>
+              {timeStamp.toString()}
+            </p>
+          <button onClick={() => mockTimeForward()}>Forward Mock Time</button>
+          </div>
+        )}
         <div className="cursor-pointer border-[1px] border-greyscale-800 p-2 rounded-md">
           <BellIcon className="h-6 w-6 text-primary" />
         </div>

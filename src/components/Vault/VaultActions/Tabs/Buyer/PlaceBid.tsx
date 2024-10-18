@@ -3,6 +3,7 @@ import InputField from "@/components/Vault/Utils/InputField";
 import { Layers3, Currency } from "lucide-react";
 import ActionButton from "@/components/Vault/Utils/ActionButton";
 import { PlaceBidArgs } from "@/lib/types";
+import { useProtocolContext } from "@/context/ProtocolProvider";
 
 interface PlaceBidProps {
   showConfirmation: (
@@ -10,10 +11,9 @@ interface PlaceBidProps {
     action: string,
     onConfirm: () => Promise<void>
   ) => void;
-  placeBid: (placeBidArgs: PlaceBidArgs) => Promise<void>;
 }
 
-const PlaceBid: React.FC<PlaceBidProps> = ({ showConfirmation, placeBid }) => {
+const PlaceBid: React.FC<PlaceBidProps> = ({ showConfirmation }) => {
   const [state, setState] = useState({
     bidAmount: "",
     bidPrice: "",
@@ -21,6 +21,7 @@ const PlaceBid: React.FC<PlaceBidProps> = ({ showConfirmation, placeBid }) => {
     isButtonDisabled: true,
   });
 
+  const {roundActions} = useProtocolContext();
   useEffect(() => {
     const isButtonDisabled = !state.bidAmount || !state.bidPrice;
     setState((prevState) => ({ ...prevState, isButtonDisabled }));
@@ -39,7 +40,7 @@ const PlaceBid: React.FC<PlaceBidProps> = ({ showConfirmation, placeBid }) => {
   };
 
   const handlePlaceBid = async (): Promise<void> => {
-    await placeBid({
+    await roundActions?.placeBid({
       amount: BigInt(state.bidAmount),
       price: BigInt(state.bidPrice),
     });

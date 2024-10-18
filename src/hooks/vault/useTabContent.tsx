@@ -20,22 +20,19 @@ import Refund from "@/components/Vault/VaultActions/Tabs/Buyer/Refund";
 import MyInfo from "@/components/Vault/VaultActions/Tabs/Provider/MyInfo";
 import { mockHistoryItems } from "@/components/Vault/MockData";
 import VaultActions from "@/components/Vault/VaultActions";
+import { useProtocolContext } from "@/context/ProtocolProvider";
 
 export const useTabContent = (
   userType: string,
-  roundState: string,
-  vaultState: VaultStateType,
-  lpState: LiquidityProviderStateType,
-  vaultActions:VaultActionsType,
-  roundActions:OptionRoundActionsType
 ) => {
+  const {selectedRoundState,lpState,vaultActions,vaultState} = useProtocolContext();
   const getTabs = (): string[] => {
     const commonTabs = [CommonTabs.MyInfo];
 
     if (userType === "lp") {
       return [...Object.values(ProviderTabs), ...commonTabs];
     } else {
-      switch (roundState) {
+      switch (selectedRoundState?.roundState) {
         case "OPEN":
           return [];
         case "AUCTIONING":
@@ -56,22 +53,16 @@ export const useTabContent = (
         return (
           <DepositContent
             showConfirmation={(amount, action) => {}}
-            vaultState={vaultState}
-            lpState={lpState}
-            deposit={vaultActions.depositLiquidity}
           />
         );
       case ProviderTabs.Withdraw:
         return (
           <Withdraw
-            lpState={lpState}
-            vaultState={vaultState}
             showConfirmation={(amount, action) => {}}
-            withdraw={vaultActions.withdrawLiquidity}
           />
         );
       case BuyerTabs.PlaceBid:
-        return <PlaceBid placeBid={roundActions.placeBid} showConfirmation={(amount, action) => {}} />;
+        return <PlaceBid showConfirmation={(amount, action) => {}} />;
       case BuyerTabs.History:
         return <History items={mockHistoryItems} />;
       case BuyerTabs.Refund:
