@@ -22,10 +22,9 @@ import { mockHistoryItems } from "@/components/Vault/MockData";
 import VaultActions from "@/components/Vault/VaultActions";
 import { useProtocolContext } from "@/context/ProtocolProvider";
 
-export const useTabContent = (
-  userType: string,
-) => {
-  const {selectedRoundState,lpState,vaultActions,vaultState} = useProtocolContext();
+export const useTabContent = (userType: string) => {
+  const { selectedRoundState, lpState, vaultActions, vaultState } =
+    useProtocolContext();
   const getTabs = (): string[] => {
     const commonTabs = [CommonTabs.MyInfo];
 
@@ -50,15 +49,12 @@ export const useTabContent = (
   const getTabContent = (activeTab: string): React.ReactNode => {
     switch (activeTab) {
       case ProviderTabs.Deposit:
-        return (
-          <DepositContent
-            showConfirmation={(amount, action) => {}}
-          />
-        );
+        return <DepositContent showConfirmation={(amount, action) => {}} />;
       case ProviderTabs.Withdraw:
         return (
           <Withdraw
             showConfirmation={(amount, action) => {}}
+            withdraw={vaultActions.withdrawLiquidity}
           />
         );
       case BuyerTabs.PlaceBid:
