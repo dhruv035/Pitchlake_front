@@ -146,13 +146,7 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
         lpState,
         selectedRound,
         setSelectedRound,
-        selectedRoundState: selectedRound
-          ? conn === "rpc"
-            ? selectedRoundStateRPC
-            : optionRoundStates.length > selectedRound
-            ? optionRoundStates[selectedRound - 1]
-            : undefined
-          : undefined,
+        selectedRoundState,
         setVaultAddress,
         selectedRoundBuyerState: selectedRound
           ? conn === "rpc"

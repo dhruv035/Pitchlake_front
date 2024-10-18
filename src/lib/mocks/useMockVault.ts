@@ -48,14 +48,14 @@ const useMockVault = (address?: string) => {
   const currentRoundAddress = "";
   //Round Addresses and States
   const depositLiquidity = async (depositArgs: DepositArgs) => {
-    setLPState((prevState) => {
-      return {
-        ...prevState,
-        unlockedBalance: (
-          BigInt(prevState.unlockedBalance) + BigInt(depositArgs.amount)
-        ).toString(),
-      };
-    });
+    // setLPState((prevState) => {
+    //   return {
+    //     ...prevState,
+    //     unlockedBalance: (
+    //       BigInt(prevState.unlockedBalance) + BigInt(depositArgs.amount)
+    //     ).toString(),
+    //   };
+    // });
     await new Promise((resolve) => setTimeout(resolve, 3000));
   };
 
