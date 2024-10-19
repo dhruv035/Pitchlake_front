@@ -3,13 +3,12 @@ import React from "react";
 import { useProtocolContext } from "@/context/ProtocolProvider";
 
 interface StateTransitionConfirmationModalProps {
-  modalHeader: string;
   action: string;
   onConfirm: () => void;
   onClose: () => void;
 }
 
-const Confirmations = {
+const Confirmations: any = {
   "Start Auction": "Are you sure you want to start this round's auction?",
   "End Auction": "Are you sure you want to end this round's auction?",
   "Settle Round": "Are you sure you want to settle this round?",
@@ -22,7 +21,6 @@ const btnMsgs: any = {
 };
 
 const StateTransitionConfirmationModal = ({
-  modalHeader,
   action,
   onConfirm,
   onClose,
@@ -44,7 +42,7 @@ const StateTransitionConfirmationModal = ({
             {action} Confirmation
           </h2>
           <p className="text-gray-400 text-center text-[14px]">
-            Are you sure you want to {action}?
+            {Confirmations[action]}
           </p>
         </div>
 
