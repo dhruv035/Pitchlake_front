@@ -117,7 +117,7 @@ const PanelLeft = () => {
           </div>
           <div
             className={`hidden group-hover:flex flex-col mt-2 overflow-scroll no-scrollbar ${
-              vaultIsOpen ? "h-0" : ""
+              vaultIsOpen ? "h-0" : "h-[250px]"
             } transition-all duration-900ms `}
           >
             <div className="flex flex-row justify-between p-2 w-full">
@@ -207,7 +207,7 @@ const PanelLeft = () => {
           </div>
           <div
             className={`hidden group-hover:flex flex-col mt-2 overflow-scroll no-scrollbar ${
-              optionRoundIsOpen ? "h-0" : vaultIsOpen ? "h-100px" : "h-[300px]"
+              optionRoundIsOpen ? "h-0" : vaultIsOpen ? "h-100px" : "h-[250px]"
             } transition-all duration-900 max-h-full`}
           >
             <div className="max-h-full flex flex-row justify-between items-center p-2 w-full">
