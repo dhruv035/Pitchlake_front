@@ -17,9 +17,9 @@ const useMockOptionRound = (roundId: number) => {
       {
         roundId: roundId,
         clearingPrice: "0",
-        strikePrice: "0",
+        strikePrice: "10000000000",
         address: "0x1",
-        capLevel: "24800",
+        capLevel: "2480",
         startingLiquidity: "",
         availableOptions: "",
         settlementPrice: "",
@@ -28,18 +28,18 @@ const useMockOptionRound = (roundId: number) => {
         premiums: "",
         payoutPerOption: "",
         vaultAddress: "",
-        reservePrice: "",
+        reservePrice: "2000000000",
         auctionStartDate: 20000,
         auctionEndDate: "",
         optionSettleDate: "",
-        deploymentDate:"",
-        soldLiquidity:"",
-        unsoldLiquidity:"",
-        optionSold:"",
-        totalPayout:"",
-        treeNonce:"",
+        deploymentDate: "",
+        soldLiquidity: "",
+        unsoldLiquidity: "",
+        optionSold: "",
+        totalPayout: "",
+        treeNonce: "",
         // Add other fields as necessary
-      }
+      },
       // Add more mock states as needed
     );
 

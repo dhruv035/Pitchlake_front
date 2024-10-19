@@ -11,16 +11,14 @@ import InputField from "@/components/Vault/Utils/InputField";
 import { ChevronDown, User } from "lucide-react";
 import ActionButton from "@/components/Vault/Utils/ActionButton";
 import ButtonTabs from "../../ButtonTabs";
+import { parseEther, formatEther } from "ethers";
 import { useProtocolContext } from "@/context/ProtocolProvider";
 
 interface DepositProps {
-  vaultState?: VaultStateType;
-  lpState?: LiquidityProviderStateType;
-  deposit?: (depositArgs: DepositArgs) => Promise<void>;
   showConfirmation: (
     modalHeader: string,
     action: string,
-    onConfirm: () => Promise<void>
+    onConfirm: () => Promise<void>,
   ) => void;
 }
 
@@ -31,12 +29,10 @@ interface DepositState {
   activeWithdrawTab: "For Myself" | "As Beneficiary";
 }
 
-const Deposit: React.FC<DepositProps> = ({
-  showConfirmation,
-}) => {
-  const {vaultState,lpState,vaultActions} = useProtocolContext();
+const Deposit: React.FC<DepositProps> = ({ showConfirmation }) => {
+  const { vaultState, lpState, vaultActions } = useProtocolContext();
   const [state, setState] = useState<DepositState>({
-    amount: "",
+    amount: "0",
     isDepositAsBeneficiary: false,
     beneficiaryAddress: "",
     activeWithdrawTab: "For Myself",
@@ -50,8 +46,9 @@ const Deposit: React.FC<DepositProps> = ({
 
   const handleDeposit = async (): Promise<void> => {
     console.log("Depositing", state.amount);
+
     await vaultActions.depositLiquidity({
-      amount: BigInt(state.amount),
+      amount: parseEther(state.amount),
       beneficiary: state.beneficiaryAddress,
     });
   };
@@ -61,18 +58,24 @@ const Deposit: React.FC<DepositProps> = ({
     showConfirmation(
       "Deposit",
       `deposit ${state.amount} ETH to this round?`,
-      handleDeposit
+      handleDeposit,
     );
   };
 
   const isDepositDisabled = (): boolean => {
-    if (state.isDepositAsBeneficiary) {
-      return (
-        BigInt(state.amount) <= BigInt(0) ||
-        state.beneficiaryAddress.trim() === ""
-      );
+    // No negatives
+    if (Number(state.amount) <= Number(0)) {
+      return true;
     }
-    return BigInt(state.amount) <= BigInt(0);
+
+    // If no address is entered
+    if (state.isDepositAsBeneficiary) {
+      if (state.beneficiaryAddress.trim() === "") {
+        return true;
+      }
+    }
+
+    return false;
   };
 
   return (
@@ -113,17 +116,22 @@ const Deposit: React.FC<DepositProps> = ({
             value={state.amount}
             label="Enter Amount"
             onChange={(e) => updateState({ amount: e.target.value })}
-            placeholder="e.g. 5"
-            icon={
-              <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400" />
-            }
+            placeholder="e.g. 5.0"
+            //icon={
+            //  <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400" />
+            //}
           />
         </div>
       </div>
       <div className="mt-auto">
         <div className="flex justify-between text-sm mb-4 pt-4">
           <span className="text-gray-400">Unlocked Balance</span>
-          <span className="text-white">{lpState?.unlockedBalance?.toString()} ETH</span>
+          <span className="text-white">
+            {formatEther(
+              lpState?.unlockedBalance ? lpState.unlockedBalance.toString() : 0,
+            ).toString()}{" "}
+            ETH
+          </span>
         </div>
         <div className="flex justify-between text-sm mb-4 pt-4 border-t border-[#262626]">
           <ActionButton

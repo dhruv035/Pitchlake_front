@@ -4,7 +4,8 @@ import {
   LiquidityProviderStateType,
   VaultActionsType,
   VaultStateType,
-  WithdrawArgs,
+  WithdrawLiquidityArgs,
+  QueueWithdrawalArgs,
 } from "@/lib/types";
 import { useState } from "react";
 import useMockOptionRound from "./useMockOptionRound";
@@ -13,28 +14,28 @@ const useMockVault = (address?: string) => {
   const { address: accountAddress } = useAccount();
   //Read States
 
-  console.log("ADDRESS2",address)
+  console.log("ADDRESS2", address);
   const [vaultState, setVaultState] = useState<VaultStateType>({
     ethAddress: "0x00",
-    address: address??"0x1",
-    vaultType: "ATM",
+    address: address ?? "0x1",
+    vaultType: "ITM",
     lockedBalance: "0",
-    unlockedBalance: "1492",
-    stashedBalance: "30",
+    unlockedBalance: "123456789123456789123",
+    stashedBalance: "112233445566778899",
     currentRoundId: 3,
-    alpha:"",
-    strikeLevel:"",
-    queuedBps:"",
+    alpha: "5555",
+    strikeLevel: "-1111",
+    queuedBps: "0",
   });
   //States without a param
 
   //Wallet states
   const [lpState, setLPState] = useState<LiquidityProviderStateType>({
     address: accountAddress ?? "0x1",
-    lockedBalance: "12.8",
-    unlockedBalance: "1.5",
-    stashedBalance: "0",
-    queuedBps:"",
+    lockedBalance: "12800000000000000000",
+    unlockedBalance: "1500000000000000000",
+    stashedBalance: "123000000000000000",
+    queuedBps: "1234",
   });
 
   const updateVaultState = (field: string, value: any) => {
@@ -56,10 +57,21 @@ const useMockVault = (address?: string) => {
     //     ).toString(),
     //   };
     // });
-    await new Promise((resolve) => setTimeout(resolve, 3000));
+    await new Promise((resolve) => setTimeout(resolve, 1500));
   };
 
-  const withdrawLiquidity = async (withdrawArgs: WithdrawArgs) => {};
+  const withdrawLiquidity = async (withdrawArgs: WithdrawLiquidityArgs) => {
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+  };
+
+  const withdrawStash = async () => {
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+  };
+
+  const queueWithdrawal = async (queueArgs: QueueWithdrawalArgs) => {
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+  };
+
   const startAuction = async () => {
     setRound3State((prevState) => {
       return {
@@ -103,8 +115,11 @@ const useMockVault = (address?: string) => {
   } = useMockOptionRound(3);
 
   const vaultActions: VaultActionsType = {
+    // User actions
     depositLiquidity,
     withdrawLiquidity,
+    withdrawStash,
+    queueWithdrawal,
     startAuction,
     endAuction,
     settleOptionRound,

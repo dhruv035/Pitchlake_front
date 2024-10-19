@@ -1,21 +1,24 @@
 import React from "react";
-import { VaultStateType } from "@/lib/types";
+import { VaultStateType, LiquidityProviderStateType } from "@/lib/types";
 import ActionButton from "@/components/Vault/Utils/ActionButton";
 import collect from "@/../public/collect.svg";
+import { formatEther, parseEther } from "ethers";
 import { useProtocolContext } from "@/context/ProtocolProvider";
 
-interface WithdrawCollectProps {
+interface WithdrawStashProps {
+  //withdrawStash: () => Promise<void>;
   showConfirmation: (
     modalHeader: string,
     action: string,
-    onConfirm: () => Promise<void>
+    onConfirm: () => Promise<void>,
   ) => void;
 }
 
-const WithdrawCollect: React.FC<WithdrawCollectProps> = ({
+const WithdrawStash: React.FC<WithdrawStashProps> = ({
   showConfirmation,
+  //withdrawStash,
 }) => {
-  const {vaultState} = useProtocolContext();
+  const { vaultState, lpState, vaultActions } = useProtocolContext();
   const [state, setState] = React.useState({
     isButtonDisabled: true,
   });
@@ -24,23 +27,43 @@ const WithdrawCollect: React.FC<WithdrawCollectProps> = ({
     setState((prevState) => ({ ...prevState, ...updates }));
   };
 
-  const collectStakedBalance = async (): Promise<void> => {
-    // apply logic for collectin
-    console.log("Collecting");
+  const withdrawStashedBalance = async (): Promise<void> => {
+    console.log(
+      "Collecting",
+      formatEther(vaultState?.stashedBalance ? vaultState.stashedBalance : "0"),
+    );
+
+    // withdrawStash from vaultActions
   };
 
   const handleSubmit = () => {
     console.log("Collect confirmation");
     showConfirmation(
       "Collect Withdrawals",
-      `claim your queued withdrawals of ${0} ETH`,  //  TODO: staked ETH instead of 0
-      collectStakedBalance
+      `claim your queued withdrawals of ${parseFloat(
+        formatEther(
+          lpState?.stashedBalance ? lpState.stashedBalance.toString() : "0",
+        ),
+      ).toFixed(3)} ETH`,
+      withdrawStashedBalance,
     );
   };
 
   const isButtonDisabled = (): boolean => {
-    return false; // Button should be disabled is staked ETH is 0
-  }
+    // Only if stashed balance > 0
+    if (
+      Number(vaultState?.stashedBalance ? vaultState.stashedBalance : 0) > 0
+    ) {
+      return false;
+    }
+    return true;
+
+    //if (vaultState.stashedBalance) {
+    //  return false;
+    //}
+
+    //return false; // Button should be disabled is staked ETH is 0
+  };
 
   return (
     <div className="flex flex-col h-full">
@@ -58,7 +81,12 @@ const WithdrawCollect: React.FC<WithdrawCollectProps> = ({
           Your current stashed balance is
         </p>
         <p className="text-2xl font-bold text-center">
-          {vaultState?.stashedBalance?.toString() || "0"} ETH
+          {lpState?.stashedBalance
+            ? parseFloat(formatEther(lpState.stashedBalance.toString()))
+                .toFixed(3)
+                .toString()
+            : "0"}{" "}
+          ETH
         </p>
       </div>
       <div className="mt-auto">
@@ -74,4 +102,4 @@ const WithdrawCollect: React.FC<WithdrawCollectProps> = ({
   );
 };
 
-export default WithdrawCollect;
+export default WithdrawStash;
