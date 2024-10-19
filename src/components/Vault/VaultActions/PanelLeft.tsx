@@ -13,6 +13,7 @@ import {
 import { shortenString } from "@/lib/utils";
 import { formatUnits, formatEther, parseEther } from "ethers";
 import { useProtocolContext } from "@/context/ProtocolProvider";
+import StateTransitionConfirmationModal from "@/components/Vault/Utils/StateTransitionConfirmationModal";
 const PanelLeft = () => {
   const { vaultState, selectedRoundState, vaultActions } = useProtocolContext();
   const [vaultIsOpen, setVaultIsOpen] = useState<boolean>(false);
@@ -57,28 +58,36 @@ const PanelLeft = () => {
 
   const handleConfirm = async () => {
     await modalState.onConfirm();
-    setModalState((prev) => ({ ...prev, type: "success" }));
+    setModalState((prev) => ({ ...prev, type: "success", show: false }));
   };
 
   if (modalState.show) {
-    if (modalState.type === "confirmation") {
-      return (
-        <ConfirmationModal
-          modalHeader={`${modalState.modalHeader} Confirmation`}
-          action={modalState.action}
-          onConfirm={handleConfirm}
-          onClose={hideModal}
-        />
-      );
-    } else {
-      return (
-        <SuccessModal
-          activeTab={`${modalState.modalHeader} Successful`}
-          action={modalState.action}
-          onClose={hideModal}
-        />
-      );
-    }
+    return (
+      <StateTransitionConfirmationModal
+        modalHeader={`${modalState.modalHeader} Confirmation`}
+        action={modalState.action}
+        onConfirm={handleConfirm}
+        onClose={hideModal}
+      />
+    );
+    //if (modalState.type === "confirmation") {
+    //  return (
+    //    <ConfirmationModal
+    //      modalHeader={`${modalState.modalHeader} Confirmation`}
+    //      action={modalState.action}
+    //      onConfirm={handleConfirm}
+    //      onClose={hideModal}
+    //    />
+    //  );
+    //} else {
+    //  return (
+    //    <SuccessModal
+    //      activeTab={`${modalState.modalHeader} Successful`}
+    //      action={modalState.action}
+    //      onClose={hideModal}
+    //    />
+    //  );
+    //}
   }
 
   return (
@@ -312,13 +321,39 @@ const PanelLeft = () => {
                 onClick={async () => {
                   switch (selectedRoundState?.roundState) {
                     case "OPEN":
-                      await vaultActions.startAuction();
+                      setModalState({
+                        show: true,
+                        type: "confirmation",
+                        modalHeader: "Start Auction",
+                        action: "Start Auction",
+                        onConfirm: async () => {
+                          await vaultActions.startAuction();
+                        },
+                      });
+                      //await vaultActions.startAuction();
                       break;
                     case "AUCTIONING":
-                      await vaultActions.endAuction();
+                      setModalState({
+                        show: true,
+                        type: "confirmation",
+                        modalHeader: "End Auction",
+                        action: "End Auction",
+                        onConfirm: async () => {
+                          await vaultActions.endAuction();
+                        },
+                      });
+                      //await vaultActions.endAuction();
                       break;
                     case "RUNNING":
-                      await vaultActions.settleOptionRound();
+                      setModalState({
+                        show: true,
+                        type: "confirmation",
+                        modalHeader: "Settle Round",
+                        action: "Settle Round",
+                        onConfirm: async () => {
+                          await vaultActions.settleOptionRound();
+                        },
+                      }); //await vaultActions.settleOptionRound();
                       break;
                     default:
                       break;
