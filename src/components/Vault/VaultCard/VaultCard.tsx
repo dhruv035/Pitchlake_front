@@ -13,8 +13,11 @@ import {
 } from "@/components/Icons";
 
 export default function VaultCard({ vaultAddress }: { vaultAddress: string }) {
-  
-  const { vaultState } = useVaultState({conn:"rpc",address:vaultAddress, getRounds:false}); //conn arguement hardcoded here. Make conn a context variable to feed everywhere
+  const { vaultState } = useVaultState({
+    conn: "rpc",
+    address: vaultAddress,
+    getRounds: false,
+  }); //conn arguement hardcoded here. Make conn a context variable to feed everywhere
   const router = useRouter();
   var myHeaders = new Headers();
   myHeaders.append("accept", "application/json");
@@ -22,7 +25,7 @@ export default function VaultCard({ vaultAddress }: { vaultAddress: string }) {
 
   return (
     <div
-      className="col-span-1 w-full border-[1px] border-greyscale-800 rounded-lg"
+      className="col-span-1 w-full border-[1px] border-greyscale-800 rounded-lg hover:cursor-pointer"
       onClick={() => {
         router.push(`/vaults/${vaultAddress}`);
       }}
@@ -38,14 +41,13 @@ export default function VaultCard({ vaultAddress }: { vaultAddress: string }) {
           <div className="bg-primary-800 rounded-full w-[5px] h-[5px] m-2" />
           <p>
             {
-            vaultState.vaultType
+              vaultState.vaultType
               //Add vault type here
             }
           </p>
         </div>
         <p className="text-greyscale">
-          {shortenString(vaultAddress)} |{" "}
-          {vaultState.vaultType}
+          {shortenString(vaultAddress)} | {vaultState.vaultType}
         </p>
       </div>
       <div className="flex flex-row w-full ">
