@@ -140,7 +140,7 @@ const RoundPerformanceChart = () => {
               ) : (
                 <EyeOffIcon className="w-4 h-4 mr-1" />
               )}
-              {line}
+              {line === "CAP_LEVEL" ? "CAP LEVEL" : line}
             </button>
           ))}
         </div>
