@@ -15,7 +15,6 @@ import { parseEther, formatEther } from "ethers";
 import { useProtocolContext } from "@/context/ProtocolProvider";
 
 interface DepositProps {
-  deposit?: (depositArgs: DepositArgs) => Promise<void>;
   showConfirmation: (
     modalHeader: string,
     action: string,
@@ -30,7 +29,7 @@ interface DepositState {
   activeWithdrawTab: "For Myself" | "As Beneficiary";
 }
 
-const Deposit: React.FC<DepositProps> = ({ deposit, showConfirmation }) => {
+const Deposit: React.FC<DepositProps> = ({ showConfirmation }) => {
   const { vaultState, lpState, vaultActions } = useProtocolContext();
   const [state, setState] = useState<DepositState>({
     amount: "0",
