@@ -67,7 +67,6 @@ export const Vault = () => {
   return (
     <div className="px-7 py-7 flex-grow flex-box overflow-auto">
       <div className="flex flex-row-reverse text-primary p-4">
-        <p>Vault Details</p>
         <div className="flex flex-row rounded-md border-[1px] border-greyscale-800">
           <div
             onClick={() => setIsProviderView(true)}
@@ -106,6 +105,7 @@ export const Vault = () => {
             </p>
           </div>
         </div>
+        <p className="mr-[auto]">Vault Details</p>
       </div>
       <div className="mt-6 flex flex-row">
         {vaultState && <PanelLeft />}
