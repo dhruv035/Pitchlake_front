@@ -19,8 +19,8 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const PanelLeft = () => {
   const { vaultState, selectedRoundState, vaultActions } = useProtocolContext();
-  const [vaultIsOpen, setVaultIsOpen] = useState<boolean>(false);
-  const [optionRoundIsOpen, setOptionRoundIsOpen] = useState<boolean>(false);
+  const [vaultIsOpen, setVaultIsOpen] = useState<boolean>(true);
+  const [optionRoundIsOpen, setOptionRoundIsOpen] = useState<boolean>(true);
   const [isPanelOpen, setIsPanelOpen] = useState<boolean>(false);
   const [modalState, setModalState] = useState<{
     show: boolean;
