@@ -10,7 +10,7 @@ import {
   DepositArgs,
   TransactionResult,
   VaultActionsType,
-  WithdrawArgs,
+  WithdrawLiquidityArgs,
 } from "@/lib/types";
 import { Account, LibraryError, Provider, RpcProvider } from "starknet";
 import { useCallback, useMemo, useState } from "react";
@@ -57,7 +57,7 @@ const useVaultActions = (address?: string) => {
     await callContract("deposit_liquidity")(depositArgs);
   };
 
-  const withdrawLiquidity = async (withdrawArgs: WithdrawArgs) => {
+  const withdrawLiquidity = async (withdrawArgs: WithdrawLiquidityArgs) => {
     await callContract("withdraw_liquidity")(withdrawArgs);
   };
 
@@ -74,7 +74,7 @@ const useVaultActions = (address?: string) => {
   };
 
   const callContract = useCallback(
-    (functionName: string) => async (args?: DepositArgs | WithdrawArgs) => {
+    (functionName: string) => async (args?: DepositArgs | WithdrawLiquidityArgs) => {
       if (!typedContract) return;
       let argsData;
       if (args) argsData = Object.values(args).map((value) => value);
