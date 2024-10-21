@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import RoundPerformanceChart from "./VaultChart/Chart";
 import { useState } from "react";
 import AuctionIcon from "../Icons/AuctionIcon";
@@ -6,7 +6,6 @@ import CoinStackedIcon from "../Icons/CoinStackedIcon";
 import PanelRight from "./VaultActions/PanelRight";
 import PanelLeft from "./VaultActions/PanelLeft";
 import { useProtocolContext } from "@/context/ProtocolProvider";
-
 
 export const Vault = () => {
   const [isProviderView, setIsProviderView] = useState(true);
@@ -63,10 +62,10 @@ export const Vault = () => {
   //     : optionRoundStatesMock[2];
   // const roundActions = conn==="mock"?roundActionsMock
 
-  const {vaultState} = useProtocolContext();
-  console.log("vaultState",vaultState)
+  const { vaultState } = useProtocolContext();
+  console.log("vaultState", vaultState);
   return (
-    <div className="px-7 py-7 flex-grow overflow-auto">
+    <div className="px-7 py-7 flex-grow flex-box overflow-auto">
       <div className="flex flex-row-reverse text-primary p-4">
         <div className="flex flex-row rounded-md border-[1px] border-greyscale-800">
           <div
@@ -106,22 +105,17 @@ export const Vault = () => {
             </p>
           </div>
         </div>
+        <p className="mr-[auto]">Vault Details</p>
       </div>
       <div className="mt-6 flex flex-row">
-        {vaultState && (
-          <PanelLeft/>
-        )}
+        {vaultState && <PanelLeft />}
         {
           //Update the roundState to multiple roundStates and set selected round in the component
         }
-        <RoundPerformanceChart/>
+        <RoundPerformanceChart />
 
         <div className="w-full ml-6 max-w-[350px]">
-          
-            <PanelRight
-              userType={isProviderView ? "lp" : "ob"}
-            />
-          
+          <PanelRight userType={isProviderView ? "lp" : "ob"} />
         </div>
       </div>
     </div>

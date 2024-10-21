@@ -21,7 +21,8 @@ import { OptionRoundStateType } from "@/lib/types";
 import { useProtocolContext } from "@/context/ProtocolProvider";
 
 const RoundPerformanceChart = () => {
-  const { selectedRoundState, vaultState } = useProtocolContext();
+  const { selectedRoundState, selectedRound, setSelectedRound, vaultState } =
+    useProtocolContext();
   console.log("SelectedRoundState", selectedRoundState, vaultState);
   const [activeLines, setActiveLines] = useState<{ [key: string]: boolean }>({
     TWAP: true,
@@ -54,6 +55,16 @@ const RoundPerformanceChart = () => {
 
   const toggleLine = (line: string) => {
     setActiveLines((prev) => ({ ...prev, [line]: !prev[line] }));
+  };
+
+  const decrementRound = () => {
+    console.log("decrementRound");
+    console.log(selectedRound);
+    setSelectedRound((prevRound) => Math.max(prevRound - 1, 1));
+  };
+
+  const incrementRound = () => {
+    setSelectedRound((prevRound) => prevRound + 1);
   };
 
   const CustomTooltip = ({
@@ -95,11 +106,14 @@ const RoundPerformanceChart = () => {
       <div className="flex flex-row p-6 justify-between border-b-[1px] border-greyscale-800 pb-4">
         <div className="text-primary flex flex-row items-center ">
           Round &nbsp;
-          {selectedRoundState?.roundId +
-            (selectedRoundState?.roundId.toString() ===
-            vaultState?.currentRoundId?.toString()
-              ? " (Live)"
-              : " (Historic)")}
+          {
+            //selectedRoundState?.roundId +
+            //(selectedRoundState?.roundId.toString() ===
+            //vaultState?.currentRoundId?.toString()
+            //  ? " (Live)"
+            //  : " (Historic)")
+            selectedRound ? selectedRound : 0
+          }
           {
             //Round number here
             //Concat  (Live) if live
@@ -111,8 +125,18 @@ const RoundPerformanceChart = () => {
           )}
         </div>
         <div className="flex flex-row items-center">
-          <ArrowLeftIcon stroke="var(--primary)" classname="w-3 h-3 mr-2" />
-          <ArrowRightIcon stroke="var(--primary)" classname="w-3 h-3 ml-2" />
+          <div onClick={decrementRound}>
+            <ArrowLeftIcon
+              stroke="var(--primary)"
+              classname="w-3 h-3 mr-2 hover:cursor-pointer"
+            />
+          </div>
+          <div onClick={incrementRound}>
+            <ArrowRightIcon
+              stroke="var(--primary)"
+              classname="w-3 h-3 ml-2 hover:cursor-pointer"
+            />
+          </div>
         </div>
       </div>
       <div className="flex justify-center items-center my-4">
@@ -140,7 +164,7 @@ const RoundPerformanceChart = () => {
               ) : (
                 <EyeOffIcon className="w-4 h-4 mr-1" />
               )}
-              {line}
+              {line === "CAP_LEVEL" ? "CAP LEVEL" : line}
             </button>
           ))}
         </div>
