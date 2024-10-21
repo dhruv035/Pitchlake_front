@@ -120,7 +120,7 @@ const useVaultState = ({
     args: selectedRound
       ? [selectedRound.toString()]
       : currentRoundId
-      ? [currentRoundId as string]
+      ? [currentRoundId.toString()]
       : [],
   });
   const {

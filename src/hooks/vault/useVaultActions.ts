@@ -12,13 +12,9 @@ import {
   VaultActionsType,
   WithdrawLiquidityArgs,
 } from "@/lib/types";
-import { Account, LibraryError, Provider, RpcProvider } from "starknet";
-import { useCallback, useMemo, useState } from "react";
-import { stringToHex } from "@/lib/utils";
-import { getDevAccount } from "@/lib/constants";
+import { Account } from "starknet";
+import { useCallback, useMemo } from "react";
 import { useTransactionContext } from "@/context/TransactionProvider";
-import { toast } from "react-toastify";
-import { displayToastError } from "@/lib/toasts";
 
 const useVaultActions = (address?: string) => {
   const { contract } = useContract({
