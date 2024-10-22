@@ -11,15 +11,17 @@ import {
   LineChartDownIcon,
   SafeIcon,
 } from "@/components/Icons";
-import { shortenString } from "@/lib/utils";
+import { timeFromNow, shortenString, formatNumberText } from "@/lib/utils";
 import { formatUnits, formatEther, parseEther } from "ethers";
 import { useProtocolContext } from "@/context/ProtocolProvider";
 import StateTransitionConfirmationModal from "@/components/Vault/Utils/StateTransitionConfirmationModal";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, ExternalLinkIcon } from "lucide-react";
+import { useExplorer } from "@starknet-react/core";
 
 const PanelLeft = () => {
   const { vaultState, selectedRoundState, vaultActions, timeStamp } =
     useProtocolContext();
+  const explorer = useExplorer();
   const [vaultIsOpen, setVaultIsOpen] = useState<boolean>(true);
   const [optionRoundIsOpen, setOptionRoundIsOpen] = useState<boolean>(true);
   const [isPanelOpen, setIsPanelOpen] = useState<boolean>(false);
@@ -44,6 +46,21 @@ const PanelLeft = () => {
   const handleConfirm = async () => {
     await modalState.onConfirm();
     // Optionally reset the modal state or handle success here
+  };
+
+  const getStateActionHeader = () => {
+    const roundState = selectedRoundState?.roundState
+      ? selectedRoundState.roundState
+      : "Open";
+    if (roundState === "Open") {
+      return <p>Auction Starts In:</p>;
+    } else if (roundState === "Auctioning") {
+      return <p>Auction Ends In:</p>;
+    } else if (roundState === "Running") {
+      return <p>Round Settles In:</p>;
+    } else {
+      return;
+    }
   };
 
   return (
@@ -108,44 +125,44 @@ const PanelLeft = () => {
               } transition-all duration-900ms `}
             >
               <div className="flex flex-row justify-between p-2 w-full">
-                <p>Run Time:</p>
-                <p>
-                  {
-                    selectedRoundState?.auctionStartDate &&
-                    selectedRoundState?.auctionEndDate
-                      ? (
-                          BigInt(selectedRoundState.auctionEndDate) -
-                          BigInt(selectedRoundState.auctionStartDate)
-                        ).toString()
-                      : ""
-                    //Add round duration from state here
-                  }
-                </p>
-              </div>
+                <p>Address:</p>
+                <a
+                  href={explorer.contract(
+                    vaultState?.address ? vaultState.address : "",
+                  )}
+                  target="_blank"
+                  className="flex flex-row justify-center items-center text-[#F5EBB8] cursor-pointer gap-[8px]"
+                >
+                  <p className="">
+                    {
+                      vaultState?.address
+                        ? shortenString(vaultState?.address)
+                        : ""
+                      //Add vault address short string from state here
+                    }
+                  </p>
+                  <ExternalLinkIcon className="size-[16px]" />
+                </a>
+              </div>{" "}
               <div className="flex flex-row justify-between p-2 w-full">
                 <p>Strike Level:</p>
                 <p>{Number(vaultState?.strikeLevel) / 100}%</p>
               </div>
+              {
+                //  <div className="flex flex-row justify-between p-2 w-full">
+                //    <p>Type:</p>
+                //    <p>
+                //      {
+                //        vaultState?.vaultType
+                //        //Add vault type from state here
+                //      }
+                //    </p>
+                //  </div>
+              }
               <div className="flex flex-row justify-between p-2 w-full">
-                <p>Type:</p>
-                <p>
-                  {
-                    vaultState?.vaultType
-                    //Add vault type from state here
-                  }
-                </p>
-              </div>
-              <div className="flex flex-row justify-between p-2 w-full">
-                <p>Addess:</p>
-                <p>
-                  {
-                    vaultState?.address
-                      ? shortenString(vaultState?.address)
-                      : ""
-                    //Add vault address short string from state here
-                  }
-                </p>
-              </div>
+                <p>Risk Level:</p>
+                <p>{Number(vaultState?.alpha) / 100}%</p>
+              </div>{" "}
               <div className="flex flex-row justify-between p-2 w-full">
                 <p>TVL:</p>
                 <p>
@@ -156,18 +173,14 @@ const PanelLeft = () => {
                             (
                               BigInt(vaultState.lockedBalance) +
                               BigInt(vaultState.unlockedBalance)
-                            ).toString()
-                          )
+                            ).toString(),
+                          ),
                         ).toFixed(2)
                       : 0
                     //Add vault TVL from state here
                   }
                   &nbsp;ETH
                 </p>
-              </div>
-              <div className="flex flex-row justify-between p-2 w-full">
-                <p>Risk Level:</p>
-                <p>{Number(vaultState?.alpha) / 100}%</p>
               </div>{" "}
             </div>
           </div>
@@ -210,24 +223,12 @@ const PanelLeft = () => {
                 optionRoundIsOpen
                   ? "h-0"
                   : vaultIsOpen
-                  ? "h-[350px]"
-                  : "h-[290px]"
+                    ? "h-[350px]"
+                    : "h-[290px]"
               } transition-all duration-900 max-h-full`}
             >
               {/* Option round details go here */}
               {/* ... */}
-              <div className="max-h-full flex flex-row justify-between items-center p-2 w-full">
-                <p>Selected Round:</p>
-                <p>
-                  Round &nbsp;
-                  {
-                    selectedRoundState?.roundId
-                      ? Number(selectedRoundState.roundId).toPrecision(1)
-                      : ""
-                    //Add round duration from state here
-                  }
-                </p>
-              </div>
               <div className="max-h-full flex flex-row justify-between items-center p-2 w-full">
                 <p>Status:</p>
                 <p className="bg-[#6D1D0D59] border-[1px] border-warning text-warning rounded-full px-2 py-[1px]">
@@ -237,13 +238,18 @@ const PanelLeft = () => {
                   }
                 </p>
               </div>
-              <div className="max-h-full flex flex-row justify-between items-center p-2 w-full">
-                <p>Last Round Perf.:</p>
+              <div className="max-h-full flex flex-row justify-between items-center   p-2 w-full">
+                <p>Reserve Price:</p>
                 <p>
                   {
-                    "+11.33%"
+                    selectedRoundState?.reservePrice &&
+                      formatUnits(
+                        selectedRoundState.reservePrice.toString(),
+                        "gwei",
+                      )
                     //Add round duration from state here
-                  }
+                  }{" "}
+                  gwei
                 </p>
               </div>
               <div className="max-h-full flex flex-row justify-between items-center p-2 w-full">
@@ -253,7 +259,7 @@ const PanelLeft = () => {
                     selectedRoundState?.strikePrice &&
                       formatUnits(
                         selectedRoundState.strikePrice.toString(),
-                        "gwei"
+                        "gwei",
                       )
                     //Add round duration from state here
                   }{" "}
@@ -261,7 +267,7 @@ const PanelLeft = () => {
                 </p>
               </div>
               <div className="max-h-full flex flex-row justify-between items-center   p-2 w-full">
-                <p>CL:</p>
+                <p>Cap Level:</p>
                 <p>
                   {
                     selectedRoundState?.capLevel &&
@@ -275,37 +281,67 @@ const PanelLeft = () => {
                 </p>
               </div>
               <div className="max-h-full flex flex-row justify-between items-center   p-2 w-full">
-                <p>Reserve Price:</p>
-                <p>
-                  {
-                    selectedRoundState?.reservePrice &&
-                      formatUnits(
-                        selectedRoundState.reservePrice.toString(),
-                        "gwei"
-                      )
-                    //Add round duration from state here
-                  }{" "}
-                  gwei
-                </p>
-              </div>
-              <div className="max-h-full flex flex-row justify-between items-center   p-2 w-full">
                 <p>Total Options:</p>
                 <p>
                   {
-                    selectedRoundState && selectedRoundState.availableOptions
+                    formatNumberText(
+                      selectedRoundState
+                        ? Number(selectedRoundState.availableOptions.toString())
+                        : 0,
+                    )
+                    //Add round duration from state here
+                  }
+                </p>
+              </div>
+              <div className="flex flex-row justify-between p-2 w-full">
+                <p>Run Time:</p>
+                <p>
+                  {
+                    selectedRoundState?.auctionStartDate &&
+                    selectedRoundState?.auctionEndDate
+                      ? (
+                          BigInt(selectedRoundState.auctionEndDate) -
+                          BigInt(selectedRoundState.auctionStartDate)
+                        ).toString()
+                      : ""
                     //Add round duration from state here
                   }
                 </p>
               </div>
               <div className="max-h-full flex flex-row justify-between items-center   p-2 w-full">
-                <p>End date:</p>
+                {getStateActionHeader()}
+                {
+                  //<p>{selectedRoundState?.roundState ? "Open" }Settles In:</p>
+                }
                 <p>
                   {
-                    selectedRoundState?.auctionStartDate?.toString()
-                      ? new Date(
-                          selectedRoundState?.auctionStartDate.toString()
-                        ).toDateString()
+                    selectedRoundState?.optionSettleDate
+                      ? timeFromNow(
+                          selectedRoundState.optionSettleDate.toString(),
+                        )
                       : ""
+                    //Add round duration from state here
+                  }
+                </p>
+              </div>
+              <div className="max-h-full flex flex-row justify-between items-center p-2 w-full">
+                <p>Selected Round:</p>
+                <p>
+                  Round &nbsp;
+                  {
+                    selectedRoundState?.roundId
+                      ? Number(selectedRoundState.roundId).toPrecision(1)
+                      : ""
+                    //Add round duration from state here
+                  }
+                </p>
+              </div>
+
+              <div className="max-h-full flex flex-row justify-between items-center p-2 w-full">
+                <p>Last Round Perf.:</p>
+                <p>
+                  {
+                    "+11.33%"
                     //Add round duration from state here
                   }
                 </p>
@@ -366,11 +402,10 @@ const PanelLeft = () => {
                     {selectedRoundState.roundState === "Open"
                       ? "Start Auction"
                       : selectedRoundState.roundState === "Auctioning"
-                      ? "End Auction"
-                      : selectedRoundState.roundState === "Running"
-                      ? "Settle Round"
-                      : "Settled"
-                      }
+                        ? "End Auction"
+                        : selectedRoundState.roundState === "Running"
+                          ? "Settle Round"
+                          : "Settled"}
                   </p>
                   <LineChartDownIcon
                     classname="w-4 h-4 ml-2"
@@ -378,9 +413,10 @@ const PanelLeft = () => {
                       !selectedRoundState ||
                       (selectedRoundState.roundState.toString() === "Open" &&
                         selectedRoundState.auctionStartDate > timeStamp) ||
-                        (selectedRoundState.roundState.toString() === "Auctioning" &&
+                      (selectedRoundState.roundState.toString() ===
+                        "Auctioning" &&
                         selectedRoundState.auctionEndDate > timeStamp) ||
-                        (selectedRoundState.roundState.toString() === "Running" &&
+                      (selectedRoundState.roundState.toString() === "Running" &&
                         selectedRoundState.optionSettleDate > timeStamp) ||
                       selectedRoundState.roundState.toString() === "Settled"
                         ? "var(--greyscale)"
