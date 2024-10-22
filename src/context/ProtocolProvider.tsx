@@ -65,13 +65,6 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
     wsOptionBuyerStates,
   } = useWebSocketVault(conn, vaultAddress);
   const [selectedRound, setSelectedRound] = useState<number>(1);
-  const [timeStamp, setTimeStamp] = useState(
-    conn === "mock" ? 0 : Number(Date.now().toString()),
-  );
-  const mockTimeForward = () => {
-    if (conn === "mock") setTimeStamp((prevState) => prevState + 100000);
-  };
-  const [selectedRound, setSelectedRound] = useState<number>(1);
   const [timeStamp,setTimeStamp]=useState(conn==="mock"?0:Number(Date.now().toString()));
   const mockTimeForward = ()=>{
     if(conn==="mock")
@@ -131,15 +124,15 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
   //     ? wsOptionRoundStates[Number(vaultState?.currentRoundId) - 1]
   //     : optionRoundStatesMock[2];
   const roundActions =
-    conn === "mock" ? roundActionsMock[selectedRound] : roundActionsChain;
+    conn === "mock" ? roundActionsMock[selectedRound-1] : roundActionsChain;
   const selectedRoundState =
     conn !== "rpc"
-      ? vaultState?.currentRoundId
-        ? optionRoundStates[Number(vaultState.currentRoundId)]
+      ?selectedRound!==0?
+      optionRoundStates[Number(selectedRound)-1]
+      :vaultState?.currentRoundId
+        ? optionRoundStates[Number(vaultState.currentRoundId)-1]
         : undefined
       : selectedRoundStateRPC;
-  console.log("ASD", selectedRoundState);
-  console.log("OBSTATES", optionRoundStates);
   const setRound = (roundId:number)=>{
     if(roundId<1)
       return;
