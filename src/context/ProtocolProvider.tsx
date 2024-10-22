@@ -29,7 +29,7 @@ import {
 //Make transactions accepted only after 2 confirmations
 
 export type ProtocolContextType = {
-    conn:string,
+  conn: string;
   vaultAddress?: string;
   vaultActions: VaultActionsType;
   vaultState?: VaultStateType;
@@ -38,12 +38,12 @@ export type ProtocolContextType = {
   optionBuyerStates?: OptionBuyerStateType[];
   lpState?: LiquidityProviderStateType;
   selectedRound: number;
-  setSelectedRound: (roundId:number)=>void;
+  setSelectedRound: (roundId: number) => void;
   selectedRoundState?: OptionRoundStateType;
   selectedRoundBuyerState?: OptionBuyerStateType;
   setVaultAddress: Dispatch<SetStateAction<string | undefined>>;
-  mockTimeForward:()=>void
-  timeStamp:Number
+  mockTimeForward: () => void;
+  timeStamp: Number;
 };
 
 export const ProtocolContext = createContext<ProtocolContextType>(
@@ -65,11 +65,12 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
     wsOptionBuyerStates,
   } = useWebSocketVault(conn, vaultAddress);
   const [selectedRound, setSelectedRound] = useState<number>(1);
-  const [timeStamp,setTimeStamp]=useState(conn==="mock"?0:Number(Date.now().toString()));
-  const mockTimeForward = ()=>{
-    if(conn==="mock")
-        setTimeStamp(prevState=>prevState+100000)
-  }
+  const [timeStamp, setTimeStamp] = useState(
+    conn === "mock" ? 0 : Number(Date.now().toString())
+  );
+  const mockTimeForward = () => {
+    if (conn === "mock") setTimeStamp((prevState) => prevState + 100000);
+  };
   const {
     optionRoundStates: optionRoundStatesMock,
     lpState: lpStateMock,
@@ -124,30 +125,31 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
   //     ? wsOptionRoundStates[Number(vaultState?.currentRoundId) - 1]
   //     : optionRoundStatesMock[2];
   const roundActions =
-    conn === "mock" ? roundActionsMock[selectedRound-1] : roundActionsChain;
+    conn === "mock" ? roundActionsMock[selectedRound - 1] : roundActionsChain;
   const selectedRoundState =
     conn !== "rpc"
-      ?selectedRound!==0?
-      optionRoundStates[Number(selectedRound)-1]
-      :vaultState?.currentRoundId
-        ? optionRoundStates[Number(vaultState.currentRoundId)-1]
+      ? selectedRound !== 0
+        ? optionRoundStates[Number(selectedRound) - 1]
+        : vaultState?.currentRoundId
+        ? optionRoundStates[Number(vaultState.currentRoundId) - 1]
         : undefined
       : selectedRoundStateRPC;
-  const setRound = (roundId:number)=>{
-    if(roundId<1)
-      return;
-    if(  vaultState?.currentRoundId && BigInt(roundId)<=BigInt(vaultState?.currentRoundId)){
+  const setRound = (roundId: number) => {
+    if (roundId < 1) return;
+    if (
+      vaultState?.currentRoundId &&
+      BigInt(roundId) <= BigInt(vaultState?.currentRoundId)
+    ) {
       setSelectedRound(roundId);
     }
-  }
+  };
 
-  useEffect(()=>{
-    if(selectedRound===0)
-      if(vaultState?.currentRoundId)
-      {
-        setSelectedRound(Number(vaultState.currentRoundId))
+  useEffect(() => {
+    if (selectedRound === 0)
+      if (vaultState?.currentRoundId) {
+        setSelectedRound(Number(vaultState.currentRoundId));
       }
-  },[selectedRound,vaultState?.currentRoundId])
+  }, [selectedRound, vaultState?.currentRoundId]);
   return (
     <ProtocolContext.Provider
       value={{
@@ -160,18 +162,18 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
         optionBuyerStates,
         lpState,
         selectedRound,
-        setSelectedRound:setRound,
+        setSelectedRound: setRound,
         selectedRoundState,
         setVaultAddress,
         selectedRoundBuyerState: selectedRound
           ? conn === "rpc"
             ? selectedRoundBuyerStateRPC
             : optionBuyerStates.length > selectedRound
-              ? optionBuyerStates[selectedRound]
-              : undefined
+            ? optionBuyerStates[selectedRound]
+            : undefined
           : undefined,
         mockTimeForward,
-        timeStamp
+        timeStamp,
       }}
     >
       {children}
