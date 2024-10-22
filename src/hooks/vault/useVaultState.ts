@@ -59,7 +59,7 @@ const useVaultState = ({
         key: "strikeLevel",
       },
 
-      { functionName: "eth_address", key: "ethAddress" },
+      { functionName: "get_eth_address", key: "ethAddress" },
       // fossil client address
       {
         functionName: "get_current_round_id",
@@ -121,8 +121,8 @@ const useVaultState = ({
     args: selectedRound&& selectedRound!==0
       ? [selectedRound.toString()]
       : currentRoundId
-      ? [currentRoundId.toString()]
-      : [],
+        ? [currentRoundId.toString()]
+        : [1],
   });
   const usableString = stringToHex(selectedRoundAddress?.toString());
   console.log("SELECTEDRTOUNDADDRESS",usableString)
@@ -133,17 +133,36 @@ const useVaultState = ({
   const roundActions = useOptionRoundActions(
     (usableString) 
   );
-  const vaultState = {
+
+  console.log("VAULT STATE TEST: ", {
     address,
-    vaultType: vaultType ? (vaultType as CairoCustomEnum).activeVariant() : "",
+    vaultType,
     alpha,
     strikeLevel,
-    ethAddress: ethAddress ? stringToHex(ethAddress?.toString()) : "",
+    ethAddress,
     currentRoundId,
     lockedBalance,
     unlockedBalance,
     stashedBalance,
     queuedBps,
+    lpState,
+    currentRoundAddress,
+    roundActions,
+    selectedRoundState,
+    selectedRoundBuyerState,
+  });
+
+  const vaultState = {
+    address,
+    alpha: alpha ? alpha.toString() : 0,
+    strikeLevel: strikeLevel ? strikeLevel.toString() : 0,
+    ethAddress: ethAddress ? stringToHex(ethAddress?.toString()) : "",
+    currentRoundId: currentRoundId ? currentRoundId.toString() : 0,
+    lockedBalance: lockedBalance ? lockedBalance.toString() : 0,
+    unlockedBalance: unlockedBalance ? unlockedBalance.toString() : 0,
+    stashedBalance: stashedBalance ? stashedBalance.toString() : 0,
+    queuedBps: queuedBps ? queuedBps.toString() : 0,
+    vaultType: vaultType ? (vaultType as CairoCustomEnum).activeVariant() : "",
   } as VaultStateType;
 
   return {
@@ -152,7 +171,7 @@ const useVaultState = ({
     currentRoundAddress,
     roundActions: getRounds ? roundActions : undefined,
     selectedRoundState,
-    selectedRoundBuyerState
+    selectedRoundBuyerState,
   };
 };
 

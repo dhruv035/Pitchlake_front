@@ -48,21 +48,7 @@ export const ABI = [
   },
   {
     "type": "struct",
-    "name": "pitch_lake::vault::interface::L1DataRequest",
-    "members": [
-      {
-        "name": "identifiers",
-        "type": "core::array::Span::<core::felt252>"
-      },
-      {
-        "name": "timestamp",
-        "type": "core::integer::u64"
-      }
-    ]
-  },
-  {
-    "type": "struct",
-    "name": "pitch_lake::vault::interface::L1Data",
+    "name": "pitch_lake::fossil_client::interface::L1Data",
     "members": [
       {
         "name": "twap",
@@ -75,20 +61,6 @@ export const ABI = [
       {
         "name": "reserve_price",
         "type": "core::integer::u256"
-      }
-    ]
-  },
-  {
-    "type": "struct",
-    "name": "pitch_lake::vault::interface::L1Result",
-    "members": [
-      {
-        "name": "data",
-        "type": "pitch_lake::vault::interface::L1Data"
-      },
-      {
-        "name": "proof",
-        "type": "core::array::Span::<core::felt252>"
       }
     ]
   },
@@ -109,7 +81,40 @@ export const ABI = [
       },
       {
         "type": "function",
+        "name": "get_alpha",
+        "inputs": [],
+        "outputs": [
+          {
+            "type": "core::integer::u128"
+          }
+        ],
+        "state_mutability": "view"
+      },
+      {
+        "type": "function",
+        "name": "get_strike_level",
+        "inputs": [],
+        "outputs": [
+          {
+            "type": "core::integer::i128"
+          }
+        ],
+        "state_mutability": "view"
+      },
+      {
+        "type": "function",
         "name": "get_eth_address",
+        "inputs": [],
+        "outputs": [
+          {
+            "type": "core::starknet::contract_address::ContractAddress"
+          }
+        ],
+        "state_mutability": "view"
+      },
+      {
+        "type": "function",
+        "name": "get_fossil_client_address",
         "inputs": [],
         "outputs": [
           {
@@ -195,7 +200,7 @@ export const ABI = [
         "inputs": [],
         "outputs": [
           {
-            "type": "core::integer::u16"
+            "type": "core::integer::u128"
           }
         ],
         "state_mutability": "view"
@@ -275,7 +280,7 @@ export const ABI = [
         ],
         "outputs": [
           {
-            "type": "core::integer::u16"
+            "type": "core::integer::u128"
           }
         ],
         "state_mutability": "view"
@@ -286,18 +291,18 @@ export const ABI = [
         "inputs": [],
         "outputs": [
           {
-            "type": "pitch_lake::vault::interface::L1DataRequest"
+            "type": "core::array::Span::<core::felt252>"
           }
         ],
         "state_mutability": "view"
       },
       {
         "type": "function",
-        "name": "get_request_to_start_auction",
+        "name": "get_request_to_start_first_round",
         "inputs": [],
         "outputs": [
           {
-            "type": "pitch_lake::vault::interface::L1DataRequest"
+            "type": "core::array::Span::<core::felt252>"
           }
         ],
         "state_mutability": "view"
@@ -344,7 +349,7 @@ export const ABI = [
         "inputs": [
           {
             "name": "bps",
-            "type": "core::integer::u16"
+            "type": "core::integer::u128"
           }
         ],
         "outputs": [],
@@ -368,15 +373,15 @@ export const ABI = [
       },
       {
         "type": "function",
-        "name": "fulfill_request",
+        "name": "fossil_client_callback",
         "inputs": [
           {
-            "name": "request",
-            "type": "pitch_lake::vault::interface::L1DataRequest"
+            "name": "l1_data",
+            "type": "pitch_lake::fossil_client::interface::L1Data"
           },
           {
-            "name": "result",
-            "type": "pitch_lake::vault::interface::L1Result"
+            "name": "timestamp",
+            "type": "core::integer::u64"
           }
         ],
         "outputs": [],
@@ -422,7 +427,7 @@ export const ABI = [
     "name": "pitch_lake::vault::interface::ConstructorArgs",
     "members": [
       {
-        "name": "request_fulfiller",
+        "name": "fossil_client_address",
         "type": "core::starknet::contract_address::ContractAddress"
       },
       {
@@ -434,8 +439,12 @@ export const ABI = [
         "type": "core::starknet::class_hash::ClassHash"
       },
       {
-        "name": "vault_type",
-        "type": "pitch_lake::vault::interface::VaultType"
+        "name": "alpha",
+        "type": "core::integer::u128"
+      },
+      {
+        "name": "strike_level",
+        "type": "core::integer::i128"
       }
     ]
   },
@@ -515,7 +524,7 @@ export const ABI = [
       },
       {
         "name": "bps",
-        "type": "core::integer::u16",
+        "type": "core::integer::u128",
         "kind": "data"
       },
       {

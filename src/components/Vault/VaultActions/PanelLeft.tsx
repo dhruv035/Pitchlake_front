@@ -170,8 +170,6 @@ const PanelLeft = () => {
                 <p>Risk Level:</p>
                 <p>{Number(vaultState?.alpha) / 100}%</p>
               </div>{" "}
-              {/* Vault details go here */}
-              {/* ... */}
             </div>
           </div>
           <div className="flex flex-col w-full px-3 border-t-[1px] border-greyscale-800">

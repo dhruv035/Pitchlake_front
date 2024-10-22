@@ -30,7 +30,7 @@ const useVaultActions = (address?: string) => {
     if (isDev === true) {
       return devAccount;
     } else return connectorAccount;
-  }, [connectorAccount, isDev,devAccount]);
+  }, [connectorAccount, isDev, devAccount]);
 
   const typedContract = useMemo(() => {
     if (!contract) return;
@@ -85,7 +85,7 @@ const useVaultActions = (address?: string) => {
       // const data = await writeAsync({ calls: [callData] });
       return typedData;
     },
-    [typedContract, setPendingTx]
+    [typedContract, setPendingTx],
   );
 
   //State Transition

@@ -306,6 +306,17 @@ export const ABI = [
       },
       {
         "type": "function",
+        "name": "get_sold_liquidity",
+        "inputs": [],
+        "outputs": [
+          {
+            "type": "core::integer::u256"
+          }
+        ],
+        "state_mutability": "view"
+      },
+      {
+        "type": "function",
         "name": "get_clearing_price",
         "inputs": [],
         "outputs": [
@@ -838,18 +849,8 @@ export const ABI = [
     "kind": "struct",
     "members": [
       {
-        "name": "strike_price",
-        "type": "core::integer::u256",
-        "kind": "data"
-      },
-      {
-        "name": "cap_level",
-        "type": "core::integer::u128",
-        "kind": "data"
-      },
-      {
-        "name": "reserve_price",
-        "type": "core::integer::u256",
+        "name": "pricing_data",
+        "type": "pitch_lake::option_round::interface::PricingData",
         "kind": "data"
       }
     ]
@@ -949,6 +950,11 @@ export const ABI = [
         "name": "unsold_liquidity",
         "type": "core::integer::u256",
         "kind": "data"
+      },
+      {
+        "name": "clearing_bid_tree_nonce",
+        "type": "core::integer::u64",
+        "kind": "data"
       }
     ]
   },
@@ -980,7 +986,12 @@ export const ABI = [
         "kind": "key"
       },
       {
-        "name": "number_of_options",
+        "name": "total_options_exercised",
+        "type": "core::integer::u256",
+        "kind": "data"
+      },
+      {
+        "name": "mintable_options_exercised",
         "type": "core::integer::u256",
         "kind": "data"
       },

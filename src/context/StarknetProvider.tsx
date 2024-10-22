@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-
+import { RpcProvider } from "starknet";
 import { sepolia, mainnet, devnet, Chain } from "@starknet-react/chains";
 import {
   StarknetConfig,
@@ -27,10 +27,24 @@ export const StarknetProvider = ({
     order: "alphabetical",
   });
 
+  // function rpc(chain: Chain) {
+  //   return {
+  //     nodeUrl: `https://{chain.network}.example.org`,
+  //   };
+  // }
+
+  function rpc(chain: Chain) {
+    return {
+      nodeUrl: `http://localhost:5050/rpc`,
+    };
+  }
+  const provider = jsonRpcProvider({ rpc });
+
   return (
     <StarknetConfig
-      chains={[mainnet, sepolia, devnet]}
-      provider={publicProvider()}
+      chains={[devnet]}
+      //chains={[mainnet, sepolia, devnet]}
+      provider={provider}
       connectors={connectors}
       explorer={voyager}
     >
