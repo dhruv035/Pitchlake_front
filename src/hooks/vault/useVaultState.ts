@@ -5,8 +5,11 @@ import { stringToHex } from "@/lib/utils";
 import { useMemo } from "react";
 import useContractReads from "../../lib/useContractReads";
 import useOptionRoundActions from "../optionRound/useOptionRoundActions";
-import { CairoCustomEnum } from "starknet";
+import { CairoCustomEnum, RpcProvider } from "starknet";
 import useOptionRoundState from "../optionRound/useOptionRoundState";
+import { getDevAccount } from "@/lib/constants";
+import { useProvider } from "@starknet-react/core";
+import useERC20 from "../erc20/useERC20";
 
 const useVaultState = ({
   conn,
@@ -21,13 +24,18 @@ const useVaultState = ({
 }) => {
   const contractData = {
     abi: vaultABI,
-    address:
-      "0x078c96c4238c1d0294b6cfacfbfdba1cc289e978685231284a3bd2ae00dd3f56",
+    address,
+    // "0x078c96c4238c1d0294b6cfacfbfdba1cc289e978685231284a3bd2ae00dd3f56",
   };
 
-  const { address: accountAddress } = {
-    address: "0x8ef103ecee8d069b10ccdb8658e9dbced4da8160b51c37e517510d86ea21d9",
-  };
+  //const { address: accountAddress } = useAccount();
+  const account = getDevAccount(
+    new RpcProvider({ nodeUrl: "http://localhost:5050/rpc" }),
+  );
+
+  //    {
+  //    address: "0x8ef103ecee8d069b10ccdb8658e9dbced4da8160b51c37e517510d86ea21d9",
+  //  };
   //Read States
 
   //States without a param
@@ -83,22 +91,22 @@ const useVaultState = ({
     states: [
       {
         functionName: "get_account_locked_balance",
-        args: [accountAddress as string],
+        args: [account?.address as string],
         key: "lockedBalance",
       },
       {
         functionName: "get_account_unlocked_balance",
-        args: [accountAddress as string],
+        args: [account?.address as string],
         key: "unlockedBalance",
       },
       {
         functionName: "get_account_stashed_balance",
-        args: [accountAddress as string],
+        args: [account?.address as string],
         key: "stashedBalance",
       },
       {
         functionName: "get_account_queued_bps",
-        args: [accountAddress as string],
+        args: [account?.address as string],
         key: "queuedBps",
       },
     ],
@@ -109,7 +117,7 @@ const useVaultState = ({
     functionName: "get_round_address",
     args: currentRoundId ? [currentRoundId.toString()] : [],
   });
-  console.log("selectedRound", selectedRound);
+  // console.log("selectedRound", selectedRound);
   const { data: selectedRoundAddress } = useContractRead({
     ...contractData,
     functionName: "get_round_address",
@@ -123,7 +131,6 @@ const useVaultState = ({
   const usableString = useMemo(() => {
     return stringToHex(selectedRoundAddress?.toString());
   }, [selectedRoundAddress]);
-  console.log("SELECTEDRTOUNDADDRESS", usableString);
   const {
     optionRoundState: selectedRoundState,
     optionBuyerState: selectedRoundBuyerState,

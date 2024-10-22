@@ -23,7 +23,7 @@ import {
   VaultStateType,
 } from "@/lib/types";
 
-/*This is the bridge for any transactions to go through, it's disabled by isTxDisabled if there is data loading or if 
+/*This is the bridge for any transactions to go through, it's disabled by isTxDisabled if there is data loading or if
   there's a pending transaction. The data loading is enforced to ensure no transaction is done without latest data.
   Add pendingStates from any critical data here and add it in the subsequent hooks
 */
@@ -49,7 +49,7 @@ export type ProtocolContextType = {
 };
 
 export const ProtocolContext = createContext<ProtocolContextType>(
-  {} as ProtocolContextType
+  {} as ProtocolContextType,
 );
 const ProtocolProvider = ({ children }: { children: ReactNode }) => {
   const [vaultAddress, setVaultAddress] = useState<string | undefined>();
@@ -57,7 +57,7 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
     process.env.NEXT_PUBLIC_ENVIRONMENT &&
       process.env.NEXT_PUBLIC_ENVIRONMENT === "mock"
       ? "mock"
-      : "rpc"
+      : "rpc",
   );
 
   const {
@@ -68,7 +68,7 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
   } = useWebSocketVault(conn, vaultAddress);
   const [selectedRound, setSelectedRound] = useState<number>(0);
   const [timeStamp, setTimeStamp] = useState(
-    conn === "mock" ? 0 : Number(Date.now().toString())
+    conn === "mock" ? 0 : Number(Date.now().toString()),
   );
   const mockTimeForward = () => {
     if (conn === "mock") setTimeStamp((prevState) => prevState + 100000);
@@ -81,6 +81,7 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
     optionRoundActions: roundActionsMock,
     optionBuyerStates: optionBuyerStatesMock,
   } = useMockVault(vaultAddress);
+
   const {
     lpState: rpcLiquidityProviderState,
     vaultState: rpcVaultState,
@@ -158,7 +159,7 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
         setSelectedRound(roundId);
       }
     },
-    [vaultState?.currentRoundId]
+    [vaultState?.currentRoundId],
   );
 
   useEffect(() => {
@@ -186,8 +187,8 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
           ? conn === "rpc"
             ? selectedRoundBuyerStateRPC
             : optionBuyerStates.length > selectedRound
-            ? optionBuyerStates[selectedRound]
-            : undefined
+              ? optionBuyerStates[selectedRound]
+              : undefined
           : undefined,
         mockTimeForward,
         timeStamp,

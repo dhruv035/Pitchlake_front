@@ -13,6 +13,8 @@ import ActionButton from "@/components/Vault/Utils/ActionButton";
 import ButtonTabs from "../../ButtonTabs";
 import { parseEther, formatEther } from "ethers";
 import { useProtocolContext } from "@/context/ProtocolProvider";
+import { getDevAccount } from "@/lib/constants";
+import { RpcProvider, Call } from "starknet";
 
 interface DepositProps {
   showConfirmation: (
@@ -38,18 +40,39 @@ const Deposit: React.FC<DepositProps> = ({ showConfirmation }) => {
     activeWithdrawTab: "For Myself",
   });
 
-  const { balance } = useERC20(vaultState?.ethAddress, vaultState?.address);
+  const account = getDevAccount(
+    new RpcProvider({ nodeUrl: "http://localhost:5050/rpc" }),
+  );
+  console.log("AAA ACCOUNT", account);
 
   const updateState = (updates: Partial<DepositState>) => {
     setState((prevState) => ({ ...prevState, ...updates }));
   };
 
-  const handleDeposit = async (): Promise<void> => {
-    console.log("Depositing", state.amount);
+  const { balance, allowance, increaseAllowance } = useERC20(
+    vaultState?.address,
+    vaultState?.ethAddress,
+  );
 
+  console.log("BALANCE", balance);
+  console.log("ALLOWANCE", allowance);
+
+  const handleDeposit = async (): Promise<void> => {
+    console.log("Current allowance:", allowance);
+    if (Number(allowance) < Number(state.amount)) {
+      let difference = Number(state.amount) - Number(allowance);
+      console.log("Increasing allowance by: ", difference);
+      await increaseAllowance({
+        amount: parseEther(state.amount),
+        spender: vaultState ? vaultState.address.toString() : "",
+      });
+    }
+
+    console.log("Depositing", state.amount);
     await vaultActions.depositLiquidity({
       amount: parseEther(state.amount),
-      beneficiary: state.beneficiaryAddress,
+      beneficiary:
+        "0x127fd5f1fe78a71f8bcd1fec63e3fe2f0486b6ecd5c86a0466c3a21fa5cfcec", //state.beneficiaryAddress,
     });
   };
 
@@ -78,6 +101,7 @@ const Deposit: React.FC<DepositProps> = ({ showConfirmation }) => {
     return false;
   };
 
+  console.log("LPSTATE", lpState);
   return (
     <div className="flex flex-col h-full">
       <div className="flex-grow space-y-6">

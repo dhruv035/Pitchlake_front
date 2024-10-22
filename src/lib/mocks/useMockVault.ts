@@ -5,7 +5,7 @@ import {
   VaultActionsType,
   VaultStateType,
   WithdrawLiquidityArgs,
-  QueueWithdrawalArgs,
+  QueueArgs,
 } from "@/lib/types";
 import { useState } from "react";
 import useMockOptionRound from "./useMockOptionRound";
@@ -14,7 +14,7 @@ const useMockVault = (address?: string) => {
   const { address: accountAddress } = useAccount();
   //Read States
 
-  console.log("ADDRESS2", address);
+  //console.log("ADDRESS2", address);
   const [vaultState, setVaultState] = useState<VaultStateType>({
     ethAddress: "0x00",
     address: address ?? "0x1",
@@ -68,7 +68,7 @@ const useMockVault = (address?: string) => {
     await new Promise((resolve) => setTimeout(resolve, 1500));
   };
 
-  const queueWithdrawal = async (queueArgs: QueueWithdrawalArgs) => {
+  const queueWithdrawal = async (queueArgs: QueueArgs) => {
     await new Promise((resolve) => setTimeout(resolve, 1500));
   };
 

@@ -51,18 +51,14 @@ const WithdrawLiquidity: React.FC<WithdrawQueueProps> = ({
     return false;
   };
 
-  //  const isButtonDisabled = (): boolean => {
-  //  if (state.percentage === bpsToPercentage(lpState.queuedBps.toString())) {
-  //    return true;
-  //   }
-
   const queueWithdrawal = async (): Promise<void> => {
-    console.log("queue withdrawal", state.percentage);
+    await vaultActions.queueWithdrawal({
+      bps: percentageToBps(state.percentage),
+    });
     // queue withdrawal from vaultActions
   };
 
   const handleSubmit = () => {
-    console.log("Collect confirmation");
     showConfirmation(
       "Liquidity Withdraw",
       `update how much of your locked position will be stashed from ${bpsToPercentage(lpState?.queuedBps ? lpState.queuedBps.toString() : "0")}% to ${parseFloat(

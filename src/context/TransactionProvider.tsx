@@ -16,7 +16,7 @@ import { getDevAccount } from "@/lib/constants";
 import { Account, RpcProvider } from "starknet";
 import { displayToastError, displayToastInfo, updateToast } from "@/lib/toasts";
 
-/*This is the bridge for any transactions to go through, it's disabled by isTxDisabled if there is data loading or if 
+/*This is the bridge for any transactions to go through, it's disabled by isTxDisabled if there is data loading or if
   there's a pending transaction. The data loading is enforced to ensure no transaction is done without latest data.
   Add pendingStates from any critical data here and add it in the subsequent hooks
 */
@@ -31,17 +31,18 @@ export type TransactionContextType = {
   setIsDev: Dispatch<SetStateAction<boolean>>;
   setIsTxDisabled: Dispatch<SetStateAction<boolean>>;
   setPendingTx: Dispatch<SetStateAction<string | undefined>>;
-  status:"error"|"success"|"pending"
+  status: "error" | "success" | "pending";
 };
 
 export const TransactionContext = createContext<TransactionContextType>(
-  {} as TransactionContextType
+  {} as TransactionContextType,
 );
 const TransactionProvider = ({ children }: { children: ReactNode }) => {
   const [isDev, setIsDev] = useState<boolean>(false);
   const devAccount = getDevAccount(
-    new RpcProvider({ nodeUrl: "http://127.0.0.1:5050" })
+    new RpcProvider({ nodeUrl: "http://localhost:5050/rpc" }),
   );
+  console.log("DEV ACCOUNT", devAccount);
   const [isTxDisabled, setIsTxDisabled] = useState<boolean>(false);
 
   const [pendingTx, setPendingTx] = useState<string | undefined>();
@@ -60,7 +61,6 @@ const TransactionProvider = ({ children }: { children: ReactNode }) => {
     toastId.current = null;
   };
 
-
   useEffect(() => {
     if (pendingTx)
       switch (status) {
@@ -72,7 +72,7 @@ const TransactionProvider = ({ children }: { children: ReactNode }) => {
             updateToast(
               toastId.current,
               "success",
-              "Transaction success: " + pendingTx
+              "Transaction success: " + pendingTx,
             );
           onSuccess?.(status);
           clearTransaction();

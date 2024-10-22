@@ -32,6 +32,7 @@ const WithdrawStash: React.FC<WithdrawStashProps> = ({
       "Collecting",
       formatEther(vaultState?.stashedBalance ? vaultState.stashedBalance : "0"),
     );
+    await vaultActions.withdrawStash();
 
     // withdrawStash from vaultActions
   };
