@@ -304,7 +304,7 @@ const PanelLeft = () => {
                 <p>End date:</p>
                 <p>
                   {
-                    selectedRoundState?.auctionStartDate.toString()
+                    selectedRoundState?.auctionStartDate?.toString()
                       ? new Date(
                           selectedRoundState?.auctionStartDate.toString()
                         ).toDateString()
@@ -381,6 +381,10 @@ const PanelLeft = () => {
                       !selectedRoundState ||
                       (selectedRoundState.roundState.toString() === "Open" &&
                         selectedRoundState.auctionStartDate > timeStamp) ||
+                        (selectedRoundState.roundState.toString() === "Auctioning" &&
+                        selectedRoundState.auctionEndDate > timeStamp) ||
+                        (selectedRoundState.roundState.toString() === "Running" &&
+                        selectedRoundState.optionSettleDate > timeStamp) ||
                       selectedRoundState.roundState.toString() === "Settled"
                         ? "var(--greyscale)"
                         : "var(--primary)"
