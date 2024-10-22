@@ -1,9 +1,6 @@
 import { useAccount, useContractRead, useNetwork } from "@starknet-react/core";
 import { vaultABI } from "@/abi";
-import {
-  LiquidityProviderStateType,
-  VaultStateType,
-} from "@/lib/types";
+import { LiquidityProviderStateType, VaultStateType } from "@/lib/types";
 import { stringToHex } from "@/lib/utils";
 import { useMemo } from "react";
 import useContractReads from "../../lib/useContractReads";
@@ -22,16 +19,15 @@ const useVaultState = ({
   selectedRound?: number | string;
   getRounds: boolean;
 }) => {
-  const contractData = useMemo(() => {
-    return {
-      abi: vaultABI,
-      address: conn === "rpc" ? address : "",
-    };
-  }, [address, conn]);
+  const contractData = {
+    abi: vaultABI,
+    address:
+      "0x078c96c4238c1d0294b6cfacfbfdba1cc289e978685231284a3bd2ae00dd3f56",
+  };
 
-  const { address: accountAddress } = useAccount();
-  const network = useNetwork();
-  console.log("Network", network);
+  const { address: accountAddress } = {
+    address: "0x8ef103ecee8d069b10ccdb8658e9dbced4da8160b51c37e517510d86ea21d9",
+  };
   //Read States
 
   //States without a param
@@ -113,25 +109,26 @@ const useVaultState = ({
     functionName: "get_round_address",
     args: currentRoundId ? [currentRoundId.toString()] : [],
   });
-  console.log("selectedRound",selectedRound)
+  console.log("selectedRound", selectedRound);
   const { data: selectedRoundAddress } = useContractRead({
     ...contractData,
     functionName: "get_round_address",
-    args: selectedRound&& selectedRound!==0
-      ? [selectedRound.toString()]
-      : currentRoundId
+    args:
+      selectedRound && selectedRound !== 0
+        ? [selectedRound.toString()]
+        : currentRoundId
         ? [currentRoundId.toString()]
         : [1],
   });
-  const usableString = stringToHex(selectedRoundAddress?.toString());
-  console.log("SELECTEDRTOUNDADDRESS",usableString)
+  const usableString = useMemo(() => {
+    return stringToHex(selectedRoundAddress?.toString());
+  }, [selectedRoundAddress]);
+  console.log("SELECTEDRTOUNDADDRESS", usableString);
   const {
     optionRoundState: selectedRoundState,
     optionBuyerState: selectedRoundBuyerState,
   } = useOptionRoundState(usableString);
-  const roundActions = useOptionRoundActions(
-    (usableString) 
-  );
+  const roundActions = useOptionRoundActions(usableString);
 
   console.log("VAULT STATE TEST: ", {
     address,
@@ -151,9 +148,8 @@ const useVaultState = ({
     selectedRoundBuyerState,
   });
 
-
   return {
-    vaultState:{
+    vaultState: {
       address,
       alpha: alpha ? alpha.toString() : 0,
       strikeLevel: strikeLevel ? strikeLevel.toString() : 0,
@@ -163,7 +159,9 @@ const useVaultState = ({
       unlockedBalance: unlockedBalance ? unlockedBalance.toString() : 0,
       stashedBalance: stashedBalance ? stashedBalance.toString() : 0,
       queuedBps: queuedBps ? queuedBps.toString() : 0,
-      vaultType: vaultType ? (vaultType as CairoCustomEnum).activeVariant() : "",
+      vaultType: vaultType
+        ? (vaultType as CairoCustomEnum).activeVariant()
+        : "",
     } as VaultStateType,
     lpState,
     currentRoundAddress,

@@ -49,25 +49,7 @@ const useVaultActions = (address?: string) => {
 
   //Write Calls
 
-  const depositLiquidity = async (depositArgs: DepositArgs) => {
-    await callContract("deposit_liquidity")(depositArgs);
-  };
 
-  const withdrawLiquidity = async (withdrawArgs: WithdrawLiquidityArgs) => {
-    await callContract("withdraw_liquidity")(withdrawArgs);
-  };
-
-  const startAuction = async () => {
-    await callContract("start_auction")();
-  };
-
-  const endAuction = async () => {
-    await callContract("end_auction")();
-  };
-
-  const settleOptionRound = async () => {
-    await callContract("settle_option_round")();
-  };
 
   const callContract = useCallback(
     (functionName: string) => async (args?: DepositArgs | WithdrawLiquidityArgs) => {
@@ -88,6 +70,25 @@ const useVaultActions = (address?: string) => {
     [typedContract, setPendingTx],
   );
 
+  const depositLiquidity = useCallback(async (depositArgs: DepositArgs) => {
+    await callContract("deposit_liquidity")(depositArgs);
+  }, [callContract]);
+
+  const withdrawLiquidity = useCallback(async (withdrawArgs: WithdrawLiquidityArgs) => {
+    await callContract("withdraw_liquidity")(withdrawArgs);
+  }, [callContract]);
+
+  const startAuction = useCallback(async () => {
+    await callContract("start_auction")();
+  }, [callContract]);
+
+  const endAuction = useCallback(async () => {
+    await callContract("end_auction")();
+  }, [callContract]);
+
+  const settleOptionRound = useCallback(async () => {
+    await callContract("settle_option_round")();
+  }, [callContract]);
   //State Transition
 
   return {

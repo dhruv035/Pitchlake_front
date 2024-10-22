@@ -36,25 +36,6 @@ const useOptionRoundActions = (address: string | undefined) => {
 
   //Write Calls
 
-  const placeBid = async (args: PlaceBidArgs) => {
-    await callContract("place_bid")(args);
-  };
-
-  const updateBid = async (args: UpdateBidArgs) => {
-    await callContract("update_bid")(args);
-  };
-
-  const refundUnusedBids = async (args: RefundBidsArgs) => {
-    await callContract("refund_unused_bids")(args);
-  };
-
-  const tokenizeOptions = async () => {
-    await callContract("tokenize_options")();
-  };
-
-  const exerciseOptions = async () => {
-    await callContract("exercise_options")();
-  };
 
   const callContract = useCallback(
     (functionName: string) =>
@@ -75,6 +56,25 @@ const useOptionRoundActions = (address: string | undefined) => {
       },
     [typedContract, setPendingTx]
   );
+  const placeBid = useCallback(async (args: PlaceBidArgs) => {
+    await callContract("place_bid")(args);
+  }, [callContract]);
+
+  const updateBid = useCallback(async (args: UpdateBidArgs) => {
+    await callContract("update_bid")(args);
+  }, [callContract]);
+
+  const refundUnusedBids = useCallback(async (args: RefundBidsArgs) => {
+    await callContract("refund_unused_bids")(args);
+  }, [callContract]);
+
+  const tokenizeOptions = useCallback(async () => {
+    await callContract("tokenize_options")();
+  }, [callContract]);
+
+  const exerciseOptions = useCallback(async () => {
+    await callContract("exercise_options")();
+  }, [callContract]);
 
   return {
     placeBid,
