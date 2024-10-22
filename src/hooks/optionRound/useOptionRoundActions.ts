@@ -11,7 +11,7 @@ import { useAccount, useContract } from "@starknet-react/core";
 import { useCallback, useMemo } from "react";
 import { Account } from "starknet";
 
-const useOptionRoundActions = (address: string | undefined) => {
+const useOptionRoundActions = (address: string) => {
   const { contract } = useContract({
     abi: optionRoundABI,
     address,
