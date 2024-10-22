@@ -5,7 +5,9 @@ export const shortenString = (str: string) => {
 export const copyToClipboard = (text: string) =>
   navigator.clipboard.writeText(text);
 
-export const stringToHex = (decimalString: string) => {
+export const stringToHex = (decimalString?: string) => {
+  if(!decimalString)
+    return ""
   decimalString = String(decimalString);
 
   const num = BigInt(decimalString);
