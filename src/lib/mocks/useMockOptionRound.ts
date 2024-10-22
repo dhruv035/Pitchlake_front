@@ -24,7 +24,7 @@ const useMockOptionRound = (roundId: number) => {
         availableOptions: "",
         settlementPrice: "",
         optionsSold: "",
-        roundState: "OPEN",
+        roundState: "Open",
         premiums: "",
         payoutPerOption: "",
         vaultAddress: "",

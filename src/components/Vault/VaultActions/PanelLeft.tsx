@@ -18,7 +18,8 @@ import StateTransitionConfirmationModal from "@/components/Vault/Utils/StateTran
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const PanelLeft = () => {
-  const { vaultState, selectedRoundState, vaultActions } = useProtocolContext();
+  const { vaultState, selectedRoundState, vaultActions, timeStamp } =
+    useProtocolContext();
   const [vaultIsOpen, setVaultIsOpen] = useState<boolean>(true);
   const [optionRoundIsOpen, setOptionRoundIsOpen] = useState<boolean>(true);
   const [isPanelOpen, setIsPanelOpen] = useState<boolean>(false);
@@ -44,6 +45,7 @@ const PanelLeft = () => {
     await modalState.onConfirm();
     // Optionally reset the modal state or handle success here
   };
+  console.log("selectedRoundStateLEFTPANEL", selectedRoundState);
 
   return (
     <>
@@ -155,8 +157,8 @@ const PanelLeft = () => {
                             (
                               BigInt(vaultState.lockedBalance) +
                               BigInt(vaultState.unlockedBalance)
-                            ).toString(),
-                          ),
+                            ).toString()
+                          )
                         ).toFixed(2)
                       : 0
                     //Add vault TVL from state here
@@ -211,8 +213,8 @@ const PanelLeft = () => {
                 optionRoundIsOpen
                   ? "h-0"
                   : vaultIsOpen
-                    ? "h-[350px]"
-                    : "h-[290px]"
+                  ? "h-[350px]"
+                  : "h-[290px]"
               } transition-all duration-900 max-h-full`}
             >
               {/* Option round details go here */}
@@ -251,10 +253,10 @@ const PanelLeft = () => {
                 <p>Strike Price:</p>
                 <p>
                   {
-                    selectedRoundState &&
+                    selectedRoundState?.strikePrice &&
                       formatUnits(
                         selectedRoundState.strikePrice.toString(),
-                        "gwei",
+                        "gwei"
                       )
                     //Add round duration from state here
                   }{" "}
@@ -265,7 +267,7 @@ const PanelLeft = () => {
                 <p>CL:</p>
                 <p>
                   {
-                    selectedRoundState &&
+                    selectedRoundState?.capLevel &&
                       (
                         (100 *
                           parseInt(selectedRoundState.capLevel.toString())) /
@@ -279,10 +281,10 @@ const PanelLeft = () => {
                 <p>Reserve Price:</p>
                 <p>
                   {
-                    selectedRoundState &&
+                    selectedRoundState?.reservePrice &&
                       formatUnits(
                         selectedRoundState.reservePrice.toString(),
-                        "gwei",
+                        "gwei"
                       )
                     //Add round duration from state here
                   }{" "}
@@ -302,10 +304,11 @@ const PanelLeft = () => {
                 <p>End date:</p>
                 <p>
                   {
-                    selectedRoundState?.auctionEndDate &&
-                      new Date(
-                        selectedRoundState.auctionEndDate.toString(),
-                      ).toString()
+                    selectedRoundState?.auctionStartDate.toString()
+                      ? new Date(
+                          selectedRoundState?.auctionStartDate.toString()
+                        ).toDateString()
+                      : ""
                     //Add round duration from state here
                   }
                 </p>
@@ -316,12 +319,18 @@ const PanelLeft = () => {
             {selectedRoundState &&
               selectedRoundState.roundState !== "SETTLED" && (
                 <button
+                  disabled={
+                    !selectedRoundState ||
+                    (selectedRoundState.roundState.toString() === "Open" &&
+                      selectedRoundState.auctionStartDate > timeStamp) ||
+                    selectedRoundState.roundState.toString() === "Settled"
+                  }
                   className={`${
                     isPanelOpen ? "flex" : "hidden"
-                  } border border-greyscale-700 text-primary rounded-md mt-4 p-2 w-full justify-center items-center`}
+                  } border border-greyscale-700 text-primary disabled:text-greyscale rounded-md mt-4 p-2 w-full justify-center items-center`}
                   onClick={async () => {
                     switch (selectedRoundState?.roundState) {
-                      case "OPEN":
+                      case "Open":
                         setModalState({
                           show: true,
                           action: "Start Auction",
@@ -331,7 +340,7 @@ const PanelLeft = () => {
                           },
                         });
                         break;
-                      case "AUCTIONING":
+                      case "Auctioning":
                         setModalState({
                           show: true,
                           action: "End Auction",
@@ -341,7 +350,7 @@ const PanelLeft = () => {
                           },
                         });
                         break;
-                      case "RUNNING":
+                      case "Running":
                         setModalState({
                           show: true,
                           action: "Settle Round",
@@ -357,15 +366,25 @@ const PanelLeft = () => {
                   }}
                 >
                   <p>
-                    {selectedRoundState.roundState === "OPEN"
+                    {selectedRoundState.roundState === "Open"
                       ? "Start Auction"
-                      : selectedRoundState.roundState === "AUCTIONING"
-                        ? "End Auction"
-                        : "Settle Round"}
+                      : selectedRoundState.roundState === "Auctioning"
+                      ? "End Auction"
+                      : selectedRoundState.roundState === "Running"
+                      ? "Settle Round"
+                      : "Settled"
+                      }
                   </p>
                   <LineChartDownIcon
                     classname="w-4 h-4 ml-2"
-                    stroke={"var(--primary)"}
+                    stroke={
+                      !selectedRoundState ||
+                      (selectedRoundState.roundState.toString() === "Open" &&
+                        selectedRoundState.auctionStartDate > timeStamp) ||
+                      selectedRoundState.roundState.toString() === "Settled"
+                        ? "var(--greyscale)"
+                        : "var(--primary)"
+                    }
                   />
                 </button>
               )}

@@ -17,7 +17,6 @@ import {
   ArrowRightIcon,
   ArrowUpIcon,
 } from "@/components/Icons";
-import { OptionRoundStateType } from "@/lib/types";
 import { useProtocolContext } from "@/context/ProtocolProvider";
 
 const RoundPerformanceChart = () => {
@@ -60,11 +59,11 @@ const RoundPerformanceChart = () => {
   const decrementRound = () => {
     console.log("decrementRound");
     console.log(selectedRound);
-    setSelectedRound((prevRound) => Math.max(prevRound - 1, 1));
+    setSelectedRound(selectedRound - 1);
   };
 
   const incrementRound = () => {
-    setSelectedRound((prevRound) => prevRound + 1);
+    setSelectedRound(selectedRound + 1);
   };
 
   const CustomTooltip = ({
@@ -127,14 +126,32 @@ const RoundPerformanceChart = () => {
         <div className="flex flex-row items-center">
           <div onClick={decrementRound}>
             <ArrowLeftIcon
-              stroke="var(--primary)"
-              classname="w-3 h-3 mr-2 hover:cursor-pointer"
+              stroke={
+                !selectedRound || selectedRound === 1
+                  ? "var(--greyscale)"
+                  : "var(--primary)"
+              }
+              classname={`w-3 h-3 mr-2 hover:cursor-pointer ${
+                !selectedRound || selectedRound === 1
+                  ? "hover:cursor-default"
+                  : ""
+              }`}
             />
           </div>
           <div onClick={incrementRound}>
             <ArrowRightIcon
-              stroke="var(--primary)"
-              classname="w-3 h-3 ml-2 hover:cursor-pointer"
+              stroke={
+                selectedRound &&
+                vaultState?.currentRoundId &&
+                Number(vaultState.currentRoundId) > selectedRound
+                  ? "var(--primary)"
+                  : "var(--greyscale)"
+              }
+              classname={`w-3 h-3 mr-2 hover:cursor-pointer ${
+                !selectedRound || selectedRound === 1
+                  ? "hover:cursor-default"
+                  : ""
+              }`}
             />
           </div>
         </div>
@@ -151,10 +168,10 @@ const RoundPerformanceChart = () => {
                   line === "TWAP"
                     ? "text-success"
                     : line === "BASEFEE"
-                      ? "text-greyscale"
-                      : line === "STRIKE"
-                        ? "text-warning-300"
-                        : "text-error-300"
+                    ? "text-greyscale"
+                    : line === "STRIKE"
+                    ? "text-warning-300"
+                    : "text-error-300"
                   //: "text-greyscale"
                 }`}
               onClick={() => toggleLine(line)}
