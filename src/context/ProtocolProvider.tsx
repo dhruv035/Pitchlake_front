@@ -5,9 +5,9 @@ import {
   SetStateAction,
   createContext,
   useContext,
+  useEffect,
   useState,
 } from "react";
-import { useAccount, useNetwork } from "@starknet-react/core";
 import useWebSocketVault from "@/hooks/useWebSocket";
 import useMockVault from "@/lib/mocks/useMockVault";
 import useVaultState from "@/hooks/vault/useVaultState";
@@ -21,7 +21,7 @@ import {
   VaultStateType,
 } from "@/lib/types";
 
-/*This is the bridge for any transactions to go through, it's disabled by isTxDisabled if there is data loading or if
+/*This is the bridge for any transactions to go through, it's disabled by isTxDisabled if there is data loading or if 
   there's a pending transaction. The data loading is enforced to ensure no transaction is done without latest data.
   Add pendingStates from any critical data here and add it in the subsequent hooks
 */
@@ -29,7 +29,7 @@ import {
 //Make transactions accepted only after 2 confirmations
 
 export type ProtocolContextType = {
-  conn: string;
+    conn:string,
   vaultAddress?: string;
   vaultActions: VaultActionsType;
   vaultState?: VaultStateType;
@@ -37,17 +37,17 @@ export type ProtocolContextType = {
   optionRoundStates?: OptionRoundStateType[];
   optionBuyerStates?: OptionBuyerStateType[];
   lpState?: LiquidityProviderStateType;
-  selectedRound?: number | string;
-  setSelectedRound: Dispatch<SetStateAction<number>>;
+  selectedRound: number;
+  setSelectedRound: (roundId:number)=>void;
   selectedRoundState?: OptionRoundStateType;
   selectedRoundBuyerState?: OptionBuyerStateType;
   setVaultAddress: Dispatch<SetStateAction<string | undefined>>;
-  mockTimeForward: () => void;
-  timeStamp: Number;
+  mockTimeForward:()=>void
+  timeStamp:Number
 };
 
 export const ProtocolContext = createContext<ProtocolContextType>(
-  {} as ProtocolContextType,
+  {} as ProtocolContextType
 );
 const ProtocolProvider = ({ children }: { children: ReactNode }) => {
   const [vaultAddress, setVaultAddress] = useState<string | undefined>();
@@ -55,7 +55,7 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
     process.env.NEXT_PUBLIC_ENVIRONMENT &&
       process.env.NEXT_PUBLIC_ENVIRONMENT === "mock"
       ? "mock"
-      : "rpc",
+      : "rpc"
   );
 
   const {
@@ -71,6 +71,12 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
   const mockTimeForward = () => {
     if (conn === "mock") setTimeStamp((prevState) => prevState + 100000);
   };
+  const [selectedRound, setSelectedRound] = useState<number>(1);
+  const [timeStamp,setTimeStamp]=useState(conn==="mock"?0:Number(Date.now().toString()));
+  const mockTimeForward = ()=>{
+    if(conn==="mock")
+        setTimeStamp(prevState=>prevState+100000)
+  }
   const {
     optionRoundStates: optionRoundStatesMock,
     lpState: lpStateMock,
@@ -95,8 +101,8 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
     conn === "rpc"
       ? rpcVaultState
       : conn === "ws"
-        ? wsVaultState
-        : vaultStateMock;
+      ? wsVaultState
+      : vaultStateMock;
 
   const vaultActionsChain = useVaultActions(vaultAddress);
   const vaultActions = conn !== "mock" ? vaultActionsChain : vaultActionsMock;
@@ -104,20 +110,20 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
     conn === "rpc"
       ? rpcLiquidityProviderState
       : conn === "ws"
-        ? wsLiquidityProviderState
-        : lpStateMock;
+      ? wsLiquidityProviderState
+      : lpStateMock;
   const optionRoundStates: OptionRoundStateType[] =
     conn === "mock"
       ? optionRoundStatesMock
       : conn === "ws"
-        ? wsOptionRoundStates
-        : [];
+      ? wsOptionRoundStates
+      : [];
   const optionBuyerStates =
     conn === "ws"
       ? wsOptionBuyerStates
       : conn === "mock"
-        ? optionBuyerStatesMock
-        : [];
+      ? optionBuyerStatesMock
+      : [];
   // const currentRoundState =
   //   conn === "rpc"
   //     ? rpcCurrentRoundState
@@ -134,6 +140,21 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
       : selectedRoundStateRPC;
   console.log("ASD", selectedRoundState);
   console.log("OBSTATES", optionRoundStates);
+  const setRound = (roundId:number)=>{
+    if(roundId<1)
+      return;
+    if(  vaultState?.currentRoundId && BigInt(roundId)<=BigInt(vaultState?.currentRoundId)){
+      setSelectedRound(roundId);
+    }
+  }
+
+  useEffect(()=>{
+    if(selectedRound===0)
+      if(vaultState?.currentRoundId)
+      {
+        setSelectedRound(Number(vaultState.currentRoundId))
+      }
+  },[selectedRound,vaultState?.currentRoundId])
   return (
     <ProtocolContext.Provider
       value={{
@@ -146,7 +167,7 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
         optionBuyerStates,
         lpState,
         selectedRound,
-        setSelectedRound,
+        setSelectedRound:setRound,
         selectedRoundState,
         setVaultAddress,
         selectedRoundBuyerState: selectedRound
@@ -157,7 +178,7 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
               : undefined
           : undefined,
         mockTimeForward,
-        timeStamp,
+        timeStamp
       }}
     >
       {children}

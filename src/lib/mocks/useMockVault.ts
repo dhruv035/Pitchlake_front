@@ -76,7 +76,7 @@ const useMockVault = (address?: string) => {
     setRound3State((prevState) => {
       return {
         ...prevState,
-        roundState: "AUCTIONING",
+        roundState: "Auctioning",
       };
     });
   };
@@ -84,7 +84,7 @@ const useMockVault = (address?: string) => {
     setRound3State((prevState) => {
       return {
         ...prevState,
-        roundState: "RUNNING",
+        roundState: "Running",
       };
     });
   };
@@ -93,7 +93,7 @@ const useMockVault = (address?: string) => {
     setRound3State((prevState) => {
       return {
         ...prevState,
-        roundState: "SETTLED",
+        roundState: "Settled",
       };
     });
   };

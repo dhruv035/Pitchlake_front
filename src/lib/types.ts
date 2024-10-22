@@ -81,7 +81,7 @@ export type OptionRoundStateType = {
   deploymentDate: string | number | bigint;
   auctionStartDate: string | number | bigint;
   auctionEndDate: string | number | bigint;
-  optionSettleDate?: string | number | bigint;
+  optionSettleDate: string | number | bigint;
   startingLiquidity?: bigint | number | string;
   soldLiquidity: bigint | number | string;
   unsoldLiquidity: bigint | number | string;

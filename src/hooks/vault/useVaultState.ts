@@ -111,24 +111,27 @@ const useVaultState = ({
 
   const { data: currentRoundAddress } = useContractRead({
     ...contractData,
-    functionName: "get_option_round_address",
-    args: currentRoundId ? [currentRoundId.toString()] : [0x1],
+    functionName: "get_round_address",
+    args: currentRoundId ? [currentRoundId.toString()] : [],
   });
+  console.log("selectedRound",selectedRound)
   const { data: selectedRoundAddress } = useContractRead({
     ...contractData,
-    functionName: "get_option_round_address",
-    args: selectedRound
+    functionName: "get_round_address",
+    args: selectedRound&& selectedRound!==0
       ? [selectedRound.toString()]
       : currentRoundId
         ? [currentRoundId.toString()]
         : [1],
   });
+  const usableString = stringToHex(selectedRoundAddress?.toString());
+  console.log("SELECTEDRTOUNDADDRESS",usableString)
   const {
     optionRoundState: selectedRoundState,
     optionBuyerState: selectedRoundBuyerState,
-  } = useOptionRoundState(selectedRoundAddress as string);
+  } = useOptionRoundState(usableString);
   const roundActions = useOptionRoundActions(
-    getRounds ? (selectedRoundAddress as string) : undefined,
+    (usableString) 
   );
 
   console.log("VAULT STATE TEST: ", {
