@@ -45,7 +45,6 @@ const PanelLeft = () => {
     await modalState.onConfirm();
     // Optionally reset the modal state or handle success here
   };
-  console.log("selectedRoundStateLEFTPANEL", selectedRoundState);
 
   return (
     <>

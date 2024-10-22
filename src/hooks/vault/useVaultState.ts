@@ -2,7 +2,6 @@ import { useAccount, useContractRead, useNetwork } from "@starknet-react/core";
 import { vaultABI } from "@/abi";
 import {
   LiquidityProviderStateType,
-  OptionRoundActionsType,
   VaultStateType,
 } from "@/lib/types";
 import { stringToHex } from "@/lib/utils";
@@ -152,21 +151,20 @@ const useVaultState = ({
     selectedRoundBuyerState,
   });
 
-  const vaultState = {
-    address,
-    alpha: alpha ? alpha.toString() : 0,
-    strikeLevel: strikeLevel ? strikeLevel.toString() : 0,
-    ethAddress: ethAddress ? stringToHex(ethAddress?.toString()) : "",
-    currentRoundId: currentRoundId ? currentRoundId.toString() : 0,
-    lockedBalance: lockedBalance ? lockedBalance.toString() : 0,
-    unlockedBalance: unlockedBalance ? unlockedBalance.toString() : 0,
-    stashedBalance: stashedBalance ? stashedBalance.toString() : 0,
-    queuedBps: queuedBps ? queuedBps.toString() : 0,
-    vaultType: vaultType ? (vaultType as CairoCustomEnum).activeVariant() : "",
-  } as VaultStateType;
 
   return {
-    vaultState,
+    vaultState:{
+      address,
+      alpha: alpha ? alpha.toString() : 0,
+      strikeLevel: strikeLevel ? strikeLevel.toString() : 0,
+      ethAddress: ethAddress ? stringToHex(ethAddress?.toString()) : "",
+      currentRoundId: currentRoundId ? currentRoundId.toString() : 0,
+      lockedBalance: lockedBalance ? lockedBalance.toString() : 0,
+      unlockedBalance: unlockedBalance ? unlockedBalance.toString() : 0,
+      stashedBalance: stashedBalance ? stashedBalance.toString() : 0,
+      queuedBps: queuedBps ? queuedBps.toString() : 0,
+      vaultType: vaultType ? (vaultType as CairoCustomEnum).activeVariant() : "",
+    } as VaultStateType,
     lpState,
     currentRoundAddress,
     roundActions: getRounds ? roundActions : undefined,

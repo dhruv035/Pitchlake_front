@@ -35,14 +35,14 @@ export const StarknetProvider = ({
 
   function rpc(chain: Chain) {
     return {
-      nodeUrl: `http://localhost:5050/rpc`,
+      nodeUrl: `https://starknet-sepolia.g.alchemy.com/starknet/version/rpc/v0_7/YVdNVSPVzbrCHkG3MDIutbynBrmmC5pY`,
     };
   }
   const provider = jsonRpcProvider({ rpc });
 
   return (
     <StarknetConfig
-      chains={[devnet]}
+      chains={[sepolia]}
       //chains={[mainnet, sepolia, devnet]}
       provider={provider}
       connectors={connectors}

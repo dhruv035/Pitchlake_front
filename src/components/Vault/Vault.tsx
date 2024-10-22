@@ -66,7 +66,6 @@ export const Vault = () => {
   // const roundActions = conn==="mock"?roundActionsMock
 
   const { vaultState } = useProtocolContext();
-  console.log("vaultState", vaultState);
   return (
     <div className="px-7 py-7 flex-grow flex-box overflow-auto">
       <div className="flex flex-row-reverse text-primary">

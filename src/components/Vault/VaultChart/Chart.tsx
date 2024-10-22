@@ -22,7 +22,6 @@ import { useProtocolContext } from "@/context/ProtocolProvider";
 const RoundPerformanceChart = () => {
   const { selectedRoundState, selectedRound, setSelectedRound, vaultState } =
     useProtocolContext();
-  console.log("SelectedRoundState", selectedRoundState, vaultState);
   const [activeLines, setActiveLines] = useState<{ [key: string]: boolean }>({
     TWAP: true,
     BASEFEE: true,

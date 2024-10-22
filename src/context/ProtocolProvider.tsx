@@ -4,8 +4,10 @@ import {
   ReactNode,
   SetStateAction,
   createContext,
+  useCallback,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from "react";
 import useWebSocketVault from "@/hooks/useWebSocket";
@@ -91,58 +93,73 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
     selectedRound,
     getRounds: true,
   });
-  const vaultState =
-    conn === "rpc"
-      ? rpcVaultState
-      : conn === "ws"
-      ? wsVaultState
-      : vaultStateMock;
+  const vaultState = useMemo(() => {
+    if (conn === "rpc") return rpcVaultState;
+    if (conn === "ws") return wsVaultState;
+    return vaultStateMock;
+  }, [conn, rpcVaultState, wsVaultState, vaultStateMock]);
 
   const vaultActionsChain = useVaultActions(vaultAddress);
-  const vaultActions = conn !== "mock" ? vaultActionsChain : vaultActionsMock;
-  const lpState =
-    conn === "rpc"
-      ? rpcLiquidityProviderState
-      : conn === "ws"
-      ? wsLiquidityProviderState
-      : lpStateMock;
-  const optionRoundStates: OptionRoundStateType[] =
-    conn === "mock"
-      ? optionRoundStatesMock
-      : conn === "ws"
-      ? wsOptionRoundStates
-      : [];
-  const optionBuyerStates =
-    conn === "ws"
-      ? wsOptionBuyerStates
-      : conn === "mock"
-      ? optionBuyerStatesMock
-      : [];
+  const vaultActions = useMemo(() => {
+    if (conn !== "mock") return vaultActionsChain;
+    return vaultActionsMock;
+  }, [conn, vaultActionsChain, vaultActionsMock]);
+  const lpState = useMemo(() => {
+    if (conn === "rpc") return rpcLiquidityProviderState;
+    if (conn === "ws") return wsLiquidityProviderState;
+    return lpStateMock;
+  }, [conn, rpcLiquidityProviderState, wsLiquidityProviderState, lpStateMock]);
+  const optionRoundStates = useMemo(() => {
+    if (conn === "mock") return optionRoundStatesMock;
+    if (conn === "ws") return wsOptionRoundStates;
+    return [];
+  }, [conn, optionRoundStatesMock, wsOptionRoundStates]);
+  const optionBuyerStates = useMemo(() => {
+    if (conn === "ws") return wsOptionBuyerStates;
+    if (conn === "mock") return optionBuyerStatesMock;
+    return [];
+  }, [conn, optionBuyerStatesMock, wsOptionBuyerStates]);
   // const currentRoundState =
   //   conn === "rpc"
   //     ? rpcCurrentRoundState
   //     : conn === "ws"
   //     ? wsOptionRoundStates[Number(vaultState?.currentRoundId) - 1]
   //     : optionRoundStatesMock[2];
-  const roundActions =
-    conn === "mock" ? roundActionsMock[selectedRound - 1] : roundActionsChain;
-  const selectedRoundState =
-    conn !== "rpc"
-      ? selectedRound !== 0
-        ? optionRoundStates[Number(selectedRound) - 1]
-        : vaultState?.currentRoundId
-        ? optionRoundStates[Number(vaultState.currentRoundId) - 1]
-        : undefined
-      : selectedRoundStateRPC;
-  const setRound = (roundId: number) => {
-    if (roundId < 1) return;
-    if (
-      vaultState?.currentRoundId &&
-      BigInt(roundId) <= BigInt(vaultState?.currentRoundId)
-    ) {
-      setSelectedRound(roundId);
+  const roundActions = useMemo(() => {
+    if (conn === "mock") return roundActionsMock[selectedRound - 1];
+    return roundActionsChain;
+  }, [conn, selectedRound, roundActionsMock, roundActionsChain]);
+
+  const selectedRoundState = useMemo(() => {
+    if (conn !== "rpc") {
+      if (selectedRound !== 0) {
+        return optionRoundStates[Number(selectedRound) - 1];
+      }
+      if (vaultState?.currentRoundId) {
+        return optionRoundStates[Number(vaultState.currentRoundId) - 1];
+      }
+      return undefined;
     }
-  };
+    return selectedRoundStateRPC;
+  }, [
+    conn,
+    selectedRound,
+    vaultState?.currentRoundId,
+    optionRoundStates,
+    selectedRoundStateRPC,
+  ]);
+  const setRound = useCallback(
+    (roundId: number) => {
+      if (roundId < 1) return;
+      if (
+        vaultState?.currentRoundId &&
+        BigInt(roundId) <= BigInt(vaultState?.currentRoundId)
+      ) {
+        setSelectedRound(roundId);
+      }
+    },
+    [vaultState?.currentRoundId]
+  );
 
   useEffect(() => {
     if (selectedRound === 0)

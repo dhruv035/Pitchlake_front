@@ -65,7 +65,6 @@ const TransactionProvider = ({ children }: { children: ReactNode }) => {
     if (pendingTx)
       switch (status) {
         case "pending":
-          console.log;
           toastId.current = displayToastInfo("pending", false, 1 / 3);
           break;
         case "success":

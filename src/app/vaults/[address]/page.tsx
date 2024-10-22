@@ -10,9 +10,8 @@ export default function Home({
 }) {
   const { vaultAddress,setVaultAddress } = useProtocolContext();
   useEffect(() => {
-    if (address){
+    if (address && address.toLowerCase()!==vaultAddress?.toLowerCase()){
        setVaultAddress(address);}
   }, []);
-  console.log("ADDRESS")
   return <Vault />;
 }

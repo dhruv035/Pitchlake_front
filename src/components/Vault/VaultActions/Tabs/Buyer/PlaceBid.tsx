@@ -44,7 +44,6 @@ const PlaceBid: React.FC<PlaceBidProps> = ({ showConfirmation }) => {
       amount: BigInt(state.bidAmount),
       price: BigInt(state.bidPrice),
     });
-    console.log("Placing bid..");
   };
 
   const handleSubmit = () => {
