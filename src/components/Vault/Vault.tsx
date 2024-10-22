@@ -6,9 +6,12 @@ import CoinStackedIcon from "../Icons/CoinStackedIcon";
 import PanelRight from "./VaultActions/PanelRight";
 import PanelLeft from "./VaultActions/PanelLeft";
 import { useProtocolContext } from "@/context/ProtocolProvider";
+import { ChevronLeft } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export const Vault = () => {
   const [isProviderView, setIsProviderView] = useState(true);
+  const router = useRouter();
   // const {
   //   wsVaultState,
   //   wsOptionRoundStates,
@@ -66,11 +69,11 @@ export const Vault = () => {
   console.log("vaultState", vaultState);
   return (
     <div className="px-7 py-7 flex-grow flex-box overflow-auto">
-      <div className="flex flex-row-reverse text-primary p-4">
+      <div className="flex flex-row-reverse text-primary">
         <div className="flex flex-row rounded-md border-[1px] border-greyscale-800">
           <div
             onClick={() => setIsProviderView(true)}
-            className={`flex flex-row items-center m-[1px] hover:cursor-pointer p-4 rounded-md ${
+            className={`flex flex-row items-center m-[1px] hover:cursor-pointer px-4 py-1 rounded-md text-[14px] ${
               isProviderView ? "bg-primary-900" : ""
             }`}
           >
@@ -88,7 +91,7 @@ export const Vault = () => {
           </div>
           <div
             onClick={() => setIsProviderView(false)}
-            className={`flex flex-row items-center m-[1px] hover:cursor-pointer p-4 rounded-md ${
+            className={`flex flex-row items-center m-[1px] hover:cursor-pointer p-4 rounded-md text-[14px] h-[44px] ${
               !isProviderView ? "bg-primary-900" : ""
             }`}
           >
@@ -105,7 +108,20 @@ export const Vault = () => {
             </p>
           </div>
         </div>
-        <p className="mr-[auto]">Vault Details</p>
+
+        <div className="flex flex-row items-center ml-[16px] mr-[auto] text-[16px] text-[#FAFAFA]">
+          Vault Details
+        </div>
+        <div className="flex items-center justify-center">
+          <div
+            onClick={() => {
+              router.push("/");
+            }}
+            className="flex items-center justify-center w-[44px] h-[44px] border border-[#262626] rounded-lg cursor-pointer"
+          >
+            <ChevronLeft className="w-[16px] h-[16px] stroke-[#F5EBB8]" />
+          </div>
+        </div>
       </div>
       <div className="mt-6 flex flex-row">
         {vaultState && <PanelLeft />}

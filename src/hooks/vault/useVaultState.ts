@@ -59,7 +59,7 @@ const useVaultState = ({
         key: "strikeLevel",
       },
 
-      { functionName: "eth_address", key: "ethAddress" },
+      { functionName: "get_eth_address", key: "ethAddress" },
       // fossil client address
       {
         functionName: "get_current_round_id",
@@ -112,7 +112,7 @@ const useVaultState = ({
   const { data: currentRoundAddress } = useContractRead({
     ...contractData,
     functionName: "get_option_round_address",
-    args: currentRoundId ? [currentRoundId.toString()] : [],
+    args: currentRoundId ? [currentRoundId.toString()] : [0x1],
   });
   const { data: selectedRoundAddress } = useContractRead({
     ...contractData,
@@ -120,27 +120,46 @@ const useVaultState = ({
     args: selectedRound
       ? [selectedRound.toString()]
       : currentRoundId
-      ? [currentRoundId.toString()]
-      : [],
+        ? [currentRoundId.toString()]
+        : [1],
   });
   const {
     optionRoundState: selectedRoundState,
     optionBuyerState: selectedRoundBuyerState,
   } = useOptionRoundState(selectedRoundAddress as string);
   const roundActions = useOptionRoundActions(
-    getRounds ? (selectedRoundAddress as string) : undefined
+    getRounds ? (selectedRoundAddress as string) : undefined,
   );
-  const vaultState = {
+
+  console.log("VAULT STATE TEST: ", {
     address,
-    vaultType: vaultType ? (vaultType as CairoCustomEnum).activeVariant() : "",
+    vaultType,
     alpha,
     strikeLevel,
-    ethAddress: ethAddress ? stringToHex(ethAddress?.toString()) : "",
+    ethAddress,
     currentRoundId,
     lockedBalance,
     unlockedBalance,
     stashedBalance,
     queuedBps,
+    lpState,
+    currentRoundAddress,
+    roundActions,
+    selectedRoundState,
+    selectedRoundBuyerState,
+  });
+
+  const vaultState = {
+    address,
+    alpha: alpha ? alpha.toString() : 0,
+    strikeLevel: strikeLevel ? strikeLevel.toString() : 0,
+    ethAddress: ethAddress ? stringToHex(ethAddress?.toString()) : "",
+    currentRoundId: currentRoundId ? currentRoundId.toString() : 0,
+    lockedBalance: lockedBalance ? lockedBalance.toString() : 0,
+    unlockedBalance: unlockedBalance ? unlockedBalance.toString() : 0,
+    stashedBalance: stashedBalance ? stashedBalance.toString() : 0,
+    queuedBps: queuedBps ? queuedBps.toString() : 0,
+    vaultType: vaultType ? (vaultType as CairoCustomEnum).activeVariant() : "",
   } as VaultStateType;
 
   return {
@@ -149,7 +168,7 @@ const useVaultState = ({
     currentRoundAddress,
     roundActions: getRounds ? roundActions : undefined,
     selectedRoundState,
-    selectedRoundBuyerState
+    selectedRoundBuyerState,
   };
 };
 

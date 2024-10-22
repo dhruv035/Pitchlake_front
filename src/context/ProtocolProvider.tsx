@@ -64,7 +64,7 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
     wsLiquidityProviderState,
     wsOptionBuyerStates,
   } = useWebSocketVault(conn, vaultAddress);
-  const [selectedRound, setSelectedRound] = useState<number>(0);
+  const [selectedRound, setSelectedRound] = useState<number>(1);
   const [timeStamp, setTimeStamp] = useState(
     conn === "mock" ? 0 : Number(Date.now().toString()),
   );
@@ -125,11 +125,11 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
   //     ? wsOptionRoundStates[Number(vaultState?.currentRoundId) - 1]
   //     : optionRoundStatesMock[2];
   const roundActions =
-    conn === "mock" ? roundActionsMock[selectedRound - 1] : roundActionsChain;
+    conn === "mock" ? roundActionsMock[selectedRound] : roundActionsChain;
   const selectedRoundState =
     conn !== "rpc"
       ? vaultState?.currentRoundId
-        ? optionRoundStates[Number(vaultState.currentRoundId) - 1]
+        ? optionRoundStates[Number(vaultState.currentRoundId)]
         : undefined
       : selectedRoundStateRPC;
   console.log("ASD", selectedRoundState);
@@ -153,7 +153,7 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
           ? conn === "rpc"
             ? selectedRoundBuyerStateRPC
             : optionBuyerStates.length > selectedRound
-              ? optionBuyerStates[selectedRound - 1]
+              ? optionBuyerStates[selectedRound]
               : undefined
           : undefined,
         mockTimeForward,
