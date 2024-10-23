@@ -35,8 +35,7 @@ export const StarknetProvider = ({
 
   function rpc(chain: Chain) {
     return {
-      nodeUrl: "http://localhost:5050/rpc",
-      //nodeUrl: "https://starknet-sepolia.public.blastapi.io/rpc/v0_7",
+      nodeUrl: `http://localhost:5050/rpc`,
     };
   }
   const provider = jsonRpcProvider({ rpc });

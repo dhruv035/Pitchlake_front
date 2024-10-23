@@ -9,12 +9,11 @@ import {
 } from "@/lib/types";
 import { useState } from "react";
 import useMockOptionRound from "./useMockOptionRound";
+import useMockOptionRounds from "./useMockOptionRounds";
 
-const useMockVault = (address?: string) => {
+const useMockVault = (selectedRound: number, address?: string) => {
   const { address: accountAddress } = useAccount();
   //Read States
-
-  //console.log("ADDRESS2", address);
   const [vaultState, setVaultState] = useState<VaultStateType>({
     ethAddress: "0x00",
     address: address ?? "0x1",
@@ -38,12 +37,8 @@ const useMockVault = (address?: string) => {
     queuedBps: "1234",
   });
 
-  const updateVaultState = (field: string, value: any) => {
-    setVaultState((prevState) => ({
-      ...prevState,
-      [field]: value,
-    }));
-  };
+  const { rounds, setRounds, buyerStates,setBuyerStates, roundActions } =
+    useMockOptionRounds(selectedRound);
 
   // Function to update a specific field in the LP state
   const currentRoundAddress = "";
@@ -73,46 +68,77 @@ const useMockVault = (address?: string) => {
   };
 
   const startAuction = async () => {
-    setRound3State((prevState) => {
-      return {
-        ...prevState,
-        roundState: "Auctioning",
-      };
-    });
+    if (rounds[selectedRound - 1].roundState === "Open")
+      setRounds((prevState) => {
+        const newState = [...prevState];
+        newState[selectedRound - 1].roundState = "Auctioning";
+        return prevState;
+      });
   };
   const endAuction = async () => {
-    setRound3State((prevState) => {
+    if (rounds[selectedRound - 1].roundState === "Auctioning")
+      setRounds((prevState) => {
+        const newState = [...prevState];
+        newState[selectedRound - 1].roundState = "Running";
+        return prevState;
+      });
+  };
+
+  const settleOptionRound = async () => {
+    if (rounds[selectedRound - 1].roundState === "Running")
+      setRounds((prevState) => {
+        const newState = [...prevState];
+        newState[selectedRound - 1].roundState = "Settled";
+        newState.push({
+          roundId: BigInt(vaultState.currentRoundId) + BigInt(1),
+          clearingPrice: "0",
+          strikePrice: "10000000000",
+          address: "0x1",
+          capLevel: "2480",
+          startingLiquidity: "",
+          availableOptions: "",
+          settlementPrice: "",
+          optionsSold: "",
+          roundState: "Open",
+          premiums: "",
+          payoutPerOption: "",
+          vaultAddress: "",
+          reservePrice: "2000000000",
+          auctionStartDate: 20000,
+          auctionEndDate: "",
+          optionSettleDate: "",
+          deploymentDate: "",
+          soldLiquidity: "",
+          unsoldLiquidity: "",
+          optionSold: "",
+          totalPayout: "",
+          treeNonce: "",
+          // Add other fields as necessary
+        });
+        return newState;
+      });
+
+    setBuyerStates((prevState) => {
+      return [
+        ...prevState,
+        {
+          address: address??"0x1",
+          roundId: BigInt(vaultState.currentRoundId) + BigInt(1),
+          tokenizableOptions: "",
+          refundableBalance: "",
+          bids: [],
+        },
+      ];
+    });
+
+    setVaultState((prevState) => {
       return {
         ...prevState,
-        roundState: "Running",
+        currentRoundId: BigInt(prevState.currentRoundId) + BigInt(1),
       };
     });
   };
 
-  const settleOptionRound = async () => {
-    setRound3State((prevState) => {
-      return {
-        ...prevState,
-        roundState: "Settled",
-      };
-    });
-  };
-  const {
-    optionRoundState: round1State,
-    roundActions: round1Actions,
-    optionBuyerState: round1OB,
-  } = useMockOptionRound(1);
-  const {
-    optionRoundState: round2State,
-    roundActions: round2Actions,
-    optionBuyerState: round2OB,
-  } = useMockOptionRound(2);
-  const {
-    optionRoundState: round3State,
-    roundActions: round3Actions,
-    setOptionRoundState: setRound3State,
-    optionBuyerState: round3OB,
-  } = useMockOptionRound(3);
 
   const vaultActions: VaultActionsType = {
     // User actions
@@ -130,9 +156,10 @@ const useMockVault = (address?: string) => {
     lpState,
     currentRoundAddress,
     vaultActions,
-    optionRoundStates: [round1State, round2State, round3State],
-    optionRoundActions: [round1Actions, round2Actions, round3Actions],
-    optionBuyerStates: [round1OB, round2OB, round3OB],
+    optionRoundStates: rounds,
+    optionRoundActions:roundActions,
+    optionBuyerStates: buyerStates,
+    roundActions: roundActions,
   };
 };
 

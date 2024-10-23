@@ -22,20 +22,18 @@ const useVaultState = ({
   selectedRound?: number | string;
   getRounds: boolean;
 }) => {
-  const contractData = {
-    abi: vaultABI,
-    address,
-    // "0x078c96c4238c1d0294b6cfacfbfdba1cc289e978685231284a3bd2ae00dd3f56",
-  };
+  //const account = getDevAccount(
+  //  new RpcProvider({ nodeUrl: "http://localhost:5050/rpc" }),
+  //);
 
-  //const { address: accountAddress } = useAccount();
-  const account = getDevAccount(
-    new RpcProvider({ nodeUrl: "http://localhost:5050/rpc" }),
-  );
+  const contractData = useMemo(() => {
+    return {
+      abi: vaultABI,
+      address: conn === "rpc" ? address : "",
+    };
+  }, [address, conn]);
 
-  //    {
-  //    address: "0x8ef103ecee8d069b10ccdb8658e9dbced4da8160b51c37e517510d86ea21d9",
-  //  };
+  const { address: accountAddress } = useAccount();
   //Read States
 
   //States without a param
@@ -123,19 +121,22 @@ const useVaultState = ({
     functionName: "get_round_address",
     args:
       selectedRound && selectedRound !== 0
-        ? [selectedRound.toString()]
-        : currentRoundId
-          ? [currentRoundId.toString()]
-          : [1],
+        ? [selectedRound.toString()]:undefined
   });
   const usableString = useMemo(() => {
     return stringToHex(selectedRoundAddress?.toString());
   }, [selectedRoundAddress]);
   const {
-    optionRoundState: selectedRoundState,
-    optionBuyerState: selectedRoundBuyerState,
-  } = useOptionRoundState(usableString);
-  const roundActions = useOptionRoundActions(usableString);
+    optionRoundState,
+    optionBuyerState,
+} = useOptionRoundState(usableString);
+
+const roundAction = useOptionRoundActions(usableString);
+
+// Memoize the states and actions
+const selectedRoundState = useMemo(() => optionRoundState, [optionRoundState]);
+const selectedRoundBuyerState = useMemo(() => optionBuyerState, [optionBuyerState]);
+const roundActions = useMemo(() => roundAction, [roundAction]);
 
   console.log("VAULT STATE TEST: ", {
     address,
