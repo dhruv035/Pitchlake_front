@@ -15,7 +15,12 @@ import { timeFromNow, shortenString, formatNumberText } from "@/lib/utils";
 import { formatUnits, formatEther, parseEther } from "ethers";
 import { useProtocolContext } from "@/context/ProtocolProvider";
 import StateTransitionConfirmationModal from "@/components/Vault/Utils/StateTransitionConfirmationModal";
-import { ChevronLeft, ChevronRight, ExternalLinkIcon } from "lucide-react";
+import {
+  ArrowRightIcon,
+  ChevronLeft,
+  ChevronRight,
+  ExternalLinkIcon,
+} from "lucide-react";
 import { useExplorer } from "@starknet-react/core";
 
 const PanelLeft = () => {
@@ -53,15 +58,76 @@ const PanelLeft = () => {
       ? selectedRoundState.roundState
       : "Open";
     if (roundState === "Open") {
-      return <p>Auction Starts In:</p>;
+      return <p className="text-[#BFBFBF]">Auction Starts In:</p>;
     } else if (roundState === "Auctioning") {
-      return <p>Auction Ends In:</p>;
+      return <p className="text-[#BFBFBF]">Auction Ends In:</p>;
     } else if (roundState === "Running") {
-      return <p>Round Settles In:</p>;
+      return <p className="text-[#BFBFBF]">Round Settles In:</p>;
     } else {
       return;
     }
   };
+
+  const getStateBgColor = () => {
+    const roundState = selectedRoundState?.roundState
+      ? selectedRoundState.roundState
+      : "Open";
+    //let roundState = "Auctioning";
+
+    if (roundState === "Open") {
+      return "[#214C0B80]";
+    } else if (roundState === "Auctioning") {
+      return "[#45454580]";
+    } else if (roundState === "Running") {
+      return "[#6D1D0D59]";
+    } else {
+      return "[#CC455E33]";
+    }
+  };
+
+  const getStateTextColor = () => {
+    const roundState = selectedRoundState?.roundState
+      ? selectedRoundState.roundState
+      : "Open";
+    //let roundState = "Auctioning";
+
+    if (roundState === "Open") {
+      return "[#347912]";
+    } else if (roundState === "Auctioning") {
+      return "[#BFBFBF]";
+    } else if (roundState === "Running") {
+      return "warning";
+    } else {
+      return "[#CC455E]";
+    }
+  };
+
+  // const getStateBanner = () => {
+  //   //const roundState = selectedRoundState?.roundState
+  //   //  ? selectedRoundState.roundState
+  //   //  : "Open";
+  //   let roundState = "Auctioning";
+  //   let bg = "";
+  //   let text = "";
+  //   if (roundState === "Open") {
+  //     bg = "[#214C0B80]";
+  //     text = "[#347912]";
+  //   } else if (roundState === "Auctioning") {
+  //     bg = "[#45454580]";
+  //     text = "[warning]"; // "#BFBFBF";
+  //     //return "#45454580";
+  //   } else if (roundState === "Running") {
+  //     bg = "[#6D1D0D59]";
+  //     text = "[#F78771]";
+  //   } else {
+  //     bg = "[#CC455E33]";
+  //     text = "[#CC455E]";
+  //   }
+  //   console.log(bg, text);
+  //   const className = `text-[${text}] bg-[${bg}] border-[1px] border-[${text}] rounded-full px-2 py-[1px]`;
+  //   console.log("CLASSNAME", className);
+  //   return <p className={className}>{roundState}</p>;
+  // };
 
   return (
     <>
@@ -88,7 +154,7 @@ const PanelLeft = () => {
           </div>
           <div className="flex flex-col w-full px-3 border-t-[1px] border-greyscale-800">
             <div
-              className={`flex flex-row w-full mt-2 rounded-md p-3 ${
+              className={`flex flex-row w-full mt-3 rounded-md p-3 ${
                 isPanelOpen
                   ? "justify-between cursor-pointer bg-faded-black"
                   : "justify-center"
@@ -121,17 +187,17 @@ const PanelLeft = () => {
               className={`flex flex-col mt-2 overflow-scroll no-scrollbar ${
                 isPanelOpen ? "" : "hidden"
               } ${
-                vaultIsOpen ? "h-0" : "h-[250px]"
+                vaultIsOpen ? "h-0" : "h-[180px]"
               } transition-all duration-900ms `}
             >
               <div className="flex flex-row justify-between p-2 w-full">
-                <p>Address:</p>
+                <p className="text-[#BFBFBF]">Address:</p>
                 <a
                   href={explorer.contract(
                     vaultState?.address ? vaultState.address : "",
                   )}
                   target="_blank"
-                  className="flex flex-row justify-center items-center text-[#F5EBB8] cursor-pointer gap-[8px]"
+                  className="flex flex-row justify-center items-center text-[#F5EBB8] cursor-pointer gap-[4px]"
                 >
                   <p className="">
                     {
@@ -145,7 +211,7 @@ const PanelLeft = () => {
                 </a>
               </div>{" "}
               <div className="flex flex-row justify-between p-2 w-full">
-                <p>Strike Level:</p>
+                <p className="text-[#BFBFBF]">Strike Level:</p>
                 <p>{Number(vaultState?.strikeLevel) / 100}%</p>
               </div>
               {
@@ -160,11 +226,11 @@ const PanelLeft = () => {
                 //  </div>
               }
               <div className="flex flex-row justify-between p-2 w-full">
-                <p>Risk Level:</p>
+                <p className="text-[#BFBFBF]">Risk Level:</p>
                 <p>{Number(vaultState?.alpha) / 100}%</p>
               </div>{" "}
               <div className="flex flex-row justify-between p-2 w-full">
-                <p>TVL:</p>
+                <p className="text-[#BFBFBF]">TVL:</p>
                 <p>
                   {
                     vaultState?.lockedBalance
@@ -186,7 +252,7 @@ const PanelLeft = () => {
           </div>
           <div className="flex flex-col w-full px-3 border-t-[1px] border-greyscale-800">
             <div
-              className={`flex flex-row w-full mt-2 rounded-md p-3 ${
+              className={`flex flex-row w-full mt-3 rounded-md p-3 ${
                 isPanelOpen
                   ? "justify-between cursor-pointer bg-faded-black"
                   : "justify-center"
@@ -223,23 +289,55 @@ const PanelLeft = () => {
                 optionRoundIsOpen
                   ? "h-0"
                   : vaultIsOpen
-                    ? "h-[350px]"
-                    : "h-[290px]"
+                    ? "h-[380px]"
+                    : "h-[350px]"
               } transition-all duration-900 max-h-full`}
             >
-              {/* Option round details go here */}
-              {/* ... */}
               <div className="max-h-full flex flex-row justify-between items-center p-2 w-full">
-                <p>Status:</p>
-                <p className="bg-[#6D1D0D59] border-[1px] border-warning text-warning rounded-full px-2 py-[1px]">
+                <p className="text-[#BFBFBF]">Selected Round:</p>
+                <a
+                  href={explorer.contract(
+                    selectedRoundState?.address
+                      ? selectedRoundState.address
+                      : "",
+                  )}
+                  target="_blank"
+                  className="flex flex-row justify-center items-center text-[#F5EBB8] cursor-pointer gap-[4px]"
+                >
+                  <p className="">
+                    Round{" "}
+                    {selectedRoundState?.roundId
+                      ? Number(selectedRoundState.roundId).toPrecision(1)
+                      : ""}
+                  </p>
+                  <ExternalLinkIcon className="size-[16px]" />
+                </a>
+              </div>
+              <div className="max-h-full flex flex-row justify-between items-center p-2 w-full">
+                <p className="text-[#BFBFBF]">Status:</p>
+                <p
+                  className={`border-[1px] border-${getStateTextColor()} bg-${getStateBgColor()} text-${getStateTextColor()} rounded-full px-2 py-[1px]`}
+                >
                   {
                     selectedRoundState && selectedRoundState.roundState
                     //Add appropriate bg
                   }
                 </p>
               </div>
+              <div className="max-h-full flex flex-row justify-between items-center p-2 w-full">
+                <p className="text-[#BFBFBF]">Last Round Perf.:</p>
+                <div
+                  onClick={() => {
+                    console.log("todo: decrement selected round id");
+                  }}
+                  className="flex flex-row justify-center items-center text-[#F5EBB8] cursor-pointer gap-[4px]"
+                >
+                  <p className="">+12.34%</p>
+                  <ArrowRightIcon className="size-[16px]" />
+                </div>
+              </div>
               <div className="max-h-full flex flex-row justify-between items-center   p-2 w-full">
-                <p>Reserve Price:</p>
+                <p className="text-[#BFBFBF]">Reserve Price:</p>
                 <p>
                   {
                     selectedRoundState?.reservePrice &&
@@ -249,11 +347,11 @@ const PanelLeft = () => {
                       )
                     //Add round duration from state here
                   }{" "}
-                  gwei
+                  GWEI
                 </p>
               </div>
               <div className="max-h-full flex flex-row justify-between items-center p-2 w-full">
-                <p>Strike Price:</p>
+                <p className="text-[#BFBFBF]">Strike Price:</p>
                 <p>
                   {
                     selectedRoundState?.strikePrice &&
@@ -263,11 +361,11 @@ const PanelLeft = () => {
                       )
                     //Add round duration from state here
                   }{" "}
-                  gwei
+                  GWEI
                 </p>
               </div>
               <div className="max-h-full flex flex-row justify-between items-center   p-2 w-full">
-                <p>Cap Level:</p>
+                <p className="text-[#BFBFBF]">Cap Level:</p>
                 <p>
                   {
                     selectedRoundState?.capLevel &&
@@ -281,7 +379,7 @@ const PanelLeft = () => {
                 </p>
               </div>
               <div className="max-h-full flex flex-row justify-between items-center   p-2 w-full">
-                <p>Total Options:</p>
+                <p className="text-[#BFBFBF]">Total Options:</p>
                 <p>
                   {
                     formatNumberText(
@@ -294,56 +392,25 @@ const PanelLeft = () => {
                 </p>
               </div>
               <div className="flex flex-row justify-between p-2 w-full">
-                <p>Run Time:</p>
+                <p className="text-[#BFBFBF]">Run Time:</p>
                 <p>
-                  {
-                    selectedRoundState?.auctionStartDate &&
-                    selectedRoundState?.auctionEndDate
-                      ? (
-                          BigInt(selectedRoundState.auctionEndDate) -
-                          BigInt(selectedRoundState.auctionStartDate)
-                        ).toString()
-                      : ""
-                    //Add round duration from state here
-                  }
+                  {selectedRoundState?.auctionStartDate &&
+                  selectedRoundState?.auctionEndDate
+                    ? (
+                        BigInt(selectedRoundState.auctionEndDate) -
+                        BigInt(selectedRoundState.auctionStartDate)
+                      ).toString()
+                    : ""}
                 </p>
               </div>
               <div className="max-h-full flex flex-row justify-between items-center   p-2 w-full">
                 {getStateActionHeader()}
-                {
-                  //<p>{selectedRoundState?.roundState ? "Open" }Settles In:</p>
-                }
                 <p>
-                  {
-                    selectedRoundState?.optionSettleDate
-                      ? timeFromNow(
-                          selectedRoundState.optionSettleDate.toString(),
-                        )
-                      : ""
-                    //Add round duration from state here
-                  }
-                </p>
-              </div>
-              <div className="max-h-full flex flex-row justify-between items-center p-2 w-full">
-                <p>Selected Round:</p>
-                <p>
-                  Round &nbsp;
-                  {
-                    selectedRoundState?.roundId
-                      ? Number(selectedRoundState.roundId).toPrecision(1)
-                      : ""
-                    //Add round duration from state here
-                  }
-                </p>
-              </div>
-
-              <div className="max-h-full flex flex-row justify-between items-center p-2 w-full">
-                <p>Last Round Perf.:</p>
-                <p>
-                  {
-                    "+11.33%"
-                    //Add round duration from state here
-                  }
+                  {selectedRoundState?.optionSettleDate
+                    ? timeFromNow(
+                        selectedRoundState.optionSettleDate.toString(),
+                      )
+                    : ""}
                 </p>
               </div>
             </div>
