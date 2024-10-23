@@ -9,7 +9,7 @@ export type WithdrawLiquidityArgs = {
   amount: number | bigint;
 };
 
-export type QueueWithdrawalArgs = { bps: number | bigint };
+export type QueueArgs = { bps: number | bigint };
 
 export type ApprovalArgs = {
   amount: number | bigint;
@@ -67,7 +67,7 @@ export type VaultActionsType = {
   depositLiquidity: (depositArgs: DepositArgs) => Promise<void>;
   withdrawLiquidity: (withdrawArgs: WithdrawLiquidityArgs) => Promise<void>;
   withdrawStash: () => Promise<void>;
-  queueWithdrawal: (queueArgs: QueueWithdrawalArgs) => Promise<void>;
+  queueWithdrawal: (queueArgs: QueueArgs) => Promise<void>;
   startAuction: () => Promise<void>;
   endAuction: () => Promise<void>;
   settleOptionRound: () => Promise<void>;

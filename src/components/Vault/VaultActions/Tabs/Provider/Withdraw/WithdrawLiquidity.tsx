@@ -32,11 +32,9 @@ const WithdrawLiquidity: React.FC<WithdrawLiquidityProps> = ({
 
   const liquidityWithdraw = async (): Promise<void> => {
     await vaultActions.withdrawLiquidity({ amount: parseEther(state.amount) });
-    console.log("queue withdraw", state.amount);
   };
 
   const handleSubmit = () => {
-    console.log("Collect confirmation");
     showConfirmation(
       "Liquidity Withdraw",
       `withdraw ${state.amount} ETH from your unlocked balance?`,

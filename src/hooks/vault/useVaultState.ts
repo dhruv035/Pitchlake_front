@@ -5,8 +5,11 @@ import { stringToHex } from "@/lib/utils";
 import { useMemo } from "react";
 import useContractReads from "../../lib/useContractReads";
 import useOptionRoundActions from "../optionRound/useOptionRoundActions";
-import { CairoCustomEnum } from "starknet";
+import { CairoCustomEnum, RpcProvider } from "starknet";
 import useOptionRoundState from "../optionRound/useOptionRoundState";
+import { getDevAccount } from "@/lib/constants";
+import { useProvider } from "@starknet-react/core";
+import useERC20 from "../erc20/useERC20";
 
 const useVaultState = ({
   conn,
@@ -19,6 +22,10 @@ const useVaultState = ({
   selectedRound?: number | string;
   getRounds: boolean;
 }) => {
+  //const account = getDevAccount(
+  //  new RpcProvider({ nodeUrl: "http://localhost:5050/rpc" }),
+  //);
+
   const contractData = useMemo(() => {
     return {
       abi: vaultABI,
@@ -82,22 +89,22 @@ const useVaultState = ({
     states: [
       {
         functionName: "get_account_locked_balance",
-        args: [accountAddress as string],
+        args: [account?.address as string],
         key: "lockedBalance",
       },
       {
         functionName: "get_account_unlocked_balance",
-        args: [accountAddress as string],
+        args: [account?.address as string],
         key: "unlockedBalance",
       },
       {
         functionName: "get_account_stashed_balance",
-        args: [accountAddress as string],
+        args: [account?.address as string],
         key: "stashedBalance",
       },
       {
         functionName: "get_account_queued_bps",
-        args: [accountAddress as string],
+        args: [account?.address as string],
         key: "queuedBps",
       },
     ],
@@ -108,7 +115,7 @@ const useVaultState = ({
     functionName: "get_round_address",
     args: currentRoundId ? [currentRoundId.toString()] : [],
   });
-  console.log("selectedRound", selectedRound);
+  // console.log("selectedRound", selectedRound);
   const { data: selectedRoundAddress } = useContractRead({
     ...contractData,
     functionName: "get_round_address",

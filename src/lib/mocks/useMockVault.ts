@@ -5,7 +5,7 @@ import {
   VaultActionsType,
   VaultStateType,
   WithdrawLiquidityArgs,
-  QueueWithdrawalArgs,
+  QueueArgs,
 } from "@/lib/types";
 import { useState } from "react";
 import useMockOptionRound from "./useMockOptionRound";
@@ -63,7 +63,7 @@ const useMockVault = (selectedRound: number, address?: string) => {
     await new Promise((resolve) => setTimeout(resolve, 1500));
   };
 
-  const queueWithdrawal = async (queueArgs: QueueWithdrawalArgs) => {
+  const queueWithdrawal = async (queueArgs: QueueArgs) => {
     await new Promise((resolve) => setTimeout(resolve, 1500));
   };
 

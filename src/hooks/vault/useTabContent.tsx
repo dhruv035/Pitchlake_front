@@ -22,10 +22,9 @@ import { mockHistoryItems } from "@/components/Vault/MockData";
 import VaultActions from "@/components/Vault/VaultActions";
 import { useProtocolContext } from "@/context/ProtocolProvider";
 
-export const useTabContent = (
-  userType: string,
-) => {
-  const {selectedRoundState,lpState,vaultActions,vaultState} = useProtocolContext();
+export const useTabContent = (userType: string) => {
+  const { selectedRoundState, lpState, vaultActions, vaultState } =
+    useProtocolContext();
   const getTabs = (): string[] => {
     const commonTabs = [CommonTabs.MyInfo];
 
@@ -33,13 +32,13 @@ export const useTabContent = (
       return [...Object.values(ProviderTabs), ...commonTabs];
     } else {
       switch (selectedRoundState?.roundState) {
-        case "OPEN":
+        case "Open":
           return [];
-        case "AUCTIONING":
+        case "Auctioning":
           return [BuyerTabs.PlaceBid, BuyerTabs.History, ...commonTabs];
-        case "RUNNING":
+        case "Running":
           return [BuyerTabs.Refund, BuyerTabs.Mint, ...commonTabs];
-        case "SETTLED":
+        case "Settled":
           return [BuyerTabs.Refund, BuyerTabs.Exercise, ...commonTabs];
         default:
           return [];
@@ -50,17 +49,9 @@ export const useTabContent = (
   const getTabContent = (activeTab: string): React.ReactNode => {
     switch (activeTab) {
       case ProviderTabs.Deposit:
-        return (
-          <DepositContent
-            showConfirmation={(amount, action) => {}}
-          />
-        );
+        return <DepositContent showConfirmation={(amount, action) => {}} />;
       case ProviderTabs.Withdraw:
-        return (
-          <Withdraw
-            showConfirmation={(amount, action) => {}}
-          />
-        );
+        return <Withdraw showConfirmation={(amount, action) => {}} />;
       case BuyerTabs.PlaceBid:
         return <PlaceBid showConfirmation={(amount, action) => {}} />;
       case BuyerTabs.History:

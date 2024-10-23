@@ -11,8 +11,10 @@ import {
   TransactionResult,
   VaultActionsType,
   WithdrawLiquidityArgs,
+  QueueArgs,
 } from "@/lib/types";
-import { Account } from "starknet";
+import { getDevAccount } from "@/lib/constants";
+import { Account, RpcProvider } from "starknet";
 import { useCallback, useMemo } from "react";
 import { useTransactionContext } from "@/context/TransactionProvider";
 
@@ -26,11 +28,16 @@ const useVaultActions = (address?: string) => {
   const { account: connectorAccount } = useAccount();
   const { setPendingTx } = useTransactionContext();
 
-  const account = useMemo(() => {
-    if (isDev === true) {
-      return devAccount;
-    } else return connectorAccount;
-  }, [connectorAccount, isDev, devAccount]);
+  //  const account = useMemo(() => {
+  //    if (isDev === true) {
+  //      return devAccount;
+  //    } else return connectorAccount;
+  //  }, [connectorAccount, isDev, devAccount]);
+  const account = getDevAccount(
+    new RpcProvider({ nodeUrl: "http://localhost:5050/rpc" }),
+  );
+
+  console.log("AAACCOUNT: ", account);
 
   const typedContract = useMemo(() => {
     if (!contract) return;
@@ -51,7 +58,7 @@ const useVaultActions = (address?: string) => {
 
   const callContract = useCallback(
     (functionName: string) =>
-      async (args?: DepositArgs | WithdrawLiquidityArgs) => {
+      async (args?: DepositArgs | WithdrawLiquidityArgs | QueueArgs) => {
         if (!typedContract) return;
         let argsData;
         if (args) argsData = Object.values(args).map((value) => value);
@@ -71,14 +78,25 @@ const useVaultActions = (address?: string) => {
 
   const depositLiquidity = useCallback(
     async (depositArgs: DepositArgs) => {
-      await callContract("deposit_liquidity")(depositArgs);
+      await callContract("deposit")(depositArgs);
     },
     [callContract],
   );
 
   const withdrawLiquidity = useCallback(
     async (withdrawArgs: WithdrawLiquidityArgs) => {
-      await callContract("withdraw_liquidity")(withdrawArgs);
+      await callContract("withdraw")(withdrawArgs);
+    },
+    [callContract],
+  );
+
+  const withdrawStash = useCallback(async () => {
+    await callContract("withdraw_stash")();
+  }, [callContract]);
+
+  const queueWithdrawal = useCallback(
+    async (queueArgs: QueueArgs) => {
+      await callContract("queue_withdrawal")(queueArgs);
     },
     [callContract],
   );
@@ -99,6 +117,8 @@ const useVaultActions = (address?: string) => {
   return {
     depositLiquidity,
     withdrawLiquidity,
+    withdrawStash,
+    queueWithdrawal,
     startAuction,
     endAuction,
     settleOptionRound,
