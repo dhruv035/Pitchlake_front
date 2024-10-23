@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ConfirmationModal from "@/components/Vault/Utils/ConfirmationModal";
 import SuccessModal from "@/components/Vault/Utils/SuccessModal";
 import {
@@ -54,6 +54,9 @@ const PanelLeft = () => {
     await modalState.onConfirm();
     // Optionally reset the modal state or handle success here
   };
+  let date;
+  if (selectedRoundState?.auctionEndDate)  
+  date = new Date(Number(selectedRoundState?.auctionEndDate)).toLocaleString();
 
   const getStateActionHeader = () => {
     const roundState = selectedRoundState?.roundState
@@ -131,6 +134,10 @@ const PanelLeft = () => {
   //   return <p className={className}>{roundState}</p>;
   // };
 
+  const [isClient,setIsClient] = useState(false);
+  useEffect(()=>{
+setIsClient(true);
+  },[])
   return (
     <>
       <div
@@ -413,6 +420,11 @@ const PanelLeft = () => {
                         selectedRoundState.optionSettleDate.toString(),
                       )
                     : ""}
+                  { 
+                      //isClient?date:""
+                    
+                    //Add round duration from state here
+                  }
                 </p>
               </div>
             </div>
@@ -425,6 +437,11 @@ const PanelLeft = () => {
                     !selectedRoundState ||
                     (selectedRoundState.roundState.toString() === "Open" &&
                       selectedRoundState.auctionStartDate > timeStamp) ||
+                    (selectedRoundState.roundState.toString() ===
+                      "Auctioning" &&
+                      selectedRoundState.auctionEndDate > timeStamp) ||
+                    (selectedRoundState.roundState.toString() === "Running" &&
+                      selectedRoundState.optionSettleDate > timeStamp) ||
                     selectedRoundState.roundState.toString() === "Settled"
                   }
                   className={`${
