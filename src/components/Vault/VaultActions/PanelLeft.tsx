@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ConfirmationModal from "@/components/Vault/Utils/ConfirmationModal";
 import SuccessModal from "@/components/Vault/Utils/SuccessModal";
 import {
@@ -45,7 +45,14 @@ const PanelLeft = () => {
     await modalState.onConfirm();
     // Optionally reset the modal state or handle success here
   };
+  let date;
+  if (selectedRoundState?.auctionEndDate)  
+  date = new Date(Number(selectedRoundState?.auctionEndDate)).toLocaleString();
 
+  const [isClient,setIsClient] = useState(false);
+  useEffect(()=>{
+setIsClient(true);
+  },[])
   return (
     <>
       <div
@@ -300,12 +307,8 @@ const PanelLeft = () => {
               <div className="max-h-full flex flex-row justify-between items-center   p-2 w-full">
                 <p>End date:</p>
                 <p>
-                  {
-                    selectedRoundState?.auctionStartDate?.toString()
-                      ? new Date(
-                          selectedRoundState?.auctionStartDate.toString()
-                        ).toDateString()
-                      : ""
+                  { isClient?date:""
+                    
                     //Add round duration from state here
                   }
                 </p>
@@ -320,6 +323,11 @@ const PanelLeft = () => {
                     !selectedRoundState ||
                     (selectedRoundState.roundState.toString() === "Open" &&
                       selectedRoundState.auctionStartDate > timeStamp) ||
+                    (selectedRoundState.roundState.toString() ===
+                      "Auctioning" &&
+                      selectedRoundState.auctionEndDate > timeStamp) ||
+                    (selectedRoundState.roundState.toString() === "Running" &&
+                      selectedRoundState.optionSettleDate > timeStamp) ||
                     selectedRoundState.roundState.toString() === "Settled"
                   }
                   className={`${
@@ -369,8 +377,7 @@ const PanelLeft = () => {
                       ? "End Auction"
                       : selectedRoundState.roundState === "Running"
                       ? "Settle Round"
-                      : "Settled"
-                      }
+                      : "Settled"}
                   </p>
                   <LineChartDownIcon
                     classname="w-4 h-4 ml-2"
@@ -378,9 +385,10 @@ const PanelLeft = () => {
                       !selectedRoundState ||
                       (selectedRoundState.roundState.toString() === "Open" &&
                         selectedRoundState.auctionStartDate > timeStamp) ||
-                        (selectedRoundState.roundState.toString() === "Auctioning" &&
+                      (selectedRoundState.roundState.toString() ===
+                        "Auctioning" &&
                         selectedRoundState.auctionEndDate > timeStamp) ||
-                        (selectedRoundState.roundState.toString() === "Running" &&
+                      (selectedRoundState.roundState.toString() === "Running" &&
                         selectedRoundState.optionSettleDate > timeStamp) ||
                       selectedRoundState.roundState.toString() === "Settled"
                         ? "var(--greyscale)"

@@ -11,6 +11,8 @@ import { Bid } from "@/lib/types";
 import { useAccount } from "@starknet-react/core";
 const useMockOptionRounds = (selectedRound:number) => {
   const { address } = useAccount();
+  const date = Date.now();
+  console.log("HOOK DATE",date)
   const [rounds, setRounds] =
     useState<OptionRoundStateType[]>(
       // Initial mock data for option round states
@@ -29,9 +31,9 @@ const useMockOptionRounds = (selectedRound:number) => {
         payoutPerOption: "",
         vaultAddress: "",
         reservePrice: "2000000000",
-        auctionStartDate: 20000,
-        auctionEndDate: "",
-        optionSettleDate: "",
+        auctionStartDate: date+200000,
+        auctionEndDate: date+400000,
+        optionSettleDate:date+ 600000,
         deploymentDate: "",
         soldLiquidity: "",
         unsoldLiquidity: "",
