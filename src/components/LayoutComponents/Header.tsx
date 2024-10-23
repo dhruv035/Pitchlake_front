@@ -65,11 +65,17 @@ export default function Header() {
     document.addEventListener("mousedown", handleClickOutside);
     document.addEventListener("keydown", handleEscKey);
 
+    
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
       document.removeEventListener("keydown", handleEscKey);
     };
   }, []);
+  let date;
+  if(timeStamp)
+  {
+    date = (new Date(Number(timeStamp))).toLocaleString();
+  }
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard
@@ -107,7 +113,7 @@ export default function Header() {
         {conn === "mock" && (
           <div>
             <p>
-              {timeStamp.toString()}
+              {date}
             </p>
           <button onClick={() => mockTimeForward()}>Forward Mock Time</button>
           </div>
