@@ -89,22 +89,22 @@ const useVaultState = ({
     states: [
       {
         functionName: "get_account_locked_balance",
-        args: [account?.address as string],
+        args: [accountAddress as string],
         key: "lockedBalance",
       },
       {
         functionName: "get_account_unlocked_balance",
-        args: [account?.address as string],
+        args: [accountAddress as string],
         key: "unlockedBalance",
       },
       {
         functionName: "get_account_stashed_balance",
-        args: [account?.address as string],
+        args: [accountAddress as string],
         key: "stashedBalance",
       },
       {
         functionName: "get_account_queued_bps",
-        args: [account?.address as string],
+        args: [accountAddress as string],
         key: "queuedBps",
       },
     ],
@@ -121,22 +121,27 @@ const useVaultState = ({
     functionName: "get_round_address",
     args:
       selectedRound && selectedRound !== 0
-        ? [selectedRound.toString()]:undefined
+        ? [selectedRound.toString()]
+        : undefined,
   });
   const usableString = useMemo(() => {
     return stringToHex(selectedRoundAddress?.toString());
   }, [selectedRoundAddress]);
-  const {
-    optionRoundState,
-    optionBuyerState,
-} = useOptionRoundState(usableString);
+  const { optionRoundState, optionBuyerState } =
+    useOptionRoundState(usableString);
 
-const roundAction = useOptionRoundActions(usableString);
+  const roundAction = useOptionRoundActions(usableString);
 
-// Memoize the states and actions
-const selectedRoundState = useMemo(() => optionRoundState, [optionRoundState]);
-const selectedRoundBuyerState = useMemo(() => optionBuyerState, [optionBuyerState]);
-const roundActions = useMemo(() => roundAction, [roundAction]);
+  // Memoize the states and actions
+  const selectedRoundState = useMemo(
+    () => optionRoundState,
+    [optionRoundState],
+  );
+  const selectedRoundBuyerState = useMemo(
+    () => optionBuyerState,
+    [optionBuyerState],
+  );
+  const roundActions = useMemo(() => roundAction, [roundAction]);
 
   console.log("VAULT STATE TEST: ", {
     address,

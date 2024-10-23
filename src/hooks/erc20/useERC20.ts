@@ -74,9 +74,27 @@ const useERC20 = (tokenAddress: string | undefined, target?: string) => {
     [typedContract, setPendingTx],
   );
 
+  const approve = useCallback(
+    async (approvalArgs: ApprovalArgs) => {
+      if (!typedContract) return;
+      try {
+        const data = await typedContract.approve(
+          approvalArgs.spender,
+          approvalArgs.amount,
+        );
+        const typedData = data as TransactionResult;
+        setPendingTx(typedData.transaction_hash);
+      } catch (err) {
+        console.log("ERR", err);
+      }
+    },
+    [typedContract, setPendingTx],
+  );
+
   return {
     balance,
     allowance,
+    approve,
     increaseAllowance,
   };
 };
