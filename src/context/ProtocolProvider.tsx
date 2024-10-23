@@ -80,7 +80,7 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
     vaultActions: vaultActionsMock,
     optionRoundActions: roundActionsMock,
     optionBuyerStates: optionBuyerStatesMock,
-  } = useMockVault(vaultAddress);
+  } = useMockVault(selectedRound,vaultAddress);
   const {
     lpState: rpcLiquidityProviderState,
     vaultState: rpcVaultState,
@@ -126,7 +126,7 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
   //     ? wsOptionRoundStates[Number(vaultState?.currentRoundId) - 1]
   //     : optionRoundStatesMock[2];
   const roundActions = useMemo(() => {
-    if (conn === "mock") return roundActionsMock[selectedRound - 1];
+    if (conn === "mock") return roundActionsMock;
     return roundActionsChain;
   }, [conn, selectedRound, roundActionsMock, roundActionsChain]);
 
