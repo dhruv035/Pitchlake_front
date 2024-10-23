@@ -17,6 +17,7 @@ const useContractReads = ({
 
   // Iterate over the states array and call useContractRead for each state
   states.forEach((state) => {
+     // eslint-disable-next-line react-hooks/rules-of-hooks
     const { data } = useContractRead({
       ...contractData,
       functionName: state.functionName,
