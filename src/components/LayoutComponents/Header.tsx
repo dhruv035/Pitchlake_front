@@ -14,25 +14,44 @@ import {
   useAccount,
   useBalance,
   useConnect,
+  useDeployAccount,
   useDisconnect,
+  useProvider,
 } from "@starknet-react/core";
 import ProfileDropdown from "../BaseComponents/ProfileDropdown";
 import { copyToClipboard } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { useProtocolContext } from "@/context/ProtocolProvider";
+import {
+  Account,
+  BigNumberish,
+  RawArgs,
+  DeployAccountContractPayload,
+  CallData,
+  hash,
+  num,
+  // ArgentX,
+} from "starknet";
+import useERC20 from "@/hooks/erc20/useERC20";
 
 export default function Header() {
-  const { conn, timeStamp,mockTimeForward } = useProtocolContext();
+  const { conn, timeStamp, mockTimeForward } = useProtocolContext();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const isDropdownOpenRef = useRef(isDropdownOpen);
   const { connect, connectors } = useConnect();
   const { disconnect } = useDisconnect();
+  const { deployAccount, deployAccountAsync } = useDeployAccount({});
   const router = useRouter();
   const { account } = useAccount();
-  const { data: balance } = useBalance({
-    address: account?.address,
-    watch: true,
-  });
+  const { provider } = useProvider();
+  const { approve, fund } = useERC20(
+    "0x49d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+    "0x3c39ef4a4b3653998081c75361cf0916702b4157446d2331b821fae834f8b79",
+  );
+  //const { data: balance } = useBalance({
+  //  address: account?.address,
+  //  watch: true,
+  //});
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const balanceData = {
@@ -65,16 +84,14 @@ export default function Header() {
     document.addEventListener("mousedown", handleClickOutside);
     document.addEventListener("keydown", handleEscKey);
 
-    
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
       document.removeEventListener("keydown", handleEscKey);
     };
   }, []);
   let date;
-  if(timeStamp)
-  {
-    date = (new Date(Number(timeStamp))).toLocaleString();
+  if (timeStamp) {
+    date = new Date(Number(timeStamp)).toLocaleString();
   }
 
   const copyToClipboard = (text: string) => {
@@ -91,6 +108,16 @@ export default function Header() {
 
   const shortenString = (str: string) => {
     return str ? `${str.slice(0, 6)}...${str.slice(-4)}` : "";
+  };
+
+  const fundAndDeploy = async (): Promise<void> => {
+    /// Set allowance
+    console.log("funding...");
+    await fund({
+      amount: num.toBigInt("1000000000000000000"),
+      spender: account ? account.address : "",
+    });
+    console.log("funded");
   };
 
   return (
@@ -112,15 +139,24 @@ export default function Header() {
       <div className="flex items-center space-x-4">
         {conn === "mock" && (
           <div>
-            <p>
-              {date}
-            </p>
-          <button onClick={() => mockTimeForward()}>Forward Mock Time</button>
+            <p>{date}</p>
+            <button onClick={() => mockTimeForward()}>Forward Mock Time</button>
           </div>
         )}
         <div className="cursor-pointer border-[1px] border-greyscale-800 p-2 rounded-md">
           <BellIcon className="h-6 w-6 text-primary" />
         </div>
+
+        {account ? (
+          <button
+            onClick={() => fundAndDeploy()}
+            className="cursor-pointer border-[1px] border-greyscale-800 p-2 rounded-md"
+          >
+            Fund and Deploy Account
+          </button>
+        ) : (
+          <></>
+        )}
         <div className="relative" ref={dropdownRef}>
           {account ? (
             <>

@@ -9,12 +9,12 @@ import VaultCard from "@/components/Vault/VaultCard/VaultCard";
 export default function Home() {
   const vaults = [
     // katana
-    "0x53cfe2f425653698dbe356818dfdb646518db181b1176769c63262f1c1699ce",
-    // sepolia
-    "0x0115736e919f6825a64431760d228a937680ebae18a672f03b2c996fe1405a68",
-    // other
-    "0x5d3641202cb46479772cfe3be1fa1e3ef15c53c498c8f131fb5762f36470657",
-    "0x5d3641202cb46479772cfe3be1fa1e3ef15c53c498c8f131fb5762f36470657",
+    "0x5e530ccaf637fbe9663603a43787e1887e239d68a7b8892ca80bec80fbe1bc6",
+    //    // sepolia
+    //    "0x0115736e919f6825a64431760d228a937680ebae18a672f03b2c996fe1405a68",
+    //    // other
+    //    "0x5d3641202cb46479772cfe3be1fa1e3ef15c53c498c8f131fb5762f36470657",
+    //    "0x5d3641202cb46479772cfe3be1fa1e3ef15c53c498c8f131fb5762f36470657",
   ];
 
   const [isModalVisible, setIsModalVisible] = useState<boolean>();

@@ -26,7 +26,8 @@
     "react-dom": "^18",
     "react-toastify": "^10.0.5",
     "recharts": "^2.12.7",
-    "starknet": "^6.11.0"
+    "starknet": "^6.11.0",
+    "starknetkit": "^2.3.3"
   },
   "devDependencies": {
     "@types/node": "^20",

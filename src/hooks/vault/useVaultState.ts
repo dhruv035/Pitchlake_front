@@ -7,9 +7,6 @@ import useContractReads from "../../lib/useContractReads";
 import useOptionRoundActions from "../optionRound/useOptionRoundActions";
 import { CairoCustomEnum, RpcProvider } from "starknet";
 import useOptionRoundState from "../optionRound/useOptionRoundState";
-import { getDevAccount } from "@/lib/constants";
-import { useProvider } from "@starknet-react/core";
-import useERC20 from "../erc20/useERC20";
 
 const useVaultState = ({
   conn,
@@ -33,7 +30,9 @@ const useVaultState = ({
     };
   }, [address, conn]);
 
-  const { address: accountAddress } = useAccount();
+  const { account } = useAccount();
+  //const { address: accountAddress } = useAccount();
+  console.log("account in state read", account?.address);
   //Read States
 
   //States without a param
@@ -89,22 +88,22 @@ const useVaultState = ({
     states: [
       {
         functionName: "get_account_locked_balance",
-        args: [accountAddress as string],
+        args: [account?.address as string],
         key: "lockedBalance",
       },
       {
         functionName: "get_account_unlocked_balance",
-        args: [accountAddress as string],
+        args: [account?.address as string],
         key: "unlockedBalance",
       },
       {
         functionName: "get_account_stashed_balance",
-        args: [accountAddress as string],
+        args: [account?.address as string],
         key: "stashedBalance",
       },
       {
         functionName: "get_account_queued_bps",
-        args: [accountAddress as string],
+        args: [account?.address as string],
         key: "queuedBps",
       },
     ],

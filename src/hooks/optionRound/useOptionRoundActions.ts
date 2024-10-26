@@ -21,11 +21,12 @@ const useOptionRoundActions = (address: string) => {
   const { account: connectorAccount } = useAccount();
   const { setPendingTx } = useTransactionContext();
 
-  const account = useMemo(() => {
-    if (isDev === true) {
-      return devAccount;
-    } else return connectorAccount;
-  }, [connectorAccount, isDev, devAccount]);
+  //  const account = useMemo(() => {
+  //    if (isDev === true) {
+  //      return devAccount;
+  //    } else return connectorAccount;
+  //  }, [connectorAccount, isDev, devAccount]);
+  const { account } = useAccount();
 
   const typedContract = useMemo(() => {
     if (!contract) return;
@@ -35,7 +36,6 @@ const useOptionRoundActions = (address: string) => {
   }, [contract, account]);
 
   //Write Calls
-
 
   const callContract = useCallback(
     (functionName: string) =>
@@ -54,19 +54,28 @@ const useOptionRoundActions = (address: string) => {
         // const data = await writeAsync({ calls: [callData] });
         return typedData;
       },
-    [typedContract, setPendingTx]
+    [typedContract, setPendingTx],
   );
-  const placeBid = useCallback(async (args: PlaceBidArgs) => {
-    await callContract("place_bid")(args);
-  }, [callContract]);
+  const placeBid = useCallback(
+    async (args: PlaceBidArgs) => {
+      await callContract("place_bid")(args);
+    },
+    [callContract],
+  );
 
-  const updateBid = useCallback(async (args: UpdateBidArgs) => {
-    await callContract("update_bid")(args);
-  }, [callContract]);
+  const updateBid = useCallback(
+    async (args: UpdateBidArgs) => {
+      await callContract("update_bid")(args);
+    },
+    [callContract],
+  );
 
-  const refundUnusedBids = useCallback(async (args: RefundBidsArgs) => {
-    await callContract("refund_unused_bids")(args);
-  }, [callContract]);
+  const refundUnusedBids = useCallback(
+    async (args: RefundBidsArgs) => {
+      await callContract("refund_unused_bids")(args);
+    },
+    [callContract],
+  );
 
   const tokenizeOptions = useCallback(async () => {
     await callContract("tokenize_options")();

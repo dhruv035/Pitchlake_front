@@ -40,9 +40,10 @@ const Deposit: React.FC<DepositProps> = ({ showConfirmation }) => {
     activeWithdrawTab: "For Myself",
   });
 
-  const account = getDevAccount(
-    new RpcProvider({ nodeUrl: "http://localhost:5050/rpc" }),
-  );
+  //  const account = getDevAccount(
+  //    new RpcProvider({ nodeUrl: "http://localhost:5050/rpc" }),
+  //  );
+  const { account } = useAccount();
   console.log("AAA ACCOUNT", account);
 
   const updateState = (updates: Partial<DepositState>) => {
@@ -58,21 +59,22 @@ const Deposit: React.FC<DepositProps> = ({ showConfirmation }) => {
   console.log("ALLOWANCE", allowance);
 
   const handleDeposit = async (): Promise<void> => {
-    console.log("Current allowance:", allowance);
-    if (Number(allowance) < Number(state.amount)) {
-      let difference = Number(state.amount) - Number(allowance);
-      console.log("Increasing allowance by: ", difference);
-      await increaseAllowance({
-        amount: parseEther(state.amount),
-        spender: vaultState ? vaultState.address.toString() : "",
-      });
-    }
+    //console.log("Current allowance:", allowance);
+    //if (Number(allowance) < Number(state.amount)) {
+    //  let difference = Number(state.amount) - Number(allowance);
+    //  console.log("Increasing allowance by: ", difference);
+    //  await increaseAllowance({
+    //    amount: parseEther(state.amount),
+    //    spender: vaultState ? vaultState.address.toString() : "",
+    //  });
+    //}
 
     console.log("Depositing", state.amount);
     await vaultActions.depositLiquidity({
       amount: parseEther(state.amount),
       beneficiary:
-        "0x127fd5f1fe78a71f8bcd1fec63e3fe2f0486b6ecd5c86a0466c3a21fa5cfcec", //state.beneficiaryAddress,
+        "0x07692EE25171bDa70F1c3A76fA23a50F86De517D4A6c98B125D235e4aF874F84",
+      //beneficiary: account ? account.address?.toString() : "", //state.beneficiaryAddress,
     });
   };
 
