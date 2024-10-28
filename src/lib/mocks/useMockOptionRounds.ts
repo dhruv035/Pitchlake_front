@@ -49,8 +49,8 @@ const useMockOptionRounds = (selectedRound:number) => {
     useState<OptionBuyerStateType[]>([{
       address:address?? "0x1",
       roundId: 0,
-      tokenizableOptions: "",
-      refundableBalance: "",
+      tokenizableOptions: 11,
+      refundableBalance: 24,
       bids: [],
     }]);
 

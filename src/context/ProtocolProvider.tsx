@@ -46,6 +46,7 @@ export type ProtocolContextType = {
   setVaultAddress: Dispatch<SetStateAction<string | undefined>>;
   mockTimeForward: () => void;
   timeStamp: Number;
+  selectedRoundAddress:string|undefined
 };
 
 export const ProtocolContext = createContext<ProtocolContextType>(
@@ -66,7 +67,7 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
     wsLiquidityProviderState,
     wsOptionBuyerStates,
   } = useWebSocketVault(conn, vaultAddress);
-  const [isHydrated,setIsHydrated]= useState(false)
+
   const [selectedRound, setSelectedRound] = useState<number>(0);
   const [timeStamp, setTimeStamp] = useState(0);
   console.log("timeSStamp",timeStamp)
@@ -76,7 +77,7 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
   useEffect(()=>{
     console.log("DATE",Date.now())
     setTimeStamp(Date.now())
-setIsHydrated(true)
+
   },[])
   const {
     optionRoundStates: optionRoundStatesMock,
@@ -140,12 +141,9 @@ setIsHydrated(true)
       if (selectedRound !== 0) {
         return optionRoundStates[Number(selectedRound) - 1];
       }
-      if (vaultState?.currentRoundId) {
-        return optionRoundStates[Number(vaultState.currentRoundId) - 1];
-      }
       return undefined;
     }
-    return selectedRoundStateRPC;
+    else return selectedRoundStateRPC;
   }, [
     conn,
     selectedRound,
@@ -153,6 +151,22 @@ setIsHydrated(true)
     optionRoundStates,
     selectedRoundStateRPC,
   ]);
+  const selectedRoundBuyerState = useMemo(()=>{
+    if(conn === "rpc")
+      return selectedRoundBuyerStateRPC
+    else if(selectedRound!==0){
+      return optionBuyerStates[Number(selectedRound)-1]
+    }
+    else return undefined
+    return 
+    // selectedRound
+    // ? conn === "rpc"
+    //   ? selectedRoundBuyerStateRPC
+    //   : optionBuyerStates.length > selectedRound
+    //     ? optionBuyerStates[selectedRound]
+    //     : undefined
+    // : undefined,
+  },[conn,selectedRound, optionBuyerStates, selectedRoundBuyerStateRPC])
   const setRound = useCallback(
     (roundId: number) => {
       if (roundId < 1) return;
@@ -187,15 +201,10 @@ setIsHydrated(true)
         setSelectedRound: setRound,
         selectedRoundState,
         setVaultAddress,
-        selectedRoundBuyerState: selectedRound
-          ? conn === "rpc"
-            ? selectedRoundBuyerStateRPC
-            : optionBuyerStates.length > selectedRound
-              ? optionBuyerStates[selectedRound]
-              : undefined
-          : undefined,
+       selectedRoundBuyerState,
         mockTimeForward,
         timeStamp,
+        selectedRoundAddress:undefined,
       }}
     >
       {children}
