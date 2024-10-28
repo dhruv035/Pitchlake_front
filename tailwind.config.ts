@@ -15,6 +15,11 @@ const config: Config = {
       fontFamily: {
         sans: ["var(--font-montserrat)", ...fontFamily.sans],
       },
+      fontWeight: {
+        regular: "400",
+        medium: "500",
+        semibold: "600",
+      },
       colors: {
         primary: "var(--primary)",
         "primary-50": "var(--primary-50)",
@@ -87,6 +92,7 @@ const config: Config = {
         "white-alt": "var(--white-alt)",
         "faded-black": "var(--faded-black)",
         "black-alt": "var(--black-alt)",
+        buttonwhite: "var(--button-white)",
       },
       backgroundImage: {
         "greyscale-gradient": "var(--greyscale-gradient)",

@@ -9,11 +9,13 @@ import VaultCard from "@/components/Vault/VaultCard/VaultCard";
 export default function Home() {
   const vaults = [
     // katana
-    "0x5e530ccaf637fbe9663603a43787e1887e239d68a7b8892ca80bec80fbe1bc6",
+    "0x586b503f2c806ec2555dfd763ef3d2e05d9789c0147da1c47b5057d46bbc6cc",
+    "0x586b503f2c806ec2555dfd763ef3d2e05d9789c0147da1c47b5057d46bbc6cc",
+    //    // juno
+    //    "",
     //    // sepolia
     //    "0x0115736e919f6825a64431760d228a937680ebae18a672f03b2c996fe1405a68",
     //    // other
-    //    "0x5d3641202cb46479772cfe3be1fa1e3ef15c53c498c8f131fb5762f36470657",
     //    "0x5d3641202cb46479772cfe3be1fa1e3ef15c53c498c8f131fb5762f36470657",
   ];
 
@@ -60,7 +62,9 @@ export default function Home() {
 
   return (
     <div className="flex flex-grow flex-col px-8 mt-10 w-full ">
-      <p className="my-2 text-base text-white-alt py-2">Popular Vaults</p>
+      <p className="my-2 text-base text-white-alt py-2 font-medium">
+        Popular Vaults
+      </p>
 
       <div className="grid grid-cols-2 w-full py-8 gap-x-6 gap-y-4">
         {vaults?.map((vault: string, index: number) => (

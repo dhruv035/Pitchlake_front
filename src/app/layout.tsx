@@ -12,7 +12,7 @@ import ProtocolProvider from "@/context/ProtocolProvider";
 
 const montserrat = Montserrat({
   subsets: ["latin"],
-  weight: ["400"],
+  weight: ["400", "500", "600"],
   variable: "--mainFont",
 });
 
@@ -38,13 +38,11 @@ export default function RootLayout({
         <StarknetProvider>
           <TransactionProvider>
             <ProtocolProvider>
-            <Header />
-            <div className="mt-24">
-            {children}
-            </div>
-            <div className="flex flex-grow flex-col-reverse">
-            <Footer />
-            </div>
+              <Header />
+              <div className="mt-24">{children}</div>
+              <div className="flex flex-grow flex-col-reverse">
+                <Footer />
+              </div>
             </ProtocolProvider>
           </TransactionProvider>
         </StarknetProvider>

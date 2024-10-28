@@ -69,7 +69,7 @@ export const Vault = () => {
   return (
     <div className="px-7 py-7 flex-grow flex-box overflow-auto">
       <div className="flex flex-row-reverse text-primary">
-        <div className="flex flex-row rounded-md border-[1px] border-greyscale-800">
+        <div className="flex flex-row rounded-md border-[1px] border-greyscale-800 ">
           <div
             onClick={() => setIsProviderView(true)}
             className={`flex flex-row items-center m-[1px] hover:cursor-pointer px-4 py-1 rounded-md text-[14px] ${
@@ -81,7 +81,7 @@ export const Vault = () => {
               stroke={isProviderView ? "var(--primary)" : "var(--greyscale)"}
             />
             <p
-              className={`${
+              className={`font-medium ${
                 isProviderView ? "text-primary" : "text-greyscale"
               }`}
             >
@@ -99,7 +99,7 @@ export const Vault = () => {
               fill={isProviderView ? "var(--greyscale)" : "var(--primary)"}
             />
             <p
-              className={`${
+              className={`font-medium ${
                 !isProviderView ? "text-primary" : "text-greyscale"
               }`}
             >
@@ -108,7 +108,7 @@ export const Vault = () => {
           </div>
         </div>
 
-        <div className="flex flex-row items-center ml-[16px] mr-[auto] text-[16px] text-[#FAFAFA]">
+        <div className="flex flex-row items-center ml-[16px] mr-[auto] text-[16px] font-medium text-[#FAFAFA]">
           Vault Details
         </div>
         <div className="flex items-center justify-center">

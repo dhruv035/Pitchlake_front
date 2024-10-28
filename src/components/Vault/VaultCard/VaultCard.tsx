@@ -32,22 +32,23 @@ export default function VaultCard({ vaultAddress }: { vaultAddress: string }) {
     >
       <div className="bg-faded-black rounded-t-lg p-4 text-white">
         <div className="flex flex-row items-center">
-          <p>
+          <p className="text-[14px] font-semibold">
             {
               //Add date logic
               "1 Month"
             }
           </p>
           <div className="bg-primary-800 rounded-full w-[5px] h-[5px] m-2" />
-          <p>
+          <p className="text-[16px] font-regular text-[var(--buttongrey)]">
             {
-              vaultState.vaultType
+              "ATM"
+              //vaultState.vaultType
               //Add vault type here
             }
           </p>
         </div>
-        <p className="text-greyscale">
-          {shortenString(vaultAddress)} | {vaultState.vaultType}
+        <p className="text-[16px] font-regular text-[var(--buttongrey)]">
+          {shortenString(vaultAddress)}{" "}
         </p>
       </div>
       <div className="flex flex-row w-full ">

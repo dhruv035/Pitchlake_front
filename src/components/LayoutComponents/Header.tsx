@@ -136,7 +136,7 @@ export default function Header() {
         />
       </div>
 
-      <div className="flex items-center space-x-4">
+      <div className="flex items-center space-x-4 text-[14px] font-medium">
         {conn === "mock" && (
           <div>
             <p>{date}</p>
@@ -150,7 +150,7 @@ export default function Header() {
         {account ? (
           <button
             onClick={() => fundAndDeploy()}
-            className="cursor-pointer border-[1px] border-greyscale-800 p-2 rounded-md"
+            className="font-medium cursor-pointer border-[1px] border-greyscale-800 p-2 rounded-md"
           >
             Fund and Deploy Account
           </button>
@@ -171,7 +171,7 @@ export default function Header() {
                   height={24}
                   className="rounded-full"
                 />
-                <span className="text-white">
+                <span className="text-white" font-medium>
                   {shortenString(account.address)}
                 </span>
                 <ChevronDownIcon className="h-4 w-4 text-white" />
