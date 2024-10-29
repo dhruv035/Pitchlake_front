@@ -160,6 +160,7 @@ export type RefundBidsArgs = {
 export interface InfoItemProps {
   label: string;
   value: React.ReactNode;
+  isPending?: boolean;
 }
 
 export interface BalanceTooltipProps {

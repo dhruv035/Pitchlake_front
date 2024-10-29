@@ -35,7 +35,7 @@ import {
 import useERC20 from "@/hooks/erc20/useERC20";
 
 export default function Header() {
-  const { conn, timeStamp, mockTimeForward } = useProtocolContext();
+  const { conn, timeStamp, mockTimeForward, vaultState } = useProtocolContext();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const isDropdownOpenRef = useRef(isDropdownOpen);
   const { connect, connectors } = useConnect();
@@ -118,6 +118,41 @@ export default function Header() {
       spender: account ? account.address : "",
     });
     console.log("funded");
+
+    // Make the POST request
+    try {
+      const response = await fetch("http://localhost:3000/pricing_data", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": "b2ed9cdc-2dd0-4b81-8ed4-bcefbf29ddc1",
+        },
+        body: JSON.stringify({
+          identifiers: ["PITCH_LAKE_V1"],
+          params: {
+            twap: [1730053616, 1730140016],
+            volatility: [1729880816, 1730140016],
+            reserve_price: [1729880816, 1730140016],
+          },
+          client_info: {
+            client_address: account ? account.address : "",
+            vault_address: vaultState ? vaultState.address : "",
+            timestamp: 1730140016,
+          },
+        }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Error sending request:", errorText);
+        throw new Error("Failed to send request");
+      }
+
+      const result = await response.json();
+      console.log("Post result:", result);
+    } catch (error) {
+      console.error("Error during fundAndDeploy:", error);
+    }
   };
 
   return (

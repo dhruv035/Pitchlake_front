@@ -15,6 +15,8 @@ import { parseEther, formatEther } from "ethers";
 import { useProtocolContext } from "@/context/ProtocolProvider";
 import { getDevAccount } from "@/lib/constants";
 import { RpcProvider, Call } from "starknet";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 
 interface DepositProps {
   showConfirmation: (
@@ -106,7 +108,7 @@ const Deposit: React.FC<DepositProps> = ({ showConfirmation }) => {
   console.log("LPSTATE", lpState);
   return (
     <div className="flex flex-col h-full">
-      <div className="flex-grow space-y-6">
+      <div className="flex-grow space-y-6 p-6">
         <ButtonTabs
           tabs={["For Myself", "As Beneficiary"]}
           activeTab={state.activeWithdrawTab}
@@ -117,7 +119,6 @@ const Deposit: React.FC<DepositProps> = ({ showConfirmation }) => {
             });
           }}
         />
-
         {state.isDepositAsBeneficiary && (
           <div>
             <InputField
@@ -143,6 +144,12 @@ const Deposit: React.FC<DepositProps> = ({ showConfirmation }) => {
             label="Enter Amount"
             onChange={(e) => updateState({ amount: e.target.value })}
             placeholder="e.g. 5.0"
+            icon={
+              <FontAwesomeIcon
+                icon={faEthereum}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 pr-2"
+              />
+            }
             //icon={
             //  <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400" />
             //}
@@ -150,7 +157,7 @@ const Deposit: React.FC<DepositProps> = ({ showConfirmation }) => {
         </div>
       </div>
       <div className="mt-auto">
-        <div className="flex justify-between text-sm mb-4 pt-4">
+        <div className="px-6 flex justify-between text-sm mb-6 pt-6">
           <span className="text-gray-400">Unlocked Balance</span>
           <span className="text-white">
             {formatEther(
@@ -159,7 +166,7 @@ const Deposit: React.FC<DepositProps> = ({ showConfirmation }) => {
             ETH
           </span>
         </div>
-        <div className="flex justify-between text-sm mb-4 pt-4 border-t border-[#262626]">
+        <div className="px-6 flex justify-between text-sm mb-6 pt-6 border-t border-[#262626]">
           <ActionButton
             onClick={handleSubmit}
             disabled={isDepositDisabled()}

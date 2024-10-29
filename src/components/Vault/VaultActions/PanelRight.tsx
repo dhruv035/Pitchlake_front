@@ -21,14 +21,12 @@ interface TabContentProps {
   showConfirmation: (
     amount: string,
     action: string,
-    onConfirm: () => Promise<void>
+    onConfirm: () => Promise<void>,
   ) => void;
 }
 
-const PanelRight: React.FC<VaultDetailsProps> = ({
-  userType,
-}) => {
-  const {vaultState,vaultActions} = useProtocolContext()
+const PanelRight: React.FC<VaultDetailsProps> = ({ userType }) => {
+  const { vaultState, vaultActions } = useProtocolContext();
   const [activeTab, setActiveTab] = useState<string>("");
   const [modalState, setModalState] = useState<{
     show: boolean;
@@ -44,9 +42,7 @@ const PanelRight: React.FC<VaultDetailsProps> = ({
     onConfirm: async () => {},
   });
 
-  const { getTabs, getTabContent } = useTabContent(
-    userType,
-  );
+  const { getTabs, getTabContent } = useTabContent(userType);
 
   const tabs = getTabs();
 
@@ -58,14 +54,13 @@ const PanelRight: React.FC<VaultDetailsProps> = ({
   }, [tabs, activeTab]);
 
   useEffect(() => {
-    console.log("STATES",pendingTx, modalState.type, status)
+    console.log("STATES", pendingTx, modalState.type, status);
     if (modalState.type === "pending") {
       if (!pendingTx && status === "success") {
         setModalState((prevState) => ({ ...prevState, type: "success" }));
       } else if (!pendingTx && status === "error") {
         setModalState((prevState) => ({ ...prevState, type: "failure" }));
-      }
-      else if (!pendingTx && !status){
+      } else if (!pendingTx && !status) {
         setModalState((prevState) => ({ ...prevState, type: "success" }));
       }
     }
@@ -77,7 +72,7 @@ const PanelRight: React.FC<VaultDetailsProps> = ({
   const showConfirmation = (
     modalHeader: string,
     action: string,
-    onConfirm: () => Promise<void>
+    onConfirm: () => Promise<void>,
   ) => {
     setModalState({
       show: true,
@@ -139,7 +134,7 @@ const PanelRight: React.FC<VaultDetailsProps> = ({
   }
 
   return (
-    <div className="bg-[#121212] border border-[#262626] rounded-lg p-4 w-full flex flex-col h-full">
+    <div className="bg-[#121212] border border-[#262626] rounded-lg w-full flex flex-col h-full justify-center">
       {tabs.length > 0 ? (
         <>
           <Tabs
@@ -147,7 +142,9 @@ const PanelRight: React.FC<VaultDetailsProps> = ({
             activeTab={activeTab}
             setActiveTab={handleTabChange}
           />
-          <div className="flex-grow">{renderTabContent()}</div>
+          <div className="flex flex-col flex-grow h-[max]">
+            {renderTabContent()}
+          </div>
         </>
       ) : (
         <div className="text-white">Round hasn&apos;t started yet</div>

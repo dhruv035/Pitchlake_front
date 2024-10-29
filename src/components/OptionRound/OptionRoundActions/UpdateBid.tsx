@@ -27,12 +27,8 @@ export default function UpdateBid({
   const { account } = useAccount();
   const { isDev, devAccount } = useTransactionContext();
 
-  const { approve } = useERC20(
-    vaultState.ethAddress,
-    optionRoundState.address
-  );
+  const { approve } = useERC20(vaultState.ethAddress, optionRoundState.address);
 
-  
   const handleAmountChange = (value: string | null) => {
     if (value) setAmount(value);
     else setAmount("");

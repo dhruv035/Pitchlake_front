@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { SquarePen, SquareArrowOutUpRight } from "lucide-react";
+import { useProvider, useExplorer, Explorer } from "@starknet-react/core";
+import { Provider } from "starknet";
 
 interface HistoryItem {
   address: string;
@@ -12,36 +14,47 @@ interface HistoryProps {
   items: HistoryItem[];
 }
 
-const HistoryItem: React.FC<{ item: HistoryItem; isLast: boolean }> = ({
-  item,
-  isLast,
-}) => (
-  <div className={`py-4 ${!isLast ? "border-b border-[#262626]" : ""}`}>
-    <div className="flex justify-between items-center">
-      <div>
-        <p className="text-[#E2E2E2] font-semibold flex items-center">
+const HistoryItem: React.FC<{
+  item: HistoryItem;
+  isLast: boolean;
+  explorer: Explorer;
+}> = ({ item, isLast, explorer }) => (
+  <div
+    className={`py-4 px-4 flex flex-row justify-between items-center ${!isLast ? "border-b border-[#262626]" : ""} m-0`}
+  >
+    <div className="flex align-center flex-col gap-1">
+      <a href={explorer.contract(item.address)} target="_blank">
+        <p className="text-[#F5EBB8] text-[12px] font-regular flex items-center cursor-pointer">
           {item.address.slice(0, 6)}...{item.address.slice(-4)}{" "}
           <span className="ml-1 cursor-pointer">
-            <SquareArrowOutUpRight size={16} className="text-[#9CA3AF]" />
+            <SquareArrowOutUpRight size={13} className="text-[#F5EBB8]" />
           </span>
         </p>
-        <p className="text-[#9CA3AF] text-sm">
-          {item.options} options at {item.pricePerOption} ETH each
-        </p>
-        <p className="text-[#E2E2E2] font-medium">Total: {item.total} ETH</p>
-      </div>
-      <div className="bg-[#262626] p-2 rounded-lg cursor-pointer">
-        <SquarePen size={20} className="text-[#E2E2E2]" />
-      </div>
+      </a>
+      <p className="text-[#fafafa] font-regular text-[14px] text-sm">
+        {item.options} options at {item.pricePerOption} ETH each
+      </p>
+      <p className="text-[12px] text-[var(--buttongrey)] font-regular">
+        Total: {item.total} ETH
+      </p>
+    </div>
+    <div className="bg-[#262626] p-2 rounded-lg cursor-pointer">
+      <SquarePen size={20} className="text-[#E2E2E2]" />
     </div>
   </div>
 );
 
 const History: React.FC<HistoryProps> = ({ items }) => {
+  const explorer = useExplorer();
   return (
-    <div className="space-y-2">
+    <div className="">
       {items.map((item, index) => (
-        <HistoryItem key={index} item={item} isLast={true}/>
+        <HistoryItem
+          key={index}
+          item={item}
+          isLast={index === items.length - 1}
+          explorer={explorer}
+        />
       ))}
     </div>
   );

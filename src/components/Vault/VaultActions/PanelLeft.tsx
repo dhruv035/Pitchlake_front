@@ -22,6 +22,7 @@ import {
   ChevronLeft,
   ChevronRight,
   ExternalLinkIcon,
+  SquareArrowOutUpRight,
   Icon,
   PanelLeft as IconPanelLeft,
 } from "lucide-react";
@@ -122,10 +123,10 @@ const PanelLeft = () => {
           isPanelOpen ? "w-full" : "w-[110px]"
         }`}
       >
-        <div className=" text-[14px] bg-black-alt border-[1px] border-greyscale-800 items-start rounded-lg w-full flex flex-col flex-grow h-full max-h-full">
-          <div className="w-full border-b-1 p-3 border-white">
+        <div className="flex items-center align-center text-[14px] bg-black-alt border-[1px] border-greyscale-800 items-start rounded-lg w-full flex flex-col flex-grow h-full max-h-full">
+          <div className="flex items-center h-[56px] w-full border-b-1 p-4 border-white">
             <div
-              className={`flex flex-row w-full rounded-md px-3 hover:cursor-pointer ${
+              className={`flex flex-row w-full items-center rounded-md px-2 hover:cursor-pointer ${
                 isPanelOpen ? "justify-between" : "justify-center"
               }`}
               onClick={() => setIsPanelOpen(!isPanelOpen)}
@@ -135,11 +136,22 @@ const PanelLeft = () => {
               >
                 Statistics
               </p>
-              {isPanelOpen ? (
-                <IconPanelLeft stroke="var(--buttonwhite)" />
-              ) : (
-                <IconPanelLeft stroke="var(--buttonwhite)" />
-              )}
+              <div className="w-[20px] h-[20px]">
+                <IconPanelLeft
+                  className="w-[20px] h-[20px] stroke-[1px]"
+                  stroke="var(--buttonwhite)"
+                />
+              </div>
+              {
+                //  isPanelOpen ? (
+                //  <IconPanelLeft
+                //    className="stroke-[1px]"
+                //    stroke="var(--buttonwhite)"
+                //  />
+                //) : (
+                //  <IconPanelLeft stroke="var(--buttonwhite)" />
+                //)
+              }
             </div>
           </div>
           <div className="flex flex-col w-full px-3 border-t-[1px] border-greyscale-800">
@@ -197,7 +209,7 @@ const PanelLeft = () => {
                       //Add vault address short string from state here
                     }
                   </p>
-                  <ExternalLinkIcon className="size-[16px]" />
+                  <SquareArrowOutUpRight size={16} />
                 </a>
               </div>{" "}
               <div className="flex flex-row justify-between p-2 w-full">
@@ -300,7 +312,7 @@ const PanelLeft = () => {
                       ? Number(selectedRoundState.roundId).toPrecision(1)
                       : ""}
                   </p>
-                  <ExternalLinkIcon className="size-[16px]" />
+                  <SquareArrowOutUpRight className="size-[16px]" />
                 </a>
               </div>
               <div className="max-h-full flex flex-row justify-between items-center p-2 w-full">
