@@ -29,10 +29,7 @@ export default function Header() {
   const { disconnect } = useDisconnect();
   const router = useRouter();
   const { account } = useAccount();
-  const { data: balance } = useBalance({
-    address: account?.address,
-    watch: true,
-  });
+
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const balanceData = {
@@ -65,17 +62,11 @@ export default function Header() {
     document.addEventListener("mousedown", handleClickOutside);
     document.addEventListener("keydown", handleEscKey);
 
-    
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
       document.removeEventListener("keydown", handleEscKey);
     };
   }, []);
-  let date;
-  if(timeStamp)
-  {
-    date = (new Date(Number(timeStamp))).toLocaleString();
-  }
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard
@@ -113,7 +104,7 @@ export default function Header() {
         {conn === "mock" && (
           <div>
             <p>
-              {date}
+              {timeStamp.toString()}
             </p>
           <button onClick={() => mockTimeForward()}>Forward Mock Time</button>
           </div>

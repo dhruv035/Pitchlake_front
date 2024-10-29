@@ -403,23 +403,13 @@ setIsClient(true);
               <div className="flex flex-row justify-between p-2 w-full">
                 <p className="text-[#BFBFBF]">Run Time:</p>
                 <p>
-                  {selectedRoundState?.auctionStartDate &&
-                  selectedRoundState?.auctionEndDate
-                    ? (
-                        BigInt(selectedRoundState.auctionEndDate) -
-                        BigInt(selectedRoundState.auctionStartDate)
-                      ).toString()
-                    : ""}
+                  {""}
                 </p>
               </div>
               <div className="max-h-full flex flex-row justify-between items-center   p-2 w-full">
                 {getStateActionHeader()}
                 <p>
-                  {selectedRoundState?.optionSettleDate
-                    ? timeFromNow(
-                        selectedRoundState.optionSettleDate.toString(),
-                      )
-                    : ""}
+                  {""}
                   { 
                       //isClient?date:""
                     
