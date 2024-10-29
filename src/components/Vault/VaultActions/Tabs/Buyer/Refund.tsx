@@ -11,14 +11,14 @@ interface RefundProps {
   showConfirmation: (
     modalHeader: string,
     action: string,
-    onConfirm: () => Promise<void>
+    onConfirm: () => Promise<void>,
   ) => void;
 }
 
 const Refund: React.FC<RefundProps> = ({ showConfirmation }) => {
   const { roundActions, selectedRoundBuyerState } = useProtocolContext();
   const { address } = useAccount();
-  console.log("selectedRoundBuyerState",selectedRoundBuyerState)
+  console.log("selectedRoundBuyerState", selectedRoundBuyerState);
 
   const handleRefundBid = async (): Promise<void> => {
     address && (await roundActions?.refundUnusedBids({ optionBuyer: address }));
@@ -29,7 +29,7 @@ const Refund: React.FC<RefundProps> = ({ showConfirmation }) => {
     showConfirmation(
       "Refund",
       `Refund for ${selectedRoundBuyerState?.refundableBalance} ETH?`,
-      handleRefundBid
+      handleRefundBid,
     );
   };
 
@@ -38,13 +38,15 @@ const Refund: React.FC<RefundProps> = ({ showConfirmation }) => {
       <div className="flex flex-col flex-grow space-y-6 items-center justify-center">
         <div className="p-6 rounded-2xl bg-icon-gradient border-[1px] border-greyscale-800">
           <RepeatEthIcon />
-          
         </div>
-        <p>Your Refundable balance is {selectedRoundBuyerState?.refundableBalance} ETH</p>
+        <p>
+          Your Refundable balance is{" "}
+          {selectedRoundBuyerState?.refundableBalance} ETH
+        </p>
       </div>
-    
+
       <div className="mt-auto">
-        <div className="flex justify-between text-sm mb-4 pt-4 border-t border-[#262626]">
+        <div className="px-6 flex justify-between text-sm mb-6 pt-6 border-t border-[#262626]">
           <ActionButton
             onClick={handleSubmit}
             disabled={

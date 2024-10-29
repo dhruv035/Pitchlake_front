@@ -11,14 +11,14 @@ interface MintProps {
   showConfirmation: (
     modalHeader: string,
     action: string,
-    onConfirm: () => Promise<void>
+    onConfirm: () => Promise<void>,
   ) => void;
 }
 
 const Mint: React.FC<MintProps> = ({ showConfirmation }) => {
   const { roundActions, selectedRoundBuyerState } = useProtocolContext();
   const { address } = useAccount();
-  console.log("selectedRoundBuyerState",selectedRoundBuyerState)
+  console.log("selectedRoundBuyerState", selectedRoundBuyerState);
 
   const handleMintOptions = async (): Promise<void> => {
     address && (await roundActions?.tokenizeOptions());
@@ -29,7 +29,7 @@ const Mint: React.FC<MintProps> = ({ showConfirmation }) => {
     showConfirmation(
       "Mint",
       `Mint options for ${selectedRoundBuyerState?.refundableBalance} ETH?`,
-      handleMintOptions
+      handleMintOptions,
     );
   };
 
@@ -38,13 +38,15 @@ const Mint: React.FC<MintProps> = ({ showConfirmation }) => {
       <div className="flex flex-col flex-grow space-y-6 items-center justify-center">
         <div className="p-6 rounded-2xl bg-icon-gradient border-[1px] border-greyscale-800">
           <HammerIcon />
-          
         </div>
-        <p>Your mintable token balance is {selectedRoundBuyerState?.refundableBalance} ETH</p>
+        <p>
+          Your mintable token balance is{" "}
+          {selectedRoundBuyerState?.refundableBalance}
+        </p>
       </div>
-    
+
       <div className="mt-auto">
-        <div className="flex justify-between text-sm mb-4 pt-4 border-t border-[#262626]">
+        <div className="px-6 flex justify-between text-sm mb-6 pt-6 border-t border-[#262626]">
           <ActionButton
             onClick={handleSubmit}
             disabled={

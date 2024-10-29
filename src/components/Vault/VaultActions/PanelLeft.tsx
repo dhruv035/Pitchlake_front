@@ -586,7 +586,9 @@ const PanelLeft = ({ userType }: { userType: string }) => {
               </div>
             </div>
           </div>
-          <div className="border border-transparent border-t-[#262626] flex flex-col w-[100%] mx-[auto] mt-[auto] mb-[1rem]">
+          <div
+            className={`${isPanelOpen ? "border border-transparent border-t-[#262626]" : ""} flex flex-col w-[100%] mx-[auto] mt-[auto] mb-[1rem]`}
+          >
             {selectedRoundState &&
               selectedRoundState.roundState !== "SETTLED" && (
                 <div className="px-6">
