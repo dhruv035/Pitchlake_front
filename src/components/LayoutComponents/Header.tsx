@@ -156,7 +156,7 @@ export default function Header() {
   };
 
   return (
-    <nav className="absolute top-0 z-50 w-full h-[92px] bg-[#121212] px-8 py-6 flex justify-between items-center border-b border-[#262626]">
+    <nav className="absolute top-0 z-50 w-full h-[84px] bg-[#121212] px-8 py-6 flex justify-between items-center border-b border-[#262626]">
       <div className="flex-shrink-0">
         <Image
           onClick={() => {
@@ -170,6 +170,10 @@ export default function Header() {
           style={{ objectFit: "contain" }}
         />
       </div>
+
+      {
+        // Mock //
+      }
 
       <div className="flex items-center space-x-4 text-[14px] font-medium">
         {conn === "mock" && (
@@ -192,12 +196,13 @@ export default function Header() {
         ) : (
           <></>
         )}
+
         <div className="relative" ref={dropdownRef}>
           {account ? (
             <>
               <button
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="flex items-center space-x-2 py-2 px-3 rounded-md border border-greyscale-800"
+                className="flex items-center space-x-2 py-2 px-3 rounded-md border border-greyscale-800 w-[164px] h-[44px]"
               >
                 <Image
                   src={avatar}
@@ -233,16 +238,16 @@ export default function Header() {
           ) : (
             <>
               <button
-                className="flex flex-row min-w-16 bg-primary-400 text-black text-sm px-8 py-4 rounded-md"
+                className="flex flex-row min-w-16 bg-primary-400 text-black text-sm px-8 py-4 rounded-md w-[123px] h-[44px] items-center justify-center"
                 onClick={() => setIsDropdownOpen((state) => !state)}
               >
                 <p>Connect</p>
                 <Image
                   src={login}
                   alt="Login"
-                  width={20}
-                  height={30}
-                  className="ml-2"
+                  width={18}
+                  height={18}
+                  className="ml-1"
                   style={{ objectFit: "contain" }}
                 />
               </button>

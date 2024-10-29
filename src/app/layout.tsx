@@ -39,7 +39,7 @@ export default function RootLayout({
           <TransactionProvider>
             <ProtocolProvider>
               <Header />
-              <div className="mt-24">{children}</div>
+              <div className="mt-[84px]">{children}</div>
               <div className="flex flex-grow flex-col-reverse">
                 <Footer />
               </div>

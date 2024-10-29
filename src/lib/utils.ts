@@ -28,22 +28,54 @@ export const formatNumberText = (number: number) => {
 };
 
 export const timeFromNow = (timestamp: string) => {
-  const now = new Date();
-  const targetDate = new Date(Number(timestamp) * 1000);
+  //  const now = new Date();
+  //  const targetDate = new Date(Number(timestamp) * 1000);
+  //
+  //  // Calculate the difference in milliseconds
+  //  const diffInMs = now.getTime() - targetDate.getTime();
+  //
+  //  // Convert milliseconds to meaningful units
+  //  const msInDay = 24 * 60 * 60 * 1000;
+  //  const msInHour = 60 * 60 * 1000;
+  //  const msInMinute = 60 * 1000;
+  //
+  //  const days = Math.floor(diffInMs / msInDay);
+  //  const hours = Math.floor((diffInMs % msInDay) / msInHour);
+  //  const minutes = Math.floor((diffInMs % msInHour) / msInMinute);
+  //
+  //  return `${diffInMs > 0 ? "-" : ""}${days}d ${hours}h ${minutes}m`;
+  const now = new Date().getTime() / 1000;
+
+  return timeUntilTarget(now.toString(), timestamp);
+};
+
+export const timeUntilTarget = (timestamp: string, target: string) => {
+  const timestampDate = new Date(Number(timestamp) * 1000);
+  const targetDate = new Date(Number(target) * 1000);
 
   // Calculate the difference in milliseconds
-  const diffInMs = now.getTime() - targetDate.getTime();
+  const diffInMs = targetDate.getTime() - timestampDate.getTime();
+  const sign = diffInMs < 0 ? "-" : "";
+  const diffInMsAbs = Math.abs(diffInMs);
 
   // Convert milliseconds to meaningful units
   const msInDay = 24 * 60 * 60 * 1000;
   const msInHour = 60 * 60 * 1000;
   const msInMinute = 60 * 1000;
+  const msInSecond = 1000;
 
-  const days = Math.floor(diffInMs / msInDay);
-  const hours = Math.floor((diffInMs % msInDay) / msInHour);
-  const minutes = Math.floor((diffInMs % msInHour) / msInMinute);
+  const days = Math.floor(diffInMsAbs / msInDay);
+  const hours = Math.floor((diffInMsAbs % msInDay) / msInHour);
+  const minutes = Math.floor((diffInMsAbs % msInHour) / msInMinute);
+  const seconds = Math.floor((diffInMsAbs % msInMinute) / msInSecond);
 
-  return `${diffInMs > 0 ? "-" : ""}${days}d ${hours}h ${minutes}m`;
+  let str = `${sign}`;
+  str += days > 0 ? `${days}d ` : "";
+  str += hours > 0 ? `${hours}h ` : "";
+  str += minutes > 0 ? `${minutes}m ` : "";
+  str += days == 0 ? (seconds > 0 ? `${seconds}s ` : "") : "";
+
+  return str;
 };
 
 import { Connector } from "@starknet-react/core";

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 import { useProtocolContext } from "@/context/ProtocolProvider";
 
@@ -25,9 +25,18 @@ const StateTransitionConfirmationModal = ({
   onConfirm,
   onClose,
 }: StateTransitionConfirmationModalProps) => {
+  useEffect(() => {
+    // Disable scrolling when the modal is mounted
+    document.body.style.overflow = "hidden";
+
+    // Re-enable scrolling when the modal is unmounted
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, []);
   return (
     <div
-      className="fixed inset-0 flex items-center justify-center z-50 backdrop-blur-sm bg-black/50"
+      className="overflow-hidden fixed inset-0 flex items-center justify-center z-50 backdrop-blur-sm bg-black/50"
       onClick={onClose} // Close the modal when the background is clicked
     >
       <div
