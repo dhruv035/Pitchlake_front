@@ -8,7 +8,7 @@ import login from "@/../public/login.svg";
 import braavosIcon from "@/../public/braavos.svg";
 import argent from "@/../public/argent.svg";
 import avatar from "@/../public/avatar.svg";
-import { toast } from "react-toastify";
+import { toast, ToastContainer, Bounce } from "react-toastify";
 import {
   braavos,
   useAccount,
@@ -99,7 +99,7 @@ export default function Header() {
       .writeText(text)
       .then(() => {
         // Add a toast message
-        toast("Copied to clipboard", { autoClose: 1000 });
+        toast("Copied to clipboard", { type: "success" });
       })
       .catch((err) => {
         console.error("Failed to copy: ", err);
@@ -213,12 +213,21 @@ export default function Header() {
               </button>
 
               {isDropdownOpen && (
-                <ProfileDropdown
-                  account={account}
-                  balance={balanceData}
-                  disconnect={disconnect}
-                  copyToClipboard={copyToClipboard}
-                />
+                <>
+                  <ProfileDropdown
+                    account={account}
+                    balance={balanceData}
+                    disconnect={disconnect}
+                    copyToClipboard={copyToClipboard}
+                  />
+                  <ToastContainer
+                    autoClose={3000}
+                    closeOnClick
+                    hideProgressBar={false}
+                    transition={Bounce}
+                    //theme="dark"
+                  />
+                </>
               )}
             </>
           ) : (

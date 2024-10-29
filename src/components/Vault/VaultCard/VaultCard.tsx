@@ -59,10 +59,10 @@ export default function VaultCard({ vaultAddress }: { vaultAddress: string }) {
                 classname="w-4 h-4 mr-2"
                 stroke={"var(--greyscale)"}
               />
-              <p>APY:</p>
+              <p className="font-regular text-[14px] text-[#BFBFBF]">APY:</p>
             </div>
 
-            <p>
+            <p className="text-[#fafafa] font-medium text-[14px]">
               {
                 "12.3%"
                 //Add APY from state here
@@ -75,10 +75,10 @@ export default function VaultCard({ vaultAddress }: { vaultAddress: string }) {
                 classname="w-4 h-4 mr-2"
                 stroke={"var(--greyscale)"}
               />
-              <p>CL:</p>
+              <p className="font-regular text-[14px] text-[#BFBFBF]">CL:</p>
             </div>
 
-            <p>
+            <p className="text-[#fafafa] font-medium text-[14px]">
               {
                 "78%"
                 //Add CL from state here
@@ -91,10 +91,10 @@ export default function VaultCard({ vaultAddress }: { vaultAddress: string }) {
                 classname="w-4 h-4 mr-2"
                 stroke={"var(--greyscale)"}
               />
-              <p>Strike:</p>
+              <p className="font-regular text-[14px] text-[#BFBFBF]">Strike:</p>
             </div>
 
-            <p>
+            <p className="text-[#fafafa] font-medium text-[14px]">
               {
                 "5123.32"
                 //Add Strike price from state here
@@ -107,10 +107,10 @@ export default function VaultCard({ vaultAddress }: { vaultAddress: string }) {
           <div className="flex flex-row justify-between m-2">
             <div className="flex flex-row items-center">
               <TagIcon classname="w-4 h-4 mr-2" stroke={"var(--greyscale)"} />
-              <p>FEES:</p>
+              <p className="font-regular text-[14px] text-[#BFBFBF]">FEES:</p>
             </div>
 
-            <p>
+            <p className="text-[#fafafa] font-medium text-[14px]">
               {
                 "12.3"
                 //Add APY from state here
@@ -124,10 +124,10 @@ export default function VaultCard({ vaultAddress }: { vaultAddress: string }) {
                 classname="w-4 h-4 mr-2"
                 stroke={"var(--greyscale)"}
               />
-              <p>TVL:</p>
+              <p className="font-regular text-[14px] text-[#BFBFBF]">TVL:</p>
             </div>
 
-            <p>
+            <p className="text-[#fafafa] font-medium text-[14px]">
               {
                 "12.3"
                 //Add TVL from state here
@@ -141,10 +141,12 @@ export default function VaultCard({ vaultAddress }: { vaultAddress: string }) {
                 classname="w-4 h-4 mr-2"
                 stroke={"var(--greyscale)"}
               />
-              <p>TIME LEFT:</p>
+              <p className="font-regular text-[14px] text-[#BFBFBF]">
+                TIME LEFT:
+              </p>
             </div>
 
-            <p>
+            <p className="text-[#fafafa] font-medium text-[14px]">
               {
                 "5 Days"
                 //Add Time left from state here
