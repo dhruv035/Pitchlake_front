@@ -36,7 +36,7 @@ const useMockVault = (selectedRound: number, address?: string) => {
     queuedBps: "1234",
   });
 
-  const { rounds, setRounds, buyerStates,setBuyerStates, roundActions } =
+  const { rounds, setRounds, buyerStates, setBuyerStates, roundActions } =
     useMockOptionRounds(selectedRound);
 
   // Function to update a specific field in the LP state
@@ -103,15 +103,20 @@ const useMockVault = (selectedRound: number, address?: string) => {
           payoutPerOption: "",
           vaultAddress: "",
           reservePrice: "2000000000",
-          auctionStartDate: 200000+Number(newState[selectedRound - 1].auctionEndDate),
-          auctionEndDate: 400000+Number(newState[selectedRound - 1].auctionEndDate),
-          optionSettleDate: 600000+ Number(newState[selectedRound - 1].auctionEndDate),
+          auctionStartDate:
+            200000 + Number(newState[selectedRound - 1].auctionEndDate),
+          auctionEndDate:
+            400000 + Number(newState[selectedRound - 1].auctionEndDate),
+          optionSettleDate:
+            600000 + Number(newState[selectedRound - 1].auctionEndDate),
           deploymentDate: "",
           soldLiquidity: "",
           unsoldLiquidity: "",
           optionSold: "",
           totalPayout: "",
           treeNonce: "",
+          performanceLP: "",
+          performanceOB: "",
           // Add other fields as necessary
         });
         return newState;
@@ -121,7 +126,7 @@ const useMockVault = (selectedRound: number, address?: string) => {
       return [
         ...prevState,
         {
-          address: address??"0x1",
+          address: address ?? "0x1",
           roundId: BigInt(vaultState.currentRoundId) + BigInt(1),
           tokenizableOptions: 11,
           refundableBalance: 24,
@@ -137,7 +142,6 @@ const useMockVault = (selectedRound: number, address?: string) => {
       };
     });
   };
-
 
   const vaultActions: VaultActionsType = {
     // User actions
@@ -156,7 +160,7 @@ const useMockVault = (selectedRound: number, address?: string) => {
     currentRoundAddress,
     vaultActions,
     optionRoundStates: rounds,
-    optionRoundActions:roundActions,
+    optionRoundActions: roundActions,
     optionBuyerStates: buyerStates,
     roundActions: roundActions,
   };

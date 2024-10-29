@@ -8,27 +8,46 @@ import login from "@/../public/login.svg";
 import braavosIcon from "@/../public/braavos.svg";
 import argent from "@/../public/argent.svg";
 import avatar from "@/../public/avatar.svg";
-import { toast } from "react-toastify";
+import { toast, ToastContainer, Bounce } from "react-toastify";
 import {
   braavos,
   useAccount,
   useBalance,
   useConnect,
+  useDeployAccount,
   useDisconnect,
+  useProvider,
 } from "@starknet-react/core";
 import ProfileDropdown from "../BaseComponents/ProfileDropdown";
 import { copyToClipboard } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { useProtocolContext } from "@/context/ProtocolProvider";
+import {
+  Account,
+  BigNumberish,
+  RawArgs,
+  DeployAccountContractPayload,
+  CallData,
+  hash,
+  num,
+  // ArgentX,
+} from "starknet";
+import useERC20 from "@/hooks/erc20/useERC20";
 
 export default function Header() {
-  const { conn, timeStamp,mockTimeForward } = useProtocolContext();
+  const { conn, timeStamp, mockTimeForward, vaultState } = useProtocolContext();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const isDropdownOpenRef = useRef(isDropdownOpen);
   const { connect, connectors } = useConnect();
   const { disconnect } = useDisconnect();
+  const { deployAccount, deployAccountAsync } = useDeployAccount({});
   const router = useRouter();
   const { account } = useAccount();
+  const { provider } = useProvider();
+  const { approve, fund } = useERC20(
+    "0x49d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+    "0x650f26d7f5bd4727a40c045590ab72925d26bbaf69383e386e324eba95cc935",
+  );
 
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -73,7 +92,7 @@ export default function Header() {
       .writeText(text)
       .then(() => {
         // Add a toast message
-        toast("Copied to clipboard", { autoClose: 1000 });
+        toast("Copied to clipboard", { type: "success" });
       })
       .catch((err) => {
         console.error("Failed to copy: ", err);
@@ -84,8 +103,53 @@ export default function Header() {
     return str ? `${str.slice(0, 6)}...${str.slice(-4)}` : "";
   };
 
+  const fundAndDeploy = async (): Promise<void> => {
+    /// Set allowance
+    console.log("funding...");
+    await fund({
+      amount: num.toBigInt("1000000000000000000"),
+      spender: account ? account.address : "",
+    });
+    console.log("funded");
+
+    // Make the POST request
+    try {
+      const response = await fetch("http://localhost:3000/pricing_data", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": "b2ed9cdc-2dd0-4b81-8ed4-bcefbf29ddc1",
+        },
+        body: JSON.stringify({
+          identifiers: ["PITCH_LAKE_V1"],
+          params: {
+            twap: [1730053616, 1730140016],
+            volatility: [1729880816, 1730140016],
+            reserve_price: [1729880816, 1730140016],
+          },
+          client_info: {
+            client_address: account ? account.address : "",
+            vault_address: vaultState ? vaultState.address : "",
+            timestamp: 1730140016,
+          },
+        }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Error sending request:", errorText);
+        throw new Error("Failed to send request");
+      }
+
+      const result = await response.json();
+      console.log("Post result:", result);
+    } catch (error) {
+      console.error("Error during fundAndDeploy:", error);
+    }
+  };
+
   return (
-    <nav className="absolute top-0 z-50 w-full h-[92px] bg-[#121212] px-8 py-6 flex justify-between items-center border-b border-[#262626]">
+    <nav className="absolute top-0 z-50 w-full h-[84px] bg-[#121212] px-8 py-6 flex justify-between items-center border-b border-[#262626]">
       <div className="flex-shrink-0">
         <Image
           onClick={() => {
@@ -100,7 +164,11 @@ export default function Header() {
         />
       </div>
 
-      <div className="flex items-center space-x-4">
+      {
+        // Mock //
+      }
+
+      <div className="flex items-center space-x-4 text-[14px] font-medium">
         {conn === "mock" && (
           <div>
             <p>
@@ -112,12 +180,24 @@ export default function Header() {
         <div className="cursor-pointer border-[1px] border-greyscale-800 p-2 rounded-md">
           <BellIcon className="h-6 w-6 text-primary" />
         </div>
+
+        {account ? (
+          <button
+            onClick={() => fundAndDeploy()}
+            className="font-medium cursor-pointer border-[1px] border-greyscale-800 p-2 rounded-md"
+          >
+            Fund and Deploy Account
+          </button>
+        ) : (
+          <></>
+        )}
+
         <div className="relative" ref={dropdownRef}>
           {account ? (
             <>
               <button
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="flex items-center space-x-2 py-2 px-3 rounded-md border border-greyscale-800"
+                className="flex items-center space-x-2 py-2 px-3 rounded-md border border-greyscale-800 w-[164px] h-[44px]"
               >
                 <Image
                   src={avatar}
@@ -126,34 +206,43 @@ export default function Header() {
                   height={24}
                   className="rounded-full"
                 />
-                <span className="text-white">
+                <span className="text-white" font-medium>
                   {shortenString(account.address)}
                 </span>
                 <ChevronDownIcon className="h-4 w-4 text-white" />
               </button>
 
               {isDropdownOpen && (
-                <ProfileDropdown
-                  account={account}
-                  balance={balanceData}
-                  disconnect={disconnect}
-                  copyToClipboard={copyToClipboard}
-                />
+                <>
+                  <ProfileDropdown
+                    account={account}
+                    balance={balanceData}
+                    disconnect={disconnect}
+                    copyToClipboard={copyToClipboard}
+                  />
+                  <ToastContainer
+                    autoClose={3000}
+                    closeOnClick
+                    hideProgressBar={false}
+                    transition={Bounce}
+                    //theme="dark"
+                  />
+                </>
               )}
             </>
           ) : (
             <>
               <button
-                className="flex flex-row min-w-16 bg-primary-400 text-black text-sm px-8 py-4 rounded-md"
+                className="flex flex-row min-w-16 bg-primary-400 text-black text-sm px-8 py-4 rounded-md w-[123px] h-[44px] items-center justify-center"
                 onClick={() => setIsDropdownOpen((state) => !state)}
               >
                 <p>Connect</p>
                 <Image
                   src={login}
                   alt="Login"
-                  width={20}
-                  height={30}
-                  className="ml-2"
+                  width={18}
+                  height={18}
+                  className="ml-1"
                   style={{ objectFit: "contain" }}
                 />
               </button>

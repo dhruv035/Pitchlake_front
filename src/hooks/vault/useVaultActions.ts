@@ -19,30 +19,17 @@ import { useCallback, useMemo } from "react";
 import { useTransactionContext } from "@/context/TransactionProvider";
 
 const useVaultActions = (address?: string) => {
+  const { setPendingTx } = useTransactionContext();
+  const { account } = useAccount();
   const { contract } = useContract({
     abi: vaultABI,
     address,
   });
 
-  const { isDev, devAccount } = useTransactionContext();
-  const { account: connectorAccount } = useAccount();
-  const { setPendingTx } = useTransactionContext();
-
-  //  const account = useMemo(() => {
-  //    if (isDev === true) {
-  //      return devAccount;
-  //    } else return connectorAccount;
-  //  }, [connectorAccount, isDev, devAccount]);
-  const account = getDevAccount(
-    new RpcProvider({ nodeUrl: "http://localhost:5050/rpc" }),
-  );
-
-  console.log("AAACCOUNT: ", account);
-
   const typedContract = useMemo(() => {
     if (!contract) return;
     const typedContract = contract.typedv2(vaultABI);
-    if (account) typedContract.connect(account as Account);
+    if (account) typedContract.connect(account);
     return typedContract;
   }, [contract, account]);
 

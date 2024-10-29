@@ -78,12 +78,12 @@ const WithdrawLiquidity: React.FC<WithdrawQueueProps> = ({
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex-grow space-y-6">
+      <div className="flex-grow px-6">
         <label className="block text-sm font-medium text-gray-400 mb-2">
           Choose Percentage
         </label>
         <div className="flex items-center space-x-4">
-          <div className="w-full h-10 bg-black border border-[#595959] rounded-md flex items-center px-5">
+          <div className="border-[1px] border-[#595959] w-full h-[44px] bg-[#0A0A0A] rounded-md flex items-center px-4">
             <input
               type="range"
               min="0"
@@ -105,11 +105,15 @@ const WithdrawLiquidity: React.FC<WithdrawQueueProps> = ({
                 [&::-moz-range-thumb]:hover:bg-[#F5EBB8]"
             />
           </div>
-          <span className="text-sm w-12 text-right">{state.percentage}%</span>
+          <div className="border-[1px] border-[#595959] flex justify-center items-center h-[44px] w-[60px] bg-[#0A0A0A] rounded-lg">
+            <span className="text-[14px] font-medium text-[#FAFAFA] text-center">
+              {state.percentage}%
+            </span>
+          </div>
         </div>
       </div>
       <div className="mt-auto">
-        <div className="flex justify-between text-sm mb-4 pt-4 border-t border-[#262626]">
+        <div className="flex justify-between text-sm p-6 border-t border-[#262626]">
           <ActionButton
             onClick={handleSubmit}
             disabled={isButtonDisabled()}

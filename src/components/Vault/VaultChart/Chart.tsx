@@ -101,9 +101,12 @@ const RoundPerformanceChart = () => {
 
   return (
     <div className="w-full h-[800px] bg-black-alt rounded-[12px] border border-greyscale-800 flex flex-col">
-      <div className="flex flex-row p-6 justify-between border-b-[1px] border-greyscale-800 pb-4">
-        <div className="text-primary flex flex-row items-center ">
-          Round &nbsp;
+      <div className="flex flex-row items-center p-5 justify-between border-b-[1px] border-greyscale-800 pb-4 h-[56px]">
+        <div
+          onClick={() => setRoundNavIsOpen(!roundNavIsOpen)}
+          className="font-medium text-[14px] text-primary flex flex-row items-center align-center hover:cursor-pointer"
+        >
+          <p className="flex flex-row items-center">Round &nbsp;</p>
           {
             //selectedRoundState?.roundId +
             //(selectedRoundState?.roundId.toString() ===
@@ -116,13 +119,18 @@ const RoundPerformanceChart = () => {
             //Round number here
             //Concat  (Live) if live
           }
-          {!roundNavIsOpen ? (
-            <ArrowDownIcon stroke="var(--primary)" classname="ml-2 w-4 h-4" />
-          ) : (
-            <ArrowUpIcon stroke="var(--primary)" classname="ml-2 w-4 h-4" />
-          )}
+          <div className="flex items-center ">
+            {!roundNavIsOpen ? (
+              <ArrowDownIcon
+                stroke="var(--primary)"
+                classname="flex items-center ml-2 w-4 h-4"
+              />
+            ) : (
+              <ArrowUpIcon stroke="var(--primary)" classname="ml-2 w-4 h-4" />
+            )}
+          </div>
         </div>
-        <div className="flex flex-row items-center">
+        <div className="flex flex-row items-center gap-4">
           <div onClick={decrementRound}>
             <ArrowLeftIcon
               stroke={
@@ -160,27 +168,24 @@ const RoundPerformanceChart = () => {
           {["TWAP", "BASEFEE", "STRIKE", "CAP_LEVEL"].map((line) => (
             <button
               key={line}
-              className={`flex items-center
+              className={`flex flex-row items-center font-regular text-[12px]
                 ${
-                  //activeLines[line]
-                  //?
                   line === "TWAP"
                     ? "text-success"
                     : line === "BASEFEE"
-                    ? "text-greyscale"
-                    : line === "STRIKE"
-                    ? "text-warning-300"
-                    : "text-error-300"
-                  //: "text-greyscale"
+                      ? "text-greyscale"
+                      : line === "STRIKE"
+                        ? "text-warning-300"
+                        : "text-error-300"
                 }`}
               onClick={() => toggleLine(line)}
             >
-              {activeLines[line] ? (
-                <EyeIcon className="w-4 h-4 mr-1" />
-              ) : (
-                <EyeOffIcon className="w-4 h-4 mr-1" />
-              )}
               {line === "CAP_LEVEL" ? "CAP LEVEL" : line}
+              {activeLines[line] ? (
+                <EyeIcon className="w-4 h-4 ml-2 mr-3" />
+              ) : (
+                <EyeOffIcon className="w-4 h-4 ml-2 mr-3" />
+              )}
             </button>
           ))}
         </div>

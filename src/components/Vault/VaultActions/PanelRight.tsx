@@ -21,7 +21,7 @@ interface TabContentProps {
   showConfirmation: (
     amount: string,
     action: string,
-    onConfirm: () => Promise<void>
+    onConfirm: () => Promise<void>,
   ) => void;
 }
 
@@ -67,14 +67,13 @@ if(!(activeTab in tabs)){
   },[tabs,selectedRoundState?.roundState])
 
   useEffect(() => {
-    console.log("STATES",pendingTx, modalState.type, status)
+    console.log("STATES", pendingTx, modalState.type, status);
     if (modalState.type === "pending") {
       if (!pendingTx && status === "success") {
         setModalState((prevState) => ({ ...prevState, type: "success" }));
       } else if (!pendingTx && status === "error") {
         setModalState((prevState) => ({ ...prevState, type: "failure" }));
-      }
-      else if (!pendingTx && !status){
+      } else if (!pendingTx && !status) {
         setModalState((prevState) => ({ ...prevState, type: "success" }));
       }
     }
@@ -86,7 +85,7 @@ if(!(activeTab in tabs)){
   const showConfirmation = (
     modalHeader: string,
     action: string,
-    onConfirm: () => Promise<void>
+    onConfirm: () => Promise<void>,
   ) => {
     setModalState({
       show: true,
@@ -148,7 +147,7 @@ if(!(activeTab in tabs)){
   }
 
   return (
-    <div className="bg-[#121212] border border-[#262626] rounded-lg p-4 w-full flex flex-col h-full">
+    <div className="bg-[#121212] border border-[#262626] rounded-lg w-full flex flex-col h-full justify-center">
       {tabs.length > 0 ? (
         <>
           <Tabs
@@ -156,7 +155,9 @@ if(!(activeTab in tabs)){
             activeTab={activeTab}
             setActiveTab={handleTabChange}
           />
-          <div className="flex-grow">{renderTabContent()}</div>
+          <div className="flex flex-col flex-grow h-[max]">
+            {renderTabContent()}
+          </div>
         </>
       ) : (
         <div className="text-white">Round hasn&apos;t started yet</div>

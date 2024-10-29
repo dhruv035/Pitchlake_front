@@ -11,24 +11,39 @@ import {
   LineChartDownIcon,
   SafeIcon,
 } from "@/components/Icons";
-import { timeFromNow, shortenString, formatNumberText } from "@/lib/utils";
+import {
+  timeFromNow,
+  timeUntilTarget,
+  shortenString,
+  formatNumberText,
+} from "@/lib/utils";
 import { formatUnits, formatEther, parseEther } from "ethers";
 import { useProtocolContext } from "@/context/ProtocolProvider";
 import StateTransitionConfirmationModal from "@/components/Vault/Utils/StateTransitionConfirmationModal";
 import {
   ArrowRightIcon,
+  ChevronUp,
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
   ExternalLinkIcon,
+  SquareArrowOutUpRight,
+  Icon,
+  Info,
+  PanelLeft as IconPanelLeft,
 } from "lucide-react";
 import { useExplorer } from "@starknet-react/core";
+import { BalanceTooltip } from "@/components/BaseComponents/Tooltip";
+import StateTransition from "@/components/Vault/VaultActions/StateTransition";
 
 // comment for git
 
-const PanelLeft = () => {
+const PanelLeft = ({ userType }: { userType: string }) => {
   const { vaultState, selectedRoundState, vaultActions, timeStamp } =
     useProtocolContext();
+
   const explorer = useExplorer();
+  const [canStateTransition, setCanStateTransition] = useState<boolean>(false);
   const [vaultIsOpen, setVaultIsOpen] = useState<boolean>(true);
   const [optionRoundIsOpen, setOptionRoundIsOpen] = useState<boolean>(true);
   const [isPanelOpen, setIsPanelOpen] = useState<boolean>(false);
@@ -41,6 +56,33 @@ const PanelLeft = () => {
     action: "",
     onConfirm: async () => {},
   });
+
+  const getNowBlockTime = () => {
+    return Number(new Date().getTime()) / 1000;
+  };
+
+  const canAuctionStart = () => {
+    const now = getNowBlockTime();
+    const auctionStartDate = selectedRoundState?.auctionStartDate
+      ? Number(selectedRoundState.auctionStartDate)
+      : 0;
+    if (now < auctionStartDate) {
+      return "Auction Start Date Not Reached";
+    }
+
+    const selectedRoundId = selectedRoundState?.roundId
+      ? Number(selectedRoundState.roundId)
+      : 1;
+    if (selectedRoundId === 1) {
+      if (selectedRoundState?.roundState === "Open") {
+        return "Pricing Data Not Set Yet";
+      }
+    }
+
+    if (selectedRoundState?.roundState !== "Open") {
+      return "Auction Already Started";
+    }
+  };
 
   const hideModal = () => {
     setModalState({
@@ -55,113 +97,105 @@ const PanelLeft = () => {
     // Optionally reset the modal state or handle success here
   };
   let date;
-  if (selectedRoundState?.auctionEndDate)  
-  date = new Date(Number(selectedRoundState?.auctionEndDate)).toLocaleString();
+  if (selectedRoundState?.auctionEndDate)
+    date = new Date(
+      Number(selectedRoundState?.auctionEndDate),
+    ).toLocaleString();
 
   const getStateActionHeader = () => {
     const roundState = selectedRoundState?.roundState
       ? selectedRoundState.roundState
       : "Open";
     if (roundState === "Open") {
-      return <p className="text-[#BFBFBF]">Auction Starts In:</p>;
+      return <p className="text-[#BFBFBF]">Auction Starts In</p>;
     } else if (roundState === "Auctioning") {
-      return <p className="text-[#BFBFBF]">Auction Ends In:</p>;
+      return <p className="text-[#BFBFBF]">Auction Ends In</p>;
     } else if (roundState === "Running") {
-      return <p className="text-[#BFBFBF]">Round Settles In:</p>;
+      return <p className="text-[#BFBFBF]">Round Ends In</p>;
     } else {
-      return;
+      return <p className="text-[#BFBFBF]">Round Ended</p>;
     }
   };
 
-  const getStateBgColor = () => {
-    const roundState = selectedRoundState?.roundState
-      ? selectedRoundState.roundState
-      : "Open";
-    //let roundState = "Auctioning";
-
-    if (roundState === "Open") {
-      return "[#214C0B80]";
-    } else if (roundState === "Auctioning") {
-      return "[#45454580]";
-    } else if (roundState === "Running") {
-      return "[#6D1D0D59]";
-    } else {
-      return "[#CC455E33]";
-    }
+  const stateStyles: any = {
+    Open: {
+      bg: "bg-[#214C0B80]",
+      text: "text-[#6AB942]",
+      border: "border-[#347912]",
+    },
+    Auctioning: {
+      bg: "bg-[#45454580]",
+      text: "text-[#FAFAFA]",
+      border: "border-[#BFBFBF]",
+    },
+    Running: {
+      bg: "bg-[#6D1D0D59]",
+      text: "text-[#F78771]",
+      border: "border-[#F78771]",
+    },
+    Settled: {
+      bg: "bg-[#CC455E33]",
+      text: "text-[#DA718C]",
+      border: "border-[#CC455E]",
+    },
+    Default: {
+      bg: "bg-[#CC455E33]",
+      text: "text-[#CC455E]",
+      border: "border-[#CC455E]",
+    },
   };
 
-  const getStateTextColor = () => {
-    const roundState = selectedRoundState?.roundState
-      ? selectedRoundState.roundState
-      : "Open";
-    //let roundState = "Auctioning";
+  const [isClient, setIsClient] = useState(false);
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
-    if (roundState === "Open") {
-      return "[#347912]";
-    } else if (roundState === "Auctioning") {
-      return "[#BFBFBF]";
-    } else if (roundState === "Running") {
-      return "warning";
-    } else {
-      return "[#CC455E]";
-    }
-  };
+  const roundState = selectedRoundState?.roundState.toString() || "Open";
+  const styles = stateStyles[roundState] || stateStyles.Default;
 
-  // const getStateBanner = () => {
-  //   //const roundState = selectedRoundState?.roundState
-  //   //  ? selectedRoundState.roundState
-  //   //  : "Open";
-  //   let roundState = "Auctioning";
-  //   let bg = "";
-  //   let text = "";
-  //   if (roundState === "Open") {
-  //     bg = "[#214C0B80]";
-  //     text = "[#347912]";
-  //   } else if (roundState === "Auctioning") {
-  //     bg = "[#45454580]";
-  //     text = "[warning]"; // "#BFBFBF";
-  //     //return "#45454580";
-  //   } else if (roundState === "Running") {
-  //     bg = "[#6D1D0D59]";
-  //     text = "[#F78771]";
-  //   } else {
-  //     bg = "[#CC455E33]";
-  //     text = "[#CC455E]";
-  //   }
-  //   console.log(bg, text);
-  //   const className = `text-[${text}] bg-[${bg}] border-[1px] border-[${text}] rounded-full px-2 py-[1px]`;
-  //   console.log("CLASSNAME", className);
-  //   return <p className={className}>{roundState}</p>;
-  // };
+  console.log("A:SSFLKSDJF:LKSJDS", userType, roundState);
 
-  const [isClient,setIsClient] = useState(false);
-  useEffect(()=>{
-setIsClient(true);
-  },[])
   return (
     <>
       <div
-        className={`flex flex-col mr-4 max-w-[350px] transition-all duration-300 max-h-[800px] overflow-hidden ${
+        className={`flex flex-col mr-4 max-w-[350px] transition-all duration-300 max-h-[834px] overflow-hidden ${
           isPanelOpen ? "w-full" : "w-[110px]"
         }`}
       >
-        <div className="bg-black-alt border-[1px] border-greyscale-800 items-start rounded-lg w-full flex flex-col flex-grow h-full max-h-full">
-          <div className="w-full border-b-1 p-3 border-white">
+        <div className="flex items-center align-center text-[14px] bg-black-alt border-[1px] border-greyscale-800 items-start rounded-lg w-full flex flex-col flex-grow h-full max-h-full">
+          <div className="flex items-center h-[56px] w-full border-b-1 p-4 border-white">
             <div
-              className={`flex flex-row w-full rounded-md px-3 hover:cursor-pointer ${
+              className={`flex flex-row w-full items-center rounded-md px-2 hover:cursor-pointer ${
                 isPanelOpen ? "justify-between" : "justify-center"
               }`}
               onClick={() => setIsPanelOpen(!isPanelOpen)}
             >
-              <p className={`${isPanelOpen ? "flex" : "hidden"}`}>Statistics</p>
-              {isPanelOpen ? (
-                <ChevronLeft stroke="white" />
-              ) : (
-                <ChevronRight stroke="white" />
-              )}
+              <p
+                className={`${isPanelOpen ? "flex" : "hidden"} font-medium flex items-center`}
+              >
+                Statistics
+              </p>
+              <div className="w-[20px] h-[20px]">
+                <IconPanelLeft
+                  className="w-[20px] h-[20px] stroke-[1px]"
+                  stroke="var(--buttonwhite)"
+                />
+              </div>
+              {
+                //  isPanelOpen ? (
+                //  <IconPanelLeft
+                //    className="stroke-[1px]"
+                //    stroke="var(--buttonwhite)"
+                //  />
+                //) : (
+                //  <IconPanelLeft stroke="var(--buttonwhite)" />
+                //)
+              }
             </div>
           </div>
-          <div className="flex flex-col w-full px-3 border-t-[1px] border-greyscale-800">
+          <div
+            className={`flex flex-col w-full px-3 border-t-[1px] border-greyscale-800`}
+          >
             <div
               className={`flex flex-row w-full mt-3 rounded-md p-3 ${
                 isPanelOpen
@@ -171,8 +205,8 @@ setIsClient(true);
             >
               <div>
                 <SafeIcon
-                  fill="black"
-                  stroke="white"
+                  fill="none"
+                  stroke="var(--buttongrey)"
                   classname="w-6 h-6 text-primary-800"
                 />
               </div>
@@ -180,27 +214,43 @@ setIsClient(true);
                 className={`${isPanelOpen ? "flex" : "hidden"} flex-row w-full`}
                 onClick={() => setVaultIsOpen((state) => !state)}
               >
-                <div className="ml-2 text-white w-fit overflow-clip text-nowrap">
+                <div className="ml-2 text-white w-fit overflow-clip text-nowrap font-[] font-regular">
                   Vault
                 </div>
                 <div className="flex flex-row-reverse w-full">
                   {vaultIsOpen ? (
-                    <ArrowDownIcon fill="white" classname="w-6 h-6" />
+                    <ChevronDown stroke="var(--buttonwhite)" />
                   ) : (
-                    <ArrowUpIcon fill="white" classname="w-6 h-6" />
+                    <ChevronUp stroke="var(--buttonwhite)" />
                   )}
                 </div>
               </div>
             </div>
             <div
-              className={`flex flex-col mt-2 overflow-scroll no-scrollbar ${
+              className={`flex flex-col mt-2 overflow-scroll no-scrollbar gap-1 ${
                 isPanelOpen ? "" : "hidden"
               } ${
-                vaultIsOpen ? "h-0" : "h-[180px]"
+                vaultIsOpen
+                  ? "h-[0]"
+                  : optionRoundIsOpen
+                    ? "h-[325px]"
+                    : "h-[265px]"
               } transition-all duration-900ms `}
             >
               <div className="flex flex-row justify-between p-2 w-full">
-                <p className="text-[#BFBFBF]">Address:</p>
+                <p className="text-[#BFBFBF]">Run Time</p>
+                <p>
+                  {selectedRoundState?.auctionEndDate &&
+                  selectedRoundState?.optionSettleDate
+                    ? timeUntilTarget(
+                        selectedRoundState.auctionEndDate.toString(),
+                        selectedRoundState.optionSettleDate.toString(),
+                      )
+                    : ""}
+                </p>
+              </div>
+              <div className="flex flex-row justify-between p-2 w-full">
+                <p className="text-[#BFBFBF]">Address</p>
                 <a
                   href={explorer.contract(
                     vaultState?.address ? vaultState.address : "",
@@ -216,30 +266,15 @@ setIsClient(true);
                       //Add vault address short string from state here
                     }
                   </p>
-                  <ExternalLinkIcon className="size-[16px]" />
+                  <SquareArrowOutUpRight size={16} />
                 </a>
-              </div>{" "}
-              <div className="flex flex-row justify-between p-2 w-full">
-                <p className="text-[#BFBFBF]">Strike Level:</p>
-                <p>{Number(vaultState?.strikeLevel) / 100}%</p>
               </div>
-              {
-                //  <div className="flex flex-row justify-between p-2 w-full">
-                //    <p>Type:</p>
-                //    <p>
-                //      {
-                //        vaultState?.vaultType
-                //        //Add vault type from state here
-                //      }
-                //    </p>
-                //  </div>
-              }
               <div className="flex flex-row justify-between p-2 w-full">
-                <p className="text-[#BFBFBF]">Risk Level:</p>
-                <p>{Number(vaultState?.alpha) / 100}%</p>
-              </div>{" "}
+                <p className="text-[#BFBFBF] font-regular">Fees</p>
+                <p>0%</p>
+              </div>
               <div className="flex flex-row justify-between p-2 w-full">
-                <p className="text-[#BFBFBF]">TVL:</p>
+                <p className="text-[#BFBFBF]">TVL</p>
                 <p>
                   {
                     vaultState?.lockedBalance
@@ -254,9 +289,55 @@ setIsClient(true);
                       : 0
                     //Add vault TVL from state here
                   }
-                  &nbsp;ETH
+                  /1,000 ETH
                 </p>
-              </div>{" "}
+              </div>
+              {
+                //  <div className="flex flex-row justify-between p-2 w-full">
+                //    <p>Type:</p>
+                //    <p>
+                //      {
+                //        vaultState?.vaultType
+                //        //Add vault type from state here
+                //      }
+                //    </p>
+                //  </div>
+              }
+              <div className="flex flex-row justify-between p-2 w-full">
+                <p className="text-[#BFBFBF] font-regular">APY</p>
+                <p>12.34%</p>
+              </div>
+              <div className="flex flex-row justify-between p-2 w-full z-50">
+                <p className="text-[#BFBFBF] font-regular">Balance</p>
+                <div className="flex flex-row items-center gap-1 overflow-visable">
+                  <BalanceTooltip
+                    balance={{
+                      locked: "111.11",
+                      unlocked: "222.22",
+                      stashed: "333.33",
+                    }}
+                    children={
+                      <>
+                        <p>12.34%</p>
+                        <Info
+                          size={16}
+                          color="#CFC490"
+                          className="cursor-pointer"
+                        />
+                      </>
+                    }
+                  />
+                </div>
+              </div>
+
+              <div className="flex flex-row justify-between p-2 w-full">
+                <p className="text-[#BFBFBF] font-regular">Risk Level</p>
+                <p>{Number(vaultState?.alpha) / 100}%</p>
+              </div>
+              <div className="flex flex-row justify-between p-2 w-full">
+                <p className="text-[#BFBFBF] font-regular">Strike Level</p>
+                <p>{Number(vaultState?.strikeLevel) / 100}%</p>
+              </div>
             </div>
           </div>
           <div className="flex flex-col w-full px-3 border-t-[1px] border-greyscale-800">
@@ -270,23 +351,23 @@ setIsClient(true);
               <div>
                 <LayerStackIcon
                   classname="w-6 h-6"
-                  fill="black"
-                  stroke="white"
+                  fill="none"
+                  stroke="var(--buttongrey)"
                 />
               </div>
               <div
                 className={`${isPanelOpen ? "flex" : "hidden"} flex-row w-full`}
                 onClick={() => setOptionRoundIsOpen((state) => !state)}
               >
-                <div className="ml-2 text-white w-fit overflow-clip text-nowrap">
+                <div className="ml-2 text-white w-fit overflow-clip text-nowrap font-regular">
                   Round
                 </div>
 
                 <div className="flex flex-row-reverse w-full">
                   {optionRoundIsOpen ? (
-                    <ArrowDownIcon fill="white" classname="w-6 h-6" />
+                    <ChevronDown stroke="var(--buttonwhite)" />
                   ) : (
-                    <ArrowUpIcon fill="white" classname="w-6 h-6" />
+                    <ChevronUp stroke="var(--buttonwhite)" />
                   )}
                 </div>
               </div>
@@ -298,12 +379,12 @@ setIsClient(true);
                 optionRoundIsOpen
                   ? "h-0"
                   : vaultIsOpen
-                    ? "h-[380px]"
-                    : "h-[350px]"
+                    ? "h-[450px]"
+                    : "h-[260px]"
               } transition-all duration-900 max-h-full`}
             >
               <div className="max-h-full flex flex-row justify-between items-center p-2 w-full">
-                <p className="text-[#BFBFBF]">Selected Round:</p>
+                <p className="text-[#BFBFBF]">Selected Round</p>
                 <a
                   href={explorer.contract(
                     selectedRoundState?.address
@@ -319,34 +400,62 @@ setIsClient(true);
                       ? Number(selectedRoundState.roundId).toPrecision(1)
                       : ""}
                   </p>
-                  <ExternalLinkIcon className="size-[16px]" />
+                  <SquareArrowOutUpRight className="size-[16px]" />
                 </a>
               </div>
               <div className="max-h-full flex flex-row justify-between items-center p-2 w-full">
-                <p className="text-[#BFBFBF]">Status:</p>
+                <p className="text-[#BFBFBF]">State</p>
                 <p
-                  className={`border-[1px] border-${getStateTextColor()} bg-${getStateBgColor()} text-${getStateTextColor()} rounded-full px-2 py-[1px]`}
+                  className={`border-[1px] ${styles.border} ${styles.bg} ${styles.text} font-medium rounded-full px-2 py-[1px]`}
                 >
-                  {
-                    selectedRoundState && selectedRoundState.roundState
-                    //Add appropriate bg
-                  }
+                  {selectedRoundState && selectedRoundState.roundState}
                 </p>
               </div>
-              <div className="max-h-full flex flex-row justify-between items-center p-2 w-full">
-                <p className="text-[#BFBFBF]">Last Round Perf.:</p>
-                <div
-                  onClick={() => {
-                    console.log("todo: decrement selected round id");
-                  }}
-                  className="flex flex-row justify-center items-center text-[#F5EBB8] cursor-pointer gap-[4px]"
-                >
-                  <p className="">+12.34%</p>
-                  <ArrowRightIcon className="size-[16px]" />
+              {selectedRoundState &&
+                selectedRoundState.roundState !== "Settled" && (
+                  <div className="max-h-full flex flex-row justify-between items-center p-2 w-full">
+                    <p className="text-[#BFBFBF]">Last Round Perf.</p>
+                    <div
+                      onClick={() => {
+                        console.log("todo: decrement selected round id");
+                      }}
+                      className="flex flex-row justify-center items-center text-[#F5EBB8] cursor-pointer gap-[4px]"
+                    >
+                      <p className="">+12.34%</p>
+                      <ArrowRightIcon className="size-[16px]" />
+                    </div>
+                  </div>
+                )}
+              {userType === "lp" && roundState === "Settled" && (
+                <div className="max-h-full flex flex-row justify-between items-center   p-2 w-full">
+                  <p className="text-[#BFBFBF]">Round Perf.</p>
+                  <p>
+                    {formatNumberText(
+                      selectedRoundState
+                        ? Number(selectedRoundState.performanceLP)
+                        : 0,
+                    )}
+                    %
+                  </p>
                 </div>
-              </div>
+              )}
+              {userType === "ob" && roundState === "Settled" && (
+                <div className="max-h-full flex flex-row justify-between items-center   p-2 w-full">
+                  <p className="text-[#BFBFBF]">Round Perf.</p>
+                  <p>
+                    {formatNumberText(
+                      selectedRoundState
+                        ? Number(selectedRoundState.performanceOB)
+                        : 0,
+                    )}
+                    %
+                  </p>
+                </div>
+              )}
               <div className="max-h-full flex flex-row justify-between items-center   p-2 w-full">
-                <p className="text-[#BFBFBF]">Reserve Price:</p>
+                <p className="text-[#BFBFBF] font-regular text-[14px]">
+                  Reserve Price
+                </p>
                 <p>
                   {
                     selectedRoundState?.reservePrice &&
@@ -360,7 +469,7 @@ setIsClient(true);
                 </p>
               </div>
               <div className="max-h-full flex flex-row justify-between items-center p-2 w-full">
-                <p className="text-[#BFBFBF]">Strike Price:</p>
+                <p className="text-[#BFBFBF]">Strike Price</p>
                 <p>
                   {
                     selectedRoundState?.strikePrice &&
@@ -374,7 +483,7 @@ setIsClient(true);
                 </p>
               </div>
               <div className="max-h-full flex flex-row justify-between items-center   p-2 w-full">
-                <p className="text-[#BFBFBF]">Cap Level:</p>
+                <p className="text-[#BFBFBF]">Cap Level</p>
                 <p>
                   {
                     selectedRoundState?.capLevel &&
@@ -387,105 +496,102 @@ setIsClient(true);
                   %
                 </p>
               </div>
-              <div className="max-h-full flex flex-row justify-between items-center   p-2 w-full">
-                <p className="text-[#BFBFBF]">Total Options:</p>
-                <p>
-                  {
-                    formatNumberText(
-                      selectedRoundState
-                        ? Number(selectedRoundState.availableOptions.toString())
-                        : 0,
-                    )
-                    //Add round duration from state here
-                  }
-                </p>
-              </div>
-              <div className="flex flex-row justify-between p-2 w-full">
-                <p className="text-[#BFBFBF]">Run Time:</p>
-                <p>
-                  {""}
-                </p>
-              </div>
+
+              {userType === "ob" &&
+                selectedRoundState &&
+                selectedRoundState.roundState === "Open" && (
+                  <>
+                    {
+                      // Show nothing new
+                    }
+                  </>
+                )}
+
+              {userType === "ob" &&
+                selectedRoundState &&
+                selectedRoundState.roundState === "Auctioning" && (
+                  <>
+                    {
+                      // Show total options
+                    }
+                    <div className="max-h-full flex flex-row justify-between items-center   p-2 w-full">
+                      <p className="text-[#BFBFBF]">Total Options</p>
+                      <p>
+                        {formatNumberText(
+                          selectedRoundState
+                            ? Number(
+                                selectedRoundState.availableOptions.toString(),
+                              )
+                            : 0,
+                        )}
+                      </p>
+                    </div>
+                  </>
+                )}
+
+              {userType === "ob" &&
+                selectedRoundState &&
+                selectedRoundState.roundState === "Running" && (
+                  <>
+                    {
+                      // Show options sold
+                      // Show clearing price
+                      // Show Total premium
+                    }
+                    <div className="max-h-full flex flex-row justify-between items-center   p-2 w-full">
+                      <p className="text-[#BFBFBF]">Options Sold</p>
+                      <p>
+                        {formatNumberText(
+                          selectedRoundState
+                            ? Number(selectedRoundState.optionsSold.toString())
+                            : 0,
+                        )}
+                      </p>
+                    </div>
+                    <div className="max-h-full flex flex-row justify-between items-center   p-2 w-full">
+                      <p className="text-[#BFBFBF]">Clearing Price</p>
+                      <p>
+                        {formatNumberText(
+                          selectedRoundState
+                            ? Number(
+                                selectedRoundState.clearingPrice.toString(),
+                              )
+                            : 0,
+                        )}{" "}
+                        GWEI
+                      </p>
+                    </div>
+                    <div className="max-h-full flex flex-row justify-between items-center   p-2 w-full">
+                      <p className="text-[#BFBFBF]">Total Premium</p>
+                      <p>
+                        {formatNumberText(
+                          selectedRoundState
+                            ? Number(selectedRoundState.premiums.toString())
+                            : 0,
+                        )}{" "}
+                        ETH
+                      </p>
+                    </div>
+                  </>
+                )}
               <div className="max-h-full flex flex-row justify-between items-center   p-2 w-full">
                 {getStateActionHeader()}
                 <p>
-                  {""}
-                  { 
-                      //isClient?date:""
-                    
-                    //Add round duration from state here
-                  }
+                  {selectedRoundState?.optionSettleDate
+                    ? timeFromNow(
+                        selectedRoundState.optionSettleDate.toString(),
+                      )
+                    : ""}
                 </p>
               </div>
             </div>
           </div>
-          <div className="flex flex-col w-[90%] mx-[auto] mt-[auto] mb-[1rem]">
+          <div className="border border-transparent border-t-[#262626] flex flex-col w-[100%] mx-[auto] mt-[auto] mb-[1rem]">
             {selectedRoundState &&
               selectedRoundState.roundState !== "SETTLED" && (
-                <button
-                  disabled={
-                    !selectedRoundState ||
-                    (selectedRoundState.roundState.toString() === "Open" &&
-                      selectedRoundState.auctionStartDate > timeStamp) ||
-                    (selectedRoundState.roundState.toString() ===
-                      "Auctioning" &&
-                      selectedRoundState.auctionEndDate > timeStamp) ||
-                    (selectedRoundState.roundState.toString() === "Running" &&
-                      selectedRoundState.optionSettleDate > timeStamp) ||
-                    selectedRoundState.roundState.toString() === "Settled"
-                  }
-                  className={`${
-                    isPanelOpen ? "flex" : "hidden"
-                  } border border-greyscale-700 text-primary disabled:text-greyscale rounded-md mt-4 p-2 w-full justify-center items-center`}
-                  onClick={async () => {
-                    switch (selectedRoundState?.roundState) {
-                      case "Open":
-                        setModalState({
-                          show: true,
-                          action: "Start Auction",
-                          onConfirm: async () => {
-                            await vaultActions.startAuction();
-                            setModalState((prev) => ({ ...prev, show: false }));
-                          },
-                        });
-                        break;
-                      case "Auctioning":
-                        setModalState({
-                          show: true,
-                          action: "End Auction",
-                          onConfirm: async () => {
-                            await vaultActions.endAuction();
-                            setModalState((prev) => ({ ...prev, show: false }));
-                          },
-                        });
-                        break;
-                      case "Running":
-                        setModalState({
-                          show: true,
-                          action: "Settle Round",
-                          onConfirm: async () => {
-                            await vaultActions.settleOptionRound();
-                            setModalState((prev) => ({ ...prev, show: false }));
-                          },
-                        });
-                        break;
-                      default:
-                        break;
-                    }
-                  }}
-                >
-                  <p>
-                    {selectedRoundState.roundState === "Open"
-                      ? "Start Auction"
-                      : selectedRoundState.roundState === "Auctioning"
-                        ? "End Auction"
-                        : selectedRoundState.roundState === "Running"
-                          ? "Settle Round"
-                          : "Settled"}
-                  </p>
-                  <LineChartDownIcon
-                    classname="w-4 h-4 ml-2"
-                    stroke={
+                <div className="px-6">
+                  <button
+                    disabled={
                       !selectedRoundState ||
                       (selectedRoundState.roundState.toString() === "Open" &&
                         selectedRoundState.auctionStartDate > timeStamp) ||
@@ -495,11 +601,84 @@ setIsClient(true);
                       (selectedRoundState.roundState.toString() === "Running" &&
                         selectedRoundState.optionSettleDate > timeStamp) ||
                       selectedRoundState.roundState.toString() === "Settled"
-                        ? "var(--greyscale)"
-                        : "var(--primary)"
                     }
-                  />
-                </button>
+                    className={`${isPanelOpen ? "flex" : "hidden"} ${
+                      roundState === "Settled" ? "hidden" : ""
+                    } border border-greyscale-700 text-primary disabled:text-greyscale rounded-md mt-4 p-2 w-full justify-center items-center`}
+                    onClick={async () => {
+                      switch (selectedRoundState?.roundState) {
+                        case "Open":
+                          setModalState({
+                            show: true,
+                            action: "Start Auction",
+                            onConfirm: async () => {
+                              await vaultActions.startAuction();
+                              setModalState((prev) => ({
+                                ...prev,
+                                show: false,
+                              }));
+                            },
+                          });
+                          break;
+                        case "Auctioning":
+                          setModalState({
+                            show: true,
+                            action: "End Auction",
+                            onConfirm: async () => {
+                              await vaultActions.endAuction();
+                              setModalState((prev) => ({
+                                ...prev,
+                                show: false,
+                              }));
+                            },
+                          });
+                          break;
+                        case "Running":
+                          setModalState({
+                            show: true,
+                            action: "Settle Round",
+                            onConfirm: async () => {
+                              await vaultActions.settleOptionRound();
+                              setModalState((prev) => ({
+                                ...prev,
+                                show: false,
+                              }));
+                            },
+                          });
+                          break;
+                        default:
+                          break;
+                      }
+                    }}
+                  >
+                    <p>
+                      {selectedRoundState.roundState === "Open"
+                        ? "Start Auction"
+                        : selectedRoundState.roundState === "Auctioning"
+                          ? "End Auction"
+                          : selectedRoundState.roundState === "Running"
+                            ? "Settle Round"
+                            : "Settled"}
+                    </p>
+                    <LineChartDownIcon
+                      classname="w-4 h-4 ml-2"
+                      stroke={
+                        !selectedRoundState ||
+                        (selectedRoundState.roundState.toString() === "Open" &&
+                          selectedRoundState.auctionStartDate > timeStamp) ||
+                        (selectedRoundState.roundState.toString() ===
+                          "Auctioning" &&
+                          selectedRoundState.auctionEndDate > timeStamp) ||
+                        (selectedRoundState.roundState.toString() ===
+                          "Running" &&
+                          selectedRoundState.optionSettleDate > timeStamp) ||
+                        selectedRoundState.roundState.toString() === "Settled"
+                          ? "var(--greyscale)"
+                          : "var(--primary)"
+                      }
+                    />
+                  </button>
+                </div>
               )}
           </div>
         </div>
@@ -516,739 +695,3 @@ setIsClient(true);
 };
 
 export default PanelLeft;
-
-//////
-//("use client");
-//import React, { useState } from "react";
-//import ConfirmationModal from "@/components/Vault/Utils/ConfirmationModal";
-//import SuccessModal from "@/components/Vault/Utils/SuccessModal";
-//import {
-//  ArrowDownIcon,
-//  ArrowUpIcon,
-//  ArrowLeftIcon,
-//  LayerStackIcon,
-//  LayoutLeftIcon,
-//  LineChartDownIcon,
-//  SafeIcon,
-//} from "@/components/Icons";
-//import { shortenString } from "@/lib/utils";
-//import { formatUnits, formatEther, parseEther } from "ethers";
-//import { useProtocolContext } from "@/context/ProtocolProvider";
-//import StateTransitionConfirmationModal from "@/components/Vault/Utils/StateTransitionConfirmationModal";
-//import { ChevronLeft, ChevronRight } from "lucide-react";
-//
-//const PanelLeft = () => {
-//  const { vaultState, selectedRoundState, vaultActions } = useProtocolContext();
-//  const [vaultIsOpen, setVaultIsOpen] = useState<boolean>(false);
-//  const [optionRoundIsOpen, setOptionRoundIsOpen] = useState<boolean>(false);
-//  const [isPanelOpen, setIsPanelOpen] = useState<boolean>(true);
-//  const [modalState, setModalState] = useState<{
-//    show: boolean;
-//    action: string;
-//    onConfirm: () => Promise<void>;
-//  }>({
-//    show: false,
-//    action: "",
-//    onConfirm: async () => {},
-//  });
-//
-//  const hideModal = () => {
-//    setModalState({
-//      show: false,
-//      action: "",
-//      onConfirm: async () => {},
-//    });
-//  };
-//
-//  const handleConfirm = async () => {
-//    await modalState.onConfirm();
-//    //setModalState((prev) => ({ ...prev, type: "success", show: false }));
-//  };
-//
-//  if (modalState.show) {
-//    return (
-//      <StateTransitionConfirmationModal
-//        action={modalState.action}
-//        onConfirm={handleConfirm}
-//        onClose={hideModal}
-//      />
-//    );
-//  }
-//
-//  return (
-//    <div
-//      className={`flex flex-col mr-4 max-w-[350px] transition-all duration-300 max-h-[800px] overflow-hidden ${
-//        isPanelOpen ? "w-full" : "w-[110px]"
-//      }`}
-//    >
-//      <div className="bg-black-alt border-[1px] border-greyscale-800 items-start rounded-lg w-full flex flex-col flex-grow h-full max-h-full">
-//        <div className="w-full border-b-1 p-3 border-white">
-//          <div
-//            className={`flex flex-row w-full rounded-md px-3 hover:cursor-pointer ${
-//              isPanelOpen ? "justify-between" : "justify-center"
-//            }`}
-//            onClick={() => setIsPanelOpen(!isPanelOpen)}
-//          >
-//            <p className={`${isPanelOpen ? "flex" : "hidden"}`}>Statistics</p>
-//            {isPanelOpen ? (
-//              <ChevronLeft stroke="white" />
-//            ) : (
-//              <ChevronRight stroke="white" />
-//            )}
-//          </div>
-//        </div>
-//        <div className="flex flex-col w-full px-3 border-t-[1px] border-greyscale-800">
-//          <div
-//            className={`flex flex-row w-full mt-2 rounded-md p-3 ${
-//              isPanelOpen
-//                ? "justify-between cursor-pointer bg-faded-black"
-//                : "justify-center"
-//            }`}
-//          >
-//            <div>
-//              <SafeIcon
-//                fill="black"
-//                stroke="white"
-//                classname="w-6 h-6 text-primary-800"
-//              />
-//            </div>
-//            <div
-//              className={`${isPanelOpen ? "flex" : "hidden"} flex-row w-full`}
-//              onClick={() => setVaultIsOpen((state) => !state)}
-//            >
-//              <div className="ml-2 text-white w-fit overflow-clip  text-nowrap">
-//                Vault
-//              </div>
-//              <div className="flex flex-row-reverse w-full">
-//                {vaultIsOpen ? (
-//                  <ArrowDownIcon fill="white" classname="w-6 h-6" />
-//                ) : (
-//                  <ArrowUpIcon fill="white" classname="w-6 h-6" />
-//                )}
-//              </div>
-//            </div>
-//          </div>
-//          <div
-//            className={`flex flex-col mt-2 overflow-scroll no-scrollbar ${
-//              isPanelOpen ? "" : "hidden"
-//            } ${
-//              vaultIsOpen ? "h-0" : "h-[250px]"
-//            } transition-all duration-900ms `}
-//          >
-//            <div className="flex flex-row justify-between p-2 w-full">
-//              <p>Run Time:</p>
-//              <p>
-//                {
-//                  selectedRoundState?.auctionStartDate &&
-//                  selectedRoundState?.auctionEndDate
-//                    ? (
-//                        BigInt(selectedRoundState.auctionEndDate) -
-//                        BigInt(selectedRoundState.auctionStartDate)
-//                      ).toString()
-//                    : ""
-//                  //Add round duration from state here
-//                }
-//              </p>
-//            </div>
-//            <div className="flex flex-row justify-between p-2 w-full">
-//              <p>Strike Level:</p>
-//              <p>{Number(vaultState?.strikeLevel) / 100}%</p>
-//            </div>
-//            <div className="flex flex-row justify-between p-2 w-full">
-//              <p>Type:</p>
-//              <p>
-//                {
-//                  vaultState?.vaultType
-//                  //Add vault type from state here
-//                }
-//              </p>
-//            </div>
-//            <div className="flex flex-row justify-between p-2 w-full">
-//              <p>Addess:</p>
-//              <p>
-//                {
-//                  vaultState?.address ? shortenString(vaultState?.address) : ""
-//                  //Add vault address short string from state here
-//                }
-//              </p>
-//            </div>
-//            <div className="flex flex-row justify-between p-2 w-full">
-//              <p>TVL:</p>
-//              <p>
-//                {
-//                  vaultState?.lockedBalance
-//                    ? parseFloat(
-//                        formatEther(
-//                          (
-//                            BigInt(vaultState.lockedBalance) +
-//                            BigInt(vaultState.unlockedBalance)
-//                          ).toString(),
-//                        ),
-//                      ).toFixed(2)
-//                    : 0
-//                  //Add vault TVL from state here
-//                }
-//                &nbsp;ETH
-//              </p>
-//            </div>
-//
-//            <div className="flex flex-row justify-between p-2 w-full">
-//              <p>Risk Level:</p>
-//              <p>{Number(vaultState?.alpha) / 100}%</p>
-//            </div>
-//
-//            {/* Vault details go here */}
-//          </div>
-//        </div>
-//        <div className="flex flex-col w-full px-3 border-t-[1px] border-greyscale-800">
-//          <div
-//            className={`flex flex-row w-full mt-2 rounded-md p-3 ${
-//              isPanelOpen
-//                ? "justify-between cursor-pointer bg-faded-black"
-//                : "justify-center"
-//            }`}
-//          >
-//            <div>
-//              <LayerStackIcon classname="w-6 h-6" fill="black" stroke="white" />
-//            </div>
-//            <div
-//              className={`${isPanelOpen ? "flex" : "hidden"} flex-row w-full`}
-//              onClick={() => setOptionRoundIsOpen((state) => !state)}
-//            >
-//              <div className="ml-2 text-white w-fit overflow-clip  text-nowrap">
-//                Round
-//              </div>
-//
-//              <div className="flex flex-row-reverse w-full">
-//                {optionRoundIsOpen ? (
-//                  <ArrowDownIcon fill="white" classname="w-6 h-6" />
-//                ) : (
-//                  <ArrowUpIcon fill="white" classname="w-6 h-6" />
-//                )}
-//              </div>
-//            </div>
-//          </div>
-//          <div
-//            className={`flex flex-col mt-2 overflow-scroll no-scrollbar ${
-//              isPanelOpen ? "" : "hidden"
-//            } ${
-//              optionRoundIsOpen
-//                ? "h-0"
-//                : vaultIsOpen
-//                  ? "h-[350px]"
-//                  : "h-[290px]"
-//            } transition-all duration-900 max-h-full`}
-//          >
-//            <div className="max-h-full flex flex-row justify-between items-center p-2 w-full">
-//              <p>Selected Round:</p>
-//              <p>
-//                Round &nbsp;
-//                {
-//                  selectedRoundState?.roundId
-//                    ? Number(selectedRoundState.roundId).toPrecision(1)
-//                    : ""
-//                  //Add round duration from state here
-//                }
-//              </p>
-//            </div>
-//            <div className="max-h-full flex flex-row justify-between items-center p-2 w-full">
-//              <p>Status:</p>
-//              <p className="bg-[#6D1D0D59] border-[1px] border-warning text-warning rounded-full px-2 py-[1px]">
-//                {
-//                  selectedRoundState && selectedRoundState.roundState
-//                  //Add appropriate bg
-//                }
-//              </p>
-//            </div>
-//            <div className="max-h-full flex flex-row justify-between items-center p-2 w-full">
-//              <p>Last Round Perf.:</p>
-//              <p>
-//                {
-//                  "+11.33%"
-//                  //Add round duration from state here
-//                }
-//              </p>
-//            </div>
-//            <div className="max-h-full flex flex-row justify-between items-center p-2 w-full">
-//              <p>Strike Price:</p>
-//              <p>
-//                {
-//                  selectedRoundState &&
-//                    formatUnits(
-//                      selectedRoundState.strikePrice.toString(),
-//                      "gwei",
-//                    )
-//                  //Add round duration from state here
-//                }{" "}
-//                gwei
-//              </p>
-//            </div>
-//            <div className="max-h-full flex flex-row justify-between items-center   p-2 w-full">
-//              <p>CL:</p>
-//              <p>
-//                {
-//                  selectedRoundState &&
-//                    (
-//                      (100 * parseInt(selectedRoundState.capLevel.toString())) /
-//                      10_000
-//                    ).toFixed(2) //Add round duration from state here
-//                }
-//                %
-//              </p>
-//            </div>
-//            <div className="max-h-full flex flex-row justify-between items-center   p-2 w-full">
-//              <p>Reserve Price:</p>
-//              <p>
-//                {
-//                  selectedRoundState &&
-//                    formatUnits(
-//                      selectedRoundState.reservePrice.toString(),
-//                      "gwei",
-//                    )
-//                  //Add round duration from state here
-//                }{" "}
-//                gwei
-//              </p>
-//            </div>
-//            <div className="max-h-full flex flex-row justify-between items-center   p-2 w-full">
-//              <p>Total Options:</p>
-//              <p>
-//                {
-//                  selectedRoundState && selectedRoundState.availableOptions
-//                  //Add round duration from state here
-//                }
-//              </p>
-//            </div>
-//            <div className="max-h-full flex flex-row justify-between items-center   p-2 w-full">
-//              <p>End date:</p>
-//              <p>
-//                {
-//                  selectedRoundState?.auctionEndDate &&
-//                    new Date(
-//                      selectedRoundState.auctionEndDate.toString(),
-//                    ).toString()
-//                  //Add round duration from state here
-//                }
-//              </p>
-//            </div>
-//            {/* Option round details go here */}
-//          </div>
-//        </div>
-//        <div className="flex flex-col w-[90%] mx-[auto] mt-[auto] mb-[1rem]">
-//          {selectedRoundState &&
-//            selectedRoundState.roundState !== "SETTLED" && (
-//              <button
-//                className={`${
-//                  isPanelOpen ? "flex" : "hidden"
-//                } border border-greyscale-700 text-primary rounded-md mt-4 p-2 w-full justify-center items-center`}
-//                onClick={async () => {
-//                  switch (selectedRoundState?.roundState) {
-//                    case "OPEN":
-//                      setModalState({
-//                        show: true,
-//                        action: "Start Auction",
-//                        onConfirm: async () => {
-//                          await vaultActions.startAuction();
-//                        },
-//                      });
-//                      break;
-//                    case "AUCTIONING":
-//                      setModalState({
-//                        show: true,
-//                        action: "End Auction",
-//                        onConfirm: async () => {
-//                          await vaultActions.endAuction();
-//                        },
-//                      });
-//                      break;
-//                    case "RUNNING":
-//                      setModalState({
-//                        show: true,
-//                        action: "Settle Round",
-//                        onConfirm: async () => {
-//                          await vaultActions.settleOptionRound();
-//                        },
-//                      });
-//                      break;
-//                    default:
-//                      break;
-//                  }
-//                }}
-//              >
-//                <p>
-//                  {selectedRoundState.roundState === "OPEN"
-//                    ? "Start Auction"
-//                    : selectedRoundState.roundState === "AUCTIONING"
-//                      ? "End Auction"
-//                      : "Settle Round"}
-//                </p>
-//                <LineChartDownIcon
-//                  classname="w-4 h-4 ml-2"
-//                  stroke={"var(--primary)"}
-//                />
-//              </button>
-//            )}
-//        </div>
-//      </div>
-//    </div>
-//  );
-//};
-//
-//export default PanelLeft;
-////////////////
-//"use client";
-//import React, { useState } from "react";
-//import ConfirmationModal from "@/components/Vault/Utils/ConfirmationModal";
-//import SuccessModal from "@/components/Vault/Utils/SuccessModal";
-//import {
-//  ArrowDownIcon,
-//  ArrowUpIcon,
-//  LayerStackIcon,
-//  LayoutLeftIcon,
-//  LineChartDownIcon,
-//  SafeIcon,
-//} from "@/components/Icons";
-//import { shortenString } from "@/lib/utils";
-//import { formatUnits, formatEther, parseEther } from "ethers";
-//import { useProtocolContext } from "@/context/ProtocolProvider";
-//import StateTransitionConfirmationModal from "@/components/Vault/Utils/StateTransitionConfirmationModal";
-//const PanelLeft = () => {
-//  const { vaultState, selectedRoundState, vaultActions } = useProtocolContext();
-//  const [vaultIsOpen, setVaultIsOpen] = useState<boolean>(false);
-//  const [optionRoundIsOpen, setOptionRoundIsOpen] = useState<boolean>(false);
-//  const [isPanelOpen, setIsPanelOpen] = useState<boolean>(false);
-//  const [modalState, setModalState] = useState<{
-//    show: boolean;
-//    action: string;
-//    onConfirm: () => Promise<void>;
-//  }>({
-//    show: false,
-//    action: "",
-//    onConfirm: async () => {},
-//  });
-//
-//  //const showConfirmation = (
-//  //  modalHeader: string,
-//  //  action: string,
-//  //  onConfirm: () => Promise<void>,
-//  //) => {
-//  //  setModalState({
-//  //    show: true,
-//  //    type: "confirmation",
-//  //    modalHeader,
-//  //    action,
-//  //    onConfirm,
-//  //  });
-//  //};
-//  const hideModal = () => {
-//    setModalState({
-//      show: false,
-//      action: "",
-//      onConfirm: async () => {},
-//    });
-//  };
-//
-//  const handleConfirm = async () => {
-//    await modalState.onConfirm();
-//    setModalState((prev) => ({ ...prev, type: "success", show: false }));
-//  };
-//
-//  if (modalState.show) {
-//    return (
-//      <StateTransitionConfirmationModal
-//        action={modalState.action}
-//        onConfirm={handleConfirm}
-//        onClose={hideModal}
-//      />
-//    );
-//  }
-//
-//  return (
-//    <div className="flex flex-col mr-4 max-w-[350px] w-[110px] group hover:w-full transition-all duration-300 max-h-[800px] overflow-hidden ">
-//      <div className="group bg-black-alt border-[1px] border-greyscale-800 items-start rounded-lg w-full flex flex-col flex-grow h-full max-h-full">
-//        <div className="w-full border-b-1 p-3 border-white">
-//          <div className="flex flex-row w-full rounded-md px-3 justify-center group-hover:justify-between">
-//            <p className="hidden group-hover:flex">Statistics</p>
-//            <LayoutLeftIcon classname="w-6 h-6" />
-//          </div>
-//        </div>
-//        <div className="flex flex-col w-full px-3 border-t-[1px] border-greyscale-800">
-//          <div className="flex flex-row w-full justify-center group-hover:justify-between group-hover:cursor-pointer rounded-md p-3 mt-2 group-hover:bg-faded-black">
-//            <div>
-//              <SafeIcon
-//                fill="black"
-//                stroke="white"
-//                classname="w-6 h-6 text-primary-800"
-//              />
-//            </div>
-//            <div
-//              className="hidden group-hover:flex flex-row w-full"
-//              onClick={() => setVaultIsOpen((state) => !state)}
-//            >
-//              <div className="ml-2 text-white w-fit overflow-clip  text-nowrap">
-//                Vault
-//              </div>
-//              <div className="flex flex-row-reverse w-full">
-//                {vaultIsOpen ? (
-//                  <ArrowDownIcon fill="white" classname="w-6 h-6" />
-//                ) : (
-//                  <ArrowUpIcon fill="white" classname="w-6 h-6" />
-//                )}
-//              </div>
-//            </div>
-//          </div>
-//          <div
-//            className={`hidden group-hover:flex flex-col mt-2 overflow-scroll no-scrollbar ${
-//              vaultIsOpen ? "h-0" : "h-[250px]"
-//            } transition-all duration-900ms `}
-//          >
-//            <div className="flex flex-row justify-between p-2 w-full">
-//              <p>Run Time:</p>
-//              <p>
-//                {
-//                  selectedRoundState?.auctionStartDate &&
-//                  selectedRoundState?.auctionEndDate
-//                    ? (
-//                        BigInt(selectedRoundState.auctionEndDate) -
-//                        BigInt(selectedRoundState.auctionStartDate)
-//                      ).toString()
-//                    : ""
-//                  //Add round duration from state here
-//                }
-//              </p>
-//            </div>
-//            <div className="flex flex-row justify-between p-2 w-full">
-//              <p>Risk Level:</p>
-//              <p>{Number(vaultState?.alpha) / 100}%</p>
-//            </div>
-//
-//            <div className="flex flex-row justify-between p-2 w-full">
-//              <p>Strike Level:</p>
-//              <p>{Number(vaultState?.strikeLevel) / 100}%</p>
-//            </div>
-//            <div className="flex flex-row justify-between p-2 w-full">
-//              <p>Type:</p>
-//              <p>
-//                {
-//                  vaultState?.vaultType
-//                  //Add vault type from state here
-//                }
-//              </p>
-//            </div>
-//            <div className="flex flex-row justify-between p-2 w-full">
-//              <p>Addess:</p>
-//              <p>
-//                {
-//                  vaultState?.address ? shortenString(vaultState?.address) : ""
-//                  //Add vault address short string from state here
-//                }
-//              </p>
-//            </div>
-//            <div className="flex flex-row justify-between p-2 w-full">
-//              <p>TVL:</p>
-//              <p>
-//                {
-//                  vaultState?.lockedBalance
-//                    ? parseFloat(
-//                        formatEther(
-//                          (
-//                            BigInt(vaultState.lockedBalance) +
-//                            BigInt(vaultState.unlockedBalance)
-//                          ).toString(),
-//                        ),
-//                      ).toFixed(2)
-//                    : 0
-//                  //Add vault TVL from state here
-//                }
-//                &nbsp;ETH
-//              </p>
-//            </div>
-//          </div>
-//        </div>
-//        <div className="flex flex-col w-full px-3 border-t-[1px] border-greyscale-800">
-//          <div className="flex flex-row w-full mt-2 rounded-md p-3 group-hover:bg-faded-black group-hover:cursor-pointer justify-center group-hover:justify-between">
-//            <div>
-//              <LayerStackIcon classname="w-6 h-6" fill="black" stroke="white" />
-//            </div>
-//            <div
-//              className="hidden group-hover:flex flex-row w-full"
-//              onClick={() => setOptionRoundIsOpen((state) => !state)}
-//            >
-//              <div className="ml-2 text-white w-fit overflow-clip  text-nowrap">
-//                Round
-//              </div>
-//
-//              <div className="flex flex-row-reverse w-full">
-//                {optionRoundIsOpen ? (
-//                  <ArrowDownIcon fill="white" classname="w-6 h-6" />
-//                ) : (
-//                  <ArrowUpIcon fill="white" classname="w-6 h-6" />
-//                )}
-//              </div>
-//            </div>
-//          </div>
-//          <div
-//            className={`hidden group-hover:flex flex-col mt-2 overflow-scroll no-scrollbar ${
-//              optionRoundIsOpen ? "h-0" : vaultIsOpen ? "h-100px" : "h-[250px]"
-//            } transition-all duration-900 max-h-full`}
-//          >
-//            <div className="max-h-full flex flex-row justify-between items-center p-2 w-full">
-//              <p>Selected Round:</p>
-//              <p>
-//                Round &nbsp;
-//                {
-//                  selectedRoundState?.roundId
-//                    ? Number(selectedRoundState.roundId).toPrecision(1)
-//                    : ""
-//                  //Add round duration from state here
-//                }
-//              </p>
-//            </div>
-//            <div className="max-h-full flex flex-row justify-between items-center p-2 w-full">
-//              <p>Status:</p>
-//              <p className="bg-[#6D1D0D59] border-[1px] border-warning text-warning rounded-full px-2 py-[1px]">
-//                {
-//                  selectedRoundState && selectedRoundState.roundState
-//                  //Add appropriate bg
-//                }
-//              </p>
-//            </div>
-//            <div className="max-h-full flex flex-row justify-between items-center p-2 w-full">
-//              <p>Last Round Perf.:</p>
-//              <p>
-//                {
-//                  "+11.33%"
-//                  //Add round duration from state here
-//                }
-//              </p>
-//            </div>
-//            <div className="max-h-full flex flex-row justify-between items-center p-2 w-full">
-//              <p>Strike Price:</p>
-//              <p>
-//                {
-//                  selectedRoundState &&
-//                    formatUnits(
-//                      selectedRoundState.strikePrice.toString(),
-//                      "gwei",
-//                    )
-//                  //Add round duration from state here
-//                }{" "}
-//                gwei
-//              </p>
-//            </div>
-//            <div className="max-h-full flex flex-row justify-between items-center   p-2 w-full">
-//              <p>CL:</p>
-//              <p>
-//                {
-//                  selectedRoundState &&
-//                    (
-//                      (100 * parseInt(selectedRoundState.capLevel.toString())) /
-//                      10_000
-//                    ).toFixed(2) //Add round duration from state here
-//                }
-//                %
-//              </p>
-//            </div>
-//            <div className="max-h-full flex flex-row justify-between items-center   p-2 w-full">
-//              <p>Reserve Price:</p>
-//              <p>
-//                {
-//                  selectedRoundState &&
-//                    formatUnits(
-//                      selectedRoundState.reservePrice.toString(),
-//                      "gwei",
-//                    )
-//                  //Add round duration from state here
-//                }{" "}
-//                gwei
-//              </p>
-//            </div>
-//            <div className="max-h-full flex flex-row justify-between items-center   p-2 w-full">
-//              <p>Total Options:</p>
-//              <p>
-//                {
-//                  selectedRoundState && selectedRoundState.availableOptions
-//                  //Add round duration from state here
-//                }
-//              </p>
-//            </div>
-//            <div className="max-h-full flex flex-row justify-between items-center   p-2 w-full">
-//              <p>End date:</p>
-//              <p>
-//                {
-//                  selectedRoundState?.auctionEndDate &&
-//                    new Date(
-//                      selectedRoundState.auctionEndDate.toString(),
-//                    ).toString()
-//                  //Add round duration from state here
-//                }
-//              </p>
-//            </div>
-//          </div>
-//        </div>
-//        <div className="flex flex-col w-[90%] mx-[auto] mt-[auto] mb-[1rem]">
-//          {selectedRoundState &&
-//            selectedRoundState.roundState !== "SETTLED" && (
-//              <button
-//                className="hidden group-hover:flex border border-greyscale-700 text-primary rounded-md mt-4 p-2 w-full justify-center items-center"
-//                onClick={async () => {
-//                  switch (selectedRoundState?.roundState) {
-//                    case "OPEN":
-//                      setModalState({
-//                        show: true,
-//                        action: "Start Auction",
-//                        onConfirm: async () => {
-//                          await vaultActions.startAuction();
-//                        },
-//                      });
-//                      //await vaultActions.startAuction();
-//                      break;
-//                    case "AUCTIONING":
-//                      setModalState({
-//                        show: true,
-//                        action: "End Auction",
-//                        onConfirm: async () => {
-//                          await vaultActions.endAuction();
-//                        },
-//                      });
-//                      //await vaultActions.endAuction();
-//                      break;
-//                    case "RUNNING":
-//                      setModalState({
-//                        show: true,
-//                        action: "Settle Round",
-//                        onConfirm: async () => {
-//                          await vaultActions.settleOptionRound();
-//                        },
-//                      }); //await vaultActions.settleOptionRound();
-//                      break;
-//                    default:
-//                      break;
-//                  }
-//
-//                  //Trigger contract call here
-//                }}
-//              >
-//                <p>
-//                  {
-//                    selectedRoundState.roundState === "OPEN"
-//                      ? "Start Auction"
-//                      : selectedRoundState.roundState === "AUCTIONING"
-//                        ? "End Auction"
-//                        : "Settle Round"
-//                    //Enter text based on state
-//                  }
-//                </p>
-//                <LineChartDownIcon
-//                  classname="w-4 h-4 ml-2"
-//                  stroke={"var(--primary"}
-//                />
-//              </button>
-//            )}
-//        </div>
-//      </div>
-//    </div>
-//  );
-//};
-//
-//export default PanelLeft;

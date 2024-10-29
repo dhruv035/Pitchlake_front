@@ -29,16 +29,17 @@ const Withdraw: React.FC<WithdrawProps> = ({ showConfirmation }) => {
   };
 
   return (
-    <div className="flex flex-col h-full">
-      <ButtonTabs
-        tabs={["Liquidity", "Queue", "Collect"]}
-        activeTab={state.activeWithdrawTab}
-        setActiveTab={(tab) =>
-          updateState({ activeWithdrawTab: tab as WithdrawSubTabs })
-        }
-      />
-
-      <div className="flex-grow">
+    <>
+      <div className="flex-col space-y-6 p-6 pb-2">
+        <ButtonTabs
+          tabs={["Liquidity", "Queue", "Collect"]}
+          activeTab={state.activeWithdrawTab}
+          setActiveTab={(tab) =>
+            updateState({ activeWithdrawTab: tab as WithdrawSubTabs })
+          }
+        />
+      </div>
+      <div className="h-full flex flex-col">
         {state.activeWithdrawTab === "Liquidity" && (
           <WithdrawLiquidity showConfirmation={showConfirmation} />
         )}
@@ -49,7 +50,7 @@ const Withdraw: React.FC<WithdrawProps> = ({ showConfirmation }) => {
           <WithdrawStash showConfirmation={showConfirmation} />
         )}
       </div>
-    </div>
+    </>
   );
 };
 

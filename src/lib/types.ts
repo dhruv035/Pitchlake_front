@@ -97,6 +97,8 @@ export type OptionRoundStateType = {
   totalPayout: bigint | number | string;
   payoutPerOption: bigint | number | string;
   treeNonce: bigint | number | string;
+  performanceLP: number | string;
+  performanceOB: number | string;
   //queuedLiquidity?: bigint | number | string;
 };
 
@@ -160,6 +162,7 @@ export type RefundBidsArgs = {
 export interface InfoItemProps {
   label: string;
   value: React.ReactNode;
+  isPending?: boolean;
 }
 
 export interface BalanceTooltipProps {

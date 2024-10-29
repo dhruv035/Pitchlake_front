@@ -68,30 +68,32 @@ const WithdrawStash: React.FC<WithdrawStashProps> = ({
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex-grow space-y-6">
-        <div className="flex items-center justify-center">
-          <div className="bg-[#1E1E1E] rounded-lg p-4">
-            <img
-              src={collect}
-              alt="Collect icon"
-              className="w-16 h-16 mx-auto"
-            />
+      <div className="flex flex-col justify-center h-full align-center space-y-6">
+        <div className="flex flex-col gap-6">
+          <div className="flex items-center justify-center">
+            <div className="bg-[#1E1E1E] rounded-lg p-4">
+              <img
+                src={collect}
+                alt="Collect icon"
+                className="w-16 h-16 mx-auto"
+              />
+            </div>
           </div>
+          <p className="text-[#BFBFBF] text-center font-regular text-[14px]">
+            Your current stashed balance is{" "}
+            <b className="mt-0 text-[#FAFAFA] text-[14px] font-bold text-center">
+              {lpState?.stashedBalance
+                ? parseFloat(formatEther(lpState.stashedBalance.toString()))
+                    .toFixed(3)
+                    .toString()
+                : "0"}{" "}
+              ETH
+            </b>
+          </p>
         </div>
-        <p className="text-gray-400 text-center">
-          Your current stashed balance is
-        </p>
-        <p className="text-2xl font-bold text-center">
-          {lpState?.stashedBalance
-            ? parseFloat(formatEther(lpState.stashedBalance.toString()))
-                .toFixed(3)
-                .toString()
-            : "0"}{" "}
-          ETH
-        </p>
       </div>
       <div className="mt-auto">
-        <div className="flex justify-between text-sm mb-4 pt-4 border-t border-[#262626]">
+        <div className="flex justify-between text-sm border-t border-[#262626] p-6">
           <ActionButton
             onClick={handleSubmit}
             disabled={isButtonDisabled()}

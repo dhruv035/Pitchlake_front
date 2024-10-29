@@ -2,6 +2,7 @@ import {
   useAccount,
   useContract,
   useContractRead,
+  useProvider,
   useContractWrite,
 } from "@starknet-react/core";
 import { useCallback, useMemo } from "react";
@@ -19,16 +20,18 @@ const useERC20 = (tokenAddress: string | undefined, target?: string) => {
   };
 
   const { contract } = useContract({ ...contractData });
+  const { provider } = useProvider();
   const { isDev, devAccount, setPendingTx } = useTransactionContext();
   const { account: connectorAccount } = useAccount();
 
   // const { writeAsync } = useContractWrite({});
 
-  const account = useMemo(() => {
-    if (isDev === true) {
-      return devAccount;
-    } else return connectorAccount;
-  }, [connectorAccount, isDev, devAccount]);
+  // const account = useMemo(() => {
+  //   if (isDev === true) {
+  //     return devAccount;
+  //   } else return connectorAccount;
+  // }, [connectorAccount, isDev, devAccount]);
+  const { account } = useAccount();
 
   const typedContract = useMemo(() => {
     if (!contract) return;
@@ -37,7 +40,22 @@ const useERC20 = (tokenAddress: string | undefined, target?: string) => {
 
     return typedContract;
   }, [contract, account]);
-  // const { writeAsync } = useContractWrite({});
+
+  const typedContractFunding = useMemo(() => {
+    if (!contract) return;
+    const typedContract = contract.typedv2(erc20ABI);
+
+    // Build dev (funded) account
+    const address = process.env.NEXT_PUBLIC_DEV_ADDRESS;
+    const pk = process.env.NEXT_PUBLIC_DEV_PK;
+
+    const _address = address ? address : "";
+    const _pk = pk ? pk : "";
+    const acc = new Account(provider, _address, _pk);
+
+    if (target) typedContract.connect(acc);
+    return typedContract;
+  }, [contract, account]);
 
   //Read States
 
@@ -91,11 +109,29 @@ const useERC20 = (tokenAddress: string | undefined, target?: string) => {
     [typedContract, setPendingTx],
   );
 
+  const fund = useCallback(
+    async (approvalArgs: ApprovalArgs) => {
+      if (!typedContractFunding) return;
+      try {
+        const data = await typedContractFunding.transfer(
+          approvalArgs.spender,
+          approvalArgs.amount,
+        );
+        const typedData = data as TransactionResult;
+        setPendingTx(typedData.transaction_hash);
+      } catch (err) {
+        console.log("ERR", err);
+      }
+    },
+    [typedContractFunding, setPendingTx],
+  );
+
   return {
     balance,
     allowance,
     approve,
     increaseAllowance,
+    fund,
   };
 };
 

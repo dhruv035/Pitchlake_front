@@ -1,6 +1,6 @@
 :root {
   /* Colors */
-  
+
   --red: rgb(243, 65, 32);
   --deepRed: rgb(197, 30, 72);
   --icon-gradient: radial-gradient(50% 50% at 50% 50%, #030303 0%, #171717 100%);
@@ -77,10 +77,9 @@
   --black-alt:#121212;
   --white:#FFFFFF;
   --white-alt:#FAFAFA;
-
+  --buttonwhite: var(--white-alt);
+  --buttongrey: var(--greyscale-400);
   
-
-
   --green: #06d6a0;
   --text: white;
 
@@ -98,7 +97,7 @@
 html,
 body {
   font-family: var(--mainFont);
-  background: #0D0D0D;
+  background: #0d0d0d;
   color: white;
 }
 

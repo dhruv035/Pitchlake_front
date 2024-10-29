@@ -70,10 +70,11 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
 
   const [selectedRound, setSelectedRound] = useState<number>(0);
   const [timeStamp, setTimeStamp] = useState(0);
-  console.log("timeSStamp",timeStamp)
+  console.log("timeSStamp", timeStamp);
   const mockTimeForward = () => {
     if (conn === "mock") setTimeStamp((prevState) => prevState + 100001);
   };
+
   useEffect(()=>{
     console.log("DATE",Date.now())
     setTimeStamp(Date.now())
@@ -86,7 +87,8 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
     vaultActions: vaultActionsMock,
     optionRoundActions: roundActionsMock,
     optionBuyerStates: optionBuyerStatesMock,
-  } = useMockVault(selectedRound,vaultAddress);
+  } = useMockVault(selectedRound, vaultAddress);
+
   const {
     lpState: rpcLiquidityProviderState,
     vaultState: rpcVaultState,

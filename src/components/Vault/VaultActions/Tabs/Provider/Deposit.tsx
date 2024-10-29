@@ -15,6 +15,8 @@ import { parseEther, formatEther } from "ethers";
 import { useProtocolContext } from "@/context/ProtocolProvider";
 import { getDevAccount } from "@/lib/constants";
 import { RpcProvider, Call } from "starknet";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 
 interface DepositProps {
   showConfirmation: (
@@ -40,9 +42,10 @@ const Deposit: React.FC<DepositProps> = ({ showConfirmation }) => {
     activeWithdrawTab: "For Myself",
   });
 
-  const account = getDevAccount(
-    new RpcProvider({ nodeUrl: "http://localhost:5050/rpc" }),
-  );
+  //  const account = getDevAccount(
+  //    new RpcProvider({ nodeUrl: "http://localhost:5050/rpc" }),
+  //  );
+  const { account } = useAccount();
   console.log("AAA ACCOUNT", account);
 
   const updateState = (updates: Partial<DepositState>) => {
@@ -58,21 +61,22 @@ const Deposit: React.FC<DepositProps> = ({ showConfirmation }) => {
   console.log("ALLOWANCE", allowance);
 
   const handleDeposit = async (): Promise<void> => {
-    console.log("Current allowance:", allowance);
-    if (Number(allowance) < Number(state.amount)) {
-      let difference = Number(state.amount) - Number(allowance);
-      console.log("Increasing allowance by: ", difference);
-      await increaseAllowance({
-        amount: parseEther(state.amount),
-        spender: vaultState ? vaultState.address.toString() : "",
-      });
-    }
+    //console.log("Current allowance:", allowance);
+    //if (Number(allowance) < Number(state.amount)) {
+    //  let difference = Number(state.amount) - Number(allowance);
+    //  console.log("Increasing allowance by: ", difference);
+    //  await increaseAllowance({
+    //    amount: parseEther(state.amount),
+    //    spender: vaultState ? vaultState.address.toString() : "",
+    //  });
+    //}
 
     console.log("Depositing", state.amount);
     await vaultActions.depositLiquidity({
       amount: parseEther(state.amount),
       beneficiary:
-        "0x127fd5f1fe78a71f8bcd1fec63e3fe2f0486b6ecd5c86a0466c3a21fa5cfcec", //state.beneficiaryAddress,
+        "0x07692EE25171bDa70F1c3A76fA23a50F86De517D4A6c98B125D235e4aF874F84",
+      //beneficiary: account ? account.address?.toString() : "", //state.beneficiaryAddress,
     });
   };
 
@@ -104,7 +108,7 @@ const Deposit: React.FC<DepositProps> = ({ showConfirmation }) => {
   console.log("LPSTATE", lpState);
   return (
     <div className="flex flex-col h-full">
-      <div className="flex-grow space-y-6">
+      <div className="flex-grow space-y-6 p-6">
         <ButtonTabs
           tabs={["For Myself", "As Beneficiary"]}
           activeTab={state.activeWithdrawTab}
@@ -115,7 +119,6 @@ const Deposit: React.FC<DepositProps> = ({ showConfirmation }) => {
             });
           }}
         />
-
         {state.isDepositAsBeneficiary && (
           <div>
             <InputField
@@ -141,6 +144,12 @@ const Deposit: React.FC<DepositProps> = ({ showConfirmation }) => {
             label="Enter Amount"
             onChange={(e) => updateState({ amount: e.target.value })}
             placeholder="e.g. 5.0"
+            icon={
+              <FontAwesomeIcon
+                icon={faEthereum}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 pr-2"
+              />
+            }
             //icon={
             //  <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400" />
             //}
@@ -148,7 +157,7 @@ const Deposit: React.FC<DepositProps> = ({ showConfirmation }) => {
         </div>
       </div>
       <div className="mt-auto">
-        <div className="flex justify-between text-sm mb-4 pt-4">
+        <div className="px-6 flex justify-between text-sm mb-6 pt-6">
           <span className="text-gray-400">Unlocked Balance</span>
           <span className="text-white">
             {formatEther(
@@ -157,7 +166,7 @@ const Deposit: React.FC<DepositProps> = ({ showConfirmation }) => {
             ETH
           </span>
         </div>
-        <div className="flex justify-between text-sm mb-4 pt-4 border-t border-[#262626]">
+        <div className="px-6 flex justify-between text-sm mb-6 pt-6 border-t border-[#262626]">
           <ActionButton
             onClick={handleSubmit}
             disabled={isDepositDisabled()}
