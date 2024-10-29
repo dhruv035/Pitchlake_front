@@ -48,10 +48,7 @@ export default function Header() {
     "0x49d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
     "0x650f26d7f5bd4727a40c045590ab72925d26bbaf69383e386e324eba95cc935",
   );
-  //const { data: balance } = useBalance({
-  //  address: account?.address,
-  //  watch: true,
-  //});
+
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const balanceData = {
@@ -89,10 +86,6 @@ export default function Header() {
       document.removeEventListener("keydown", handleEscKey);
     };
   }, []);
-  let date;
-  if (timeStamp) {
-    date = new Date(Number(timeStamp)).toLocaleString();
-  }
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard
@@ -178,8 +171,10 @@ export default function Header() {
       <div className="flex items-center space-x-4 text-[14px] font-medium">
         {conn === "mock" && (
           <div>
-            <p>{date}</p>
-            <button onClick={() => mockTimeForward()}>Forward Mock Time</button>
+            <p>
+              {timeStamp.toString()}
+            </p>
+          <button onClick={() => mockTimeForward()}>Forward Mock Time</button>
           </div>
         )}
         <div className="cursor-pointer border-[1px] border-greyscale-800 p-2 rounded-md">

@@ -5,7 +5,7 @@ import { stringToHex } from "@/lib/utils";
 import { useMemo } from "react";
 import useContractReads from "../../lib/useContractReads";
 import useOptionRoundActions from "../optionRound/useOptionRoundActions";
-import { CairoCustomEnum, RpcProvider } from "starknet";
+import { CairoCustomEnum } from "starknet";
 import useOptionRoundState from "../optionRound/useOptionRoundState";
 
 const useVaultState = ({
@@ -26,7 +26,7 @@ const useVaultState = ({
   const contractData = useMemo(() => {
     return {
       abi: vaultABI,
-      address: conn === "rpc" ? address : "",
+      address: conn === "rpc" ? address : undefined,
     };
   }, [address, conn]);
 

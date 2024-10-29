@@ -25,8 +25,10 @@ interface TabContentProps {
   ) => void;
 }
 
-const PanelRight: React.FC<VaultDetailsProps> = ({ userType }) => {
-  const { vaultState, vaultActions } = useProtocolContext();
+const PanelRight: React.FC<VaultDetailsProps> = ({
+  userType,
+}) => {
+  const {vaultState,vaultActions,selectedRoundState} = useProtocolContext()
   const [activeTab, setActiveTab] = useState<string>("");
   const [modalState, setModalState] = useState<{
     show: boolean;
@@ -42,16 +44,27 @@ const PanelRight: React.FC<VaultDetailsProps> = ({ userType }) => {
     onConfirm: async () => {},
   });
 
-  const { getTabs, getTabContent } = useTabContent(userType);
+  const { tabs, tabContent } = useTabContent(
+    userType,
+    activeTab,
+    selectedRoundState
+  );
 
-  const tabs = getTabs();
 
   const { pendingTx, status } = useTransactionContext();
   useEffect(() => {
-    if (tabs.length > 0 && !activeTab) {
+    console.log("TRIGGERED",tabs,activeTab)
+    if (tabs.length > 0 && activeTab==="") {
       setActiveTab(tabs[0]);
     }
   }, [tabs, activeTab]);
+
+
+  useEffect(()=>{
+if(!(activeTab in tabs)){
+  setActiveTab(tabs[0]);
+}
+  },[tabs,selectedRoundState?.roundState])
 
   useEffect(() => {
     console.log("STATES", pendingTx, modalState.type, status);
@@ -99,15 +112,15 @@ const PanelRight: React.FC<VaultDetailsProps> = ({ userType }) => {
   };
 
   const renderTabContent = () => {
-    const content = getTabContent(activeTab);
-    if (!content) {
+    tabContent
+    if (!tabContent) {
       return null;
     }
-    return React.isValidElement(content)
-      ? React.cloneElement(content as ReactElement<TabContentProps>, {
+    return React.isValidElement(tabContent)
+      ? React.cloneElement(tabContent as ReactElement<TabContentProps>, {
           showConfirmation,
         })
-      : content;
+      : tabContent;
   };
 
   if (modalState.show) {

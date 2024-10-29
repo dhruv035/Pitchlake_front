@@ -22,42 +22,42 @@ export default function Home() {
   const handleCreateClick = () => {};
   const ws = useRef<WebSocket | null>(null);
   const isLoaded = useState(false);
-  useEffect(() => {
-    if (isLoaded) {
-      ws.current = new WebSocket("ws://localhost:8080/subscribeHome");
+  // useEffect(() => {
+  //   if (isLoaded) {
+  //     ws.current = new WebSocket("ws://localhost:8080/subscribeHome");
 
-      ws.current.onopen = () => {
-        console.log("WebSocket connection established");
-        // Optionally, send a message to the server
+  //     ws.current.onopen = () => {
+  //       console.log("WebSocket connection established");
+  //       // Optionally, send a message to the server
 
-        ws.current?.send(
-          JSON.stringify({
-            address: Math.random().toString(),
-            userType: "lp",
-            optionRound: 0,
-            vaultAddress: "16",
-          }),
-        );
-      };
+  //       ws.current?.send(
+  //         JSON.stringify({
+  //           address: Math.random().toString(),
+  //           userType: "lp",
+  //           optionRound: 0,
+  //           vaultAddress: "16",
+  //         }),
+  //       );
+  //     };
 
-      const wsCurrent = ws.current;
-      ws.current.onmessage = (event) => {
-        console.log("Message from server:", event.data);
-      };
+  //     const wsCurrent = ws.current;
+  //     ws.current.onmessage = (event) => {
+  //       console.log("Message from server:", event.data);
+  //     };
 
-      ws.current.onerror = (error) => {
-        console.error("WebSocket error:", error);
-      };
+  //     ws.current.onerror = (error) => {
+  //       console.error("WebSocket error:", error);
+  //     };
 
-      ws.current.onclose = () => {
-        console.log("WebSocket connection closed");
-      };
-    }
-    // Cleanup function to close the WebSocket connection when the component unmounts
-    return () => {
-      ws.current?.close();
-    };
-  }, [isLoaded]);
+  //     ws.current.onclose = () => {
+  //       console.log("WebSocket connection closed");
+  //     };
+  //   }
+  //   // Cleanup function to close the WebSocket connection when the component unmounts
+  //   return () => {
+  //     ws.current?.close();
+  //   };
+  // }, [isLoaded]);
 
   return (
     <div className="flex flex-grow flex-col px-8 mt-6 w-full ">
