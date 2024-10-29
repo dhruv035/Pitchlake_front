@@ -66,18 +66,18 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
     wsLiquidityProviderState,
     wsOptionBuyerStates,
   } = useWebSocketVault(conn, vaultAddress);
-  const [isHydrated,setIsHydrated]= useState(false)
+  const [isHydrated, setIsHydrated] = useState(false);
   const [selectedRound, setSelectedRound] = useState<number>(0);
   const [timeStamp, setTimeStamp] = useState(0);
-  console.log("timeSStamp",timeStamp)
+  console.log("timeSStamp", timeStamp);
   const mockTimeForward = () => {
     if (conn === "mock") setTimeStamp((prevState) => prevState + 100001);
   };
-  useEffect(()=>{
-    console.log("DATE",Date.now())
-    setTimeStamp(Date.now())
-setIsHydrated(true)
-  },[])
+  useEffect(() => {
+    console.log("DATE", Date.now());
+    setTimeStamp(Date.now());
+    setIsHydrated(true);
+  }, []);
   const {
     optionRoundStates: optionRoundStatesMock,
     lpState: lpStateMock,
@@ -85,7 +85,8 @@ setIsHydrated(true)
     vaultActions: vaultActionsMock,
     optionRoundActions: roundActionsMock,
     optionBuyerStates: optionBuyerStatesMock,
-  } = useMockVault(selectedRound,vaultAddress);
+  } = useMockVault(selectedRound, vaultAddress);
+
   const {
     lpState: rpcLiquidityProviderState,
     vaultState: rpcVaultState,

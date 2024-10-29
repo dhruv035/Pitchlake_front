@@ -29,15 +29,19 @@ import {
   ExternalLinkIcon,
   SquareArrowOutUpRight,
   Icon,
+  Info,
   PanelLeft as IconPanelLeft,
 } from "lucide-react";
 import { useExplorer } from "@starknet-react/core";
+import { BalanceTooltip } from "@/components/BaseComponents/Tooltip";
+import StateTransition from "@/components/Vault/VaultActions/StateTransition";
 
 // comment for git
 
-const PanelLeft = () => {
+const PanelLeft = ({ userType }: { userType: string }) => {
   const { vaultState, selectedRoundState, vaultActions, timeStamp } =
     useProtocolContext();
+
   const explorer = useExplorer();
   const [canStateTransition, setCanStateTransition] = useState<boolean>(false);
   const [vaultIsOpen, setVaultIsOpen] = useState<boolean>(true);
@@ -109,7 +113,7 @@ const PanelLeft = () => {
     } else if (roundState === "Running") {
       return <p className="text-[#BFBFBF]">Round Ends In</p>;
     } else {
-      return;
+      return <p className="text-[#BFBFBF]">Round Ended</p>;
     }
   };
 
@@ -149,6 +153,8 @@ const PanelLeft = () => {
   const roundState = selectedRoundState?.roundState.toString() || "Open";
   const styles = stateStyles[roundState] || stateStyles.Default;
 
+  console.log("A:SSFLKSDJF:LKSJDS", userType, roundState);
+
   return (
     <>
       <div
@@ -187,7 +193,9 @@ const PanelLeft = () => {
               }
             </div>
           </div>
-          <div className="flex flex-col w-full px-3 border-t-[1px] border-greyscale-800">
+          <div
+            className={`flex flex-col w-full px-3 border-t-[1px] border-greyscale-800`}
+          >
             <div
               className={`flex flex-row w-full mt-3 rounded-md p-3 ${
                 isPanelOpen
@@ -219,10 +227,14 @@ const PanelLeft = () => {
               </div>
             </div>
             <div
-              className={`flex flex-col mt-2 overflow-scroll no-scrollbar ${
+              className={`flex flex-col mt-2 overflow-scroll no-scrollbar gap-1 ${
                 isPanelOpen ? "" : "hidden"
               } ${
-                vaultIsOpen ? "h-0" : "h-[180px]"
+                vaultIsOpen
+                  ? "h-[0]"
+                  : optionRoundIsOpen
+                    ? "h-[325px]"
+                    : "h-[265px]"
               } transition-all duration-900ms `}
             >
               <div className="flex flex-row justify-between p-2 w-full">
@@ -256,25 +268,10 @@ const PanelLeft = () => {
                   </p>
                   <SquareArrowOutUpRight size={16} />
                 </a>
-              </div>{" "}
-              <div className="flex flex-row justify-between p-2 w-full">
-                <p className="text-[#BFBFBF] font-regular">Strike Level</p>
-                <p>{Number(vaultState?.strikeLevel) / 100}%</p>
               </div>
-              {
-                //  <div className="flex flex-row justify-between p-2 w-full">
-                //    <p>Type:</p>
-                //    <p>
-                //      {
-                //        vaultState?.vaultType
-                //        //Add vault type from state here
-                //      }
-                //    </p>
-                //  </div>
-              }
               <div className="flex flex-row justify-between p-2 w-full">
-                <p className="text-[#BFBFBF] font-regular">Risk Level</p>
-                <p>{Number(vaultState?.alpha) / 100}%</p>
+                <p className="text-[#BFBFBF] font-regular">Fees</p>
+                <p>0%</p>
               </div>
               <div className="flex flex-row justify-between p-2 w-full">
                 <p className="text-[#BFBFBF]">TVL</p>
@@ -292,8 +289,54 @@ const PanelLeft = () => {
                       : 0
                     //Add vault TVL from state here
                   }
-                  &nbsp;ETH
+                  /1,000 ETH
                 </p>
+              </div>
+              {
+                //  <div className="flex flex-row justify-between p-2 w-full">
+                //    <p>Type:</p>
+                //    <p>
+                //      {
+                //        vaultState?.vaultType
+                //        //Add vault type from state here
+                //      }
+                //    </p>
+                //  </div>
+              }
+              <div className="flex flex-row justify-between p-2 w-full">
+                <p className="text-[#BFBFBF] font-regular">APY</p>
+                <p>12.34%</p>
+              </div>
+              <div className="flex flex-row justify-between p-2 w-full z-50">
+                <p className="text-[#BFBFBF] font-regular">Balance</p>
+                <div className="flex flex-row items-center gap-1 overflow-visable">
+                  <BalanceTooltip
+                    balance={{
+                      locked: "111.11",
+                      unlocked: "222.22",
+                      stashed: "333.33",
+                    }}
+                    children={
+                      <>
+                        <p>12.34%</p>
+                        <Info
+                          size={16}
+                          color="#CFC490"
+                          className="cursor-pointer"
+                        />
+                      </>
+                    }
+                  />
+                </div>
+              </div>
+
+              <div className="flex flex-row justify-between p-2 w-full">
+                <p className="text-[#BFBFBF] font-regular">Risk Level</p>
+                <p>{Number(vaultState?.alpha) / 100}%</p>
+              </div>
+              <div className="flex flex-row justify-between p-2 w-full">
+                <p className="text-[#BFBFBF] font-regular">Strike Level</p>
+                <p>{Number(vaultState?.strikeLevel) / 100}%</p>
               </div>
             </div>
           </div>
@@ -336,8 +379,8 @@ const PanelLeft = () => {
                 optionRoundIsOpen
                   ? "h-0"
                   : vaultIsOpen
-                    ? "h-[380px]"
-                    : "h-[350px]"
+                    ? "h-[450px]"
+                    : "h-[260px]"
               } transition-all duration-900 max-h-full`}
             >
               <div className="max-h-full flex flex-row justify-between items-center p-2 w-full">
@@ -361,25 +404,54 @@ const PanelLeft = () => {
                 </a>
               </div>
               <div className="max-h-full flex flex-row justify-between items-center p-2 w-full">
-                <p className="text-[#BFBFBF]">Status</p>
+                <p className="text-[#BFBFBF]">State</p>
                 <p
                   className={`border-[1px] ${styles.border} ${styles.bg} ${styles.text} font-medium rounded-full px-2 py-[1px]`}
                 >
                   {selectedRoundState && selectedRoundState.roundState}
                 </p>
               </div>
-              <div className="max-h-full flex flex-row justify-between items-center p-2 w-full">
-                <p className="text-[#BFBFBF]">Last Round Perf.</p>
-                <div
-                  onClick={() => {
-                    console.log("todo: decrement selected round id");
-                  }}
-                  className="flex flex-row justify-center items-center text-[#F5EBB8] cursor-pointer gap-[4px]"
-                >
-                  <p className="">+12.34%</p>
-                  <ArrowRightIcon className="size-[16px]" />
+              {selectedRoundState &&
+                selectedRoundState.roundState !== "Settled" && (
+                  <div className="max-h-full flex flex-row justify-between items-center p-2 w-full">
+                    <p className="text-[#BFBFBF]">Last Round Perf.</p>
+                    <div
+                      onClick={() => {
+                        console.log("todo: decrement selected round id");
+                      }}
+                      className="flex flex-row justify-center items-center text-[#F5EBB8] cursor-pointer gap-[4px]"
+                    >
+                      <p className="">+12.34%</p>
+                      <ArrowRightIcon className="size-[16px]" />
+                    </div>
+                  </div>
+                )}
+              {userType === "lp" && roundState === "Settled" && (
+                <div className="max-h-full flex flex-row justify-between items-center   p-2 w-full">
+                  <p className="text-[#BFBFBF]">Round Perf.</p>
+                  <p>
+                    {formatNumberText(
+                      selectedRoundState
+                        ? Number(selectedRoundState.performanceLP)
+                        : 0,
+                    )}
+                    %
+                  </p>
                 </div>
-              </div>
+              )}
+              {userType === "ob" && roundState === "Settled" && (
+                <div className="max-h-full flex flex-row justify-between items-center   p-2 w-full">
+                  <p className="text-[#BFBFBF]">Round Perf.</p>
+                  <p>
+                    {formatNumberText(
+                      selectedRoundState
+                        ? Number(selectedRoundState.performanceOB)
+                        : 0,
+                    )}
+                    %
+                  </p>
+                </div>
+              )}
               <div className="max-h-full flex flex-row justify-between items-center   p-2 w-full">
                 <p className="text-[#BFBFBF] font-regular text-[14px]">
                   Reserve Price
@@ -424,23 +496,84 @@ const PanelLeft = () => {
                   %
                 </p>
               </div>
-              <div className="max-h-full flex flex-row justify-between items-center   p-2 w-full">
-                <p className="text-[#BFBFBF]">OB:</p>
-              </div>
 
-              <div className="max-h-full flex flex-row justify-between items-center   p-2 w-full">
-                <p className="text-[#BFBFBF]">Total Options</p>
-                <p>
-                  {
-                    formatNumberText(
-                      selectedRoundState
-                        ? Number(selectedRoundState.availableOptions.toString())
-                        : 0,
-                    )
-                    //Add round duration from state here
-                  }
-                </p>
-              </div>
+              {userType === "ob" &&
+                selectedRoundState &&
+                selectedRoundState.roundState === "Open" && (
+                  <>
+                    {
+                      // Show nothing new
+                    }
+                  </>
+                )}
+
+              {userType === "ob" &&
+                selectedRoundState &&
+                selectedRoundState.roundState === "Auctioning" && (
+                  <>
+                    {
+                      // Show total options
+                    }
+                    <div className="max-h-full flex flex-row justify-between items-center   p-2 w-full">
+                      <p className="text-[#BFBFBF]">Total Options</p>
+                      <p>
+                        {formatNumberText(
+                          selectedRoundState
+                            ? Number(
+                                selectedRoundState.availableOptions.toString(),
+                              )
+                            : 0,
+                        )}
+                      </p>
+                    </div>
+                  </>
+                )}
+
+              {userType === "ob" &&
+                selectedRoundState &&
+                selectedRoundState.roundState === "Running" && (
+                  <>
+                    {
+                      // Show options sold
+                      // Show clearing price
+                      // Show Total premium
+                    }
+                    <div className="max-h-full flex flex-row justify-between items-center   p-2 w-full">
+                      <p className="text-[#BFBFBF]">Options Sold</p>
+                      <p>
+                        {formatNumberText(
+                          selectedRoundState
+                            ? Number(selectedRoundState.optionsSold.toString())
+                            : 0,
+                        )}
+                      </p>
+                    </div>
+                    <div className="max-h-full flex flex-row justify-between items-center   p-2 w-full">
+                      <p className="text-[#BFBFBF]">Clearing Price</p>
+                      <p>
+                        {formatNumberText(
+                          selectedRoundState
+                            ? Number(
+                                selectedRoundState.clearingPrice.toString(),
+                              )
+                            : 0,
+                        )}{" "}
+                        GWEI
+                      </p>
+                    </div>
+                    <div className="max-h-full flex flex-row justify-between items-center   p-2 w-full">
+                      <p className="text-[#BFBFBF]">Total Premium</p>
+                      <p>
+                        {formatNumberText(
+                          selectedRoundState
+                            ? Number(selectedRoundState.premiums.toString())
+                            : 0,
+                        )}{" "}
+                        ETH
+                      </p>
+                    </div>
+                  </>
+                )}
               <div className="max-h-full flex flex-row justify-between items-center   p-2 w-full">
                 {getStateActionHeader()}
                 <p>
@@ -449,81 +582,16 @@ const PanelLeft = () => {
                         selectedRoundState.optionSettleDate.toString(),
                       )
                     : ""}
-                  {
-                    //isClient?date:""
-                    //Add round duration from state here
-                  }
                 </p>
               </div>
             </div>
           </div>
-          <div className="flex flex-col w-[90%] mx-[auto] mt-[auto] mb-[1rem]">
+          <div className="border border-transparent border-t-[#262626] flex flex-col w-[100%] mx-[auto] mt-[auto] mb-[1rem]">
             {selectedRoundState &&
               selectedRoundState.roundState !== "SETTLED" && (
-                <button
-                  disabled={
-                    !selectedRoundState ||
-                    (selectedRoundState.roundState.toString() === "Open" &&
-                      selectedRoundState.auctionStartDate > timeStamp) ||
-                    (selectedRoundState.roundState.toString() ===
-                      "Auctioning" &&
-                      selectedRoundState.auctionEndDate > timeStamp) ||
-                    (selectedRoundState.roundState.toString() === "Running" &&
-                      selectedRoundState.optionSettleDate > timeStamp) ||
-                    selectedRoundState.roundState.toString() === "Settled"
-                  }
-                  className={`${
-                    isPanelOpen ? "flex" : "hidden"
-                  } border border-greyscale-700 text-primary disabled:text-greyscale rounded-md mt-4 p-2 w-full justify-center items-center`}
-                  onClick={async () => {
-                    switch (selectedRoundState?.roundState) {
-                      case "Open":
-                        setModalState({
-                          show: true,
-                          action: "Start Auction",
-                          onConfirm: async () => {
-                            await vaultActions.startAuction();
-                            setModalState((prev) => ({ ...prev, show: false }));
-                          },
-                        });
-                        break;
-                      case "Auctioning":
-                        setModalState({
-                          show: true,
-                          action: "End Auction",
-                          onConfirm: async () => {
-                            await vaultActions.endAuction();
-                            setModalState((prev) => ({ ...prev, show: false }));
-                          },
-                        });
-                        break;
-                      case "Running":
-                        setModalState({
-                          show: true,
-                          action: "Settle Round",
-                          onConfirm: async () => {
-                            await vaultActions.settleOptionRound();
-                            setModalState((prev) => ({ ...prev, show: false }));
-                          },
-                        });
-                        break;
-                      default:
-                        break;
-                    }
-                  }}
-                >
-                  <p>
-                    {selectedRoundState.roundState === "Open"
-                      ? "Start Auction"
-                      : selectedRoundState.roundState === "Auctioning"
-                        ? "End Auction"
-                        : selectedRoundState.roundState === "Running"
-                          ? "Settle Round"
-                          : "Settled"}
-                  </p>
-                  <LineChartDownIcon
-                    classname="w-4 h-4 ml-2"
-                    stroke={
+                <div className="px-6">
+                  <button
+                    disabled={
                       !selectedRoundState ||
                       (selectedRoundState.roundState.toString() === "Open" &&
                         selectedRoundState.auctionStartDate > timeStamp) ||
@@ -533,11 +601,84 @@ const PanelLeft = () => {
                       (selectedRoundState.roundState.toString() === "Running" &&
                         selectedRoundState.optionSettleDate > timeStamp) ||
                       selectedRoundState.roundState.toString() === "Settled"
-                        ? "var(--greyscale)"
-                        : "var(--primary)"
                     }
-                  />
-                </button>
+                    className={`${isPanelOpen ? "flex" : "hidden"} ${
+                      roundState === "Settled" ? "hidden" : ""
+                    } border border-greyscale-700 text-primary disabled:text-greyscale rounded-md mt-4 p-2 w-full justify-center items-center`}
+                    onClick={async () => {
+                      switch (selectedRoundState?.roundState) {
+                        case "Open":
+                          setModalState({
+                            show: true,
+                            action: "Start Auction",
+                            onConfirm: async () => {
+                              await vaultActions.startAuction();
+                              setModalState((prev) => ({
+                                ...prev,
+                                show: false,
+                              }));
+                            },
+                          });
+                          break;
+                        case "Auctioning":
+                          setModalState({
+                            show: true,
+                            action: "End Auction",
+                            onConfirm: async () => {
+                              await vaultActions.endAuction();
+                              setModalState((prev) => ({
+                                ...prev,
+                                show: false,
+                              }));
+                            },
+                          });
+                          break;
+                        case "Running":
+                          setModalState({
+                            show: true,
+                            action: "Settle Round",
+                            onConfirm: async () => {
+                              await vaultActions.settleOptionRound();
+                              setModalState((prev) => ({
+                                ...prev,
+                                show: false,
+                              }));
+                            },
+                          });
+                          break;
+                        default:
+                          break;
+                      }
+                    }}
+                  >
+                    <p>
+                      {selectedRoundState.roundState === "Open"
+                        ? "Start Auction"
+                        : selectedRoundState.roundState === "Auctioning"
+                          ? "End Auction"
+                          : selectedRoundState.roundState === "Running"
+                            ? "Settle Round"
+                            : "Settled"}
+                    </p>
+                    <LineChartDownIcon
+                      classname="w-4 h-4 ml-2"
+                      stroke={
+                        !selectedRoundState ||
+                        (selectedRoundState.roundState.toString() === "Open" &&
+                          selectedRoundState.auctionStartDate > timeStamp) ||
+                        (selectedRoundState.roundState.toString() ===
+                          "Auctioning" &&
+                          selectedRoundState.auctionEndDate > timeStamp) ||
+                        (selectedRoundState.roundState.toString() ===
+                          "Running" &&
+                          selectedRoundState.optionSettleDate > timeStamp) ||
+                        selectedRoundState.roundState.toString() === "Settled"
+                          ? "var(--greyscale)"
+                          : "var(--primary)"
+                      }
+                    />
+                  </button>
+                </div>
               )}
           </div>
         </div>

@@ -50,6 +50,7 @@ export const timeFromNow = (timestamp: string) => {
 };
 
 export const timeUntilTarget = (timestamp: string, target: string) => {
+  console.log("time until target", { timestamp, target });
   const timestampDate = new Date(Number(timestamp) * 1000);
   const targetDate = new Date(Number(target) * 1000);
 
@@ -74,6 +75,8 @@ export const timeUntilTarget = (timestamp: string, target: string) => {
   str += hours > 0 ? `${hours}h ` : "";
   str += minutes > 0 ? `${minutes}m ` : "";
   str += days == 0 ? (seconds > 0 ? `${seconds}s ` : "") : "";
+
+  console.log("rsp", str);
 
   return str;
 };

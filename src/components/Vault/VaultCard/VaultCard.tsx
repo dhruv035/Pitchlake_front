@@ -1,7 +1,7 @@
 import { Progress } from "antd";
 import styles from "./VaultCard.module.css";
 import { useRouter } from "next/navigation";
-import { shortenString } from "@/lib/utils";
+import { shortenString, timeUntilTarget } from "@/lib/utils";
 import useVaultState from "@/hooks/vault/useVaultState";
 import {
   ActivityIcon,
@@ -75,15 +75,10 @@ export default function VaultCard({ vaultAddress }: { vaultAddress: string }) {
                 classname="w-4 h-4 mr-2"
                 stroke={"var(--greyscale)"}
               />
-              <p className="font-regular text-[14px] text-[#BFBFBF]">CL:</p>
+              <p className="font-regular text-[14px] text-[#BFBFBF]">Cap:</p>
             </div>
 
-            <p className="text-[#fafafa] font-medium text-[14px]">
-              {
-                "78%"
-                //Add CL from state here
-              }
-            </p>
+            <p className="text-[#fafafa] font-medium text-[14px]">{"78%"}</p>
           </div>
           <div className="flex flex-row justify-between m-2">
             <div className="flex flex-row items-center">
@@ -96,7 +91,7 @@ export default function VaultCard({ vaultAddress }: { vaultAddress: string }) {
 
             <p className="text-[#fafafa] font-medium text-[14px]">
               {
-                "5123.32"
+                "10.00"
                 //Add Strike price from state here
               }
               &nbsp; GWEI
@@ -142,16 +137,18 @@ export default function VaultCard({ vaultAddress }: { vaultAddress: string }) {
                 stroke={"var(--greyscale)"}
               />
               <p className="font-regular text-[14px] text-[#BFBFBF]">
+                {
+                  // If round is Open, "STARTS IN:", else "TIME LEFT:
+                }
                 TIME LEFT:
               </p>
             </div>
 
             <p className="text-[#fafafa] font-medium text-[14px]">
               {
-                "5 Days"
+                timeUntilTarget("1000000000", "1000044460")
                 //Add Time left from state here
               }
-              &nbsp; LEFT
             </p>
           </div>
         </div>

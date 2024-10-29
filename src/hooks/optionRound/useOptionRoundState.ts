@@ -36,8 +36,10 @@ const useOptionRoundState = (address: string | undefined) => {
     contractData,
     watch: true,
     states: [
-      { 
-        functionName: "get_vault_address", key: "vaultAddress" },
+      {
+        functionName: "get_vault_address",
+        key: "vaultAddress",
+      },
       {
         functionName: "get_round_id",
         key: "roundId",
@@ -164,19 +166,48 @@ const useOptionRoundState = (address: string | undefined) => {
     ],
   });
 
-  //  const { data:  } = useMemo(
-  //   () =>
-  //     useContractRead({ ...contractData, functionName: "get_reserve_price" }),
-  //   [typedContract]
-  // );
-  //Write Calls
+  const getPerformanceLP = () => {
+    const startingLiq = startingLiquidity
+      ? Number(startingLiquidity.toString())
+      : 0;
+    const prem = premiums ? Number(premiums.toString()) : 0;
+    const payout = totalPayout ? Number(totalPayout.toString()) : 0;
+
+    if (startingLiq == 0) {
+      return 0;
+    } else {
+      const gainLoss = prem - payout;
+      const percentage = (gainLoss / startingLiq) * 100;
+
+      return percentage.toFixed(2);
+    }
+  };
+
+  const getPerformanceOB = () => {
+    const prem = premiums ? Number(premiums.toString()) : 0;
+    const payout = totalPayout ? Number(totalPayout.toString()) : 0;
+
+    if (prem == 0) {
+      return 0;
+    } else {
+      const gainLoss = payout - prem;
+      const percentage = (gainLoss / prem) * 100;
+
+      return percentage.toFixed(2);
+    }
+  };
+
+  const performanceLP = getPerformanceLP();
+  const performanceOB = getPerformanceOB();
 
   return {
     optionRoundState: {
       address,
       vaultAddress: vaultAddress?.toString(),
       roundId: roundId ? roundId.toString() : 0,
-      roundState: roundState?(roundState as CairoCustomEnum).activeVariant():"",
+      roundState: roundState
+        ? (roundState as CairoCustomEnum).activeVariant()
+        : "",
       deploymentDate: deploymentDate?.toString(),
       auctionStartDate: auctionStartDate?.toString(),
       auctionEndDate: auctionEndDate?.toString(),
@@ -202,6 +233,8 @@ const useOptionRoundState = (address: string | undefined) => {
           : 0
         : 0, // replace ?
       treeNonce: treeNonce ? treeNonce.toString() : 0,
+      performanceLP,
+      performanceOB,
       //queuedLiquidity: 0, //Add queuedLiquidity (is on vault not round)
     } as OptionRoundStateType,
     optionBuyerState: {

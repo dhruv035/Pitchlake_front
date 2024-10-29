@@ -123,7 +123,7 @@ export const Vault = () => {
         </div>
       </div>
       <div className="mt-6 flex flex-row">
-        {vaultState && <PanelLeft />}
+        {vaultState && <PanelLeft userType={isProviderView ? "lp" : "ob"} />}
         {
           //Update the roundState to multiple roundStates and set selected round in the component
         }

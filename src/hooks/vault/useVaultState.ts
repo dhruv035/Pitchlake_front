@@ -31,13 +31,11 @@ const useVaultState = ({
   }, [address, conn]);
 
   const { account } = useAccount();
-  //const { address: accountAddress } = useAccount();
-  console.log("account in state read", account?.address);
+
   //Read States
 
   //States without a param
   const {
-    vaultType,
     alpha,
     strikeLevel,
     ethAddress,
@@ -49,7 +47,7 @@ const useVaultState = ({
   } = useContractReads({
     contractData,
     states: [
-      { functionName: "get_vault_type", key: "vaultType" }, // will rm
+      //{ functionName: "get_vault_type", key: "vaultType" }, // will rm
       {
         functionName: "get_alpha",
         key: "alpha",
@@ -142,20 +140,33 @@ const useVaultState = ({
   );
   const roundActions = useMemo(() => roundAction, [roundAction]);
 
-  console.log("VAULT STATE TEST: ", {
+  const k = strikeLevel ? Number(strikeLevel.toString()) : 0;
+  const vaultType = k > 0 ? "OTM" : k == 0 ? "ATM" : "ITM";
+
+  console.log("k is", k);
+
+  if (k > 0) {
+    console.log("OTM");
+  } else if (k == 0) {
+    console.log("ATM");
+  } else {
+    console.log("ITM");
+  }
+
+  console.log({
     address,
+    alpha: alpha ? alpha.toString() : 0,
+    strikeLevel: strikeLevel ? strikeLevel.toString() : 0,
+    ethAddress: ethAddress ? stringToHex(ethAddress?.toString()) : "",
+    currentRoundId: currentRoundId ? currentRoundId.toString() : 0,
+    lockedBalance: lockedBalance ? lockedBalance.toString() : 0,
+    unlockedBalance: unlockedBalance ? unlockedBalance.toString() : 0,
+    stashedBalance: stashedBalance ? stashedBalance.toString() : 0,
+    queuedBps: queuedBps ? queuedBps.toString() : 0,
     vaultType,
-    alpha,
-    strikeLevel,
-    ethAddress,
-    currentRoundId,
-    lockedBalance,
-    unlockedBalance,
-    stashedBalance,
-    queuedBps,
     lpState,
     currentRoundAddress,
-    roundActions,
+    roundActions: getRounds ? roundActions : undefined,
     selectedRoundState,
     selectedRoundBuyerState,
   });
@@ -171,9 +182,7 @@ const useVaultState = ({
       unlockedBalance: unlockedBalance ? unlockedBalance.toString() : 0,
       stashedBalance: stashedBalance ? stashedBalance.toString() : 0,
       queuedBps: queuedBps ? queuedBps.toString() : 0,
-      vaultType: vaultType
-        ? (vaultType as CairoCustomEnum).activeVariant()
-        : "",
+      vaultType,
     } as VaultStateType,
     lpState,
     currentRoundAddress,
