@@ -25,10 +25,8 @@ interface TabContentProps {
   ) => void;
 }
 
-const PanelRight: React.FC<VaultDetailsProps> = ({
-  userType,
-}) => {
-  const {vaultState,vaultActions,selectedRoundState} = useProtocolContext()
+const PanelRight: React.FC<VaultDetailsProps> = ({ userType }) => {
+  const { vaultState, vaultActions, selectedRoundState } = useProtocolContext();
   const [activeTab, setActiveTab] = useState<string>("");
   const [modalState, setModalState] = useState<{
     show: boolean;
@@ -47,24 +45,22 @@ const PanelRight: React.FC<VaultDetailsProps> = ({
   const { tabs, tabContent } = useTabContent(
     userType,
     activeTab,
-    selectedRoundState
+    selectedRoundState,
   );
-
 
   const { pendingTx, status } = useTransactionContext();
   useEffect(() => {
-    console.log("TRIGGERED",tabs,activeTab)
-    if (tabs.length > 0 && activeTab==="") {
+    console.log("TRIGGERED", tabs, activeTab);
+    if (tabs.length > 0 && activeTab === "") {
       setActiveTab(tabs[0]);
     }
   }, [tabs, activeTab]);
 
-
-  useEffect(()=>{
-if(!(activeTab in tabs)){
-  setActiveTab(tabs[0]);
-}
-  },[tabs,selectedRoundState?.roundState])
+  useEffect(() => {
+    if (!(activeTab in tabs)) {
+      setActiveTab(tabs[0]);
+    }
+  }, [tabs, selectedRoundState?.roundState]);
 
   useEffect(() => {
     console.log("STATES", pendingTx, modalState.type, status);
@@ -112,7 +108,7 @@ if(!(activeTab in tabs)){
   };
 
   const renderTabContent = () => {
-    tabContent
+    tabContent;
     if (!tabContent) {
       return null;
     }

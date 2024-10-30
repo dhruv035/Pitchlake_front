@@ -7,7 +7,7 @@ import {
   TransactionResult,
   UpdateBidArgs,
 } from "@/lib/types";
-import { useAccount, useContract } from "@starknet-react/core";
+import { useAccount, useProvider, useContract } from "@starknet-react/core";
 import { useCallback, useMemo } from "react";
 import { Account } from "starknet";
 
@@ -27,6 +27,7 @@ const useOptionRoundActions = (address?: string) => {
   //    } else return connectorAccount;
   //  }, [connectorAccount, isDev, devAccount]);
   const { account } = useAccount();
+  const { provider } = useProvider();
 
   const typedContract = useMemo(() => {
     if (!contract) return;
@@ -44,10 +45,14 @@ const useOptionRoundActions = (address?: string) => {
         let argsData;
         if (args) argsData = Object.values(args).map((value) => value);
         let data;
+        const nonce =
+          provider && account
+            ? provider.getNonceForAddress(account.address)
+            : "0";
         if (argsData) {
-          data = await typedContract?.[functionName](...argsData);
+          data = await typedContract?.[functionName](...argsData, { nonce });
         } else {
-          data = await typedContract?.[functionName]();
+          data = await typedContract?.[functionName]({ nonce });
         }
         const typedData = data as TransactionResult;
         setPendingTx(typedData.transaction_hash);
@@ -58,6 +63,7 @@ const useOptionRoundActions = (address?: string) => {
   );
   const placeBid = useCallback(
     async (args: PlaceBidArgs) => {
+      console.log("placing a bid", args);
       await callContract("place_bid")(args);
     },
     [callContract],

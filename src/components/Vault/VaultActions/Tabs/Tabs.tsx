@@ -3,7 +3,7 @@ import { TabsProps } from "@/lib/types";
 
 const Tabs: React.FC<TabsProps> = ({ tabs, activeTab, setActiveTab }) => (
   <div className="flex flex-row items-center border-b border-gray-700 align-center justify-left">
-    {tabs.map((tab) => (
+    {tabs.map((tab, key) => (
       <div className="flex flex-row">
         <button
           key={tab}
@@ -23,4 +23,3 @@ const Tabs: React.FC<TabsProps> = ({ tabs, activeTab, setActiveTab }) => (
 );
 
 export default Tabs;
-

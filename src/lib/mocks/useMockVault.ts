@@ -8,6 +8,7 @@ import {
   QueueArgs,
 } from "@/lib/types";
 import { useState } from "react";
+import useMockOptionRound from "./useMockOptionRound";
 import useMockOptionRounds from "./useMockOptionRounds";
 
 const useMockVault = (selectedRound: number, address?: string) => {
@@ -71,7 +72,7 @@ const useMockVault = (selectedRound: number, address?: string) => {
       setRounds((prevState) => {
         const newState = [...prevState];
         newState[selectedRound - 1].roundState = "Auctioning";
-        return newState;
+        return prevState;
       });
   };
   const endAuction = async () => {
@@ -79,7 +80,7 @@ const useMockVault = (selectedRound: number, address?: string) => {
       setRounds((prevState) => {
         const newState = [...prevState];
         newState[selectedRound - 1].roundState = "Running";
-        return newState;
+        return prevState;
       });
   };
 
@@ -128,8 +129,8 @@ const useMockVault = (selectedRound: number, address?: string) => {
         {
           address: address ?? "0x1",
           roundId: BigInt(vaultState.currentRoundId) + BigInt(1),
-          tokenizableOptions: 11,
-          refundableBalance: 24,
+          tokenizableOptions: "",
+          refundableBalance: "",
           bids: [],
         },
       ];

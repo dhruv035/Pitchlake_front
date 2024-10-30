@@ -312,13 +312,28 @@ const PanelLeft = ({ userType }: { userType: string }) => {
                 <div className="flex flex-row items-center gap-1 overflow-visable">
                   <BalanceTooltip
                     balance={{
-                      locked: "111.11",
-                      unlocked: "222.22",
-                      stashed: "333.33",
+                      locked: vaultState
+                        ? vaultState.lockedBalance.toString()
+                        : "0",
+                      unlocked: vaultState
+                        ? vaultState.unlockedBalance.toString()
+                        : "0",
+                      stashed: "0",
                     }}
                     children={
                       <>
-                        <p>12.34%</p>
+                        <p>
+                          {vaultState
+                            ? Number(
+                                formatEther(
+                                  BigInt(vaultState.lockedBalance) +
+                                    BigInt(vaultState.unlockedBalance) +
+                                    BigInt(vaultState.stashedBalance),
+                                ),
+                              ).toFixed(2)
+                            : 0}{" "}
+                          ETH
+                        </p>
                         <Info
                           size={16}
                           color="#CFC490"
@@ -326,7 +341,7 @@ const PanelLeft = ({ userType }: { userType: string }) => {
                         />
                       </>
                     }
-                  />
+                  ></BalanceTooltip>
                 </div>
               </div>
 

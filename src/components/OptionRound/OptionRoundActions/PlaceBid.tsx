@@ -20,6 +20,7 @@ import {
 import useERC20 from "@/hooks/erc20/useERC20";
 import { useAccount } from "@starknet-react/core";
 import { useTransactionContext } from "@/context/TransactionProvider";
+import { formatEther, parseEther, formatUnits, parseUnits } from "ethers";
 
 export default function PlaceBid({
   vaultState,
@@ -96,7 +97,7 @@ export default function PlaceBid({
                 onClick={async () => {
                   await placeBid({
                     amount: BigInt(amount),
-                    price: BigInt(price),
+                    price: parseUnits(price.toString(), "gwei"),
                   });
                 }}
               >

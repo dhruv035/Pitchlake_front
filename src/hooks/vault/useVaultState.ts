@@ -39,6 +39,7 @@ const useVaultState = ({
     alpha,
     strikeLevel,
     ethAddress,
+    fossilClientAddress,
     currentRoundId,
     lockedBalance,
     unlockedBalance,
@@ -56,8 +57,8 @@ const useVaultState = ({
         functionName: "get_strike_level",
         key: "strikeLevel",
       },
-
       { functionName: "get_eth_address", key: "ethAddress" },
+      { functionName: "get_fossil_client_address", key: "fossilClientAddress" },
       // fossil client address
       {
         functionName: "get_current_round_id",
@@ -177,6 +178,9 @@ const useVaultState = ({
       alpha: alpha ? alpha.toString() : 0,
       strikeLevel: strikeLevel ? strikeLevel.toString() : 0,
       ethAddress: ethAddress ? stringToHex(ethAddress?.toString()) : "",
+      fossilClientAddress: fossilClientAddress
+        ? stringToHex(fossilClientAddress?.toString())
+        : "",
       currentRoundId: currentRoundId ? currentRoundId.toString() : 0,
       lockedBalance: lockedBalance ? lockedBalance.toString() : 0,
       unlockedBalance: unlockedBalance ? unlockedBalance.toString() : 0,

@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
+import { formatEther } from "ethers";
 
 const BalanceTooltip: React.FC<BalanceTooltipProps> = ({
   balance,
@@ -59,15 +60,21 @@ const BalanceTooltip: React.FC<BalanceTooltipProps> = ({
             <div className="space-y-2">
               <div className="p-2 px-4 pb-0 flex justify-between">
                 <span>Locked</span>
-                <span>{balance.locked || "0"} ETH</span>
+                <span>
+                  {Number(formatEther(balance.locked)).toFixed(3) || "0"} ETH
+                </span>
               </div>
               <div className="p-2 px-4 pb-0 flex justify-between">
                 <span>Unlocked</span>
-                <span>{balance.unlocked || "0"} ETH</span>
+                <span>
+                  {Number(formatEther(balance.unlocked)).toFixed(2) || "0"} ETH
+                </span>
               </div>
               <div className="p-2 px-4 pb-0 flex justify-between">
                 <span>Stashed</span>
-                <span>{balance.stashed || "0"} ETH</span>
+                <span>
+                  {Number(formatEther(balance.stashed)).toFixed(2) || "0"} ETH
+                </span>
               </div>
             </div>
           </div>,

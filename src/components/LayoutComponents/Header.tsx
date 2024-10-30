@@ -33,9 +33,11 @@ import {
   // ArgentX,
 } from "starknet";
 import useERC20 from "@/hooks/erc20/useERC20";
+import useFossil from "@/hooks/fossil/useFossil";
 
 export default function Header() {
-  const { conn, timeStamp, mockTimeForward, vaultState } = useProtocolContext();
+  const { conn, timeStamp, mockTimeForward, vaultState, selectedRoundState } =
+    useProtocolContext();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const isDropdownOpenRef = useRef(isDropdownOpen);
   const { connect, connectors } = useConnect();
@@ -44,9 +46,21 @@ export default function Header() {
   const router = useRouter();
   const { account } = useAccount();
   const { provider } = useProvider();
+  console.log("Provider:", provider);
   const { approve, fund } = useERC20(
     "0x49d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
-    "0x650f26d7f5bd4727a40c045590ab72925d26bbaf69383e386e324eba95cc935",
+    vaultState?.address,
+    account,
+  );
+  const { fund: fundStrk } = useERC20(
+    "0x4718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d",
+    vaultState?.address,
+    account,
+  );
+
+  const { fossilCallback } = useFossil(
+    vaultState ? vaultState.fossilClientAddress : "",
+    account,
   );
 
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -103,49 +117,102 @@ export default function Header() {
     return str ? `${str.slice(0, 6)}...${str.slice(-4)}` : "";
   };
 
+  const mockFossilCall = async () => {
+    console.log("Mocking fossil call");
+    const roundId = selectedRoundState ? selectedRoundState.roundId : "";
+    const roundState = selectedRoundState
+      ? selectedRoundState
+      : { roundState: "", deploymentDate: "0", optionSettleDate: "0" };
+    const roundStateState = roundState.roundState;
+
+    const targetTimestamp =
+      roundId === "1" && roundStateState === "Open"
+        ? roundState.deploymentDate
+        : roundState.optionSettleDate;
+
+    const settlementDate = selectedRoundState
+      ? selectedRoundState.optionSettleDate.toString()
+      : "0";
+
+    // make request to fossil api using the settlement date (or auction start date if initial case)
+
+    // for now, we will just send a mock result to the client (no address assertions at this time)
+
+    const request = [
+      vaultState ? vaultState.address : "",
+      targetTimestamp,
+      "0x50495443485f4c414b455f5631",
+    ];
+
+    const result = [
+      //0x6 0x02540be400 0x00 0x0d05 0x77359400 0x00 0x00 --fee-token eth
+      "0x02540be400",
+      "0x00",
+      "0x0d05",
+      parseInt((Math.random() * 1000000000).toString()).toString(),
+      "0",
+      // "0x77359400",
+      "0x0",
+    ];
+
+    await fossilCallback(request, result);
+  };
+
   const fundAndDeploy = async (): Promise<void> => {
-    /// Set allowance
+    ///// Set allowance
+    //console.log("APPROVING", "acc");
+    //await approve({
+    //  amount: num.toBigInt("1000000000000000000"),
+    //  spender: vaultState ? vaultState.address : "",
+    //});
+
+    /// Fund account
     console.log("funding...");
     await fund({
-      amount: num.toBigInt("1000000000000000000"),
+      amount: num.toBigInt("100000000000000000000"),
       spender: account ? account.address : "",
     });
+    // Nonce issue when both in same txn
+    //await fundStrk({
+    //  amount: num.toBigInt("100000000000000000000"),
+    //  spender: account ? account.address : "",
+    //});
     console.log("funded");
 
-    // Make the POST request
-    try {
-      const response = await fetch("http://localhost:3000/pricing_data", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": "b2ed9cdc-2dd0-4b81-8ed4-bcefbf29ddc1",
-        },
-        body: JSON.stringify({
-          identifiers: ["PITCH_LAKE_V1"],
-          params: {
-            twap: [1730053616, 1730140016],
-            volatility: [1729880816, 1730140016],
-            reserve_price: [1729880816, 1730140016],
-          },
-          client_info: {
-            client_address: account ? account.address : "",
-            vault_address: vaultState ? vaultState.address : "",
-            timestamp: 1730140016,
-          },
-        }),
-      });
+    //// Make the POST request
+    //try {
+    //  const response = await fetch("http://localhost:3000/pricing_data", {
+    //    method: "POST",
+    //    headers: {
+    //      "Content-Type": "application/json",
+    //      "x-api-key": "b2ed9cdc-2dd0-4b81-8ed4-bcefbf29ddc1",
+    //    },
+    //    body: JSON.stringify({
+    //      identifiers: ["PITCH_LAKE_V1"],
+    //      params: {
+    //        twap: [1730053616, 1730140016],
+    //        volatility: [1729880816, 1730140016],
+    //        reserve_price: [1729880816, 1730140016],
+    //      },
+    //      client_info: {
+    //        client_address: account ? account.address : "",
+    //        vault_address: vaultState ? vaultState.address : "",
+    //        timestamp: 1730140016,
+    //      },
+    //    }),
+    //  });
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error("Error sending request:", errorText);
-        throw new Error("Failed to send request");
-      }
+    //  if (!response.ok) {
+    //    const errorText = await response.text();
+    //    console.error("Error sending request:", errorText);
+    //    throw new Error("Failed to send request");
+    //  }
 
-      const result = await response.json();
-      console.log("Post result:", result);
-    } catch (error) {
-      console.error("Error during fundAndDeploy:", error);
-    }
+    //  const result = await response.json();
+    //  console.log("Post result:", result);
+    //} catch (error) {
+    //  console.error("Error during fundAndDeploy:", error);
+    //}
   };
 
   return (
@@ -171,19 +238,27 @@ export default function Header() {
       <div className="flex items-center space-x-4 text-[14px] font-medium">
         {conn === "mock" && (
           <div>
-            <p>
-              {timeStamp.toString()}
-            </p>
-          <button onClick={() => mockTimeForward()}>Forward Mock Time</button>
+            <p>{timeStamp.toString()}</p>
+            <button onClick={() => mockTimeForward()}>Forward Mock Time</button>
           </div>
         )}
         <div className="cursor-pointer border-[1px] border-greyscale-800 p-2 rounded-md">
           <BellIcon className="h-6 w-6 text-primary" />
         </div>
+        {account ? (
+          <button
+            onClick={mockFossilCall}
+            className="font-medium cursor-pointer border-[1px] border-greyscale-800 p-2 rounded-md"
+          >
+            Mock Fossil API
+          </button>
+        ) : (
+          <></>
+        )}
 
         {account ? (
           <button
-            onClick={() => fundAndDeploy()}
+            onClick={fundAndDeploy}
             className="font-medium cursor-pointer border-[1px] border-greyscale-800 p-2 rounded-md"
           >
             Fund and Deploy Account

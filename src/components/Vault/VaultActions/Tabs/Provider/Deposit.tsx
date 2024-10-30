@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useAccount } from "@starknet-react/core";
 import { useTransactionContext } from "@/context/TransactionProvider";
 import useERC20 from "@/hooks/erc20/useERC20";
@@ -14,7 +14,7 @@ import ButtonTabs from "../../ButtonTabs";
 import { parseEther, formatEther } from "ethers";
 import { useProtocolContext } from "@/context/ProtocolProvider";
 import { getDevAccount } from "@/lib/constants";
-import { RpcProvider, Call } from "starknet";
+import { RpcProvider, Call, transaction, num } from "starknet";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 
@@ -41,27 +41,52 @@ const Deposit: React.FC<DepositProps> = ({ showConfirmation }) => {
     beneficiaryAddress: "",
     activeWithdrawTab: "For Myself",
   });
-
-  //  const account = getDevAccount(
-  //    new RpcProvider({ nodeUrl: "http://localhost:5050/rpc" }),
-  //  );
   const { account } = useAccount();
-  console.log("AAA ACCOUNT", account);
+  const { allowance, approve, increaseAllowance } = useERC20(
+    vaultState?.ethAddress,
+    vaultState?.address,
+    account,
+  );
 
   const updateState = (updates: Partial<DepositState>) => {
     setState((prevState) => ({ ...prevState, ...updates }));
   };
 
-  const { balance, allowance, increaseAllowance } = useERC20(
-    vaultState?.address,
-    vaultState?.ethAddress,
-  );
-
-  console.log("BALANCE", balance);
-  console.log("ALLOWANCE", allowance);
-
   const handleDeposit = async (): Promise<void> => {
-    //console.log("Current allowance:", allowance);
+    /// Update allowance if needed
+    console.log("Current allowance:", allowance);
+    const amountWei = parseEther(state.amount);
+    console.log("AmountWei:", Number(amountWei));
+    if (Number(allowance) < Number(amountWei)) {
+      console.log("AAAAAAAAAAAAAAAAAAA");
+      console.log({ account });
+      const diff = Number(amountWei) - Number(allowance);
+
+      await approve({
+        amount: num.toBigInt(amountWei),
+        spender: vaultState ? vaultState.address : "",
+      });
+    }
+
+    /// Deposit
+    console.log("Depositing", amountWei);
+    await vaultActions.depositLiquidity({
+      amount: amountWei,
+      beneficiary: account ? account.address : "",
+    });
+
+    //const depositCall: Call = {
+    //  contractAddress: vaultState ? vaultState.address : "",
+    //  entrypoint: "deposit",
+    //  calldata: [num.toBigInt(amountWei), 0, account ? account.address : ""],
+    //};
+
+    //// Need to remove allowance call if allowance is >= amountWei
+    //const calls: Call[] = [allowanceCall];
+    //const result = transaction.transformCallsToMulticallArrays(calls);
+    //console.log("result", result);
+    //await account?.execute(calls);
+
     //if (Number(allowance) < Number(state.amount)) {
     //  let difference = Number(state.amount) - Number(allowance);
     //  console.log("Increasing allowance by: ", difference);
@@ -71,13 +96,13 @@ const Deposit: React.FC<DepositProps> = ({ showConfirmation }) => {
     //  });
     //}
 
-    console.log("Depositing", state.amount);
-    await vaultActions.depositLiquidity({
-      amount: parseEther(state.amount),
-      beneficiary:
-        "0x07692EE25171bDa70F1c3A76fA23a50F86De517D4A6c98B125D235e4aF874F84",
-      //beneficiary: account ? account.address?.toString() : "", //state.beneficiaryAddress,
-    });
+    //    console.log("Depositing", state.amount);
+    //    await vaultActions.depositLiquidity({
+    //      amount: parseEther(state.amount),
+    //      beneficiary:
+    //        "0x07692EE25171bDa70F1c3A76fA23a50F86De517D4A6c98B125D235e4aF874F84",
+    //      //beneficiary: account ? account.address?.toString() : "", //state.beneficiaryAddress,
+    //    });
   };
 
   const handleSubmit = () => {
@@ -104,6 +129,8 @@ const Deposit: React.FC<DepositProps> = ({ showConfirmation }) => {
 
     return false;
   };
+
+  useEffect(() => {}, [account]);
 
   console.log("LPSTATE", lpState);
   return (

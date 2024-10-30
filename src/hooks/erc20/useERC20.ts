@@ -5,14 +5,18 @@ import {
   useProvider,
   useContractWrite,
 } from "@starknet-react/core";
-import { useCallback, useMemo } from "react";
+import { useEffect, useCallback, useMemo, useState } from "react";
 import { ApprovalArgs, TransactionResult } from "@/lib/types";
 import { erc20ABI } from "@/abi";
-import { Account, RpcProvider } from "starknet";
+import { Account, AccountInterface, RpcProvider } from "starknet";
 import { useTransactionContext } from "@/context/TransactionProvider";
 import { getDevAccount } from "@/lib/constants";
 
-const useERC20 = (tokenAddress: string | undefined, target?: string) => {
+const useERC20 = (
+  tokenAddress: string | undefined,
+  target?: string,
+  account?: AccountInterface | undefined,
+) => {
   //   const typedContract = useContract({abi:erc20ABI,address}).contract?.typedv2(erc20ABI)
   const contractData = {
     abi: erc20ABI,
@@ -21,8 +25,12 @@ const useERC20 = (tokenAddress: string | undefined, target?: string) => {
 
   const { contract } = useContract({ ...contractData });
   const { provider } = useProvider();
-  const { isDev, devAccount, setPendingTx } = useTransactionContext();
-  const { account: connectorAccount } = useAccount();
+  const { isDev, devAccount, setPendingTx, pendingTx } =
+    useTransactionContext();
+
+  const [balance, setBalance] = useState<number>(0);
+  const [allowance, setAllowance] = useState<number>(0);
+  const [acc, setAcc] = useState<string>("");
 
   // const { writeAsync } = useContractWrite({});
 
@@ -31,7 +39,8 @@ const useERC20 = (tokenAddress: string | undefined, target?: string) => {
   //     return devAccount;
   //   } else return connectorAccount;
   // }, [connectorAccount, isDev, devAccount]);
-  const { account } = useAccount();
+
+  console.log("ERC20 acc", account);
 
   const typedContract = useMemo(() => {
     if (!contract) return;
@@ -59,7 +68,7 @@ const useERC20 = (tokenAddress: string | undefined, target?: string) => {
 
   //Read States
 
-  const balance = useContractRead({
+  const { data: balanceRaw } = useContractRead({
     abi: erc20ABI,
     address: tokenAddress ? tokenAddress : undefined,
     functionName: "balance_of",
@@ -67,7 +76,7 @@ const useERC20 = (tokenAddress: string | undefined, target?: string) => {
     watch: true,
   });
 
-  const allowance = useContractRead({
+  const { data: allowanceRaw } = useContractRead({
     abi: erc20ABI,
     address: tokenAddress ? tokenAddress : undefined,
     functionName: "allowance",
@@ -75,11 +84,15 @@ const useERC20 = (tokenAddress: string | undefined, target?: string) => {
     watch: true,
   });
 
+  // No increase_allowance on ETH ?
   const increaseAllowance = useCallback(
     async (approvalArgs: ApprovalArgs) => {
-      if (!typedContract) return;
+      if (!contract) return;
+      const typedContract = contract.typedv2(erc20ABI);
+      if (account) typedContract.connect(account as Account);
+
       try {
-        const data = await typedContract.increaseAllowance(
+        const data = await typedContract.increase_allowance(
           approvalArgs.spender,
           approvalArgs.amount,
         );
@@ -89,12 +102,19 @@ const useERC20 = (tokenAddress: string | undefined, target?: string) => {
         console.log("ERR", err);
       }
     },
-    [typedContract, setPendingTx],
+    [account, typedContract, pendingTx, setPendingTx],
   );
 
   const approve = useCallback(
     async (approvalArgs: ApprovalArgs) => {
-      if (!typedContract) return;
+      console.log("APPROVING, ", approvalArgs, account);
+
+      if (!contract) {
+        return;
+      }
+      const typedContract = contract.typedv2(erc20ABI);
+      if (account) typedContract.connect(account as Account);
+
       try {
         const data = await typedContract.approve(
           approvalArgs.spender,
@@ -106,14 +126,14 @@ const useERC20 = (tokenAddress: string | undefined, target?: string) => {
         console.log("ERR", err);
       }
     },
-    [typedContract, setPendingTx],
+    [account, typedContract, pendingTx, setPendingTx],
   );
 
   const fund = useCallback(
     async (approvalArgs: ApprovalArgs) => {
       if (!typedContractFunding) return;
       try {
-        const data = await typedContractFunding.transfer(
+        const data = typedContractFunding.transfer(
           approvalArgs.spender,
           approvalArgs.amount,
         );
@@ -123,8 +143,14 @@ const useERC20 = (tokenAddress: string | undefined, target?: string) => {
         console.log("ERR", err);
       }
     },
-    [typedContractFunding, setPendingTx],
+    [account, typedContractFunding, pendingTx, setPendingTx],
   );
+
+  useEffect(() => {
+    setBalance(balanceRaw ? Number(balanceRaw) : 0);
+    setAllowance(allowanceRaw ? Number(allowanceRaw) : 0);
+    setAcc(account ? account.address : "");
+  }, [account, balanceRaw, allowanceRaw]);
 
   return {
     balance,

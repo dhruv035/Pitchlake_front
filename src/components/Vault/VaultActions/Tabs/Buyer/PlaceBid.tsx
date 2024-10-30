@@ -7,6 +7,9 @@ import { useProtocolContext } from "@/context/ProtocolProvider";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 import { formatUnits, parseUnits, formatEther } from "ethers";
+import { useAccount } from "@starknet-react/core";
+import useERC20 from "@/hooks/erc20/useERC20";
+import { num } from "starknet";
 
 interface PlaceBidProps {
   showConfirmation: (
@@ -17,6 +20,8 @@ interface PlaceBidProps {
 }
 
 const PlaceBid: React.FC<PlaceBidProps> = ({ showConfirmation }) => {
+  const { vaultState, roundActions, selectedRoundState } = useProtocolContext();
+  const { account } = useAccount();
   const [state, setState] = useState({
     bidAmount: "",
     bidPrice: "",
@@ -25,8 +30,11 @@ const PlaceBid: React.FC<PlaceBidProps> = ({ showConfirmation }) => {
     isAmountOk: "",
     isPriceOk: "",
   });
-
-  const { roundActions, selectedRoundState } = useProtocolContext();
+  const { allowance, approve } = useERC20(
+    vaultState?.ethAddress,
+    selectedRoundState?.address,
+    account,
+  );
 
   useEffect(() => {
     // Check amount
@@ -80,9 +88,24 @@ const PlaceBid: React.FC<PlaceBidProps> = ({ showConfirmation }) => {
   };
 
   const handlePlaceBid = async (): Promise<void> => {
+    /// Update allowance if needed
+    console.log("Current allowance:", allowance);
+    const amountWei = parseUnits(state.bidPrice, "gwei");
+    console.log("AmountWei:", Number(amountWei));
+    if (Number(allowance) < Number(amountWei)) {
+      const diff = Number(amountWei) - Number(allowance);
+
+      await approve({
+        amount: num.toBigInt(amountWei),
+        spender: selectedRoundState?.address
+          ? selectedRoundState.address.toString()
+          : "",
+      });
+    }
+
     await roundActions?.placeBid({
       amount: BigInt(state.bidAmount),
-      price: BigInt(state.bidPrice),
+      price: parseUnits(state.bidPrice, "gwei"),
     });
   };
 
