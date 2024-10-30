@@ -9,14 +9,14 @@ import {
 } from "@/lib/types";
 import { Bid } from "@/lib/types";
 import { useAccount } from "@starknet-react/core";
-const useMockOptionRounds = (selectedRound:number) => {
+const useMockOptionRounds = (selectedRound: number) => {
   const { address } = useAccount();
   const date = Date.now();
-  console.log("HOOK DATE",date)
-  const [rounds, setRounds] =
-    useState<OptionRoundStateType[]>(
-      // Initial mock data for option round states
-      [{
+  console.log("HOOK DATE", date);
+  const [rounds, setRounds] = useState<OptionRoundStateType[]>(
+    // Initial mock data for option round states
+    [
+      {
         roundId: 0,
         clearingPrice: "0",
         strikePrice: "10000000000",
@@ -31,35 +31,39 @@ const useMockOptionRounds = (selectedRound:number) => {
         payoutPerOption: "",
         vaultAddress: "",
         reservePrice: "2000000000",
-        auctionStartDate: date+200000,
-        auctionEndDate: date+400000,
-        optionSettleDate:date+ 600000,
+        auctionStartDate: date + 200000,
+        auctionEndDate: date + 400000,
+        optionSettleDate: date + 600000,
         deploymentDate: "",
         soldLiquidity: "",
         unsoldLiquidity: "",
         optionSold: "",
         totalPayout: "",
         treeNonce: "",
+        performanceLP: 0,
+        performanceOB: 0,
         // Add other fields as necessary
-      }],
-      // Add more mock states as needed
-    );
+      },
+    ],
+    // Add more mock states as needed
+  );
 
-  const [buyerStates, setBuyerStates] =
-    useState<OptionBuyerStateType[]>([{
-      address:address?? "0x1",
+  const [buyerStates, setBuyerStates] = useState<OptionBuyerStateType[]>([
+    {
+      address: address ?? "0x1",
       roundId: 0,
       tokenizableOptions: 11,
       refundableBalance: 24,
       bids: [],
-    }]);
+    },
+  ]);
 
   // Function to update a specific field in the option round state
 
   // Function to update a specific field in the OptionBuyerState
   const placeBid = async (placeBidArgs: PlaceBidArgs) => {
     setBuyerStates((prevState) => {
-        const newState = prevState;
+      const newState = prevState;
       const newBid: Bid = {
         bidId: "3",
         address: address ?? "",
@@ -70,11 +74,11 @@ const useMockOptionRounds = (selectedRound:number) => {
         price: placeBidArgs.price,
       };
       newState[selectedRound].bids.push();
-      return newState
+      return newState;
     });
   };
 
-  const refundUnusedBids= async (refundBidsArgs: RefundBidsArgs) => {
+  const refundUnusedBids = async (refundBidsArgs: RefundBidsArgs) => {
     await new Promise((resolve) => setTimeout(resolve, 2000));
   };
 
@@ -88,7 +92,7 @@ const useMockOptionRounds = (selectedRound:number) => {
     await new Promise((resolve) => setTimeout(resolve, 2000));
   };
 
-  const roundActions:OptionRoundActionsType = {
+  const roundActions: OptionRoundActionsType = {
     placeBid,
     refundUnusedBids,
     updateBid,
@@ -100,7 +104,7 @@ const useMockOptionRounds = (selectedRound:number) => {
     setRounds,
     buyerStates,
     setBuyerStates,
-    roundActions // Expose the function for updating option round fields
+    roundActions, // Expose the function for updating option round fields
   };
 };
 
