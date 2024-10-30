@@ -4,9 +4,8 @@ import { TabsProps } from "@/lib/types";
 const Tabs: React.FC<TabsProps> = ({ tabs, activeTab, setActiveTab }) => (
   <div className="flex flex-row items-center border-b border-gray-700 align-center justify-left">
     {tabs.map((tab, key) => (
-      <div className="flex flex-row">
+      <div key={tab} className="flex flex-row">
         <button
-          key={tab}
           className={`h-[56px] px-6 py-4 relative text-[14px] ${
             activeTab === tab ? "text-[#F5EBB8]" : "text-gray-400"
           }`}
