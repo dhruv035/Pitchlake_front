@@ -10,7 +10,7 @@ export default function Home({
 
   return (
     <div className={classes.container}>
-      <Vault vaultAddress={vaultAddress} />
+      <Vault />
     </div>
   );
 }

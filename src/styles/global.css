@@ -1,8 +1,9 @@
 :root {
   /* Colors */
-  
+
   --red: rgb(243, 65, 32);
   --deepRed: rgb(197, 30, 72);
+  --icon-gradient: radial-gradient(50% 50% at 50% 50%, #030303 0%, #171717 100%);
   --greyscale-gradient: linear-gradient(180deg, rgba(89, 89, 89, 0.5) -28.5%, rgba(0, 0, 0, 0) 95.56%);
   --success-gradient: linear-gradient(180deg, rgba(52, 121, 18, 0.5) -28.5%, rgba(0, 0, 0, 0) 95.56%);
   --primary-50:#FEFDF6;
@@ -76,10 +77,9 @@
   --black-alt:#121212;
   --white:#FFFFFF;
   --white-alt:#FAFAFA;
-
+  --buttonwhite: var(--white-alt);
+  --buttongrey: var(--greyscale-400);
   
-
-
   --green: #06d6a0;
   --text: white;
 
@@ -97,7 +97,7 @@
 html,
 body {
   font-family: var(--mainFont);
-  background: #0D0D0D;
+  background: #0d0d0d;
   color: white;
 }
 

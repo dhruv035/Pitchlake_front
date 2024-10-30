@@ -10,36 +10,27 @@ import {
   DepositArgs,
   TransactionResult,
   VaultActionsType,
-  WithdrawArgs,
+  WithdrawLiquidityArgs,
+  QueueArgs,
 } from "@/lib/types";
-import { Account, LibraryError, Provider, RpcProvider } from "starknet";
-import { useCallback, useMemo, useState } from "react";
-import { stringToHex } from "@/lib/utils";
 import { getDevAccount } from "@/lib/constants";
+import { Account, RpcProvider } from "starknet";
+import { useCallback, useMemo } from "react";
 import { useTransactionContext } from "@/context/TransactionProvider";
-import { toast } from "react-toastify";
-import { displayToastError } from "@/lib/toasts";
 
-const useVaultActions = (address: string) => {
+const useVaultActions = (address?: string) => {
+  const { setPendingTx } = useTransactionContext();
+  const { account } = useAccount();
+  const { provider } = useProvider();
   const { contract } = useContract({
     abi: vaultABI,
     address,
   });
 
-  const { isDev, devAccount } = useTransactionContext();
-  const { account: connectorAccount } = useAccount();
-  const { setPendingTx } = useTransactionContext();
-
-  const account = useMemo(() => {
-    if (isDev === true) {
-      return devAccount;
-    } else return connectorAccount;
-  }, [connectorAccount, isDev,devAccount]);
-
   const typedContract = useMemo(() => {
     if (!contract) return;
     const typedContract = contract.typedv2(vaultABI);
-    if (account) typedContract.connect(account as Account);
+    if (account) typedContract.connect(account);
     return typedContract;
   }, [contract, account]);
 
@@ -53,50 +44,81 @@ const useVaultActions = (address: string) => {
 
   //Write Calls
 
-  const depositLiquidity = async (depositArgs: DepositArgs) => {
-    await callContract("deposit_liquidity")(depositArgs);
-  };
-
-  const withdrawLiquidity = async (withdrawArgs: WithdrawArgs) => {
-    await callContract("withdraw_liquidity")(withdrawArgs);
-  };
-
-  const startAuction = async () => {
-    await callContract("start_auction")();
-  };
-
-  const endAuction = async () => {
-    await callContract("end_auction")();
-  };
-
-  const settleOptionRound = async () => {
-    await callContract("settle_option_round")();
-  };
-
   const callContract = useCallback(
-    (functionName: string) => async (args?: DepositArgs | WithdrawArgs) => {
-      if (!typedContract) return;
-      let argsData;
-      if (args) argsData = Object.values(args).map((value) => value);
-      let data;
-      if (argsData) {
-        data = await typedContract?.[functionName](...argsData);
-      } else {
-        data = await typedContract?.[functionName]();
-      }
-      const typedData = data as TransactionResult;
-      setPendingTx(typedData.transaction_hash);
-      // const data = await writeAsync({ calls: [callData] });
-      return typedData;
-    },
-    [typedContract, setPendingTx]
+    (functionName: string) =>
+      async (args?: DepositArgs | WithdrawLiquidityArgs | QueueArgs) => {
+        if (!typedContract) return;
+        let argsData;
+        if (args) argsData = Object.values(args).map((value) => value);
+        let data;
+        //const nonce =
+        //  provider && account
+        //    ? await provider.getNonceForAddress(account.address)
+        //    : "0";
+        if (argsData) {
+          data = await typedContract?.[functionName](
+            ...argsData,
+            //   {
+            //   nonce,
+            // }
+          );
+        } else {
+          data = await typedContract
+            ?.[functionName]
+            //   { nonce }
+            ();
+        }
+        const typedData = data as TransactionResult;
+        setPendingTx(typedData.transaction_hash);
+        // const data = await writeAsync({ calls: [callData] });
+        return typedData;
+      },
+    [typedContract, account, provider, setPendingTx],
   );
 
+  const depositLiquidity = useCallback(
+    async (depositArgs: DepositArgs) => {
+      await callContract("deposit")(depositArgs);
+    },
+    [callContract],
+  );
+
+  const withdrawLiquidity = useCallback(
+    async (withdrawArgs: WithdrawLiquidityArgs) => {
+      await callContract("withdraw")(withdrawArgs);
+    },
+    [callContract],
+  );
+
+  const withdrawStash = useCallback(async () => {
+    await callContract("withdraw_stash")();
+  }, [callContract]);
+
+  const queueWithdrawal = useCallback(
+    async (queueArgs: QueueArgs) => {
+      await callContract("queue_withdrawal")(queueArgs);
+    },
+    [callContract],
+  );
+
+  const startAuction = useCallback(async () => {
+    await callContract("start_auction")();
+  }, [callContract]);
+
+  const endAuction = useCallback(async () => {
+    await callContract("end_auction")();
+  }, [callContract]);
+
+  const settleOptionRound = useCallback(async () => {
+    await callContract("settle_round")();
+  }, [callContract]);
   //State Transition
 
   return {
     depositLiquidity,
     withdrawLiquidity,
+    withdrawStash,
+    queueWithdrawal,
     startAuction,
     endAuction,
     settleOptionRound,

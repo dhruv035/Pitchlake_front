@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import {
   VaultUserRole,
   RoundState,
@@ -7,6 +7,9 @@ import {
   CommonTabs,
   VaultStateType,
   LiquidityProviderStateType,
+  VaultActionsType,
+  OptionRoundActionsType,
+  OptionRoundStateType,
 } from "@/lib/types";
 import DepositContent from "@/components/Vault/VaultActions/Tabs/Provider/Deposit";
 import Withdraw from "@/components/Vault/VaultActions/Tabs/Provider/Withdraw/Withdraw";
@@ -17,72 +20,58 @@ import Exercise from "@/components/Vault/VaultActions/Tabs/Buyer/Exercise";
 import Refund from "@/components/Vault/VaultActions/Tabs/Buyer/Refund";
 import MyInfo from "@/components/Vault/VaultActions/Tabs/Provider/MyInfo";
 import { mockHistoryItems } from "@/components/Vault/MockData";
+import { useProtocolContext } from "@/context/ProtocolProvider";
 
-export const useTabContent = (
-  userType:string,
-  roundState: string,
-  vaultState: VaultStateType,
-  lpState: LiquidityProviderStateType,
-) => {
+export const useTabContent = (userType: string, activeTab: string,selectedRoundState:OptionRoundStateType|undefined) => {
 
-  const getTabs = (): string[] => {
-    const commonTabs = [CommonTabs.MyInfo];
-
+  console.log("CHECK THIS",selectedRoundState)
+  const commonTabs = [CommonTabs.MyInfo];
+  const tabs = useMemo(() => {
+    console.log("RERENDERED")
     if (userType === "lp") {
-      if (roundState === "SETTLED") {
-        return commonTabs;
-      } else {
-        return [...Object.values(ProviderTabs), ...commonTabs];
-      }
+      return [...Object.values(ProviderTabs), ...commonTabs];
     } else {
-      switch (roundState) {
-        case "OPEN":
+      switch (selectedRoundState?.roundState) {
+        case "Open":
           return [];
-        case "AUCTIONING":
+        case "Auctioning":
           return [BuyerTabs.PlaceBid, BuyerTabs.History, ...commonTabs];
-        case "RUNNING":
+        case "Running":
           return [BuyerTabs.Refund, BuyerTabs.Mint, ...commonTabs];
-        case "SETTLED":
+        case "Settled":
           return [BuyerTabs.Refund, BuyerTabs.Exercise, ...commonTabs];
         default:
           return [];
       }
     }
-  };
+  }, [userType,selectedRoundState?.roundState]);
 
-  const getTabContent = (activeTab: string): React.ReactNode => {
+  const tabContent = useMemo(() => {
     switch (activeTab) {
       case ProviderTabs.Deposit:
-        return (
-          <DepositContent
-            showConfirmation={(amount, action) => {}}
-            vaultState={vaultState}
-          />
-        );
+        return <DepositContent showConfirmation={(amount, action) => {}} />;
       case ProviderTabs.Withdraw:
-        return (
-          <Withdraw
-            lpState={lpState}
-            vaultState={vaultState}
-            showConfirmation={(amount, action) => {}}
-          />
-        );
+        return <Withdraw showConfirmation={(amount, action) => {}} />;
       case BuyerTabs.PlaceBid:
         return <PlaceBid showConfirmation={(amount, action) => {}} />;
       case BuyerTabs.History:
-        return <History items = {mockHistoryItems}/>;
+        return <History items={mockHistoryItems} />;
       case BuyerTabs.Refund:
-        return <Refund />;
+        return <Refund showConfirmation={(amount, action)=>{}}/>;
       case BuyerTabs.Mint:
-        return <Mint />;
+        return <Mint showConfirmation={(amount, action)=>{}}/>;
       case BuyerTabs.Exercise:
         return <Exercise />;
       case CommonTabs.MyInfo:
         return <MyInfo />;
       default:
-        return null;
+        if (userType === "ob") {
+        } else if (userType === "lp") {
+          return <DepositContent showConfirmation={(amount, action) => {}} />;
+        }
     }
-  };
+  }, [userType, activeTab,selectedRoundState?.roundState]);
 
-  return { getTabs, getTabContent };
+
+  return { tabs, tabContent };
 };

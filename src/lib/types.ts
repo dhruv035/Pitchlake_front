@@ -5,9 +5,11 @@ export type DepositArgs = {
   amount: number | bigint;
 };
 
-export type WithdrawArgs = {
+export type WithdrawLiquidityArgs = {
   amount: number | bigint;
 };
+
+export type QueueArgs = { bps: number | bigint };
 
 export type ApprovalArgs = {
   amount: number | bigint;
@@ -33,13 +35,17 @@ export const RoundStateLabels: { [key in RoundState]: string } = {
 };
 
 export type VaultStateType = {
-  ethAddress?: string;
   address: string;
-  vaultType?: string;
+  vaultType: string;
+  alpha: number | bigint | string;
+  strikeLevel: number | bigint | string;
+  ethAddress: string;
+  fossilClientAddress: string;
+  currentRoundId: number | bigint | string;
   lockedBalance: number | bigint | string;
   unlockedBalance: number | bigint | string;
   stashedBalance: number | bigint | string;
-  currentRoundId: number | bigint | string;
+  queuedBps: number | bigint | string;
 };
 
 export type LiquidityProviderStateType = {
@@ -47,6 +53,7 @@ export type LiquidityProviderStateType = {
   lockedBalance: number | bigint | string;
   unlockedBalance: number | bigint | string;
   stashedBalance: number | bigint | string;
+  queuedBps: number | bigint | string;
 };
 
 export type OptionBuyerStateType = {
@@ -54,12 +61,14 @@ export type OptionBuyerStateType = {
   roundId: bigint | number | string;
   tokenizableOptions: bigint | number | string;
   refundableBalance: bigint | number | string;
-  bids:string[]
+  bids: string[];
 };
 
 export type VaultActionsType = {
   depositLiquidity: (depositArgs: DepositArgs) => Promise<void>;
-  withdrawLiquidity: (withdrawArgs: WithdrawArgs) => Promise<void>;
+  withdrawLiquidity: (withdrawArgs: WithdrawLiquidityArgs) => Promise<void>;
+  withdrawStash: () => Promise<void>;
+  queueWithdrawal: (queueArgs: QueueArgs) => Promise<void>;
   startAuction: () => Promise<void>;
   endAuction: () => Promise<void>;
   settleOptionRound: () => Promise<void>;
@@ -67,37 +76,48 @@ export type VaultActionsType = {
 
 export type OptionRoundStateType = {
   address: string | undefined;
-  roundId: bigint | number | string;
-  capLevel: bigint | number | string;
-  startingLiquidity?: bigint | number | string;
-  availableOptions: bigint | number | string;
-  clearingPrice: bigint | number | string;
-  settlementPrice: bigint | number | string;
-  strikePrice: bigint | number | string;
-  optionsSold: bigint | number | string;
-  roundState: string;
-  premiums: bigint | number | string;
-  queuedLiquidity?: bigint | number | string;
-  payoutPerOption: bigint | number | string;
   vaultAddress: string;
+  roundId: bigint | number | string;
+  roundState: string;
+  deploymentDate: string | number | bigint;
+  auctionStartDate: string | number | bigint;
+  auctionEndDate: string | number | bigint;
+  optionSettleDate: string | number | bigint;
+  startingLiquidity?: bigint | number | string;
+  soldLiquidity: bigint | number | string;
+  unsoldLiquidity: bigint | number | string;
   reservePrice: bigint | number | string;
-  auctionStartDate: string|number|bigint;
-  auctionEndDate: string|number|bigint;
-  optionSettleDate?: string|number|bigint;
+  strikePrice: bigint | number | string;
+  capLevel: bigint | number | string;
+  availableOptions: bigint | number | string;
+  optionSold: bigint | number | string;
+  clearingPrice: bigint | number | string;
+  premiums: bigint | number | string;
+  settlementPrice: bigint | number | string;
+  optionsSold: bigint | number | string;
+  totalPayout: bigint | number | string;
+  payoutPerOption: bigint | number | string;
+  treeNonce: bigint | number | string;
+  performanceLP: number | string;
+  performanceOB: number | string;
+  //queuedLiquidity?: bigint | number | string;
 };
 
 export type Bid = {
-  address: string;
+  address: string; //owner ?
   roundId: bigint | number | string;
   bidId: string;
   treeNonce: string;
   amount: bigint | number | string;
   price: bigint | number | string;
 };
+
 export interface VaultDetailsProps {
   vaultAddress: string;
   status: RoundState;
+  alpha: number;
   strike: number;
+  strike_level: number;
   tvl: number;
   round: number;
   timeLeft?: string;
@@ -110,11 +130,11 @@ export interface VaultDetailsProps {
   lastRoundPerf: number;
   currRoundPerf?: number;
   actions: string;
-  auctionStartDate: string|number|bigint;
-  auctionEndDate: string|number|bigint;
-  optionSettleDate?: string|number|bigint;
+  deploymentDate: string | number | bigint;
+  auctionStartDate: string | number | bigint;
+  auctionEndDate: string | number | bigint;
+  optionSettleDate?: string | number | bigint;
 }
-
 
 export type OptionRoundActionsType = {
   placeBid: (placeBids: PlaceBidArgs) => Promise<void>;
@@ -140,21 +160,10 @@ export type RefundBidsArgs = {
   optionBuyer: string;
 };
 
-
-
-
-
-
-
-
-
-
-
-
-
 export interface InfoItemProps {
   label: string;
   value: React.ReactNode;
+  isPending?: boolean;
 }
 
 export interface BalanceTooltipProps {

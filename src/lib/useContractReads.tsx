@@ -1,5 +1,6 @@
 import { useContractRead, UseContractReadProps } from "@starknet-react/core";
 import { stat } from "fs";
+import { useMemo } from "react";
 import { Abi, Result } from "starknet";
 
 const useContractReads = ({
@@ -11,26 +12,30 @@ const useContractReads = ({
   watch?: boolean;
   states: Array<{ functionName: string; args?: Array<any>; key: string }>;
 }) => {
+  // Create an object to store results
+  const results: { [key: string]: Result | undefined } = {};
 
-  
-  const obj:{[key:string]:Result|undefined}={};
+  // Iterate over the states array and call useContractRead for each state
   states.forEach((state) => {
-
-    //Looped hooks, need to disable rules, the sequentially declaration is ensured here
-    // eslint-disable-next-line react-hooks/rules-of-hooks
+     // eslint-disable-next-line react-hooks/rules-of-hooks
     const { data } = useContractRead({
       ...contractData,
-      ...state,
-      args: state.args ? state.args : [],
+      functionName: state.functionName,
+      args: state.args ?? [], // Default to an empty array if no args are provided
       watch,
     });
-    if(state.key&&data)
-    {
-      obj[state.key]=data;
+
+    // Store the data using the state's key
+    if (state.key) {
+      results[state.key] = data;
     }
-    return data
   });
-  return {...obj};
+
+  // Use useMemo to memoize the result, but exclude the hook call itself
+  return useMemo(() => {
+    return { ...results };
+  }, [states, contractData, watch]);
 };
+
 
 export default useContractReads;

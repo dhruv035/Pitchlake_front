@@ -1,26 +1,31 @@
 import React, { useState } from "react";
-import { LiquidityProviderStateType, VaultStateType } from "@/lib/types";
+import {
+  LiquidityProviderStateType,
+  VaultStateType,
+  WithdrawLiquidityArgs,
+} from "@/lib/types";
 import InputField from "@/components/Vault/Utils/InputField";
 import { ChevronDown } from "lucide-react";
 import ActionButton from "@/components/Vault/Utils/ActionButton";
+import { formatEther, parseEther } from "ethers";
+import { useProtocolContext } from "@/context/ProtocolProvider";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 
 interface WithdrawLiquidityProps {
-  vaultState: VaultStateType;
-  lpState: LiquidityProviderStateType;
   showConfirmation: (
     modalHeader: string,
     action: string,
-    onConfirm: () => Promise<void>
+    onConfirm: () => Promise<void>,
   ) => void;
 }
 
 const WithdrawLiquidity: React.FC<WithdrawLiquidityProps> = ({
-  vaultState,
-  lpState,
   showConfirmation,
 }) => {
+  const { lpState, vaultActions } = useProtocolContext();
   const [state, setState] = useState({
-    amount: "",
+    amount: "0",
   });
 
   const updateState = (updates: Partial<typeof state>) => {
@@ -28,48 +33,68 @@ const WithdrawLiquidity: React.FC<WithdrawLiquidityProps> = ({
   };
 
   const liquidityWithdraw = async (): Promise<void> => {
-    console.log("queue withdraw", state.amount);
+    await vaultActions.withdrawLiquidity({ amount: parseEther(state.amount) });
   };
 
   const handleSubmit = () => {
-    console.log("Collect confirmation");
     showConfirmation(
       "Liquidity Withdraw",
-      `withdraw ${state.amount} ETH to your unlocked balance?`,
-      liquidityWithdraw
+      `withdraw ${state.amount} ETH from your unlocked balance?`,
+      liquidityWithdraw,
     );
   };
 
   const isWithdrawDisabled = (): boolean => {
-    const amount = state.amount ? BigInt(state.amount) : BigInt(0);
-    return amount <= BigInt(0);
+    // No negatives
+    if (Number(state.amount) <= Number(0)) {
+      return true;
+    }
+
+    // No more than unlocked balance
+    let unlockedBalance = lpState?.unlockedBalance
+      ? lpState.unlockedBalance
+        ? parseFloat(
+            Number(formatEther(lpState.unlockedBalance.toString())).toString(),
+          )
+        : 0.0
+      : 0.0;
+
+    console.log("unlockedBalance as float", unlockedBalance);
+
+    if (Number(state.amount) > unlockedBalance) {
+      return true;
+    }
+
+    return false;
   };
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex-grow space-y-6">
+    <>
+      <div className="flex flex-col space-y-5 px-6 mb-[auto]">
         <div>
           <InputField
             type="number"
             value={state.amount || ""}
             label="Enter Amount"
             onChange={(e) => updateState({ amount: e.target.value })}
-            placeholder="e.g. 5"
+            placeholder="e.g. 5.0"
             icon={
-              <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400" />
+              <FontAwesomeIcon
+                icon={faEthereum}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 pr-2"
+              />
             }
           />
         </div>
       </div>
-
-      <div className="mt-auto">
-        <div className="flex justify-between text-sm mb-4">
+      <div className="flex flex-col h-[full] mt-[auto]">
+        <div className="px-6 flex justify-between text-sm mb-6 mt-auto">
           <span className="text-gray-400">Unlocked Balance</span>
           <span className="text-white">
-            {lpState.unlockedBalance?.toString() || "0"} ETH
+            {formatEther(lpState?.unlockedBalance?.toString() || "0")} ETH
           </span>
         </div>
-        <div className="flex justify-between text-sm mb-4 pt-4 border-t border-[#262626]">
+        <div className="mt-[auto] flex justify-between text-sm border-t border-[#262626] p-6">
           <ActionButton
             onClick={handleSubmit}
             disabled={isWithdrawDisabled()}
@@ -77,7 +102,7 @@ const WithdrawLiquidity: React.FC<WithdrawLiquidityProps> = ({
           />
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

@@ -20,6 +20,7 @@ import {
 import useERC20 from "@/hooks/erc20/useERC20";
 import { useAccount } from "@starknet-react/core";
 import { useTransactionContext } from "@/context/TransactionProvider";
+import { formatEther, parseEther, formatUnits, parseUnits } from "ethers";
 
 export default function PlaceBid({
   vaultState,
@@ -28,9 +29,7 @@ export default function PlaceBid({
 }: {
   vaultState: VaultStateType;
   optionRoundState: OptionRoundStateType;
-  placeBid: (
-    placeBidArgs: PlaceBidArgs
-  ) => Promise<void>;
+  placeBid: (placeBidArgs: PlaceBidArgs) => Promise<void>;
 }) {
   const [amount, setAmount] = useState<string>("");
   const [price, setPrice] = useState<string>("");
@@ -38,8 +37,7 @@ export default function PlaceBid({
   const { isDev, devAccount } = useTransactionContext();
   const [displayInsufficientBalance, setDisplayInsufficientBalance] =
     useState<boolean>(false);
-  const {  approve } = useERC20(vaultState.ethAddress, optionRoundState.address);
-
+  const { approve } = useERC20(vaultState.ethAddress, optionRoundState.address);
 
   //Update is approved when allowance is greater than amount
 
@@ -59,19 +57,20 @@ export default function PlaceBid({
       <div style={{ width: "100%" }}>
         {
           <>
-          <div style={{}}>
-            <InputNumber
-              className={inputs.input}
-              placeholder="Bid Amount"
-              onChange={handleAmountChange}
-              controls={false}
-            />
-            <InputNumber
-              className={inputs.input}
-              placeholder="Bid Price (ETH)"
-              onChange={handlePriceChange}
-              controls={false}
-            /></div>
+            <div style={{}}>
+              <InputNumber
+                className={inputs.input}
+                placeholder="Bid Amount"
+                onChange={handleAmountChange}
+                controls={false}
+              />
+              <InputNumber
+                className={inputs.input}
+                placeholder="Bid Price (ETH)"
+                onChange={handlePriceChange}
+                controls={false}
+              />
+            </div>
             <div className={classes.controls}>
               <Button
                 style={{ flex: 1 }}
@@ -96,10 +95,10 @@ export default function PlaceBid({
                   false
                 }
                 onClick={async () => {
-                    await placeBid({
-                      amount: BigInt(amount),
-                      price: BigInt(price),
-                    });
+                  await placeBid({
+                    amount: BigInt(amount),
+                    price: parseUnits(price.toString(), "gwei"),
+                  });
                 }}
               >
                 PlaceBid

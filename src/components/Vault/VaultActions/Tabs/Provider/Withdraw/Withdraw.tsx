@@ -1,25 +1,25 @@
 import React, { useState } from "react";
-import { LiquidityProviderStateType, VaultStateType, WithdrawSubTabs } from "@/lib/types";
+import {
+  LiquidityProviderStateType,
+  VaultStateType,
+  WithdrawSubTabs,
+} from "@/lib/types";
 import ButtonTabs from "../../../ButtonTabs";
 import WithdrawLiquidity from "@/components/Vault/VaultActions/Tabs/Provider/Withdraw/WithdrawLiquidity";
-import WithdrawQueue from "@/components/Vault/VaultActions/Tabs/Provider/Withdraw/WithdrawQueue";
-import WithdrawCollect from "@/components/Vault/VaultActions/Tabs/Provider/Withdraw/WithdrawCollect";
+import QueueWithdrawal from "@/components/Vault/VaultActions/Tabs/Provider/Withdraw/QueueWithdrawal";
+import WithdrawStash from "@/components/Vault/VaultActions/Tabs/Provider/Withdraw/WithdrawStash";
+import { ProtocolContext } from "@/context/ProtocolProvider";
+import { CairoCustomEnum } from "starknet";
 
 interface WithdrawProps {
-  vaultState: VaultStateType;
-  lpState: LiquidityProviderStateType;
   showConfirmation: (
     modalHeader: string,
     action: string,
-    onConfirm: () => Promise<void>
+    onConfirm: () => Promise<void>,
   ) => void;
 }
 
-const Withdraw: React.FC<WithdrawProps> = ({
-  vaultState,
-  lpState,
-  showConfirmation,
-}) => {
+const Withdraw: React.FC<WithdrawProps> = ({ showConfirmation }) => {
   const [state, setState] = useState({
     activeWithdrawTab: "Liquidity" as WithdrawSubTabs,
   });
@@ -29,37 +29,28 @@ const Withdraw: React.FC<WithdrawProps> = ({
   };
 
   return (
-    <div className="flex flex-col h-full">
-      <ButtonTabs
-        tabs={["Liquidity", "Queue", "Collect"]}
-        activeTab={state.activeWithdrawTab}
-        setActiveTab={(tab) =>
-          updateState({ activeWithdrawTab: tab as WithdrawSubTabs })
-        }
-      />
-
-      <div className="flex-grow">
+    <>
+      <div className="flex-col space-y-6 p-6 pb-2">
+        <ButtonTabs
+          tabs={["Liquidity", "Queue", "Collect"]}
+          activeTab={state.activeWithdrawTab}
+          setActiveTab={(tab) =>
+            updateState({ activeWithdrawTab: tab as WithdrawSubTabs })
+          }
+        />
+      </div>
+      <div className="h-full flex flex-col">
         {state.activeWithdrawTab === "Liquidity" && (
-          <WithdrawLiquidity
-            lpState={lpState}
-            vaultState={vaultState}
-            showConfirmation={showConfirmation}
-          />
+          <WithdrawLiquidity showConfirmation={showConfirmation} />
         )}
         {state.activeWithdrawTab === "Queue" && (
-          <WithdrawQueue
-            vaultState={vaultState}
-            showConfirmation={showConfirmation}
-          />
+          <QueueWithdrawal showConfirmation={showConfirmation} />
         )}
         {state.activeWithdrawTab === "Collect" && (
-          <WithdrawCollect
-            vaultState={vaultState}
-            showConfirmation={showConfirmation}
-          />
+          <WithdrawStash showConfirmation={showConfirmation} />
         )}
       </div>
-    </div>
+    </>
   );
 };
 

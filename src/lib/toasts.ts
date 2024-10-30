@@ -1,5 +1,4 @@
 import { Id, toast, TypeOptions } from "react-toastify";
-
 const displayToast =
   (type: TypeOptions) =>
   (content: string, autoClose?: number | false, progress?: number) => {
@@ -21,7 +20,7 @@ export const updateToast = (
   type: TypeOptions,
   render: string,
   autoClose?: number | false,
-  progress?: string | number | undefined
+  progress?: string | number | undefined,
 ) => {
   toast.update(id, {
     render: render,

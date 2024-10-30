@@ -1,19 +1,28 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useAccount } from "@starknet-react/core";
 import { useTransactionContext } from "@/context/TransactionProvider";
 import useERC20 from "@/hooks/erc20/useERC20";
-import { VaultStateType } from "@/lib/types";
+import {
+  DepositArgs,
+  LiquidityProviderStateType,
+  VaultStateType,
+} from "@/lib/types";
 import InputField from "@/components/Vault/Utils/InputField";
 import { ChevronDown, User } from "lucide-react";
 import ActionButton from "@/components/Vault/Utils/ActionButton";
 import ButtonTabs from "../../ButtonTabs";
+import { parseEther, formatEther } from "ethers";
+import { useProtocolContext } from "@/context/ProtocolProvider";
+import { getDevAccount } from "@/lib/constants";
+import { RpcProvider, Call, transaction, num } from "starknet";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 
 interface DepositProps {
-  vaultState: VaultStateType;
   showConfirmation: (
     modalHeader: string,
     action: string,
-    onConfirm: () => Promise<void>
+    onConfirm: () => Promise<void>,
   ) => void;
 }
 
@@ -24,24 +33,76 @@ interface DepositState {
   activeWithdrawTab: "For Myself" | "As Beneficiary";
 }
 
-const Deposit: React.FC<DepositProps> = ({ vaultState, showConfirmation }) => {
+const Deposit: React.FC<DepositProps> = ({ showConfirmation }) => {
+  const { vaultState, lpState, vaultActions } = useProtocolContext();
   const [state, setState] = useState<DepositState>({
-    amount: "",
+    amount: "0",
     isDepositAsBeneficiary: false,
     beneficiaryAddress: "",
     activeWithdrawTab: "For Myself",
   });
-
   const { account } = useAccount();
-  const { isDev, devAccount } = useTransactionContext();
-  const { balance } = useERC20(vaultState.ethAddress, vaultState.address);
+  const { allowance, approve, increaseAllowance } = useERC20(
+    vaultState?.ethAddress,
+    vaultState?.address,
+    account,
+  );
 
   const updateState = (updates: Partial<DepositState>) => {
     setState((prevState) => ({ ...prevState, ...updates }));
   };
 
   const handleDeposit = async (): Promise<void> => {
-    console.log("Depositing", state.amount);
+    /// Update allowance if needed
+    console.log("Current allowance:", allowance);
+    const amountWei = parseEther(state.amount);
+    console.log("AmountWei:", Number(amountWei));
+    if (Number(allowance) < Number(amountWei)) {
+      console.log("AAAAAAAAAAAAAAAAAAA");
+      console.log({ account });
+      const diff = Number(amountWei) - Number(allowance);
+
+      await approve({
+        amount: num.toBigInt(amountWei),
+        spender: vaultState ? vaultState.address : "",
+      });
+    }
+
+    /// Deposit
+    console.log("Depositing", amountWei);
+    await vaultActions.depositLiquidity({
+      amount: amountWei,
+      beneficiary: account ? account.address : "",
+    });
+
+    //const depositCall: Call = {
+    //  contractAddress: vaultState ? vaultState.address : "",
+    //  entrypoint: "deposit",
+    //  calldata: [num.toBigInt(amountWei), 0, account ? account.address : ""],
+    //};
+
+    //// Need to remove allowance call if allowance is >= amountWei
+    //const calls: Call[] = [allowanceCall];
+    //const result = transaction.transformCallsToMulticallArrays(calls);
+    //console.log("result", result);
+    //await account?.execute(calls);
+
+    //if (Number(allowance) < Number(state.amount)) {
+    //  let difference = Number(state.amount) - Number(allowance);
+    //  console.log("Increasing allowance by: ", difference);
+    //  await increaseAllowance({
+    //    amount: parseEther(state.amount),
+    //    spender: vaultState ? vaultState.address.toString() : "",
+    //  });
+    //}
+
+    //    console.log("Depositing", state.amount);
+    //    await vaultActions.depositLiquidity({
+    //      amount: parseEther(state.amount),
+    //      beneficiary:
+    //        "0x07692EE25171bDa70F1c3A76fA23a50F86De517D4A6c98B125D235e4aF874F84",
+    //      //beneficiary: account ? account.address?.toString() : "", //state.beneficiaryAddress,
+    //    });
   };
 
   const handleSubmit = () => {
@@ -49,23 +110,32 @@ const Deposit: React.FC<DepositProps> = ({ vaultState, showConfirmation }) => {
     showConfirmation(
       "Deposit",
       `deposit ${state.amount} ETH to this round?`,
-      handleDeposit
+      handleDeposit,
     );
   };
 
   const isDepositDisabled = (): boolean => {
-    if (state.isDepositAsBeneficiary) {
-      return (
-        BigInt(state.amount) <= BigInt(0) ||
-        state.beneficiaryAddress.trim() === ""
-      );
+    // No negatives
+    if (Number(state.amount) <= Number(0)) {
+      return true;
     }
-    return BigInt(state.amount) <= BigInt(0);
+
+    // If no address is entered
+    if (state.isDepositAsBeneficiary) {
+      if (state.beneficiaryAddress.trim() === "") {
+        return true;
+      }
+    }
+
+    return false;
   };
 
+  useEffect(() => {}, [account]);
+
+  console.log("LPSTATE", lpState);
   return (
     <div className="flex flex-col h-full">
-      <div className="flex-grow space-y-6">
+      <div className="flex-grow space-y-6 p-6">
         <ButtonTabs
           tabs={["For Myself", "As Beneficiary"]}
           activeTab={state.activeWithdrawTab}
@@ -76,7 +146,6 @@ const Deposit: React.FC<DepositProps> = ({ vaultState, showConfirmation }) => {
             });
           }}
         />
-
         {state.isDepositAsBeneficiary && (
           <div>
             <InputField
@@ -85,7 +154,7 @@ const Deposit: React.FC<DepositProps> = ({ vaultState, showConfirmation }) => {
               label="Enter Address"
               onChange={(e) => {
                 updateState({ beneficiaryAddress: e.target.value });
-                // TODO: Check address regex 
+                // TODO: Check address regex
               }}
               placeholder="Depositor's Address"
               icon={
@@ -101,19 +170,30 @@ const Deposit: React.FC<DepositProps> = ({ vaultState, showConfirmation }) => {
             value={state.amount}
             label="Enter Amount"
             onChange={(e) => updateState({ amount: e.target.value })}
-            placeholder="e.g. 5"
+            placeholder="e.g. 5.0"
             icon={
-              <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400" />
+              <FontAwesomeIcon
+                icon={faEthereum}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 pr-2"
+              />
             }
+            //icon={
+            //  <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400" />
+            //}
           />
         </div>
       </div>
       <div className="mt-auto">
-        <div className="flex justify-between text-sm mb-4 pt-4">
+        <div className="px-6 flex justify-between text-sm mb-6 pt-6">
           <span className="text-gray-400">Unlocked Balance</span>
-          <span className="text-white">{balance.toString()} ETH</span>
+          <span className="text-white">
+            {formatEther(
+              lpState?.unlockedBalance ? lpState.unlockedBalance.toString() : 0,
+            ).toString()}{" "}
+            ETH
+          </span>
         </div>
-        <div className="flex justify-between text-sm mb-4 pt-4 border-t border-[#262626]">
+        <div className="px-6 flex justify-between text-sm mb-6 pt-6 border-t border-[#262626]">
           <ActionButton
             onClick={handleSubmit}
             disabled={isDepositDisabled()}
