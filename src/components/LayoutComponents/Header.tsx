@@ -158,7 +158,7 @@ export default function Header() {
     await fossilCallback(request, result);
   };
 
-  const fundAndDeploy = async (): Promise<void> => {
+  const fundAccount = async (): Promise<void> => {
     ///// Set allowance
     //console.log("APPROVING", "acc");
     //await approve({
@@ -258,10 +258,10 @@ export default function Header() {
 
         {account ? (
           <button
-            onClick={fundAndDeploy}
+            onClick={fundAccount}
             className="font-medium cursor-pointer border-[1px] border-greyscale-800 p-2 rounded-md"
           >
-            Fund and Deploy Account
+            Fund Account
           </button>
         ) : (
           <></>
