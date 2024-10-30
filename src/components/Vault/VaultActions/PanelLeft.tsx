@@ -99,7 +99,7 @@ const PanelLeft = ({ userType }: { userType: string }) => {
   let date;
   if (selectedRoundState?.auctionEndDate)
     date = new Date(
-      Number(selectedRoundState?.auctionEndDate),
+      Number(selectedRoundState?.auctionEndDate)
     ).toLocaleString();
 
   const getStateActionHeader = () => {
@@ -171,7 +171,9 @@ const PanelLeft = ({ userType }: { userType: string }) => {
               onClick={() => setIsPanelOpen(!isPanelOpen)}
             >
               <p
-                className={`${isPanelOpen ? "flex" : "hidden"} font-medium flex items-center`}
+                className={`${
+                  isPanelOpen ? "flex" : "hidden"
+                } font-medium flex items-center`}
               >
                 Statistics
               </p>
@@ -233,8 +235,8 @@ const PanelLeft = ({ userType }: { userType: string }) => {
                 vaultIsOpen
                   ? "h-[0]"
                   : optionRoundIsOpen
-                    ? "h-[325px]"
-                    : "h-[265px]"
+                  ? "h-[325px]"
+                  : "h-[265px]"
               } transition-all duration-900ms `}
             >
               <div className="flex flex-row justify-between p-2 w-full">
@@ -244,7 +246,7 @@ const PanelLeft = ({ userType }: { userType: string }) => {
                   selectedRoundState?.optionSettleDate
                     ? timeUntilTarget(
                         selectedRoundState.auctionEndDate.toString(),
-                        selectedRoundState.optionSettleDate.toString(),
+                        selectedRoundState.optionSettleDate.toString()
                       )
                     : ""}
                 </p>
@@ -253,7 +255,7 @@ const PanelLeft = ({ userType }: { userType: string }) => {
                 <p className="text-[#BFBFBF]">Address</p>
                 <a
                   href={explorer.contract(
-                    vaultState?.address ? vaultState.address : "",
+                    vaultState?.address ? vaultState.address : ""
                   )}
                   target="_blank"
                   className="flex flex-row justify-center items-center text-[#F5EBB8] cursor-pointer gap-[4px]"
@@ -283,8 +285,8 @@ const PanelLeft = ({ userType }: { userType: string }) => {
                             (
                               BigInt(vaultState.lockedBalance) +
                               BigInt(vaultState.unlockedBalance)
-                            ).toString(),
-                          ),
+                            ).toString()
+                          )
                         ).toFixed(2)
                       : 0
                     //Add vault TVL from state here
@@ -320,7 +322,8 @@ const PanelLeft = ({ userType }: { userType: string }) => {
                         : "0",
                       stashed: "0",
                     }}
-                    children={
+                  >
+                    {
                       <>
                         <p>
                           {vaultState
@@ -328,8 +331,8 @@ const PanelLeft = ({ userType }: { userType: string }) => {
                                 formatEther(
                                   BigInt(vaultState.lockedBalance) +
                                     BigInt(vaultState.unlockedBalance) +
-                                    BigInt(vaultState.stashedBalance),
-                                ),
+                                    BigInt(vaultState.stashedBalance)
+                                )
                               ).toFixed(2)
                             : 0}{" "}
                           ETH
@@ -341,7 +344,7 @@ const PanelLeft = ({ userType }: { userType: string }) => {
                         />
                       </>
                     }
-                  ></BalanceTooltip>
+                  </BalanceTooltip>
                 </div>
               </div>
 
@@ -394,8 +397,8 @@ const PanelLeft = ({ userType }: { userType: string }) => {
                 optionRoundIsOpen
                   ? "h-0"
                   : vaultIsOpen
-                    ? "h-[450px]"
-                    : "h-[260px]"
+                  ? "h-[450px]"
+                  : "h-[260px]"
               } transition-all duration-900 max-h-full`}
             >
               <div className="max-h-full flex flex-row justify-between items-center p-2 w-full">
@@ -404,7 +407,7 @@ const PanelLeft = ({ userType }: { userType: string }) => {
                   href={explorer.contract(
                     selectedRoundState?.address
                       ? selectedRoundState.address
-                      : "",
+                      : ""
                   )}
                   target="_blank"
                   className="flex flex-row justify-center items-center text-[#F5EBB8] cursor-pointer gap-[4px]"
@@ -448,7 +451,7 @@ const PanelLeft = ({ userType }: { userType: string }) => {
                     {formatNumberText(
                       selectedRoundState
                         ? Number(selectedRoundState.performanceLP)
-                        : 0,
+                        : 0
                     )}
                     %
                   </p>
@@ -461,7 +464,7 @@ const PanelLeft = ({ userType }: { userType: string }) => {
                     {formatNumberText(
                       selectedRoundState
                         ? Number(selectedRoundState.performanceOB)
-                        : 0,
+                        : 0
                     )}
                     %
                   </p>
@@ -473,11 +476,11 @@ const PanelLeft = ({ userType }: { userType: string }) => {
                 </p>
                 <p>
                   {
-                    selectedRoundState?.reservePrice &&
+                    selectedRoundState?.reservePrice ?
                       formatUnits(
                         selectedRoundState.reservePrice.toString(),
-                        "gwei",
-                      )
+                        "gwei"
+                      ):""
                     //Add round duration from state here
                   }{" "}
                   GWEI
@@ -487,11 +490,11 @@ const PanelLeft = ({ userType }: { userType: string }) => {
                 <p className="text-[#BFBFBF]">Strike Price</p>
                 <p>
                   {
-                    selectedRoundState?.strikePrice &&
+                    selectedRoundState?.strikePrice ?
                       formatUnits(
                         selectedRoundState.strikePrice.toString(),
-                        "gwei",
-                      )
+                        "gwei"
+                      ):""
                     //Add round duration from state here
                   }{" "}
                   GWEI
@@ -501,12 +504,12 @@ const PanelLeft = ({ userType }: { userType: string }) => {
                 <p className="text-[#BFBFBF]">Cap Level</p>
                 <p>
                   {
-                    selectedRoundState?.capLevel &&
+                    selectedRoundState?.capLevel ?
                       (
                         (100 *
                           parseInt(selectedRoundState.capLevel.toString())) /
                         10_000
-                      ).toFixed(2) //Add round duration from state here
+                      ).toFixed(2):"" //Add round duration from state here
                   }
                   %
                 </p>
@@ -535,9 +538,9 @@ const PanelLeft = ({ userType }: { userType: string }) => {
                         {formatNumberText(
                           selectedRoundState
                             ? Number(
-                                selectedRoundState.availableOptions.toString(),
+                                selectedRoundState.availableOptions.toString()
                               )
-                            : 0,
+                            : 0
                         )}
                       </p>
                     </div>
@@ -559,7 +562,7 @@ const PanelLeft = ({ userType }: { userType: string }) => {
                         {formatNumberText(
                           selectedRoundState
                             ? Number(selectedRoundState.optionsSold.toString())
-                            : 0,
+                            : 0
                         )}
                       </p>
                     </div>
@@ -569,9 +572,9 @@ const PanelLeft = ({ userType }: { userType: string }) => {
                         {formatNumberText(
                           selectedRoundState
                             ? Number(
-                                selectedRoundState.clearingPrice.toString(),
+                                selectedRoundState.clearingPrice.toString()
                               )
-                            : 0,
+                            : 0
                         )}{" "}
                         GWEI
                       </p>
@@ -582,7 +585,7 @@ const PanelLeft = ({ userType }: { userType: string }) => {
                         {formatNumberText(
                           selectedRoundState
                             ? Number(selectedRoundState.premiums.toString())
-                            : 0,
+                            : 0
                         )}{" "}
                         ETH
                       </p>
@@ -594,7 +597,7 @@ const PanelLeft = ({ userType }: { userType: string }) => {
                 <p>
                   {selectedRoundState?.optionSettleDate
                     ? timeFromNow(
-                        selectedRoundState.optionSettleDate.toString(),
+                        selectedRoundState.optionSettleDate.toString()
                       )
                     : ""}
                 </p>
@@ -602,7 +605,9 @@ const PanelLeft = ({ userType }: { userType: string }) => {
             </div>
           </div>
           <div
-            className={`${isPanelOpen ? "border border-transparent border-t-[#262626]" : ""} flex flex-col w-[100%] mx-[auto] mt-[auto] mb-[1rem]`}
+            className={`${
+              isPanelOpen ? "border border-transparent border-t-[#262626]" : ""
+            } flex flex-col w-[100%] mx-[auto] mt-[auto] mb-[1rem]`}
           >
             {selectedRoundState &&
               selectedRoundState.roundState !== "SETTLED" && (
@@ -672,10 +677,10 @@ const PanelLeft = ({ userType }: { userType: string }) => {
                       {selectedRoundState.roundState === "Open"
                         ? "Start Auction"
                         : selectedRoundState.roundState === "Auctioning"
-                          ? "End Auction"
-                          : selectedRoundState.roundState === "Running"
-                            ? "Settle Round"
-                            : "Settled"}
+                        ? "End Auction"
+                        : selectedRoundState.roundState === "Running"
+                        ? "Settle Round"
+                        : "Settled"}
                     </p>
                     <LineChartDownIcon
                       classname="w-4 h-4 ml-2"

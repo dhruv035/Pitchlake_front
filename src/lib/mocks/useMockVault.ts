@@ -8,7 +8,6 @@ import {
   QueueArgs,
 } from "@/lib/types";
 import { useState } from "react";
-import useMockOptionRound from "./useMockOptionRound";
 import useMockOptionRounds from "./useMockOptionRounds";
 
 const useMockVault = (selectedRound: number, address?: string) => {
@@ -16,6 +15,7 @@ const useMockVault = (selectedRound: number, address?: string) => {
   //Read States
   const [vaultState, setVaultState] = useState<VaultStateType>({
     ethAddress: "0x00",
+    fossilClientAddress:"",
     address: address ?? "0x1",
     vaultType: "ITM",
     lockedBalance: "0",
