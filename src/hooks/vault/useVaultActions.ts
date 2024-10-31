@@ -12,6 +12,7 @@ import {
   VaultActionsType,
   WithdrawLiquidityArgs,
   QueueArgs,
+  CollectArgs,
 } from "@/lib/types";
 import { getDevAccount } from "@/lib/constants";
 import { Account, RpcProvider } from "starknet";
@@ -46,27 +47,23 @@ const useVaultActions = (address?: string) => {
 
   const callContract = useCallback(
     (functionName: string) =>
-      async (args?: DepositArgs | WithdrawLiquidityArgs | QueueArgs) => {
+      async (
+        args?: DepositArgs | WithdrawLiquidityArgs | QueueArgs | CollectArgs,
+      ) => {
         if (!typedContract) return;
         let argsData;
         if (args) argsData = Object.values(args).map((value) => value);
         let data;
-        //const nonce =
-        //  provider && account
-        //    ? await provider.getNonceForAddress(account.address)
-        //    : "0";
+        const nonce =
+          provider && account
+            ? await provider.getNonceForAddress(account.address)
+            : "0";
         if (argsData) {
-          data = await typedContract?.[functionName](
-            ...argsData,
-            //   {
-            //   nonce,
-            // }
-          );
+          data = await typedContract?.[functionName](...argsData, {
+            nonce,
+          });
         } else {
-          data = await typedContract
-            ?.[functionName]
-            //   { nonce }
-            ();
+          data = await typedContract?.[functionName]({ nonce });
         }
         const typedData = data as TransactionResult;
         setPendingTx(typedData.transaction_hash);
@@ -90,9 +87,12 @@ const useVaultActions = (address?: string) => {
     [callContract],
   );
 
-  const withdrawStash = useCallback(async () => {
-    await callContract("withdraw_stash")();
-  }, [callContract]);
+  const withdrawStash = useCallback(
+    async (collectArgs: CollectArgs) => {
+      await callContract("withdraw_stash")(collectArgs);
+    },
+    [callContract],
+  );
 
   const queueWithdrawal = useCallback(
     async (queueArgs: QueueArgs) => {

@@ -22,6 +22,7 @@ import {
   VaultActionsType,
   VaultStateType,
 } from "@/lib/types";
+import { useProvider } from "@starknet-react/core";
 
 /*This is the bridge for any transactions to go through, it's disabled by isTxDisabled if there is data loading or if
   there's a pending transaction. The data loading is enforced to ensure no transaction is done without latest data.
@@ -46,7 +47,7 @@ export type ProtocolContextType = {
   setVaultAddress: Dispatch<SetStateAction<string | undefined>>;
   mockTimeForward: () => void;
   timeStamp: Number;
-  selectedRoundAddress:string|undefined
+  selectedRoundAddress: string | undefined;
 };
 
 export const ProtocolContext = createContext<ProtocolContextType>(
@@ -75,11 +76,10 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
     if (conn === "mock") setTimeStamp((prevState) => prevState + 100001);
   };
 
-  useEffect(()=>{
-    console.log("DATE",Date.now())
-    setTimeStamp(Date.now())
-
-  },[])
+  useEffect(() => {
+    console.log("DATE", Date.now());
+    setTimeStamp(Date.now());
+  }, []);
   const {
     optionRoundStates: optionRoundStatesMock,
     lpState: lpStateMock,
@@ -144,8 +144,7 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
         return optionRoundStates[Number(selectedRound) - 1];
       }
       return undefined;
-    }
-    else return selectedRoundStateRPC;
+    } else return selectedRoundStateRPC;
   }, [
     conn,
     selectedRound,
@@ -153,14 +152,12 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
     optionRoundStates,
     selectedRoundStateRPC,
   ]);
-  const selectedRoundBuyerState = useMemo(()=>{
-    if(conn === "rpc")
-      return selectedRoundBuyerStateRPC
-    else if(selectedRound!==0){
-      return optionBuyerStates[Number(selectedRound)-1]
-    }
-    else return undefined
-    return 
+  const selectedRoundBuyerState = useMemo(() => {
+    if (conn === "rpc") return selectedRoundBuyerStateRPC;
+    else if (selectedRound !== 0) {
+      return optionBuyerStates[Number(selectedRound) - 1];
+    } else return undefined;
+    return;
     // selectedRound
     // ? conn === "rpc"
     //   ? selectedRoundBuyerStateRPC
@@ -168,7 +165,7 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
     //     ? optionBuyerStates[selectedRound]
     //     : undefined
     // : undefined,
-  },[conn,selectedRound, optionBuyerStates, selectedRoundBuyerStateRPC])
+  }, [conn, selectedRound, optionBuyerStates, selectedRoundBuyerStateRPC]);
   const setRound = useCallback(
     (roundId: number) => {
       if (roundId < 1) return;
@@ -203,10 +200,10 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
         setSelectedRound: setRound,
         selectedRoundState,
         setVaultAddress,
-       selectedRoundBuyerState,
+        selectedRoundBuyerState,
         mockTimeForward,
         timeStamp,
-        selectedRoundAddress:undefined,
+        selectedRoundAddress: undefined,
       }}
     >
       {children}

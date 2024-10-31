@@ -154,24 +154,6 @@ const useVaultState = ({
     console.log("ITM");
   }
 
-  console.log({
-    address,
-    alpha: alpha ? alpha.toString() : 0,
-    strikeLevel: strikeLevel ? strikeLevel.toString() : 0,
-    ethAddress: ethAddress ? stringToHex(ethAddress?.toString()) : "",
-    currentRoundId: currentRoundId ? currentRoundId.toString() : 0,
-    lockedBalance: lockedBalance ? lockedBalance.toString() : 0,
-    unlockedBalance: unlockedBalance ? unlockedBalance.toString() : 0,
-    stashedBalance: stashedBalance ? stashedBalance.toString() : 0,
-    queuedBps: queuedBps ? queuedBps.toString() : 0,
-    vaultType,
-    lpState,
-    currentRoundAddress,
-    roundActions: getRounds ? roundActions : undefined,
-    selectedRoundState,
-    selectedRoundBuyerState,
-  });
-
   return {
     vaultState: {
       address,

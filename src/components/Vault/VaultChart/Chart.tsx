@@ -194,7 +194,7 @@ const RoundPerformanceChart = () => {
       <ResponsiveContainer width="100%" height="100%" className="px-4">
         <ComposedChart
           data={hourlyData}
-          ref={chartRef}
+          //ref={chartRef}
           onMouseDown={(e) => {
             if (e && e.activeLabel) {
               const domain = e && e.activeLabel;

@@ -177,9 +177,10 @@ const useOptionRoundState = (address: string | undefined) => {
       return 0;
     } else {
       const gainLoss = prem - payout;
-      const percentage = (gainLoss / startingLiq) * 100;
+      const percentage = Number(((gainLoss / startingLiq) * 100).toFixed(2));
 
-      return percentage.toFixed(2);
+      const sign = percentage > 0 ? "+" : "";
+      return `${sign}${percentage}`;
     }
   };
 
@@ -191,9 +192,10 @@ const useOptionRoundState = (address: string | undefined) => {
       return 0;
     } else {
       const gainLoss = payout - prem;
-      const percentage = (gainLoss / prem) * 100;
+      const percentage = Number(((gainLoss / prem) * 100).toFixed(2));
 
-      return percentage.toFixed(2);
+      const sign = percentage > 0 ? "+" : "";
+      return `${sign}${percentage}`;
     }
   };
 

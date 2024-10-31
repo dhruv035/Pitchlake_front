@@ -2,6 +2,15 @@ import React, { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { formatEther } from "ethers";
 
+interface BalanceTooltipProps {
+  balance: {
+    locked: string;
+    unlocked: string;
+    stashed: string;
+  };
+  children: React.ReactNode;
+}
+
 const BalanceTooltip: React.FC<BalanceTooltipProps> = ({
   balance,
   children,
@@ -61,7 +70,7 @@ const BalanceTooltip: React.FC<BalanceTooltipProps> = ({
               <div className="p-2 px-4 pb-0 flex justify-between">
                 <span>Locked</span>
                 <span>
-                  {Number(formatEther(balance.locked)).toFixed(3) || "0"} ETH
+                  {Number(formatEther(balance.locked)).toFixed(2) || "0"} ETH
                 </span>
               </div>
               <div className="p-2 px-4 pb-0 flex justify-between">
@@ -193,15 +202,6 @@ const Tooltip: React.FC<MessageProps> = ({ text, children }) => {
 
 interface MessageProps {
   text: string;
-  children: React.ReactNode;
-}
-
-interface BalanceTooltipProps {
-  balance: {
-    locked: string;
-    unlocked: string;
-    stashed: string;
-  };
   children: React.ReactNode;
 }
 

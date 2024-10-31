@@ -125,58 +125,80 @@ export default function Header() {
       : { roundState: "", deploymentDate: "0", optionSettleDate: "0" };
     const roundStateState = roundState.roundState;
 
+    // make request to fossil api using the settlement date (or auction start date if initial case)
     const targetTimestamp =
       roundId === "1" && roundStateState === "Open"
         ? roundState.deploymentDate
         : roundState.optionSettleDate;
 
-    const settlementDate = selectedRoundState
-      ? selectedRoundState.optionSettleDate.toString()
-      : "0";
+    // Fossil request
+    try {
+      const response = await fetch("http://localhost:3000/pricing_data", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": "b2ed9cdc-2dd0-4b81-8ed4-bcefbf29ddc1",
+        },
+        body: JSON.stringify({
+          identifiers: ["PITCH_LAKE_V1"],
+          params: {
+            twap: [Number(targetTimestamp) - 720, Number(targetTimestamp)],
+            volatility: [
+              Number(targetTimestamp) - 2160,
+              Number(targetTimestamp),
+            ],
+            reserve_price: [
+              Number(targetTimestamp) - 2160,
+              Number(targetTimestamp),
+            ],
+          },
+          client_info: {
+            client_address: vaultState ? vaultState.fossilClientAddress : "",
+            vault_address: vaultState ? vaultState.address : "",
+            timestamp: Number(targetTimestamp),
+          },
+        }),
+      });
+      console.log("fossil response", response);
+    } catch (error) {
+      console.log("Error sending Fossil request:", error);
+    }
 
-    // make request to fossil api using the settlement date (or auction start date if initial case)
+    return;
 
-    // for now, we will just send a mock result to the client (no address assertions at this time)
-
-    const request = [
-      vaultState ? vaultState.address : "",
-      targetTimestamp,
-      "0x50495443485f4c414b455f5631",
-    ];
-
-    const result = [
-      //0x6 0x02540be400 0x00 0x0d05 0x77359400 0x00 0x00 --fee-token eth
-      "0x02540be400",
-      "0x00",
-      "0x0d05",
-      parseInt((Math.random() * 1000000000).toString()).toString(),
-      "0",
-      // "0x77359400",
-      "0x0",
-    ];
-
-    await fossilCallback(request, result);
+    /// User calls Fossil::client_callback()
+    //    console.log("Mocking fossil call");
+    //    const request = [
+    //      vaultState ? vaultState.address : "",
+    //      targetTimestamp,
+    //      "0x50495443485f4c414b455f5631",
+    //    ];
+    //    const result = [
+    //      "0x02540be400",
+    //      "0x0",
+    //      "0x0d05",
+    //      parseInt((Math.random() * 1000000000).toString()).toString(),
+    //      "0x0",
+    //      "0x0",
+    //    ];
+    //    await fossilCallback(request, result);
   };
 
   const fundAccount = async (): Promise<void> => {
-    ///// Set allowance
-    //console.log("APPROVING", "acc");
-    //await approve({
-    //  amount: num.toBigInt("1000000000000000000"),
-    //  spender: vaultState ? vaultState.address : "",
-    //});
-
     /// Fund account
     console.log("funding...");
     await fund({
       amount: num.toBigInt("100000000000000000000"),
       spender: account ? account.address : "",
     });
-    // Nonce issue when both in same txn
-    //await fundStrk({
-    //  amount: num.toBigInt("100000000000000000000"),
-    //  spender: account ? account.address : "",
-    //});
+
+    // Nonce issue when both in same function
+
+    await fundStrk({
+      amount: num.toBigInt("100000000000000000000"),
+      spender: account ? account.address : "",
+    });
+
     console.log("funded");
 
     //// Make the POST request
@@ -322,14 +344,16 @@ export default function Header() {
                 />
               </button>
               {isDropdownOpen && (
-                <div className="absolute right-0 w-[196px] text-sm flex flex-col mt-2 ">
-                  <div className="bg-greyscale-900 rounded-md">
-                    <div className="p-4">CHOOSE A WALLET</div>
+                <div className="absolute right-0 h-[148px] w-[196px] text-sm flex flex-col mt-3 ">
+                  <div className="bg-[#161616] rounded-md">
+                    <div className="p-4 font-regular text-[12px] border border-transparent border-b-[#454545] ">
+                      CHOOSE A WALLET
+                    </div>
                     {connectors.map((connector) => (
                       <div
                         key={connector.name}
                         onClick={() => connect({ connector })}
-                        className="sticky p-2 bg-black w-full text-white"
+                        className="cursor-pointer sticky p-2 px-3 bg-[#161616] w-full text-[#FAFAFA] text-[14px] font-medium hover:bg-[#262626]"
                       >
                         {
                           <div className="flex flex-row items-center">
@@ -342,7 +366,8 @@ export default function Header() {
                               alt="Login"
                               width={20}
                               height={30}
-                              className="m-2"
+                              className="m-2 pr-1"
+                              color="#BFBFBF"
                               style={{ objectFit: "contain" }}
                             />
                             {connector.name.toLocaleUpperCase()}

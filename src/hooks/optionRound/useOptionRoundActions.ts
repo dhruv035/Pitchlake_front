@@ -47,8 +47,9 @@ const useOptionRoundActions = (address?: string) => {
         let data;
         const nonce =
           provider && account
-            ? provider.getNonceForAddress(account.address)
+            ? await provider.getNonceForAddress(account.address)
             : "0";
+
         if (argsData) {
           data = await typedContract?.[functionName](...argsData, { nonce });
         } else {
@@ -59,7 +60,7 @@ const useOptionRoundActions = (address?: string) => {
         // const data = await writeAsync({ calls: [callData] });
         return typedData;
       },
-    [typedContract, setPendingTx],
+    [typedContract, account, provider, setPendingTx],
   );
   const placeBid = useCallback(
     async (args: PlaceBidArgs) => {
