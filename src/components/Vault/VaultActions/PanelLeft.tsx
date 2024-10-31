@@ -79,7 +79,7 @@ const PanelLeft = ({ userType }: { userType: string }) => {
   let date;
   if (selectedRoundState?.auctionEndDate)
     date = new Date(
-      Number(selectedRoundState?.auctionEndDate)
+      Number(selectedRoundState?.auctionEndDate),
     ).toLocaleString();
 
   const getStateActionHeader = () => {
@@ -237,8 +237,8 @@ const PanelLeft = ({ userType }: { userType: string }) => {
                 vaultIsOpen
                   ? "h-[0]"
                   : optionRoundIsOpen
-                  ? "h-[325px]"
-                  : "h-[265px]"
+                    ? "h-[325px]"
+                    : "h-[265px]"
               } transition-all duration-900ms `}
             >
               <div className="flex flex-row justify-between p-2 w-full">
@@ -248,7 +248,7 @@ const PanelLeft = ({ userType }: { userType: string }) => {
                   selectedRoundState?.optionSettleDate
                     ? timeUntilTarget(
                         selectedRoundState.auctionEndDate.toString(),
-                        selectedRoundState.optionSettleDate.toString()
+                        selectedRoundState.optionSettleDate.toString(),
                       )
                     : ""}
                 </p>
@@ -257,7 +257,7 @@ const PanelLeft = ({ userType }: { userType: string }) => {
                 <p className="text-[#BFBFBF]">Address</p>
                 <a
                   href={explorer.contract(
-                    vaultState?.address ? vaultState.address : ""
+                    vaultState?.address ? vaultState.address : "",
                   )}
                   target="_blank"
                   className="flex flex-row justify-center items-center text-[#F5EBB8] cursor-pointer gap-[4px]"
@@ -287,8 +287,8 @@ const PanelLeft = ({ userType }: { userType: string }) => {
                             (
                               BigInt(vaultState.lockedBalance) +
                               BigInt(vaultState.unlockedBalance)
-                            ).toString()
-                          )
+                            ).toString(),
+                          ),
                         ).toFixed(2)
                       : 0
                     //Add vault TVL from state here
@@ -335,8 +335,8 @@ const PanelLeft = ({ userType }: { userType: string }) => {
                                 formatEther(
                                   BigInt(vaultState.lockedBalance) +
                                     BigInt(vaultState.unlockedBalance) +
-                                    BigInt(vaultState.stashedBalance)
-                                )
+                                    BigInt(vaultState.stashedBalance),
+                                ),
                               ).toFixed(2)
                             : 0}{" "}
                           ETH
@@ -401,8 +401,8 @@ const PanelLeft = ({ userType }: { userType: string }) => {
                 optionRoundIsOpen
                   ? "h-0"
                   : vaultIsOpen
-                  ? "h-[450px]"
-                  : "h-[260px]"
+                    ? "h-[450px]"
+                    : "h-[260px]"
               } transition-all duration-900 max-h-full`}
             >
               <div className="max-h-full flex flex-row justify-between items-center p-2 w-full">
@@ -411,7 +411,7 @@ const PanelLeft = ({ userType }: { userType: string }) => {
                   href={explorer.contract(
                     selectedRoundState?.address
                       ? selectedRoundState.address
-                      : ""
+                      : "",
                   )}
                   target="_blank"
                   className="flex flex-row justify-center items-center text-[#F5EBB8] cursor-pointer gap-[4px]"
@@ -466,12 +466,13 @@ const PanelLeft = ({ userType }: { userType: string }) => {
                 <p className="text-[#BFBFBF]">Cap Level</p>
                 <p>
                   {
-                    selectedRoundState?.capLevel ?
-                      (
-                        (100 *
-                          parseInt(selectedRoundState.capLevel.toString())) /
-                        10_000
-                      ).toFixed(2):"" //Add round duration from state here
+                    selectedRoundState?.capLevel
+                      ? (
+                          (100 *
+                            parseInt(selectedRoundState.capLevel.toString())) /
+                          10_000
+                        ).toFixed(2)
+                      : "" //Add round duration from state here
                   }
                   %
                 </p>
@@ -608,105 +609,10 @@ const PanelLeft = ({ userType }: { userType: string }) => {
           <div
             className={`${isPanelOpen && roundState !== "Settled" ? "border border-transparent border-t-[#262626]" : ""} flex flex-col w-[100%] mx-[auto] mt-[auto] mb-[1rem]`}
           >
-            {selectedRoundState &&
-              selectedRoundState.roundState !== "SETTLED" && (
-                <div className="px-6">
-                  <button
-                    disabled={
-                      !selectedRoundState ||
-                      (selectedRoundState.roundState.toString() === "Open" &&
-                        Number(selectedRoundState.auctionStartDate) >
-                          timestamp) ||
-                      (selectedRoundState.roundState.toString() ===
-                        "Auctioning" &&
-                        Number(selectedRoundState.auctionEndDate) >
-                          timestamp) ||
-                      (selectedRoundState.roundState.toString() === "Running" &&
-                        Number(selectedRoundState.optionSettleDate) >
-                          timestamp) ||
-                      selectedRoundState.roundState.toString() === "Settled"
-                    }
-                    className={`${isPanelOpen ? "flex" : "hidden"} ${
-                      roundState === "Settled" ? "hidden" : ""
-                    } border border-greyscale-700 text-primary disabled:text-greyscale rounded-md mt-4 p-2 w-full justify-center items-center`}
-                    onClick={async () => {
-                      switch (selectedRoundState?.roundState) {
-                        case "Open":
-                          setModalState({
-                            show: true,
-                            action: "Start Auction",
-                            onConfirm: async () => {
-                              await vaultActions.startAuction();
-                              setModalState((prev) => ({
-                                ...prev,
-                                show: false,
-                              }));
-                            },
-                          });
-                          break;
-                        case "Auctioning":
-                          setModalState({
-                            show: true,
-                            action: "End Auction",
-                            onConfirm: async () => {
-                              await vaultActions.endAuction();
-                              setModalState((prev) => ({
-                                ...prev,
-                                show: false,
-                              }));
-                            },
-                          });
-                          break;
-                        case "Running":
-                          setModalState({
-                            show: true,
-                            action: "Settle Round",
-                            onConfirm: async () => {
-                              await vaultActions.settleOptionRound();
-                              setModalState((prev) => ({
-                                ...prev,
-                                show: false,
-                              }));
-                            },
-                          });
-                          break;
-                        default:
-                          break;
-                      }
-                    }}
-                  >
-                    <p>
-                      {selectedRoundState.roundState === "Open"
-                        ? "Start Auction"
-                        : selectedRoundState.roundState === "Auctioning"
-                        ? "End Auction"
-                        : selectedRoundState.roundState === "Running"
-                        ? "Settle Round"
-                        : "Settled"}
-                    </p>
-                    <LineChartDownIcon
-                      classname="w-4 h-4 ml-2"
-                      stroke={
-                        !selectedRoundState ||
-                        (selectedRoundState.roundState.toString() === "Open" &&
-                          Number(selectedRoundState.auctionStartDate) >
-                            timestamp) ||
-                        (selectedRoundState.roundState.toString() ===
-                          "Auctioning" &&
-                          Number(selectedRoundState.auctionEndDate) >
-                            timestamp) ||
-                        (selectedRoundState.roundState.toString() ===
-                          "Running" &&
-                          Number(selectedRoundState.optionSettleDate) >
-                            timestamp) ||
-                        selectedRoundState.roundState.toString() === "Settled"
-                          ? "var(--greyscale)"
-                          : "var(--primary)"
-                      }
-                    />
-                  </button>
-                </div>
-              )}
+            <StateTransition
+              isPanelOpen={isPanelOpen}
+              setModalState={setModalState}
+            />
           </div>
         </div>
       </div>
