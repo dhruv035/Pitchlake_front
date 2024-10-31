@@ -58,13 +58,13 @@ const EditModal: React.FC<EditModalProps> = ({
     return !newPriceGwei || Number(newPriceGwei) <= Number(oldPriceGwei);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    console.log("Edit Bid confirmation");
     showConfirmation(
       "Update Bid",
       <>
-        update your bid?
+        update your bid? You will be spending an additional
         <br />
-        You will be spending an additional{" "}
         <span className="font-semibold text-[#fafafa]">{totalEth} ETH</span>
       </>,
       handleEditBid,
@@ -142,7 +142,7 @@ const EditModal: React.FC<EditModalProps> = ({
         <div className="mt-auto">
           <div className="px-6 flex justify-between text-sm mb-6 pt-6 border-t border-[#262626]">
             <ActionButton
-              onClick={handleSubmit}
+              onClick={() => handleSubmit()}
               disabled={isButtonDisabled()}
               text="Update Bid"
             />

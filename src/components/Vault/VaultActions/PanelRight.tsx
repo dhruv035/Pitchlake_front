@@ -60,7 +60,6 @@ const PanelRight: React.FC<VaultDetailsProps> = ({ userType }) => {
 
   const { pendingTx, status } = useTransactionContext();
   useEffect(() => {
-    console.log("TRIGGERED", tabs, activeTab);
     if (tabs.length > 0 && activeTab === "") {
       setActiveTab(tabs[0]);
     }
@@ -73,7 +72,6 @@ const PanelRight: React.FC<VaultDetailsProps> = ({ userType }) => {
   }, [tabs, selectedRoundState?.roundState]);
 
   useEffect(() => {
-    console.log("STATES", pendingTx, modalState.type, status);
     if (modalState.type === "pending") {
       if (!pendingTx && status === "success") {
         setModalState((prevState) => ({ ...prevState, type: "success" }));
@@ -100,6 +98,7 @@ const PanelRight: React.FC<VaultDetailsProps> = ({ userType }) => {
       action,
       onConfirm,
     });
+    setIsEditOpen(false);
   };
 
   const hideModal = () => {
@@ -136,6 +135,7 @@ const PanelRight: React.FC<VaultDetailsProps> = ({ userType }) => {
         //action={modalState.action}
         onConfirm={() => setIsEditOpen(false)}
         onClose={() => setIsEditOpen(false)}
+        showConfirmation={showConfirmation}
       />
     );
   }
