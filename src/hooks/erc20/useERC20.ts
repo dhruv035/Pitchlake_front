@@ -115,10 +115,16 @@ const useERC20 = (
       const typedContract = contract.typedv2(erc20ABI);
       if (account) typedContract.connect(account as Account);
 
+      const nonce =
+        provider && account
+          ? await provider.getNonceForAddress(account.address)
+          : "0";
+
       try {
         const data = await typedContract.approve(
           approvalArgs.spender,
           approvalArgs.amount,
+          { nonce },
         );
         const typedData = data as TransactionResult;
         setPendingTx(typedData.transaction_hash);
