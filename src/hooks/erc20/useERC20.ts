@@ -42,6 +42,15 @@ const useERC20 = (
 
   console.log("ERC20 acc", account);
 
+  const devAcc = () => {
+    const _address = process.env.NEXT_PUBLIC_DEV_ADDRESS;
+    const _pk = process.env.NEXT_PUBLIC_DEV_PK;
+    const address = _address ? _address : "";
+    const pk = _pk ? _pk : "";
+
+    return new Account(provider, address, pk);
+  };
+
   const typedContract = useMemo(() => {
     if (!contract) return;
     const typedContract = contract.typedv2(erc20ABI);
@@ -62,7 +71,7 @@ const useERC20 = (
     const _pk = pk ? pk : "";
     const acc = new Account(provider, _address, _pk);
 
-    if (target) typedContract.connect(acc);
+    if (target) typedContract.connect(devAcc());
     return typedContract;
   }, [contract, account]);
 
@@ -139,9 +148,21 @@ const useERC20 = (
     async (approvalArgs: ApprovalArgs) => {
       if (!typedContractFunding) return;
       try {
+        const nonce =
+          provider && devAcc()
+            ? await provider.getNonceForAddress(devAcc().address)
+            : "0";
+
         const data = typedContractFunding.transfer(
           approvalArgs.spender,
           approvalArgs.amount,
+          {
+            nonce:
+              tokenAddress ===
+              "0x4718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d"
+                ? Number(nonce) + 1
+                : nonce,
+          },
         );
         const typedData = data as TransactionResult;
         setPendingTx(typedData.transaction_hash);
@@ -156,7 +177,7 @@ const useERC20 = (
     setBalance(balanceRaw ? Number(balanceRaw) : 0);
     setAllowance(allowanceRaw ? Number(allowanceRaw) : 0);
     setAcc(account ? account.address : "");
-  }, [account, balanceRaw, allowanceRaw]);
+  }, [account, balanceRaw, allowanceRaw, pendingTx]);
 
   return {
     balance,
