@@ -344,14 +344,16 @@ export default function Header() {
                 />
               </button>
               {isDropdownOpen && (
-                <div className="absolute right-0 w-[196px] text-sm flex flex-col mt-2 ">
-                  <div className="bg-greyscale-900 rounded-md">
-                    <div className="p-4">CHOOSE A WALLET</div>
+                <div className="absolute right-0 h-[148px] w-[196px] text-sm flex flex-col mt-3 ">
+                  <div className="bg-[#161616] rounded-md">
+                    <div className="p-4 font-regular text-[12px] border border-transparent border-b-[#454545] ">
+                      CHOOSE A WALLET
+                    </div>
                     {connectors.map((connector) => (
                       <div
                         key={connector.name}
                         onClick={() => connect({ connector })}
-                        className="cursor-pointer sticky p-2 bg-black w-full text-white"
+                        className="cursor-pointer sticky p-2 px-3 bg-[#161616] w-full text-[#FAFAFA] text-[14px] font-medium hover:bg-[#262626]"
                       >
                         {
                           <div className="flex flex-row items-center">
@@ -364,7 +366,8 @@ export default function Header() {
                               alt="Login"
                               width={20}
                               height={30}
-                              className="m-2"
+                              className="m-2 pr-1"
+                              color="#BFBFBF"
                               style={{ objectFit: "contain" }}
                             />
                             {connector.name.toLocaleUpperCase()}
