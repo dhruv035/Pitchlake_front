@@ -1,9 +1,11 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { VaultStateType, LiquidityProviderStateType } from "@/lib/types";
 import ActionButton from "@/components/Vault/Utils/ActionButton";
 import collect from "@/../public/collect.svg";
 import { formatEther, parseEther } from "ethers";
 import { useProtocolContext } from "@/context/ProtocolProvider";
+import { useAccount } from "@starknet-react/core";
+import { DepositArgs } from "@/lib/types";
 
 interface WithdrawStashProps {
   //withdrawStash: () => Promise<void>;
@@ -19,6 +21,7 @@ const WithdrawStash: React.FC<WithdrawStashProps> = ({
   //withdrawStash,
 }) => {
   const { vaultState, lpState, vaultActions } = useProtocolContext();
+  const { account } = useAccount();
   const [state, setState] = React.useState({
     isButtonDisabled: true,
   });
@@ -32,7 +35,9 @@ const WithdrawStash: React.FC<WithdrawStashProps> = ({
       "Collecting",
       formatEther(vaultState?.stashedBalance ? vaultState.stashedBalance : "0"),
     );
-    await vaultActions.withdrawStash();
+    await vaultActions.withdrawStash({
+      account: account ? account.address : "",
+    });
 
     // withdrawStash from vaultActions
   };
@@ -65,6 +70,8 @@ const WithdrawStash: React.FC<WithdrawStashProps> = ({
 
     //return false; // Button should be disabled is staked ETH is 0
   };
+
+  useEffect(() => {}, [account]);
 
   return (
     <div className="flex flex-col h-full">

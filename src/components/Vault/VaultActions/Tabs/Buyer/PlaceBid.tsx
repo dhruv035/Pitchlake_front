@@ -90,13 +90,14 @@ const PlaceBid: React.FC<PlaceBidProps> = ({ showConfirmation }) => {
   const handlePlaceBid = async (): Promise<void> => {
     /// Update allowance if needed
     console.log("Current allowance:", allowance);
-    const amountWei = parseUnits(state.bidPrice, "gwei");
-    console.log("AmountWei:", Number(amountWei));
-    if (Number(allowance) < Number(amountWei)) {
-      const diff = Number(amountWei) - Number(allowance);
+    const priceWei = Number(parseUnits(state.bidPrice, "gwei"));
+    const amount = Number(state.bidAmount);
+    const totalWei = priceWei * amount;
+    if (Number(allowance) < Number(totalWei)) {
+      const diff = Number(totalWei) - Number(allowance);
 
       await approve({
-        amount: num.toBigInt(amountWei),
+        amount: num.toBigInt(totalWei),
         spender: selectedRoundState?.address
           ? selectedRoundState.address.toString()
           : "",
