@@ -8,5 +8,6 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=3003
+      - NEXT_PUBLIC_VAULT_ADDRESS=0xdeadbeef
     ports:
       - "3003:3003"

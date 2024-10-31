@@ -62,7 +62,7 @@ export default function Home() {
   return (
     <div className="flex flex-grow flex-col px-8 mt-6 w-full ">
       <p className="my-2 text-base text-white-alt py-2 font-medium">
-        Popular Vaults
+        Popular Vaults - {process.env.NEXT_PUBLIC_VAULT_ADDRESS}
       </p>
 
       <div className="grid grid-cols-2 w-full pt-6 gap-x-6 gap-y-6">
