@@ -16,13 +16,16 @@ const StateTransition = ({
   setModalState: any;
 }) => {
   const { vaultState, vaultActions, selectedRoundState } = useProtocolContext();
-  // No data
-  if (!vaultState || !vaultActions || !selectedRoundState) {
-    return;
-  }
   const { provider } = useProvider();
   const { timestamp } = useLatestTimestamp(provider);
   const now = Number(timestamp);
+
+  useEffect(() => {}, [selectedRoundState]);
+
+  // No data
+  if (!vaultState || !vaultActions || !selectedRoundState) {
+    return null;
+  }
 
   const roundState = selectedRoundState.roundState;
 
@@ -111,11 +114,9 @@ const StateTransition = ({
     }
   };
 
-  useEffect(() => {}, [selectedRoundState]);
-
   // Only the current round can transition states
   if (vaultState.currentRoundId !== selectedRoundState.roundId) {
-    return;
+    return null;
   }
 
   // For first round only
@@ -142,7 +143,7 @@ const StateTransition = ({
   //}
 
   if (roundState === "Settled") {
-    return;
+    return null;
   }
 
   return (
@@ -164,120 +165,119 @@ const StateTransition = ({
       </div>
     </>
   );
-
-  // Starting Auction
-  //  if (selectedRoundState.roundState === "Open") {
-  //    // Check now is >= auction start date
-  //
-  //    // Check pricing data set (if round 1)
-  //
-  //    return (
-  //      <Button
-  //        style={{ flex: 1 }}
-  //        className={[buttons.button, buttons.confirm].join(" ")}
-  //        title="Start Auction"
-  //        disabled={false}
-  //        onClick={async () => {
-  //          await vaultActions.startAuction();
-  //        }}
-  //      >
-  //        Start Auction
-  //      </Button>
-  //    );
-  //  }
-  //
-  //  // Ending Auction
-  //  if (selectedRoundState.roundState === "Auctioning") {
-  //    // check now is >= auction end date
-  ///
-  //    return (
-  //      <Button
-  //        style={{ flex: 1 }}
-  //        className={[buttons.button, buttons.confirm].join(" ")}
-  //        title="End Auction"
-  //        disabled={false}
-  //        onClick={async () => {
-  //          await vaultActions.endAuction();
-  //        }}
-  //      >
-  //        End Auction )
-  //      </Button>
-  //    );
-  //  }
-  //
-  //  // Settling Option Round
-  //
-  //  // Step 1: Trigger Fossil Request (if not already done)
-  //
-  //  // Step 2: Call settle round
-  //
-  //  if (selectedRoundState.roundState === "Running") {
-  //    // check now >= round end date
-  //
-  //    // check fossil data was set
-  ///
-  //    return (
-  //      <Button
-  //        style={{ flex: 1 }}
-  //        className={[buttons.button, buttons.confirm].join(" ")}
-  //        title="Settle Round"
-  //        disabled={
-  //          //!isDepositClickable || displayInsufficientBalance
-  //          false
-  //        }
-  //        onClick={async () => {
-  //          await vaultActions.settleOptionRound();
-  //        }}
-  //      >
-  //        Settle Round
-  //      </Button>
-  //    );
-  //  }
-  //
-  //  return (
-  //    <div>
-  //      State Transitions
-  //      {selectedRoundState?.roundState === "Open" && (
-  //        <Button
-  //          style={{ flex: 1 }}
-  //          className={[buttons.button, buttons.confirm].join(" ")}
-  //          title="Start Auction"
-  //          disabled={false}
-  //          onClick={async () => {
-  //            await vaultActions.startAuction();
-  //          }}
-  //        >
-  //          Start Auction
-  //        </Button>
-  //      )}
-  //      {selectedRoundState?.roundState === "Auctioning" && (
-  //        <Button
-  //          style={{ flex: 1 }}
-  //          className={[buttons.button, buttons.confirm].join(" ")}
-  //          title="End Auction"
-  //          disabled={false}
-  //          onClick={async () => {
-  //            await vaultActions.endAuction();
-  //          }}
-  //        >
-  //          End Auction
-  //        </Button>
-  //      )}
-  //      {selectedRoundState?.roundState === "Settled" && (
-  //        <Button
-  //          style={{ flex: 1 }}
-  //          className={[buttons.button, buttons.confirm].join(" ")}
-  //          title="Settle Round"
-  //          disabled={false}
-  //          onClick={async () => {
-  //            await vaultActions.settleOptionRound();
-  //          }}
-  //        >
-  //          Settle Option Round
-  //        </Button>
-  //      )}
-  //    </div>
-  //  );
 };
+// Starting Auction
+//  if (selectedRoundState.roundState === "Open") {
+//    // Check now is >= auction start date
+//
+//    // Check pricing data set (if round 1)
+//
+//    return (
+//      <Button
+//        style={{ flex: 1 }}
+//        className={[buttons.button, buttons.confirm].join(" ")}
+//        title="Start Auction"
+//        disabled={false}
+//        onClick={async () => {
+//          await vaultActions.startAuction();
+//        }}
+//      >
+//        Start Auction
+//      </Button>
+//    );
+//  }
+//
+//  // Ending Auction
+//  if (selectedRoundState.roundState === "Auctioning") {
+//    // check now is >= auction end date
+///
+//    return (
+//      <Button
+//        style={{ flex: 1 }}
+//        className={[buttons.button, buttons.confirm].join(" ")}
+//        title="End Auction"
+//        disabled={false}
+//        onClick={async () => {
+//          await vaultActions.endAuction();
+//        }}
+//      >
+//        End Auction )
+//      </Button>
+//    );
+//  }
+//
+//  // Settling Option Round
+//
+//  // Step 1: Trigger Fossil Request (if not already done)
+//
+//  // Step 2: Call settle round
+//
+//  if (selectedRoundState.roundState === "Running") {
+//    // check now >= round end date
+//
+//    // check fossil data was set
+///
+//    return (
+//      <Button
+//        style={{ flex: 1 }}
+//        className={[buttons.button, buttons.confirm].join(" ")}
+//        title="Settle Round"
+//        disabled={
+//          //!isDepositClickable || displayInsufficientBalance
+//          false
+//        }
+//        onClick={async () => {
+//          await vaultActions.settleOptionRound();
+//        }}
+//      >
+//        Settle Round
+//      </Button>
+//    );
+//  }
+//
+//  return (
+//    <div>
+//      State Transitions
+//      {selectedRoundState?.roundState === "Open" && (
+//        <Button
+//          style={{ flex: 1 }}
+//          className={[buttons.button, buttons.confirm].join(" ")}
+//          title="Start Auction"
+//          disabled={false}
+//          onClick={async () => {
+//            await vaultActions.startAuction();
+//          }}
+//        >
+//          Start Auction
+//        </Button>
+//      )}
+//      {selectedRoundState?.roundState === "Auctioning" && (
+//        <Button
+//          style={{ flex: 1 }}
+//          className={[buttons.button, buttons.confirm].join(" ")}
+//          title="End Auction"
+//          disabled={false}
+//          onClick={async () => {
+//            await vaultActions.endAuction();
+//          }}
+//        >
+//          End Auction
+//        </Button>
+//      )}
+//      {selectedRoundState?.roundState === "Settled" && (
+//        <Button
+//          style={{ flex: 1 }}
+//          className={[buttons.button, buttons.confirm].join(" ")}
+//          title="Settle Round"
+//          disabled={false}
+//          onClick={async () => {
+//            await vaultActions.settleOptionRound();
+//          }}
+//        >
+//          Settle Option Round
+//        </Button>
+//      )}
+//    </div>
+//  );
 //
 export default StateTransition;
