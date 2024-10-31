@@ -59,8 +59,6 @@ const WithdrawLiquidity: React.FC<WithdrawLiquidityProps> = ({
         : 0.0
       : 0.0;
 
-    console.log("unlockedBalance as float", unlockedBalance);
-
     if (Number(state.amount) > unlockedBalance) {
       return true;
     }

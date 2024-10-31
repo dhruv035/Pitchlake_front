@@ -50,7 +50,6 @@ export const timeFromNow = (timestamp: string) => {
 };
 
 export const timeUntilTarget = (timestamp: string, target: string) => {
-  console.log("time until target", { timestamp, target });
   const timestampDate = new Date(Number(timestamp) * 1000);
   const targetDate = new Date(Number(target) * 1000);
 

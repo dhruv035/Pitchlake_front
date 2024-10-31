@@ -150,16 +150,6 @@ const useVaultState = ({
   const k = strikeLevel ? Number(strikeLevel.toString()) : 0;
   const vaultType = k > 0 ? "OTM" : k == 0 ? "ATM" : "ITM";
 
-  console.log("k is", k);
-
-  if (k > 0) {
-    console.log("OTM");
-  } else if (k == 0) {
-    console.log("ATM");
-  } else {
-    console.log("ITM");
-  }
-
   return {
     vaultState: {
       address,
