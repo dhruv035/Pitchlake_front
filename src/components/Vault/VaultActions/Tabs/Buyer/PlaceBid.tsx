@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, ReactNode, useEffect } from "react";
 import InputField from "@/components/Vault/Utils/InputField";
 import { Layers3, Currency } from "lucide-react";
 import ActionButton from "@/components/Vault/Utils/ActionButton";
@@ -10,11 +10,12 @@ import { formatUnits, parseUnits, formatEther } from "ethers";
 import { useAccount } from "@starknet-react/core";
 import useERC20 from "@/hooks/erc20/useERC20";
 import { num } from "starknet";
+import { formatNumberText } from "@/lib/utils";
 
 interface PlaceBidProps {
   showConfirmation: (
     modalHeader: string,
-    action: string,
+    action: ReactNode,
     onConfirm: () => Promise<void>,
   ) => void;
 }
@@ -84,7 +85,14 @@ const PlaceBid: React.FC<PlaceBidProps> = ({ showConfirmation }) => {
   };
 
   const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    updateState({ bidPrice: e.target.value });
+    const value = e.target.value;
+
+    // Use a regular expression to limit the input to a maximum of 9 decimal places
+    const formattedValue = value.includes(".")
+      ? value.slice(0, value.indexOf(".") + 10)
+      : value;
+
+    updateState({ bidPrice: formattedValue });
   };
 
   const handlePlaceBid = async (): Promise<void> => {
@@ -94,8 +102,6 @@ const PlaceBid: React.FC<PlaceBidProps> = ({ showConfirmation }) => {
     const amount = Number(state.bidAmount);
     const totalWei = priceWei * amount;
     if (Number(allowance) < Number(totalWei)) {
-      const diff = Number(totalWei) - Number(allowance);
-
       await approve({
         amount: num.toBigInt(totalWei),
         spender: selectedRoundState?.address
@@ -113,14 +119,29 @@ const PlaceBid: React.FC<PlaceBidProps> = ({ showConfirmation }) => {
   const bidPriceWei = parseUnits(state.bidPrice ? state.bidPrice : "0", "gwei");
   const bidPriceEth = formatEther(bidPriceWei);
   const bidPriceGwei = formatUnits(bidPriceWei, "gwei");
-  const total = Number(bidPriceEth) * Number(state.bidAmount);
+  const bidAmount = state.bidAmount ? state.bidAmount : "0";
+  const bidTotalEth = Number(bidPriceEth) * Number(bidAmount);
 
   const handleSubmit = () => {
     console.log("Place Bid confirmation");
     showConfirmation(
       "Bid",
-      `bid for ${parseInt(state.bidAmount, 10).toLocaleString("en-US")} options at ${bidPriceGwei}
-       GWEI each, for a total of ${total} ETH?`,
+      <>
+        bid
+        <br />
+        <span className="font-semibold text-[#fafafa]">
+          {bidPriceGwei} GWEI{" "}
+        </span>{" "}
+        per
+        <br />
+        <span className="font-semibold text-[#fafafa]">
+          {formatNumberText(Number(bidAmount))} options
+        </span>
+        , totaling
+        <br />
+        <span className="font-semibold text-[#fafafa]">{bidTotalEth} ETH</span>?
+      </>,
+
       handlePlaceBid,
     );
   };
@@ -165,7 +186,7 @@ const PlaceBid: React.FC<PlaceBidProps> = ({ showConfirmation }) => {
       </div>
       <div className="flex justify-between text-sm px-6 pb-1">
         <span className="text-gray-400">Total</span>
-        <span>{total.toFixed(2)} ETH</span>
+        <span>{bidTotalEth.toFixed(2)} ETH</span>
       </div>
       <div className="flex justify-between text-sm px-6 pb-6">
         <span className="text-gray-400">Balance</span>

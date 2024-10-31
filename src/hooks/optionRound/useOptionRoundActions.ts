@@ -85,7 +85,7 @@ const useOptionRoundActions = (address?: string) => {
   );
 
   const tokenizeOptions = useCallback(async () => {
-    await callContract("tokenize_options")();
+    await callContract("mint_options")();
   }, [callContract]);
 
   const exerciseOptions = useCallback(async () => {

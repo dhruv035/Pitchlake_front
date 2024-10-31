@@ -79,6 +79,7 @@ const useVaultState = ({
       },
       { functionName: "get_vault_queued_bps", key: "queuedBps" },
     ],
+    watch: true,
   });
 
   //Wallet states
@@ -106,13 +107,16 @@ const useVaultState = ({
         key: "queuedBps",
       },
     ],
+    watch: true,
   }) as unknown as LiquidityProviderStateType;
 
   const { data: currentRoundAddress } = useContractRead({
     ...contractData,
     functionName: "get_round_address",
     args: currentRoundId ? [currentRoundId.toString()] : [],
+    watch: true,
   });
+
   // console.log("selectedRound", selectedRound);
   const { data: selectedRoundAddress } = useContractRead({
     ...contractData,
@@ -121,7 +125,9 @@ const useVaultState = ({
       selectedRound && selectedRound !== 0
         ? [selectedRound.toString()]
         : undefined,
+    watch: true,
   });
+
   const usableString = useMemo(() => {
     return stringToHex(selectedRoundAddress?.toString());
   }, [selectedRoundAddress]);

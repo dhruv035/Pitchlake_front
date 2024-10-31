@@ -19,11 +19,11 @@ export const formatNumberText = (number: number) => {
   if (number < 100_000) {
     return number.toLocaleString(); // Return raw number with commas
   } else if (number >= 100_000 && number < 1_000_000) {
-    return `${(number / 1_000).toFixed(2)}k`; // Format as '123.45k'
+    return `${(number / 1_000).toFixed(1)}k`; // Format as '123.45k'
   } else if (number >= 1_000_000 && number < 1_000_000_000) {
-    return `${(number / 1_000_000).toFixed(2)}m`; // Format as '123.45m'
+    return `${(number / 1_000_000).toFixed(1)}m`; // Format as '123.45m'
   } else {
-    return `${(number / 1_000_000_000).toFixed(2)}b`; // Optional for larger numbers like '123.45b'
+    return `${(number / 1_000_000_000).toFixed(1)}b`; // Optional for larger numbers like '123.45b'
   }
 };
 

@@ -169,7 +169,13 @@ const Deposit: React.FC<DepositProps> = ({ showConfirmation }) => {
             type="number"
             value={state.amount}
             label="Enter Amount"
-            onChange={(e) => updateState({ amount: e.target.value })}
+            onChange={(e) => {
+              const value = e.target.value;
+              const formattedValue = value.includes(".")
+                ? value.slice(0, value.indexOf(".") + 19)
+                : value;
+              updateState({ amount: formattedValue });
+            }}
             placeholder="e.g. 5.0"
             icon={
               <FontAwesomeIcon
@@ -177,9 +183,6 @@ const Deposit: React.FC<DepositProps> = ({ showConfirmation }) => {
                 className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 pr-2"
               />
             }
-            //icon={
-            //  <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400" />
-            //}
           />
         </div>
       </div>

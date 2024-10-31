@@ -126,7 +126,7 @@ const useOptionRoundState = (address: string | undefined) => {
     payoutBalance,
   } = useContractReads({
     contractData,
-
+    watch: true,
     states: [
       {
         functionName: "get_bid_tree_nonce",
@@ -241,9 +241,9 @@ const useOptionRoundState = (address: string | undefined) => {
     } as OptionRoundStateType,
     optionBuyerState: {
       address: account?.address as string,
+      bids: bids ? bids : [],
       roundId: roundId ? roundId.toString() : 0,
       bidderNonce: biddingNonce ? biddingNonce.toString() : 0,
-      bids: bids ? bids : [],
       refundableBalance: refundableBids ? refundableBids.toString() : 0,
       tokenizableOptions: tokenizableOptions
         ? tokenizableOptions.toString()

@@ -1,4 +1,10 @@
-import React, { useState, useEffect, ReactElement, useContext } from "react";
+import React, {
+  ReactNode,
+  useState,
+  useEffect,
+  ReactElement,
+  useContext,
+} from "react";
 import {
   VaultStateType,
   OptionRoundStateType,
@@ -12,6 +18,7 @@ import ConfirmationModal from "@/components/Vault/Utils/ConfirmationModal";
 import SuccessModal from "@/components/Vault/Utils/SuccessModal";
 import { useTransactionContext } from "@/context/TransactionProvider";
 import { useProtocolContext } from "@/context/ProtocolProvider";
+import EditModal from "@/components/Vault/VaultActions/Tabs/Buyer/EditBid";
 
 interface VaultDetailsProps {
   userType: string;
@@ -28,11 +35,12 @@ interface TabContentProps {
 const PanelRight: React.FC<VaultDetailsProps> = ({ userType }) => {
   const { vaultState, vaultActions, selectedRoundState } = useProtocolContext();
   const [activeTab, setActiveTab] = useState<string>("");
+  const [isEditOpen, setIsEditOpen] = useState(false);
   const [modalState, setModalState] = useState<{
     show: boolean;
     type: "confirmation" | "pending" | "success" | "failure";
     modalHeader: string;
-    action: string;
+    action: ReactNode;
     onConfirm: () => Promise<void>;
   }>({
     show: false,
@@ -46,6 +54,8 @@ const PanelRight: React.FC<VaultDetailsProps> = ({ userType }) => {
     userType,
     activeTab,
     selectedRoundState,
+    isEditOpen,
+    setIsEditOpen,
   );
 
   const { pendingTx, status } = useTransactionContext();
@@ -80,7 +90,7 @@ const PanelRight: React.FC<VaultDetailsProps> = ({ userType }) => {
 
   const showConfirmation = (
     modalHeader: string,
-    action: string,
+    action: ReactNode,
     onConfirm: () => Promise<void>,
   ) => {
     setModalState({
@@ -119,6 +129,17 @@ const PanelRight: React.FC<VaultDetailsProps> = ({ userType }) => {
       : tabContent;
   };
 
+  if (isEditOpen) {
+    return (
+      <EditModal
+        //modalHeader={`${modalState.modalHeader} Confirmation`}
+        //action={modalState.action}
+        onConfirm={() => setIsEditOpen(false)}
+        onClose={() => setIsEditOpen(false)}
+      />
+    );
+  }
+
   if (modalState.show) {
     if (modalState.type === "confirmation") {
       return (
@@ -142,24 +163,26 @@ const PanelRight: React.FC<VaultDetailsProps> = ({ userType }) => {
     }
   }
 
-  return (
-    <div className="bg-[#121212] border border-[#262626] rounded-lg w-full flex flex-col h-full justify-center">
-      {tabs.length > 0 ? (
-        <>
-          <Tabs
-            tabs={tabs}
-            activeTab={activeTab}
-            setActiveTab={handleTabChange}
-          />
-          <div className="flex flex-col flex-grow h-[max]">
-            {renderTabContent()}
-          </div>
-        </>
-      ) : (
-        <div className="text-white">Round hasn&apos;t started yet</div>
-      )}
-    </div>
-  );
+  if (!isEditOpen) {
+    return (
+      <div className="bg-[#121212] border border-[#262626] rounded-lg w-full flex flex-col h-full justify-center">
+        {tabs.length > 0 ? (
+          <>
+            <Tabs
+              tabs={tabs}
+              activeTab={activeTab}
+              setActiveTab={handleTabChange}
+            />
+            <div className="flex flex-col flex-grow h-[max]">
+              {renderTabContent()}
+            </div>
+          </>
+        ) : (
+          <div className="text-white">Round hasn&apos;t started yet</div>
+        )}
+      </div>
+    );
+  }
 };
 
 export default PanelRight;

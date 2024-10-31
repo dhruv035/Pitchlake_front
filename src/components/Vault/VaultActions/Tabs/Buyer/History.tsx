@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { SquarePen, SquareArrowOutUpRight } from "lucide-react";
+import { SquarePen, SquareArrowOutUpRight, ChevronLeft } from "lucide-react";
 import { useProvider, useExplorer, Explorer } from "@starknet-react/core";
 import { Provider } from "starknet";
 
@@ -12,13 +12,17 @@ interface HistoryItem {
 
 interface HistoryProps {
   items: HistoryItem[];
+  isEditOpen: boolean;
+  setIsEditOpen: (open: boolean) => void;
 }
 
 const HistoryItem: React.FC<{
   item: HistoryItem;
   isLast: boolean;
   explorer: Explorer;
-}> = ({ item, isLast, explorer }) => (
+  setIsEditOpen: (open: boolean) => void;
+  isEditOpen: boolean;
+}> = ({ item, isLast, explorer, isEditOpen, setIsEditOpen }) => (
   <div
     className={`py-4 px-4 flex flex-row justify-between items-center ${!isLast ? "border-b border-[#262626]" : ""} m-0`}
   >
@@ -39,13 +43,62 @@ const HistoryItem: React.FC<{
       </p>
     </div>
     <div className="bg-[#262626] p-2 rounded-lg cursor-pointer">
-      <SquarePen size={20} className="text-[#E2E2E2]" />
+      <SquarePen
+        onClick={() => setIsEditOpen(!isEditOpen)}
+        size={20}
+        className="text-[#E2E2E2]"
+      />
     </div>
   </div>
 );
 
-const History: React.FC<HistoryProps> = ({ items }) => {
+const History: React.FC<HistoryProps> = ({
+  items,
+  isEditOpen,
+  setIsEditOpen,
+}) => {
   const explorer = useExplorer();
+
+  const [modalState, setModalState] = useState<{
+    show: boolean;
+    //modalHeader: string;
+    //action: ReactNode;
+    onConfirm: () => Promise<void>;
+  }>({
+    show: false,
+    //type: "confirmation",
+    //modalHeader: "",
+    //action: "",
+    onConfirm: async () => {},
+  });
+
+  const showEditModal = async (
+    //modalHeader: string,
+    //action: ReactNode,
+    onConfirm: () => Promise<void>,
+  ) => {
+    setModalState({
+      show: true,
+      //type: "confirmation",
+      //modalHeader,
+      //action,
+      onConfirm,
+    });
+  };
+  const hideEditModal = async (
+    //modalHeader: string,
+    //action: ReactNode,
+    onConfirm: () => Promise<void>,
+  ) => {
+    setModalState({
+      show: false,
+      //type: "confirmation",
+      //modalHeader,
+      //action,
+      onConfirm,
+    });
+  };
+
   return (
     <div className="">
       {items.map((item, index) => (
@@ -54,6 +107,8 @@ const History: React.FC<HistoryProps> = ({ items }) => {
           item={item}
           isLast={index === items.length - 1}
           explorer={explorer}
+          setIsEditOpen={() => setIsEditOpen(!isEditOpen)}
+          isEditOpen={isEditOpen}
         />
       ))}
     </div>

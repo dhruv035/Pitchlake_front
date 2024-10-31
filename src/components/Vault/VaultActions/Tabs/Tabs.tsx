@@ -22,3 +22,4 @@ const Tabs: React.FC<TabsProps> = ({ tabs, activeTab, setActiveTab }) => (
 );
 
 export default Tabs;
+

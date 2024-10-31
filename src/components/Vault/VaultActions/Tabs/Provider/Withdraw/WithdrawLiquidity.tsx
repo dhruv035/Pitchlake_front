@@ -76,7 +76,14 @@ const WithdrawLiquidity: React.FC<WithdrawLiquidityProps> = ({
             type="number"
             value={state.amount || ""}
             label="Enter Amount"
-            onChange={(e) => updateState({ amount: e.target.value })}
+            onChange={(e) => {
+              const value = e.target.value;
+              const formattedValue = value.includes(".")
+                ? value.slice(0, value.indexOf(".") + 19)
+                : value;
+
+              updateState({ amount: formattedValue });
+            }}
             placeholder="e.g. 5.0"
             icon={
               <FontAwesomeIcon
