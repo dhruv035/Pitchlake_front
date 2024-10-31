@@ -6,25 +6,27 @@ import {
   VaultStateType,
   WithdrawLiquidityArgs,
   QueueArgs,
+  CollectArgs,
 } from "@/lib/types";
 import { useState } from "react";
-import useMockOptionRound from "./useMockOptionRound";
 import useMockOptionRounds from "./useMockOptionRounds";
 
 const useMockVault = (selectedRound: number, address?: string) => {
   const { address: accountAddress } = useAccount();
   //Read States
   const [vaultState, setVaultState] = useState<VaultStateType>({
-    ethAddress: "0x00",
     address: address ?? "0x1",
     vaultType: "ITM",
+    alpha: "5555",
+    ethAddress: "0x00",
+    fossilClientAddress: "0x00",
+    currentRoundId: 1,
     lockedBalance: "0",
     unlockedBalance: "123456789123456789123",
     stashedBalance: "112233445566778899",
-    currentRoundId: 1,
-    alpha: "5555",
-    strikeLevel: "-1111",
     queuedBps: "0",
+    strikeLevel: "-1111",
+    now: "0",
   });
   //States without a param
 
@@ -59,7 +61,7 @@ const useMockVault = (selectedRound: number, address?: string) => {
     await new Promise((resolve) => setTimeout(resolve, 1500));
   };
 
-  const withdrawStash = async () => {
+  const withdrawStash = async (collectArgs: CollectArgs) => {
     await new Promise((resolve) => setTimeout(resolve, 1500));
   };
 

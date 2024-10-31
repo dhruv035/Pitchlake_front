@@ -11,6 +11,8 @@ export type WithdrawLiquidityArgs = {
 
 export type QueueArgs = { bps: number | bigint };
 
+export type CollectArgs = { account: string };
+
 export type ApprovalArgs = {
   amount: number | bigint;
   spender: string;
@@ -46,6 +48,7 @@ export type VaultStateType = {
   unlockedBalance: number | bigint | string;
   stashedBalance: number | bigint | string;
   queuedBps: number | bigint | string;
+  now: number | bigint | string;
 };
 
 export type LiquidityProviderStateType = {
@@ -67,7 +70,7 @@ export type OptionBuyerStateType = {
 export type VaultActionsType = {
   depositLiquidity: (depositArgs: DepositArgs) => Promise<void>;
   withdrawLiquidity: (withdrawArgs: WithdrawLiquidityArgs) => Promise<void>;
-  withdrawStash: () => Promise<void>;
+  withdrawStash: (collectArgs: CollectArgs) => Promise<void>;
   queueWithdrawal: (queueArgs: QueueArgs) => Promise<void>;
   startAuction: () => Promise<void>;
   endAuction: () => Promise<void>;
@@ -98,8 +101,8 @@ export type OptionRoundStateType = {
   totalPayout: bigint | number | string;
   payoutPerOption: bigint | number | string;
   treeNonce: bigint | number | string;
-  performanceLP: number | string;
-  performanceOB: number | string;
+  performanceLP: string;
+  performanceOB: string;
   //queuedLiquidity?: bigint | number | string;
 };
 
