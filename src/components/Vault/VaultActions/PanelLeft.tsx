@@ -324,28 +324,27 @@ const PanelLeft = ({ userType }: { userType: string }) => {
                         ? vaultState.stashedBalance.toString()
                         : "0",
                     }}
-                    children={
-                      <>
-                        <p>
-                          {vaultState
-                            ? Number(
-                                formatEther(
-                                  BigInt(vaultState.lockedBalance) +
-                                    BigInt(vaultState.unlockedBalance) +
-                                    BigInt(vaultState.stashedBalance),
-                                ),
-                              ).toFixed(2)
-                            : 0}{" "}
-                          ETH
-                        </p>
-                        <Info
-                          size={16}
-                          color="#CFC490"
-                          className="cursor-pointer"
-                        />
-                      </>
-                    }
-                  ></BalanceTooltip>
+                  >
+                    <>
+                      <p>
+                        {vaultState
+                          ? Number(
+                              formatEther(
+                                BigInt(vaultState.lockedBalance) +
+                                  BigInt(vaultState.unlockedBalance) +
+                                  BigInt(vaultState.stashedBalance),
+                              ),
+                            ).toFixed(2)
+                          : 0}{" "}
+                        ETH
+                      </p>
+                      <Info
+                        size={16}
+                        color="#CFC490"
+                        className="cursor-pointer"
+                      />
+                    </>
+                  </BalanceTooltip>
                 </div>
               </div>
 
