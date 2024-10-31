@@ -101,15 +101,13 @@ export default function UpdateBid({
                     if (devAccount)
                       await updateBid({
                         bidId,
-                        amount: BigInt(amount),
-                        price: BigInt(price),
+                        priceIncrease: BigInt(price),
                       });
                   }
                   if (account)
                     await updateBid({
                       bidId,
-                      amount: BigInt(amount),
-                      price: BigInt(price),
+                      priceIncrease: BigInt(price),
                     });
                 }}
               >

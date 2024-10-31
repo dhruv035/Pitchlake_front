@@ -134,6 +134,8 @@ const useMockVault = (selectedRound: number, address?: string) => {
           tokenizableOptions: "",
           refundableBalance: "",
           bids: [],
+          totalOptions: "0",
+          payoutBalance: "0",
         },
       ];
     });
