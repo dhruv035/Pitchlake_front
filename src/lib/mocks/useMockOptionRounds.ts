@@ -40,8 +40,8 @@ const useMockOptionRounds = (selectedRound: number) => {
         optionSold: "",
         totalPayout: "",
         treeNonce: "",
-        performanceLP: 0,
-        performanceOB: 0,
+        performanceLP: "0",
+        performanceOB: "0",
         // Add other fields as necessary
       },
     ],
