@@ -32,7 +32,6 @@ const Exercise: React.FC<ExerciseProps> = ({ showConfirmation }) => {
   };
 
   const handleSubmit = () => {
-    console.log("Exercise confirmation");
     showConfirmation(
       "Exercise",
       <>
@@ -88,4 +87,3 @@ const Exercise: React.FC<ExerciseProps> = ({ showConfirmation }) => {
 };
 
 export default Exercise;
-

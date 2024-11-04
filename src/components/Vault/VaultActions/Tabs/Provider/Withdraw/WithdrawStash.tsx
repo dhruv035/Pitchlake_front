@@ -31,10 +31,6 @@ const WithdrawStash: React.FC<WithdrawStashProps> = ({
   };
 
   const withdrawStashedBalance = async (): Promise<void> => {
-    console.log(
-      "Collecting",
-      formatEther(vaultState?.stashedBalance ? vaultState.stashedBalance : "0"),
-    );
     await vaultActions.withdrawStash({
       account: account ? account.address : "",
     });
@@ -43,7 +39,6 @@ const WithdrawStash: React.FC<WithdrawStashProps> = ({
   };
 
   const handleSubmit = () => {
-    console.log("Collect confirmation");
     showConfirmation(
       "Collect Withdrawals",
       `claim your queued withdrawals of ${parseFloat(

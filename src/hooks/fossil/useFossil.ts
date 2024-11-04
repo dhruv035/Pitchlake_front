@@ -36,7 +36,7 @@ const useFossil = (
         const typedData = data as TransactionResult;
         setPendingTx(typedData.transaction_hash);
       } catch (err) {
-        console.log("ERR", err);
+        console.log(err);
       }
     },
     [account, setPendingTx],

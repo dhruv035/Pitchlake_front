@@ -96,7 +96,6 @@ const PlaceBid: React.FC<PlaceBidProps> = ({ showConfirmation }) => {
 
   const handlePlaceBid = async (): Promise<void> => {
     /// Update allowance if needed
-    console.log("Current allowance:", allowance);
     const priceWei = Number(parseUnits(state.bidPrice, "gwei"));
     const amount = Number(state.bidAmount);
     const totalWei = priceWei * amount;
@@ -122,7 +121,6 @@ const PlaceBid: React.FC<PlaceBidProps> = ({ showConfirmation }) => {
   const bidTotalEth = Number(bidPriceEth) * Number(bidAmount);
 
   const handleSubmit = () => {
-    console.log("Place Bid confirmation");
     showConfirmation(
       "Bid",
       <>

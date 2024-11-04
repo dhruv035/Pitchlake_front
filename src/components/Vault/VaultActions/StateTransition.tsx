@@ -57,9 +57,6 @@ const StateTransition = ({
     setStatePreReq(roundState);
   }, [roundState]);
 
-  console.log("fossil round state", roundState);
-  console.log("fossil status", status);
-
   useEffect(() => {}, [selectedRoundState]);
 
   // No data

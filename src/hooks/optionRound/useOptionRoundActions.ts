@@ -64,7 +64,6 @@ const useOptionRoundActions = (address?: string) => {
   );
   const placeBid = useCallback(
     async (args: PlaceBidArgs) => {
-      console.log("placing a bid", args);
       await callContract("place_bid")(args);
     },
     [callContract],

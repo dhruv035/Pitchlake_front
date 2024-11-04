@@ -31,7 +31,6 @@ const Refund: React.FC<RefundProps> = ({ showConfirmation }) => {
   };
 
   const handleSubmit = () => {
-    console.log("Place Bid confirmation");
     showConfirmation(
       "Refund",
       <>

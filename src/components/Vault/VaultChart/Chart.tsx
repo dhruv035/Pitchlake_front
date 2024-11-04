@@ -56,8 +56,6 @@ const RoundPerformanceChart = () => {
   };
 
   const decrementRound = () => {
-    console.log("decrementRound");
-    console.log(selectedRound);
     setSelectedRound(selectedRound - 1);
   };
 

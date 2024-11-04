@@ -54,12 +54,8 @@ const Deposit: React.FC<DepositProps> = ({ showConfirmation }) => {
 
   const handleDeposit = async (): Promise<void> => {
     /// Update allowance if needed
-    console.log("Current allowance:", allowance);
     const amountWei = parseEther(state.amount);
-    console.log("AmountWei:", Number(amountWei));
     if (Number(allowance) < Number(amountWei)) {
-      console.log("AAAAAAAAAAAAAAAAAAA");
-      console.log({ account });
       const diff = Number(amountWei) - Number(allowance);
 
       await approve({
@@ -69,44 +65,13 @@ const Deposit: React.FC<DepositProps> = ({ showConfirmation }) => {
     }
 
     /// Deposit
-    console.log("Depositing", amountWei);
     await vaultActions.depositLiquidity({
       amount: amountWei,
       beneficiary: account ? account.address : "",
     });
-
-    //const depositCall: Call = {
-    //  contractAddress: vaultState ? vaultState.address : "",
-    //  entrypoint: "deposit",
-    //  calldata: [num.toBigInt(amountWei), 0, account ? account.address : ""],
-    //};
-
-    //// Need to remove allowance call if allowance is >= amountWei
-    //const calls: Call[] = [allowanceCall];
-    //const result = transaction.transformCallsToMulticallArrays(calls);
-    //console.log("result", result);
-    //await account?.execute(calls);
-
-    //if (Number(allowance) < Number(state.amount)) {
-    //  let difference = Number(state.amount) - Number(allowance);
-    //  console.log("Increasing allowance by: ", difference);
-    //  await increaseAllowance({
-    //    amount: parseEther(state.amount),
-    //    spender: vaultState ? vaultState.address.toString() : "",
-    //  });
-    //}
-
-    //    console.log("Depositing", state.amount);
-    //    await vaultActions.depositLiquidity({
-    //      amount: parseEther(state.amount),
-    //      beneficiary:
-    //        "0x07692EE25171bDa70F1c3A76fA23a50F86De517D4A6c98B125D235e4aF874F84",
-    //      //beneficiary: account ? account.address?.toString() : "", //state.beneficiaryAddress,
-    //    });
   };
 
   const handleSubmit = () => {
-    console.log("Deposit confirmation");
     showConfirmation(
       "Deposit",
       `deposit ${state.amount} ETH to this round?`,
@@ -132,7 +97,6 @@ const Deposit: React.FC<DepositProps> = ({ showConfirmation }) => {
 
   useEffect(() => {}, [account]);
 
-  console.log("LPSTATE", lpState);
   return (
     <div className="flex flex-col h-full">
       <div className="flex-grow space-y-6 p-6">

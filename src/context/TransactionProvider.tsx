@@ -42,7 +42,6 @@ const TransactionProvider = ({ children }: { children: ReactNode }) => {
   const devAccount = getDevAccount(
     new RpcProvider({ nodeUrl: "http://localhost:5050/rpc" }),
   );
-  console.log("DEV ACCOUNT", devAccount);
   const [isTxDisabled, setIsTxDisabled] = useState<boolean>(false);
 
   const [pendingTx, setPendingTx] = useState<string | undefined>();

@@ -47,7 +47,6 @@ export default function Header() {
   const router = useRouter();
   const { account } = useAccount();
   const { provider } = useProvider();
-  console.log("Provider:", provider);
   const { approve, fund, balance } = useERC20(
     "0x49d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
     vaultState?.address,
@@ -101,7 +100,6 @@ export default function Header() {
           },
         }),
       });
-      console.log("fossil response", response);
     } catch (error) {
       console.log("Error sending Fossil request:", error);
     }
@@ -205,41 +203,6 @@ export default function Header() {
     });
 
     console.log("funded");
-
-    //// Make the POST request
-    //try {
-    //  const response = await fetch("http://localhost:3000/pricing_data", {
-    //    method: "POST",
-    //    headers: {
-    //      "Content-Type": "application/json",
-    //      "x-api-key": "b2ed9cdc-2dd0-4b81-8ed4-bcefbf29ddc1",
-    //    },
-    //    body: JSON.stringify({
-    //      identifiers: ["PITCH_LAKE_V1"],
-    //      params: {
-    //        twap: [1730053616, 1730140016],
-    //        volatility: [1729880816, 1730140016],
-    //        reserve_price: [1729880816, 1730140016],
-    //      },
-    //      client_info: {
-    //        client_address: account ? account.address : "",
-    //        vault_address: vaultState ? vaultState.address : "",
-    //        timestamp: 1730140016,
-    //      },
-    //    }),
-    //  });
-
-    //  if (!response.ok) {
-    //    const errorText = await response.text();
-    //    console.error("Error sending request:", errorText);
-    //    throw new Error("Failed to send request");
-    //  }
-
-    //  const result = await response.json();
-    //  console.log("Post result:", result);
-    //} catch (error) {
-    //  console.error("Error during fundAndDeploy:", error);
-    //}
   };
 
   return (

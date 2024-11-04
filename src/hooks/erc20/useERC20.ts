@@ -40,8 +40,6 @@ const useERC20 = (
   //   } else return connectorAccount;
   // }, [connectorAccount, isDev, devAccount]);
 
-  console.log("ERC20 acc", account);
-
   const devAcc = () => {
     const _address = process.env.NEXT_PUBLIC_DEV_ADDRESS;
     const _pk = process.env.NEXT_PUBLIC_DEV_PK;
@@ -108,7 +106,7 @@ const useERC20 = (
         const typedData = data as TransactionResult;
         setPendingTx(typedData.transaction_hash);
       } catch (err) {
-        console.log("ERR", err);
+        console.log(err);
       }
     },
     [account, typedContract, pendingTx, setPendingTx],

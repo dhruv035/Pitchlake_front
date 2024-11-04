@@ -19,7 +19,6 @@ interface MintProps {
 const Mint: React.FC<MintProps> = ({ showConfirmation }) => {
   const { roundActions, selectedRoundBuyerState } = useProtocolContext();
   const { address } = useAccount();
-  console.log("selectedRoundBuyerState", selectedRoundBuyerState);
 
   const handleMintOptions = async (): Promise<void> => {
     address && (await roundActions?.tokenizeOptions());
@@ -29,7 +28,6 @@ const Mint: React.FC<MintProps> = ({ showConfirmation }) => {
   };
 
   const handleSubmit = () => {
-    console.log("Place Bid confirmation");
     showConfirmation(
       "Mint",
       <>
