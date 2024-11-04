@@ -78,7 +78,7 @@ export default function Header() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "x-api-key": "b2ed9cdc-2dd0-4b81-8ed4-bcefbf29ddc1",
+          "x-api-key": process.env.NEXT_PUBLIC_FOSSIL_API_KEY || "",
         },
         body: JSON.stringify({
           identifiers: ["PITCH_LAKE_V1"],
@@ -135,11 +135,20 @@ export default function Header() {
   );
 
   // todo: sum balances accross all vaults ?
+  console.log("balance", balance, balance.toString());
   const balanceData = {
-    wallet: parseFloat(formatEther(balance.toString())).toFixed(3),
-    locked: formatEther(lockedBalance.toString()),
-    unlocked: formatEther(unlockedBalance.toString()),
-    stashed: formatEther(stashedBalance.toString()),
+    wallet: parseFloat(formatEther(num.toBigInt(balance).toString())).toFixed(
+      3,
+    ),
+    locked: parseFloat(
+      formatEther(num.toBigInt(lockedBalance).toString()),
+    ).toFixed(3),
+    unlocked: parseFloat(
+      formatEther(num.toBigInt(unlockedBalance).toString()),
+    ).toFixed(3),
+    stashed: parseFloat(
+      formatEther(num.toBigInt(stashedBalance).toString()),
+    ).toFixed(3),
   };
 
   useEffect(() => {
@@ -246,7 +255,16 @@ export default function Header() {
         ) : (
           <></>
         )}
-
+        {account ? (
+          <button
+            onClick={mockFossilCall}
+            className="font-medium cursor-pointer border-[1px] border-greyscale-800 p-2 rounded-md"
+          >
+            Mock Fossil Call
+          </button>
+        ) : (
+          <></>
+        )}
         <div className="relative" ref={dropdownRef}>
           {account ? (
             <>
@@ -261,7 +279,7 @@ export default function Header() {
                   height={24}
                   className="rounded-full"
                 />
-                <span className="text-white" font-medium>
+                <span className="text-white font-medium">
                   {shortenString(account.address)}
                 </span>
                 <ChevronDownIcon className="h-4 w-4 text-white" />

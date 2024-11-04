@@ -228,9 +228,9 @@ const useOptionRoundState = (address: string | undefined) => {
       totalPayout: totalPayout ? totalPayout.toString() : 0,
       payoutPerOption: totalPayout
         ? optionsSold
-          ? Number(num.toBigInt(optionsSold.toString())) > 0
-            ? Number(num.toBigInt(totalPayout.toString())) /
-              Number(num.toBigInt(optionsSold.toString()))
+          ? num.toBigInt(num.toBigInt(optionsSold.toString())) > 0
+            ? num.toBigInt(num.toBigInt(totalPayout.toString())) /
+              num.toBigInt(num.toBigInt(optionsSold.toString()))
             : 0
           : 0
         : 0, // replace ?
