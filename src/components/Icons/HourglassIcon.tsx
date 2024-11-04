@@ -12,7 +12,9 @@ const HourglassIcon = ({
       width="30"
       height="46"
       viewBox="0 0 30 46"
-      fill="none"
+      fill={fill}
+      className={classname}
+      stroke={stroke}
       xmlns="http://www.w3.org/2000/svg"
     >
       <path

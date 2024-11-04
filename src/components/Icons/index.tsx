@@ -5,6 +5,7 @@ export { default as PieChartIcon } from "./PieChartIcon";
 export { default as ActivityIcon } from "./ActivityIcon";
 export { default as BarChartIcon } from "./BarChartIcon";
 export { default as HourglassIcon } from "./HourglassIcon";
+export { default as HourglassSimpleIcon } from "./HourglassSimpleIcon";
 export { default as TagIcon } from "./TagIcon";
 export { default as SafeIcon } from "./SafeIcon";
 export { default as ArrowDownIcon } from "./ArrowDownIcon";

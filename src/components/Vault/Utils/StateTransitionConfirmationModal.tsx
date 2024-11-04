@@ -11,12 +11,15 @@ interface StateTransitionConfirmationModalProps {
 const Confirmations: any = {
   "Start Auction": "Are you sure you want to start this round's auction?",
   "End Auction": "Are you sure you want to end this round's auction?",
+  "Send Fossil Request":
+    "Are you sure you want to request pricing data from Fossil?",
   "Settle Round": "Are you sure you want to settle this round?",
 };
 
 const btnMsgs: any = {
   "Start Auction": "Start",
   "End Auction": "End",
+  "Send Fossil Request": "Send Fossil Request",
   "Settle Round": "Settle",
 };
 
