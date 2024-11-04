@@ -1,17 +1,4 @@
-import React, {
-  ReactNode,
-  useState,
-  useEffect,
-  ReactElement,
-  useContext,
-} from "react";
-import {
-  VaultStateType,
-  OptionRoundStateType,
-  LiquidityProviderStateType,
-  VaultActionsType,
-  OptionRoundActionsType,
-} from "@/lib/types";
+import React, { ReactNode, useState, useEffect, ReactElement } from "react";
 import Tabs from "./Tabs/Tabs";
 import { useTabContent } from "@/hooks/vault/useTabContent";
 import ConfirmationModal from "@/components/Vault/Utils/ConfirmationModal";
@@ -19,9 +6,12 @@ import SuccessModal from "@/components/Vault/Utils/SuccessModal";
 import { useTransactionContext } from "@/context/TransactionProvider";
 import { useProtocolContext } from "@/context/ProtocolProvider";
 import EditModal from "@/components/Vault/VaultActions/Tabs/Buyer/EditBid";
+import { HourglassIcon } from "@/components/Icons";
 
 interface VaultDetailsProps {
   userType: string;
+  isEditOpen: boolean;
+  setIsEditOpen: (open: boolean) => void;
 }
 
 interface TabContentProps {
@@ -32,10 +22,14 @@ interface TabContentProps {
   ) => void;
 }
 
-const PanelRight: React.FC<VaultDetailsProps> = ({ userType }) => {
-  const { vaultState, vaultActions, selectedRoundState } = useProtocolContext();
+const PanelRight: React.FC<VaultDetailsProps> = ({
+  userType,
+  isEditOpen,
+  setIsEditOpen,
+}) => {
+  const { selectedRoundState, selectedRoundBuyerState } = useProtocolContext();
   const [activeTab, setActiveTab] = useState<string>("");
-  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [bidToEdit, setBidToEdit] = useState({});
   const [modalState, setModalState] = useState<{
     show: boolean;
     type: "confirmation" | "pending" | "success" | "failure";
@@ -49,16 +43,20 @@ const PanelRight: React.FC<VaultDetailsProps> = ({ userType }) => {
     action: "",
     onConfirm: async () => {},
   });
+  const userBids = selectedRoundBuyerState ? selectedRoundBuyerState.bids : [];
 
   const { tabs, tabContent } = useTabContent(
     userType,
     activeTab,
     selectedRoundState,
     isEditOpen,
+    bidToEdit,
+    userBids,
     setIsEditOpen,
+    setBidToEdit,
   );
-
   const { pendingTx, status } = useTransactionContext();
+
   useEffect(() => {
     if (tabs.length > 0 && activeTab === "") {
       setActiveTab(tabs[0]);
@@ -83,6 +81,7 @@ const PanelRight: React.FC<VaultDetailsProps> = ({ userType }) => {
     }
   }, [pendingTx, modalState.type, status]);
   const handleTabChange = (tab: string) => {
+    setIsEditOpen(false);
     setActiveTab(tab);
   };
 
@@ -136,6 +135,7 @@ const PanelRight: React.FC<VaultDetailsProps> = ({ userType }) => {
         onConfirm={() => setIsEditOpen(false)}
         onClose={() => setIsEditOpen(false)}
         showConfirmation={showConfirmation}
+        bidToEdit={bidToEdit}
       />
     );
   }
@@ -178,11 +178,29 @@ const PanelRight: React.FC<VaultDetailsProps> = ({ userType }) => {
             </div>
           </>
         ) : (
-          <div className="text-white">Round hasn&apos;t started yet</div>
+          <NotStartedYet />
+          //<div className="text-white">Round hasn&apos;t started yet</div>
         )}
       </div>
     );
   }
+};
+
+const NotStartedYet = () => {
+  return (
+    <div className="flex flex-col flex-grow items-center justify-center text-center p-6">
+      <div className="w-[92px] h-[92px] p-6 rounded-2xl bg-icon-gradient border-[1px] border-greyscale-800 flex flex-row justify-center items-center">
+        <HourglassIcon classname="" />
+      </div>
+      <p className="text-[16px] font-medium text-[#FAFAFA] text-center mt-4 mb-3">
+        Round In Process
+      </p>
+      <p className="max-w-[290px] font-regular text-[14px] text-[#BFBFBF] pt-0">
+        This round has not started yet. To place a bid, please wait until the
+        round's auction starts.
+      </p>
+    </div>
+  );
 };
 
 export default PanelRight;
