@@ -7,6 +7,7 @@ import {
   BriefCaseIcon,
 } from "@/components/Icons";
 import { useEffect, useRef, useState } from "react";
+import useFossil from "@/hooks/fossil/useFossil";
 import useFossilStatus from "@/hooks/fossil/useFossilStatus";
 import { Cog } from "lucide-react";
 import { createJobId, createJobRequest } from "@/lib/utils";
@@ -26,6 +27,7 @@ const StateTransition = ({
 
   const jobId = createJobId(selectedRoundState);
   const { status, error, loading } = useFossilStatus(jobId);
+  const { fossilCallback } = useFossil(vaultState?.fossilClientAddress);
 
   const roundStateRaw = selectedRoundState
     ? selectedRoundState.roundState.toString()
@@ -41,13 +43,12 @@ const StateTransition = ({
       return roundStateRaw;
 
     if (!error && !status) return statePreReq;
+    if (error || status.status == "Failed") return "FossilReady";
 
     if (status?.status === "Pending") {
       return "FossilPending";
     }
-    if (status?.status === "Completed") return roundStateRaw;
-
-    if (error) return "FossilReady";
+    if (status?.status === "Completed") return "Running";
 
     return roundStateRaw;
   };
@@ -67,7 +68,7 @@ const StateTransition = ({
   const canAuctionStart = () => {
     if (
       roundState === "Open" &&
-      now > Number(selectedRoundState.auctionStartDate)
+      now >= Number(selectedRoundState.auctionStartDate)
     ) {
       return true;
     } else return false;
@@ -76,7 +77,7 @@ const StateTransition = ({
   const canAuctionEnd = () => {
     if (
       roundState === "Auctioning" &&
-      now > Number(selectedRoundState.auctionEndDate)
+      now >= Number(selectedRoundState.auctionEndDate)
     ) {
       return true;
     } else return false;
@@ -85,7 +86,7 @@ const StateTransition = ({
   const canRoundSettle = () => {
     if (
       roundState === "Running" &&
-      now > Number(selectedRoundState.optionSettleDate)
+      now >= Number(selectedRoundState.optionSettleDate)
     ) {
       return true;
     } else {
@@ -155,7 +156,7 @@ const StateTransition = ({
     //    console.log("Mocking fossil call");
     //    const request = [
     //      vaultState ? vaultState.address : "",
-    //      targetTimestamp,
+    //      "1730719146",
     //      "0x50495443485f4c414b455f5631",
     //    ];
     //    const result = [
@@ -202,9 +203,15 @@ const StateTransition = ({
     } else if (roundState === "FossilReady") {
       return <Cog className="w-4 h-4 ml-2" stroke={stroke} />;
     } else if (roundState === "FossilPending") {
-      return <Cog className="w-4 h-4 ml-2" stroke={stroke} />;
+      return;
     } else if (roundState === "Running") {
-      return <BriefCaseIcon classname="w-4 h-4 ml-2" stroke={stroke} />;
+      return (
+        <BriefCaseIcon
+          classname="w-4 h-4 ml-2"
+          fill="transparent"
+          stroke={stroke}
+        />
+      );
     }
   };
 
