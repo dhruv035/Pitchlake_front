@@ -132,7 +132,7 @@ const PanelRight: React.FC<VaultDetailsProps> = ({
       <EditModal
         //modalHeader={`${modalState.modalHeader} Confirmation`}
         //action={modalState.action}
-        onConfirm={() => setIsEditOpen(false)}
+        onConfirm={() => setIsEditOpen(true)}
         onClose={() => setIsEditOpen(false)}
         showConfirmation={showConfirmation}
         bidToEdit={bidToEdit}
