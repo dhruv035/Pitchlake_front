@@ -48,6 +48,7 @@ export type ProtocolContextType = {
   mockTimeForward: () => void;
   timeStamp: Number;
   selectedRoundAddress: string | undefined;
+  currentRoundAddress: string | undefined;
 };
 
 export const ProtocolContext = createContext<ProtocolContextType>(
@@ -95,6 +96,7 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
     roundActions: roundActionsChain,
     selectedRoundState: selectedRoundStateRPC,
     selectedRoundBuyerState: selectedRoundBuyerStateRPC,
+    currentRoundAddress,
   } = useVaultState({
     conn,
     address: vaultAddress,
@@ -204,6 +206,7 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
         mockTimeForward,
         timeStamp,
         selectedRoundAddress: undefined,
+        currentRoundAddress,
       }}
     >
       {children}
