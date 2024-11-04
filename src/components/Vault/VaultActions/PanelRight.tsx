@@ -197,7 +197,7 @@ const NotStartedYet = () => {
       </p>
       <p className="max-w-[290px] font-regular text-[14px] text-[#BFBFBF] pt-0">
         This round has not started yet. To place a bid, please wait until the
-        round's auction starts.
+        round&#39;s auction starts.
       </p>
     </div>
   );
