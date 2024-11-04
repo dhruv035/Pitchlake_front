@@ -16,6 +16,7 @@ import {
   timeUntilTarget,
   shortenString,
   formatNumberText,
+  createJobId,
 } from "@/lib/utils";
 import { formatUnits, formatEther, parseEther } from "ethers";
 import { useProtocolContext } from "@/context/ProtocolProvider";
@@ -32,16 +33,20 @@ import {
   Info,
   PanelLeft as IconPanelLeft,
 } from "lucide-react";
+import { num } from "starknet";
 import { useExplorer } from "@starknet-react/core";
 import { BalanceTooltip } from "@/components/BaseComponents/Tooltip";
 import StateTransition from "@/components/Vault/VaultActions/StateTransition";
 import { useProvider } from "@starknet-react/core";
 import useLatestTimestamp from "@/hooks/chain/useLatestTimestamp";
+import useFossilStatus from "@/hooks/fossil/useFossilStatus";
 
 // comment for git
 
 const PanelLeft = ({ userType }: { userType: string }) => {
-  const { vaultState, selectedRoundState, vaultActions } = useProtocolContext();
+  const { vaultState, selectedRoundState, currentRoundAddress } =
+    useProtocolContext();
+  console.log({ vaultState, selectedRoundState, currentRoundAddress });
   const { provider } = useProvider();
   const { timestamp } = useLatestTimestamp(provider);
 
@@ -154,8 +159,6 @@ const PanelLeft = ({ userType }: { userType: string }) => {
 
   const roundState = selectedRoundState?.roundState.toString() || "Open";
   const styles = stateStyles[roundState] || stateStyles.Default;
-
-  console.log("A:SSFLKSDJF:LKSJDS", userType, roundState);
 
   return (
     <>
@@ -280,19 +283,16 @@ const PanelLeft = ({ userType }: { userType: string }) => {
               <div className="flex flex-row justify-between p-2 w-full">
                 <p className="text-[#BFBFBF]">TVL</p>
                 <p>
-                  {
-                    vaultState?.lockedBalance
-                      ? parseFloat(
-                          formatEther(
-                            (
-                              BigInt(vaultState.lockedBalance) +
-                              BigInt(vaultState.unlockedBalance)
-                            ).toString(),
-                          ),
-                        ).toFixed(2)
-                      : 0
-                    //Add vault TVL from state here
-                  }
+                  {vaultState
+                    ? parseFloat(
+                        formatEther(
+                          (
+                            num.toBigInt(vaultState.lockedBalance.toString()) +
+                            num.toBigInt(vaultState.unlockedBalance.toString())
+                          ).toString(),
+                        ),
+                      ).toFixed(0)
+                    : 0}
                   /1,000 ETH
                 </p>
               </div>
