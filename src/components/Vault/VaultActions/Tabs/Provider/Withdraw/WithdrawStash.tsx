@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, ReactNode } from "react";
 import { VaultStateType, LiquidityProviderStateType } from "@/lib/types";
 import ActionButton from "@/components/Vault/Utils/ActionButton";
 import collect from "@/../public/collect.svg";
@@ -6,12 +6,14 @@ import { formatEther, parseEther } from "ethers";
 import { useProtocolContext } from "@/context/ProtocolProvider";
 import { useAccount } from "@starknet-react/core";
 import { DepositArgs } from "@/lib/types";
+import { CollectEthIcon } from "@/components/Icons";
+import { num } from "starknet";
 
 interface WithdrawStashProps {
   //withdrawStash: () => Promise<void>;
   showConfirmation: (
     modalHeader: string,
-    action: string,
+    action: ReactNode,
     onConfirm: () => Promise<void>,
   ) => void;
 }
@@ -40,12 +42,18 @@ const WithdrawStash: React.FC<WithdrawStashProps> = ({
 
   const handleSubmit = () => {
     showConfirmation(
-      "Collect Withdrawals",
-      `claim your queued withdrawals of ${parseFloat(
-        formatEther(
-          lpState?.stashedBalance ? lpState.stashedBalance.toString() : "0",
-        ),
-      ).toFixed(3)} ETH`,
+      "Withdraw Stashed",
+      <>
+        collect your stashed{" "}
+        <span className="font-semibold text-[#fafafa]">
+          {parseFloat(
+            formatEther(
+              lpState?.stashedBalance ? lpState.stashedBalance.toString() : "0",
+            ),
+          ).toFixed(3)}{" "}
+          ETH
+        </span>{" "}
+      </>,
       withdrawStashedBalance,
     );
   };
@@ -53,7 +61,8 @@ const WithdrawStash: React.FC<WithdrawStashProps> = ({
   const isButtonDisabled = (): boolean => {
     // Only if stashed balance > 0
     if (
-      Number(vaultState?.stashedBalance ? vaultState.stashedBalance : 0) > 0
+      num.toBigInt(vaultState?.stashedBalance ? vaultState.stashedBalance : 0) >
+      0
     ) {
       return false;
     }
@@ -74,15 +83,12 @@ const WithdrawStash: React.FC<WithdrawStashProps> = ({
         <div className="flex flex-col gap-6">
           <div className="flex items-center justify-center">
             <div className="bg-[#1E1E1E] rounded-lg p-4">
-              <img
-                src={collect}
-                alt="Collect icon"
-                className="w-16 h-16 mx-auto"
-              />
+              <CollectEthIcon classname="w-16 h-16 mx-auto" stroke="" fill="" />
             </div>
           </div>
           <p className="text-[#BFBFBF] text-center font-regular text-[14px]">
-            Your current stashed balance is{" "}
+            Your current stashed balance is
+            <br />
             <b className="mt-0 text-[#FAFAFA] text-[14px] font-bold text-center">
               {lpState?.stashedBalance
                 ? parseFloat(formatEther(lpState.stashedBalance.toString()))

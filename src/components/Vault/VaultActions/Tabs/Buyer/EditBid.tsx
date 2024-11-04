@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 import InputField from "@/components/Vault/Utils/InputField";
 import { LayerStackIcon } from "@/components/Icons";
-import { formatUnits, parseUnits } from "ethers";
+import { formatUnits, parseUnits, formatEther } from "ethers";
 import { useProtocolContext } from "@/context/ProtocolProvider";
 import { num } from "starknet";
 import useERC20 from "@/hooks/erc20/useERC20";
@@ -21,6 +21,8 @@ interface EditModalProps {
   ) => void;
   bidToEdit: any;
 }
+
+const LOCAL_STORAGE_KEY = "editBidPriceGwei";
 
 const EditModal: React.FC<EditModalProps> = ({
   onConfirm,
@@ -38,15 +40,16 @@ const EditModal: React.FC<EditModalProps> = ({
 
   const oldPriceGwei = formatUnits(oldPriceWei, "gwei");
 
-  const { roundActions, vaultState } = useProtocolContext();
-  const { allowance, approve } = useERC20(
+  const { roundActions, vaultState, selectedRoundState } = useProtocolContext();
+  const { allowance, approve, balance } = useERC20(
     vaultState?.ethAddress,
-    vaultState?.address,
+    selectedRoundState?.address,
     account,
   );
 
+  const [needsApproval, setNeedsApproval] = useState<string>("0");
   const [state, setState] = useState({
-    newPriceGwei: "",
+    newPriceGwei: localStorage.getItem(LOCAL_STORAGE_KEY) || "",
     isButtonDisabled: true,
     error: "",
   });
@@ -64,19 +67,6 @@ const EditModal: React.FC<EditModalProps> = ({
     updateState({ newPriceGwei: formattedValue });
   };
 
-  useEffect(() => {
-    let error = "";
-    const newPriceGwei = state.newPriceGwei;
-    if (!newPriceGwei || !oldPriceGwei) {
-      error = "";
-    } else if (parseFloat(newPriceGwei) <= parseFloat(oldPriceGwei)) {
-      error = "New price must be greater than current";
-    }
-    const isButtonDisabled = !newPriceGwei || newPriceGwei <= oldPriceGwei;
-
-    updateState({ error, isButtonDisabled });
-  }, [state.newPriceGwei, oldPriceGwei]);
-
   const stringGweiToWei = (gwei: string): bigint => {
     return parseUnits(gwei ? gwei : "0", "gwei");
   };
@@ -87,10 +77,6 @@ const EditModal: React.FC<EditModalProps> = ({
     else return newPriceWei - oldPriceWei;
   };
 
-  const getPriceIncreaseEth = (): string => {
-    return formatUnits(getPriceIncreaseWei(), "ether");
-  };
-
   const getTotalNewCostWei = (): bigint => {
     return num.toBigInt(oldAmount) * getPriceIncreaseWei();
   };
@@ -99,22 +85,28 @@ const EditModal: React.FC<EditModalProps> = ({
     return formatUnits(getTotalNewCostWei(), "ether");
   };
 
-  const handleEditBid = async (): Promise<void> => {
-    const cost = getTotalNewCostWei();
-    if (num.toBigInt(allowance) < num.toBigInt(cost)) {
+  const handleApprove = async (): Promise<void> => {
+    /// Update allowance if needed
+    const cost = num.toBigInt(getTotalNewCostWei());
+    if (num.toBigInt(allowance) < cost) {
       await approve({
         amount: num.toBigInt(cost),
-        spender: vaultState ? vaultState.address : "",
+        spender: selectedRoundState?.address ? selectedRoundState.address : "",
       });
+      onConfirm();
     }
+  };
 
+  const handleEditBid = async (): Promise<void> => {
     await roundActions?.updateBid({
       bidId,
       priceIncrease: getPriceIncreaseWei(),
     });
+    localStorage.removeItem(LOCAL_STORAGE_KEY);
+    setState((prevState) => ({ ...prevState, newPriceGwei: "" }));
   };
 
-  const handleSubmit = async () => {
+  const handleSubmitForEdit = async () => {
     showConfirmation(
       "Update Bid",
       <>
@@ -126,9 +118,55 @@ const EditModal: React.FC<EditModalProps> = ({
       </>,
       async () => {
         await handleEditBid();
+        onConfirm();
       },
     );
   };
+
+  const handleSubmitForApproval = () => {
+    showConfirmation(
+      "Approve",
+      <>
+        approve this vault to transfer
+        <br />
+        <span className="font-semibold text-[#fafafa]">
+          {formatEther(needsApproval)} ETH{" "}
+        </span>{" "}
+      </>,
+      async () => {
+        await handleApprove();
+      },
+    );
+  };
+
+  useEffect(() => {
+    localStorage.setItem(LOCAL_STORAGE_KEY, state.newPriceGwei);
+  }, [state.newPriceGwei]);
+
+  useEffect(() => {
+    let error = "";
+    const newPriceGwei = state.newPriceGwei;
+    if (!newPriceGwei || !oldPriceGwei) {
+      error = "";
+    } else if (parseFloat(newPriceGwei) <= parseFloat(oldPriceGwei)) {
+      error = "New price must be greater than current";
+    }
+    const cost = num.toBigInt(getTotalNewCostWei());
+    const isButtonDisabled = !newPriceGwei || newPriceGwei <= oldPriceGwei;
+
+    updateState({ error, isButtonDisabled });
+    setNeedsApproval(
+      num.toBigInt(allowance) < num.toBigInt(cost) ? cost.toString() : "0",
+    );
+  }, [
+    state.newPriceGwei,
+    oldPriceGwei,
+    account,
+    allowance,
+    selectedRoundState?.address,
+  ]);
+
+  console.log({ allowance });
 
   return (
     <div className="bg-[#121212] border border-[#262626] rounded-xl p-0 w-full flex flex-col h-full">
@@ -190,15 +228,25 @@ const EditModal: React.FC<EditModalProps> = ({
       </div>
       <div className="flex justify-between text-sm px-6 pb-6">
         <span className="text-gray-400">Balance</span>
-        <span>{77.77} ETH</span>
+        <span>
+          {parseFloat(formatEther(num.toBigInt(balance))).toFixed(3)} ETH
+        </span>
       </div>
       <div className="mt-auto">
         <div className="px-6 flex justify-between text-sm mb-6 pt-6 border-t border-[#262626]">
-          <ActionButton
-            onClick={handleSubmit}
-            disabled={state.isButtonDisabled}
-            text="Update Bid"
-          />
+          {num.toBigInt(needsApproval) > 0 ? (
+            <ActionButton
+              onClick={handleSubmitForApproval}
+              disabled={false}
+              text="Approve"
+            />
+          ) : (
+            <ActionButton
+              onClick={handleSubmitForEdit}
+              disabled={state.isButtonDisabled}
+              text="Edit Bid"
+            />
+          )}
         </div>
       </div>
     </div>

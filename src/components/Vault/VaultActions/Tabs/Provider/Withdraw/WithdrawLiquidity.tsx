@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, ReactNode } from "react";
 import {
   LiquidityProviderStateType,
   VaultStateType,
@@ -15,17 +15,19 @@ import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 interface WithdrawLiquidityProps {
   showConfirmation: (
     modalHeader: string,
-    action: string,
+    action: ReactNode,
     onConfirm: () => Promise<void>,
   ) => void;
 }
+
+const LOCAL_STORAGE_KEY = "withdrawAmount";
 
 const WithdrawLiquidity: React.FC<WithdrawLiquidityProps> = ({
   showConfirmation,
 }) => {
   const { lpState, vaultActions } = useProtocolContext();
   const [state, setState] = useState({
-    amount: "0",
+    amount: localStorage.getItem(LOCAL_STORAGE_KEY) || "",
   });
 
   const updateState = (updates: Partial<typeof state>) => {
@@ -34,12 +36,20 @@ const WithdrawLiquidity: React.FC<WithdrawLiquidityProps> = ({
 
   const liquidityWithdraw = async (): Promise<void> => {
     await vaultActions.withdrawLiquidity({ amount: parseEther(state.amount) });
+    localStorage.removeItem(LOCAL_STORAGE_KEY);
   };
 
   const handleSubmit = () => {
     showConfirmation(
       "Liquidity Withdraw",
-      `withdraw ${state.amount} ETH from your unlocked balance?`,
+      <>
+        withdraw
+        <br />
+        <span className="font-semibold text-[#fafafa]">
+          {state.amount} ETH
+        </span>{" "}
+        from your unlocked balance
+      </>,
       liquidityWithdraw,
     );
   };
@@ -65,6 +75,10 @@ const WithdrawLiquidity: React.FC<WithdrawLiquidityProps> = ({
 
     return false;
   };
+
+  useEffect(() => {
+    localStorage.setItem(LOCAL_STORAGE_KEY, state.amount);
+  }, [state.amount]);
 
   return (
     <>

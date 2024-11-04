@@ -22,9 +22,6 @@ const Mint: React.FC<MintProps> = ({ showConfirmation }) => {
 
   const handleMintOptions = async (): Promise<void> => {
     address && (await roundActions?.tokenizeOptions());
-
-    /// Update allowance if needed
-    await roundActions?.tokenizeOptions();
   };
 
   const handleSubmit = () => {

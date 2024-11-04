@@ -1,4 +1,4 @@
-import React from "react";
+import React, { ReactNode } from "react";
 import { VaultStateType, LiquidityProviderStateType } from "@/lib/types";
 import ActionButton from "@/components/Vault/Utils/ActionButton";
 import { useProtocolContext } from "@/context/ProtocolProvider";
@@ -6,7 +6,7 @@ import { useProtocolContext } from "@/context/ProtocolProvider";
 interface WithdrawQueueProps {
   showConfirmation: (
     modalHeader: string,
-    action: string,
+    action: ReactNode,
     onConfirm: () => Promise<void>,
   ) => void;
 }
@@ -61,9 +61,19 @@ const WithdrawLiquidity: React.FC<WithdrawQueueProps> = ({
   const handleSubmit = () => {
     showConfirmation(
       "Liquidity Withdraw",
-      `update how much of your locked position will be stashed from ${bpsToPercentage(lpState?.queuedBps ? lpState.queuedBps.toString() : "0")}% to ${parseFloat(
-        state.percentage,
-      ).toFixed(0)}%`,
+      <>
+        update how much of your locked position will be stashed from{" "}
+        <span className="font-semibold text-[#fafafa]">
+          {bpsToPercentage(
+            lpState?.queuedBps ? lpState.queuedBps.toString() : "0",
+          )}
+          %
+        </span>{" "}
+        to{" "}
+        <span className="font-semibold text-[#fafafa]">
+          {state.percentage}%
+        </span>
+      </>,
       queueWithdrawal,
     );
   };
