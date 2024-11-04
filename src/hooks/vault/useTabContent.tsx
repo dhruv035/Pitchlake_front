@@ -19,20 +19,19 @@ import History from "@/components/Vault/VaultActions/Tabs/Buyer/History";
 import Exercise from "@/components/Vault/VaultActions/Tabs/Buyer/Exercise";
 import Refund from "@/components/Vault/VaultActions/Tabs/Buyer/Refund";
 import MyInfo from "@/components/Vault/VaultActions/Tabs/Provider/MyInfo";
-import { mockHistoryItems } from "@/components/Vault/MockData";
-import { useProtocolContext } from "@/context/ProtocolProvider";
 
 export const useTabContent = (
   userType: string,
   activeTab: string,
   selectedRoundState: OptionRoundStateType | undefined,
-  isEditOpen: boolean,
-  setIsEditOpen: (open: boolean) => void,
+  isTabsHidden: boolean,
+  bidToEdit: any,
+  userBids: any,
+  setIsTabsHidden: (open: boolean) => void,
+  setBidToEdit: (bid: any) => void,
 ) => {
-  console.log("CHECK THIS", selectedRoundState);
   const commonTabs = [CommonTabs.MyInfo];
   const tabs = useMemo(() => {
-    console.log("RERENDERED");
     if (userType === "lp") {
       return [...Object.values(ProviderTabs), ...commonTabs];
     } else {
@@ -62,9 +61,11 @@ export const useTabContent = (
       case BuyerTabs.History:
         return (
           <History
-            items={mockHistoryItems}
-            isEditOpen={isEditOpen}
-            setIsEditOpen={setIsEditOpen}
+            items={userBids}
+            bidToEdit={bidToEdit}
+            isTabsHidden={isTabsHidden}
+            setIsTabsHidden={setIsTabsHidden}
+            setBidToEdit={setBidToEdit}
           />
         );
       case BuyerTabs.Refund:

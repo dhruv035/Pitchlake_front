@@ -11,6 +11,8 @@ import { useRouter } from "next/navigation";
 
 export const Vault = () => {
   const [isProviderView, setIsProviderView] = useState(true);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+
   const router = useRouter();
   // const {
   //   wsVaultState,
@@ -71,7 +73,10 @@ export const Vault = () => {
       <div className="flex flex-row-reverse text-primary">
         <div className="flex flex-row rounded-md border-[1px] border-greyscale-800 ">
           <div
-            onClick={() => setIsProviderView(true)}
+            onClick={() => {
+              setIsProviderView(true);
+              setIsEditOpen(false);
+            }}
             className={`flex flex-row items-center m-[1px] hover:cursor-pointer px-4 py-1 rounded-md text-[14px] ${
               isProviderView ? "bg-primary-900" : ""
             }`}
@@ -89,7 +94,10 @@ export const Vault = () => {
             </p>
           </div>
           <div
-            onClick={() => setIsProviderView(false)}
+            onClick={() => {
+              setIsProviderView(false);
+              //setIsEditOpen(false);
+            }}
             className={`flex flex-row items-center m-[1px] hover:cursor-pointer p-4 rounded-md text-[14px] h-[44px] ${
               !isProviderView ? "bg-primary-900" : ""
             }`}
@@ -130,7 +138,11 @@ export const Vault = () => {
         <RoundPerformanceChart />
 
         <div className="w-full ml-6 max-w-[350px]">
-          <PanelRight userType={isProviderView ? "lp" : "ob"} />
+          <PanelRight
+            userType={isProviderView ? "lp" : "ob"}
+            isEditOpen={isEditOpen}
+            setIsEditOpen={setIsEditOpen}
+          />
         </div>
       </div>
     </div>
