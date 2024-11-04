@@ -1,12 +1,15 @@
 import { useProtocolContext } from "@/context/ProtocolProvider";
-import { useProvider } from "@starknet-react/core";
+import { useProvider, useAccount } from "@starknet-react/core";
 import useLatestTimestamp from "@/hooks/chain/useLatestTimestamp";
 import {
   LineChartDownIcon,
   LineChartUpIcon,
   BriefCaseIcon,
 } from "@/components/Icons";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
+import useFossilStatus from "@/hooks/fossil/useFossilStatus";
+import { Cog } from "lucide-react";
+import { createJobId, createJobRequest } from "@/lib/utils";
 
 const StateTransition = ({
   isPanelOpen,
@@ -19,6 +22,43 @@ const StateTransition = ({
   const { provider } = useProvider();
   const { timestamp } = useLatestTimestamp(provider);
   const now = Number(timestamp);
+  const { account } = useAccount();
+
+  const jobId = createJobId(selectedRoundState);
+  const { status, error, loading } = useFossilStatus(jobId);
+
+  const roundStateRaw = selectedRoundState
+    ? selectedRoundState.roundState.toString()
+    : "Settled";
+
+  const [statePreReq, setStatePreReq] = useState<any>(roundStateRaw);
+  const getActionState = () => {
+    if (
+      roundStateRaw === "Open" ||
+      roundStateRaw === "Auctioning" ||
+      roundStateRaw === "Settled"
+    )
+      return roundStateRaw;
+
+    if (!error && !status) return statePreReq;
+
+    if (status?.status === "Pending") {
+      return "FossilPending";
+    }
+    if (status?.status === "Completed") return roundStateRaw;
+
+    if (error) return "FossilReady";
+
+    return roundStateRaw;
+  };
+  const roundState: any = getActionState();
+
+  useEffect(() => {
+    setStatePreReq(roundState);
+  }, [roundState]);
+
+  console.log("fossil round state", roundState);
+  console.log("fossil status", status);
 
   useEffect(() => {}, [selectedRoundState]);
 
@@ -26,8 +66,6 @@ const StateTransition = ({
   if (!vaultState || !vaultActions || !selectedRoundState) {
     return null;
   }
-
-  const roundState = selectedRoundState.roundState;
 
   const canAuctionStart = () => {
     if (
@@ -58,37 +96,93 @@ const StateTransition = ({
     }
   };
 
-  const isButtonDisabled = () => {
-    if (roundState === "Open") {
-      return !canAuctionStart();
-    } else if (roundState === "Auctioning") {
-      return !canAuctionEnd();
-    } else if (roundState === "Running") {
-      return !canRoundSettle();
-    } else return false;
+  const canFossilRequest = () => {
+    if (
+      roundState === "FossilReady" &&
+      status?.status !== "Completed" &&
+      timestamp >= Number(selectedRoundState?.optionSettleDate)
+    )
+      return true;
+    else return false;
   };
 
-  const actions: { Open: string; Auctioning: string; Running: string } = {
+  const isButtonDisabled = () => {
+    if (!account) return true;
+    if (roundState === "Open") return !canAuctionStart();
+    if (roundState === "Auctioning") return !canAuctionEnd();
+    if (roundState === "Running") return !canRoundSettle();
+    if (roundState === "FossilPending") return true;
+    if (roundState === "FossilReady") return !canFossilRequest();
+    return false;
+  };
+
+  const actions: {
+    Open: string;
+    Auctioning: string;
+    FossilPending: string;
+    FossilReady: string;
+    Running: string;
+  } = {
     Open: "Start Auction",
     Auctioning: "End Auction",
+    FossilPending: "Fossil Pending...",
+    FossilReady: "Send Fossil Request",
     Running: "Settle Round",
   };
 
-  type State = "Open" | "Auctioning" | "Running";
+  type State =
+    | "Open"
+    | "Auctioning"
+    | "FossilPending"
+    | "FossilReady"
+    | "Running";
+
+  const makeFossilCall = async () => {
+    // Fossil request
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_FOSSIL_API_URL}/pricing_data`,
+        createJobRequest(
+          vaultState,
+          selectedRoundState.optionSettleDate.toString(),
+        ),
+      );
+      console.log("fossil response", response);
+    } catch (error) {
+      console.log("Error sending Fossil request:", error);
+    }
+
+    return;
+
+    /// User calls Fossil::client_callback()
+    //    console.log("Mocking fossil call");
+    //    const request = [
+    //      vaultState ? vaultState.address : "",
+    //      targetTimestamp,
+    //      "0x50495443485f4c414b455f5631",
+    //    ];
+    //    const result = [
+    //      "0x02540be400",
+    //      "0x0",
+    //      "0x0d05",
+    //      parseInt((Math.random() * 1000000000).toString()).toString(),
+    //      "0x0",
+    //      "0x0",
+    //    ];
+    //    await fossilCallback(request, result);
+  };
 
   const setModalStateConditionally = () => {
-    const state = roundState;
     setModalState({
       show: true,
-      action: actions[state as State],
+      action: actions[roundState as State],
       onConfirm: async () => {
-        if (state == "Open") {
-          await vaultActions.startAuction();
-        } else if (state == "Auctioning") {
-          await vaultActions.endAuction();
-        } else if (state == "Running") {
+        if (roundState === "Open") await vaultActions.startAuction();
+        else if (roundState === "Auctioning") await vaultActions.endAuction();
+        else if (roundState === "FossilReady") {
+          makeFossilCall();
+        } else if (roundState === "Running")
           await vaultActions.settleOptionRound();
-        }
 
         setModalState((prev: any) => ({
           ...prev,
@@ -99,17 +193,20 @@ const StateTransition = ({
   };
 
   const getIcon = () => {
-    const state = selectedRoundState?.roundState;
     const stroke =
       !selectedRoundState || isButtonDisabled()
         ? "var(--greyscale)"
         : "var(--primary)";
 
-    if (state === "Open") {
+    if (roundState === "Open") {
       return <LineChartUpIcon classname="w-4 h-4 ml-2" stroke={stroke} />;
-    } else if (state === "Auctioning") {
+    } else if (roundState === "Auctioning") {
       return <LineChartDownIcon classname="w-4 h-4 ml-2" stroke={stroke} />;
-    } else if (state === "Running") {
+    } else if (roundState === "FossilReady") {
+      return <Cog className="w-4 h-4 ml-2" stroke={stroke} />;
+    } else if (roundState === "FossilPending") {
+      return <Cog className="w-4 h-4 ml-2" stroke={stroke} />;
+    } else if (roundState === "Running") {
       return <BriefCaseIcon classname="w-4 h-4 ml-2" stroke={stroke} />;
     }
   };
@@ -156,7 +253,6 @@ const StateTransition = ({
           } border border-greyscale-700 text-primary disabled:text-greyscale rounded-md mt-4 p-2 w-full justify-center items-center`}
           onClick={async () => {
             setModalStateConditionally();
-            //                break;
           }}
         >
           <p>{actions[roundState as State]}</p>
@@ -166,118 +262,4 @@ const StateTransition = ({
     </>
   );
 };
-// Starting Auction
-//  if (selectedRoundState.roundState === "Open") {
-//    // Check now is >= auction start date
-//
-//    // Check pricing data set (if round 1)
-//
-//    return (
-//      <Button
-//        style={{ flex: 1 }}
-//        className={[buttons.button, buttons.confirm].join(" ")}
-//        title="Start Auction"
-//        disabled={false}
-//        onClick={async () => {
-//          await vaultActions.startAuction();
-//        }}
-//      >
-//        Start Auction
-//      </Button>
-//    );
-//  }
-//
-//  // Ending Auction
-//  if (selectedRoundState.roundState === "Auctioning") {
-//    // check now is >= auction end date
-///
-//    return (
-//      <Button
-//        style={{ flex: 1 }}
-//        className={[buttons.button, buttons.confirm].join(" ")}
-//        title="End Auction"
-//        disabled={false}
-//        onClick={async () => {
-//          await vaultActions.endAuction();
-//        }}
-//      >
-//        End Auction )
-//      </Button>
-//    );
-//  }
-//
-//  // Settling Option Round
-//
-//  // Step 1: Trigger Fossil Request (if not already done)
-//
-//  // Step 2: Call settle round
-//
-//  if (selectedRoundState.roundState === "Running") {
-//    // check now >= round end date
-//
-//    // check fossil data was set
-///
-//    return (
-//      <Button
-//        style={{ flex: 1 }}
-//        className={[buttons.button, buttons.confirm].join(" ")}
-//        title="Settle Round"
-//        disabled={
-//          //!isDepositClickable || displayInsufficientBalance
-//          false
-//        }
-//        onClick={async () => {
-//          await vaultActions.settleOptionRound();
-//        }}
-//      >
-//        Settle Round
-//      </Button>
-//    );
-//  }
-//
-//  return (
-//    <div>
-//      State Transitions
-//      {selectedRoundState?.roundState === "Open" && (
-//        <Button
-//          style={{ flex: 1 }}
-//          className={[buttons.button, buttons.confirm].join(" ")}
-//          title="Start Auction"
-//          disabled={false}
-//          onClick={async () => {
-//            await vaultActions.startAuction();
-//          }}
-//        >
-//          Start Auction
-//        </Button>
-//      )}
-//      {selectedRoundState?.roundState === "Auctioning" && (
-//        <Button
-//          style={{ flex: 1 }}
-//          className={[buttons.button, buttons.confirm].join(" ")}
-//          title="End Auction"
-//          disabled={false}
-//          onClick={async () => {
-//            await vaultActions.endAuction();
-//          }}
-//        >
-//          End Auction
-//        </Button>
-//      )}
-//      {selectedRoundState?.roundState === "Settled" && (
-//        <Button
-//          style={{ flex: 1 }}
-//          className={[buttons.button, buttons.confirm].join(" ")}
-//          title="Settle Round"
-//          disabled={false}
-//          onClick={async () => {
-//            await vaultActions.settleOptionRound();
-//          }}
-//        >
-//          Settle Option Round
-//        </Button>
-//      )}
-//    </div>
-//  );
-//
 export default StateTransition;

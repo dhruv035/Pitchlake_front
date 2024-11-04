@@ -272,16 +272,6 @@ export default function Header() {
         <div className="cursor-pointer border-[1px] border-greyscale-800 p-2 rounded-md">
           <BellIcon className="h-6 w-6 text-primary" />
         </div>
-        {account ? (
-          <button
-            onClick={mockFossilCall}
-            className="font-medium cursor-pointer border-[1px] border-greyscale-800 p-2 rounded-md"
-          >
-            Mock Fossil API
-          </button>
-        ) : (
-          <></>
-        )}
 
         {account ? (
           <button
