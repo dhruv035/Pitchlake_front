@@ -117,7 +117,6 @@ const useVaultState = ({
     watch: true,
   });
 
-  // console.log("selectedRound", selectedRound);
   const { data: selectedRoundAddress } = useContractRead({
     ...contractData,
     functionName: "get_round_address",
@@ -167,7 +166,9 @@ const useVaultState = ({
       vaultType,
     } as VaultStateType,
     lpState,
-    currentRoundAddress,
+    currentRoundAddress: currentRoundAddress
+      ? stringToHex(currentRoundAddress?.toString())
+      : "",
     roundActions: getRounds ? roundActions : undefined,
     selectedRoundState,
     selectedRoundBuyerState,
