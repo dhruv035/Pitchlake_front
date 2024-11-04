@@ -32,8 +32,10 @@ import {
   num,
   // ArgentX,
 } from "starknet";
+import { parseEther, formatEther } from "ethers";
 import useERC20 from "@/hooks/erc20/useERC20";
 import useFossil from "@/hooks/fossil/useFossil";
+import useAccountBalances from "@/hooks/vault/state/useAccountBalances";
 
 export default function Header() {
   const { conn, timeStamp, mockTimeForward, vaultState, selectedRoundState } =
@@ -42,12 +44,11 @@ export default function Header() {
   const isDropdownOpenRef = useRef(isDropdownOpen);
   const { connect, connectors } = useConnect();
   const { disconnect } = useDisconnect();
-  const { deployAccount, deployAccountAsync } = useDeployAccount({});
   const router = useRouter();
   const { account } = useAccount();
   const { provider } = useProvider();
   console.log("Provider:", provider);
-  const { approve, fund } = useERC20(
+  const { approve, fund, balance } = useERC20(
     "0x49d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
     vaultState?.address,
     account,
@@ -57,65 +58,6 @@ export default function Header() {
     vaultState?.address,
     account,
   );
-
-  const { fossilCallback } = useFossil(
-    vaultState ? vaultState.fossilClientAddress : "",
-    account,
-  );
-
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
-  const balanceData = {
-    wallet: "36.05",
-    locked: "45.82",
-    unlocked: "24.09",
-    stashed: "12.72",
-  };
-
-  useEffect(() => {
-    isDropdownOpenRef.current = isDropdownOpen;
-  }, [isDropdownOpen]);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        isDropdownOpenRef.current &&
-        !dropdownRef?.current?.contains(event.target as HTMLDivElement)
-      ) {
-        setIsDropdownOpen(false);
-      }
-    };
-
-    const handleEscKey = (event: KeyboardEvent) => {
-      if (isDropdownOpenRef.current && event.key === "Escape") {
-        setIsDropdownOpen(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    document.addEventListener("keydown", handleEscKey);
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-      document.removeEventListener("keydown", handleEscKey);
-    };
-  }, []);
-
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard
-      .writeText(text)
-      .then(() => {
-        // Add a toast message
-        toast("Copied to clipboard", { type: "success" });
-      })
-      .catch((err) => {
-        console.error("Failed to copy: ", err);
-      });
-  };
-
-  const shortenString = (str: string) => {
-    return str ? `${str.slice(0, 6)}...${str.slice(-4)}` : "";
-  };
 
   const mockFossilCall = async () => {
     console.log("Mocking fossil call");
@@ -182,6 +124,69 @@ export default function Header() {
     //      "0x0",
     //    ];
     //    await fossilCallback(request, result);
+  };
+  const { fossilCallback } = useFossil(
+    vaultState ? vaultState.fossilClientAddress : "",
+    account,
+  );
+
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const { lockedBalance, unlockedBalance, stashedBalance } = useAccountBalances(
+    vaultState ? vaultState.address : "",
+  );
+
+  // todo: sum balances accross all vaults ?
+  const balanceData = {
+    wallet: parseFloat(formatEther(balance.toString())).toFixed(3),
+    locked: formatEther(lockedBalance.toString()),
+    unlocked: formatEther(unlockedBalance.toString()),
+    stashed: formatEther(stashedBalance.toString()),
+  };
+
+  useEffect(() => {
+    isDropdownOpenRef.current = isDropdownOpen;
+  }, [isDropdownOpen]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        isDropdownOpenRef.current &&
+        !dropdownRef?.current?.contains(event.target as HTMLDivElement)
+      ) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    const handleEscKey = (event: KeyboardEvent) => {
+      if (isDropdownOpenRef.current && event.key === "Escape") {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleEscKey);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscKey);
+    };
+  }, []);
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard
+      .writeText(text)
+      .then(() => {
+        // Add a toast message
+        toast("Copied to clipboard", { type: "success" });
+      })
+      .catch((err) => {
+        console.error("Failed to copy: ", err);
+      });
+  };
+
+  const shortenString = (str: string) => {
+    return str ? `${str.slice(0, 6)}...${str.slice(-4)}` : "";
   };
 
   const fundAccount = async (): Promise<void> => {
