@@ -9,7 +9,9 @@ const Tabs: React.FC<TabsProps> = ({ tabs, activeTab, setActiveTab }) => (
           className={`h-[56px] px-6 py-4 relative text-[14px] ${
             activeTab === tab ? "text-[#F5EBB8]" : "text-gray-400"
           }`}
-          onClick={() => setActiveTab(tab)}
+          onClick={() => {
+            setActiveTab(tab);
+          }}
         >
           {tab}
           {activeTab === tab && (
@@ -22,4 +24,3 @@ const Tabs: React.FC<TabsProps> = ({ tabs, activeTab, setActiveTab }) => (
 );
 
 export default Tabs;
-

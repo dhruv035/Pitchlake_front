@@ -87,7 +87,6 @@ const PlaceBid: React.FC<PlaceBidProps> = ({ showConfirmation }) => {
   const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const value = e.target.value;
 
-    // Use a regular expression to limit the input to a maximum of 9 decimal places
     const formattedValue = value.includes(".")
       ? value.slice(0, value.indexOf(".") + 10)
       : value;
