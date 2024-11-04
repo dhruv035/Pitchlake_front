@@ -35,7 +35,7 @@ export const StarknetProvider = ({
 
   function rpc(chain: Chain) {
     return {
-      nodeUrl: `http://localhost:5050/rpc`,
+      nodeUrl: process.env.NEXT_PUBLIC_RPC_URL,
     };
   }
   const provider = jsonRpcProvider({ rpc });
@@ -43,7 +43,6 @@ export const StarknetProvider = ({
   return (
     <StarknetConfig
       chains={[devnet]}
-      //chains={[mainnet, sepolia, devnet]}
       provider={provider}
       connectors={connectors}
       explorer={voyager}

@@ -122,10 +122,17 @@ const useERC20 = (
       const typedContract = contract.typedv2(erc20ABI);
       if (account) typedContract.connect(account as Account);
 
-      const nonce =
-        provider && account
-          ? await provider.getNonceForAddress(account.address)
-          : "0";
+      let nonce;
+      if (provider && account) {
+        try {
+          nonce = await provider.getNonceForAddress(account.address);
+        } catch (error) {
+          console.log("Error fetching nonce:", error);
+          nonce = "0";
+        }
+      } else {
+        nonce = "0";
+      }
 
       try {
         const data = await typedContract.approve(
