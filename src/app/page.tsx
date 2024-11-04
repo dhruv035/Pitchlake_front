@@ -9,7 +9,7 @@ import VaultCard from "@/components/Vault/VaultCard/VaultCard";
 export default function Home() {
   const vaults = [
     // katana
-    "0x761b0677855a272f2d3a6e06b58da99457e9bc9a1026f6fcd38ed31b6cb2c40",
+    "0x7be166c61986d451a163dedb8ebb7a90dd9ef85588b318791e37e3e8816d81e",
     //    // juno
     //    "",
     //    // sepolia
