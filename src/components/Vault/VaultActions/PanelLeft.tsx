@@ -47,11 +47,6 @@ const PanelLeft = ({ userType }: { userType: string }) => {
   const { vaultState, selectedRoundState, currentRoundAddress } =
     useProtocolContext();
   console.log({ vaultState, selectedRoundState, currentRoundAddress });
-  const { provider } = useProvider();
-  const { timestamp } = useLatestTimestamp(provider);
-
-  const explorer = useExplorer();
-  const [canStateTransition, setCanStateTransition] = useState<boolean>(false);
   const [vaultIsOpen, setVaultIsOpen] = useState<boolean>(true);
   const [optionRoundIsOpen, setOptionRoundIsOpen] = useState<boolean>(true);
   const [isPanelOpen, setIsPanelOpen] = useState<boolean>(false);
@@ -65,9 +60,9 @@ const PanelLeft = ({ userType }: { userType: string }) => {
     onConfirm: async () => {},
   });
 
-  const getNowBlockTime = () => {
-    return Number(new Date().getTime()) / 1000;
-  };
+  const { provider } = useProvider();
+  const { timestamp } = useLatestTimestamp(provider);
+  const explorer = useExplorer();
 
   const hideModal = () => {
     setModalState({
@@ -79,13 +74,13 @@ const PanelLeft = ({ userType }: { userType: string }) => {
 
   const handleConfirm = async () => {
     await modalState.onConfirm();
-    // Optionally reset the modal state or handle success here
   };
-  let date;
-  if (selectedRoundState?.auctionEndDate)
-    date = new Date(
-      Number(selectedRoundState?.auctionEndDate),
-    ).toLocaleString();
+
+  //  let date;
+  //  if (selectedRoundState?.auctionEndDate)
+  //    date = new Date(
+  //      Number(selectedRoundState?.auctionEndDate),
+  //    ).toLocaleString();
 
   const getStateActionHeader = () => {
     const roundState = selectedRoundState?.roundState
@@ -152,10 +147,10 @@ const PanelLeft = ({ userType }: { userType: string }) => {
     },
   };
 
-  const [isClient, setIsClient] = useState(false);
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
+  //  const [isClient, setIsClient] = useState(false);
+  //  useEffect(() => {
+  //    setIsClient(true);
+  //  }, []);
 
   const roundState = selectedRoundState?.roundState.toString() || "Open";
   const styles = stateStyles[roundState] || stateStyles.Default;
@@ -288,7 +283,10 @@ const PanelLeft = ({ userType }: { userType: string }) => {
                         formatEther(
                           (
                             num.toBigInt(vaultState.lockedBalance.toString()) +
-                            num.toBigInt(vaultState.unlockedBalance.toString())
+                            num.toBigInt(
+                              vaultState.unlockedBalance.toString(),
+                            ) +
+                            num.toBigInt(vaultState.stashedBalance.toString())
                           ).toString(),
                         ),
                       ).toFixed(0)
