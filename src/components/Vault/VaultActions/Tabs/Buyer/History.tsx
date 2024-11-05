@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { SquarePen, SquareArrowOutUpRight, ChevronLeft } from "lucide-react";
 import { useProvider, useExplorer, Explorer } from "@starknet-react/core";
 import { Provider } from "starknet";
@@ -101,6 +101,8 @@ const History: React.FC<HistoryProps> = ({
       onConfirm,
     });
   };
+
+  useEffect(() => {}, [items]);
 
   return (
     <div className="">

@@ -8,6 +8,7 @@ import { useAccount } from "@starknet-react/core";
 import { DepositArgs } from "@/lib/types";
 import { CollectEthIcon } from "@/components/Icons";
 import { num } from "starknet";
+import { useTransactionContext } from "@/context/TransactionProvider";
 
 interface WithdrawStashProps {
   //withdrawStash: () => Promise<void>;
@@ -24,6 +25,7 @@ const WithdrawStash: React.FC<WithdrawStashProps> = ({
 }) => {
   const { vaultState, lpState, vaultActions } = useProtocolContext();
   const { account } = useAccount();
+  const { pendingTx } = useTransactionContext();
   const [state, setState] = React.useState({
     isButtonDisabled: true,
   });
@@ -46,11 +48,9 @@ const WithdrawStash: React.FC<WithdrawStashProps> = ({
       <>
         collect your stashed{" "}
         <span className="font-semibold text-[#fafafa]">
-          {parseFloat(
-            formatEther(
-              lpState?.stashedBalance ? lpState.stashedBalance.toString() : "0",
-            ),
-          ).toFixed(3)}{" "}
+          {formatEther(
+            lpState?.stashedBalance ? lpState.stashedBalance.toString() : "0",
+          )}{" "}
           ETH
         </span>{" "}
       </>,
@@ -59,7 +59,8 @@ const WithdrawStash: React.FC<WithdrawStashProps> = ({
   };
 
   const isButtonDisabled = (): boolean => {
-    // Only if stashed balance > 0
+    if (!account) return true;
+    if (pendingTx) return true;
     if (
       num.toBigInt(vaultState?.stashedBalance ? vaultState.stashedBalance : 0) >
       0

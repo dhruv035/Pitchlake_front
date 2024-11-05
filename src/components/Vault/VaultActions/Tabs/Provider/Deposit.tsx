@@ -45,6 +45,8 @@ const Deposit: React.FC<DepositProps> = ({ showConfirmation }) => {
     account,
   );
 
+  const { pendingTx } = useTransactionContext();
+
   const updateState = (updates: Partial<DepositState>) => {
     setState((prevState) => ({ ...prevState, ...updates }));
   };
@@ -100,7 +102,16 @@ const Deposit: React.FC<DepositProps> = ({ showConfirmation }) => {
     );
   };
 
+  const isApprovalDisabled = (): boolean => {
+    if (pendingTx) return true;
+    if (!account) return true;
+    if (Number(needsApproval) <= 0) return true;
+    return false;
+  };
+
   const isDepositDisabled = (): boolean => {
+    if (pendingTx) return true;
+    if (!account) return true;
     if (Number(state.amount) <= 0) return true;
     if (state.isDepositAsBeneficiary && state.beneficiaryAddress.trim() === "")
       return true;
@@ -182,7 +193,7 @@ const Deposit: React.FC<DepositProps> = ({ showConfirmation }) => {
           {num.toBigInt(needsApproval) > 0 ? (
             <ActionButton
               onClick={handleSubmitForApproval}
-              disabled={false}
+              disabled={isApprovalDisabled()}
               text="Approve"
             />
           ) : (

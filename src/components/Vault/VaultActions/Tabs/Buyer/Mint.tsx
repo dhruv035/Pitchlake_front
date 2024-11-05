@@ -7,6 +7,7 @@ import { useProtocolContext } from "@/context/ProtocolProvider";
 import { useAccount } from "@starknet-react/core";
 import { RepeatEthIcon } from "@/components/Icons";
 import { formatNumberText } from "@/lib/utils";
+import { useTransactionContext } from "@/context/TransactionProvider";
 
 interface MintProps {
   showConfirmation: (
@@ -18,7 +19,8 @@ interface MintProps {
 
 const Mint: React.FC<MintProps> = ({ showConfirmation }) => {
   const { roundActions, selectedRoundBuyerState } = useProtocolContext();
-  const { address } = useAccount();
+  const { address, account } = useAccount();
+  const { pendingTx } = useTransactionContext();
 
   const handleMintOptions = async (): Promise<void> => {
     address && (await roundActions?.tokenizeOptions());
@@ -45,6 +47,20 @@ const Mint: React.FC<MintProps> = ({ showConfirmation }) => {
     );
   };
 
+  const isButtonDisabled = (): boolean => {
+    if (!account) return true;
+    if (pendingTx) return true;
+    if (
+      !selectedRoundBuyerState ||
+      Number(selectedRoundBuyerState.tokenizableOptions) === 0
+    )
+      return true;
+
+    return false;
+  };
+
+  useEffect(() => {}, [account]);
+
   return (
     <div className="flex flex-col h-full">
       <div className="flex flex-col flex-grow space-y-6 items-center justify-center">
@@ -66,10 +82,7 @@ const Mint: React.FC<MintProps> = ({ showConfirmation }) => {
         <div className="px-6 flex justify-between text-sm mb-6 pt-6 border-t border-[#262626]">
           <ActionButton
             onClick={handleSubmit}
-            disabled={
-              !selectedRoundBuyerState ||
-              Number(selectedRoundBuyerState.tokenizableOptions) === 0
-            }
+            disabled={isButtonDisabled()}
             text="Mint Now"
           />
         </div>

@@ -11,6 +11,8 @@ import { formatEther, parseEther } from "ethers";
 import { useProtocolContext } from "@/context/ProtocolProvider";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
+import { useTransactionContext } from "@/context/TransactionProvider";
+import { useAccount } from "@starknet-react/core";
 
 interface WithdrawLiquidityProps {
   showConfirmation: (
@@ -29,6 +31,8 @@ const WithdrawLiquidity: React.FC<WithdrawLiquidityProps> = ({
   const [state, setState] = useState({
     amount: localStorage.getItem(LOCAL_STORAGE_KEY) || "",
   });
+  const { pendingTx } = useTransactionContext();
+  const { account } = useAccount();
 
   const updateState = (updates: Partial<typeof state>) => {
     setState((prevState: typeof state) => ({ ...prevState, ...updates }));
@@ -55,10 +59,9 @@ const WithdrawLiquidity: React.FC<WithdrawLiquidityProps> = ({
   };
 
   const isWithdrawDisabled = (): boolean => {
-    // No negatives
-    if (Number(state.amount) <= Number(0)) {
-      return true;
-    }
+    if (!account) return true;
+    if (pendingTx) return true;
+    if (Number(state.amount) <= Number(0)) return true;
 
     // No more than unlocked balance
     let unlockedBalance = lpState?.unlockedBalance
@@ -78,7 +81,7 @@ const WithdrawLiquidity: React.FC<WithdrawLiquidityProps> = ({
 
   useEffect(() => {
     localStorage.setItem(LOCAL_STORAGE_KEY, state.amount);
-  }, [state.amount]);
+  }, [state.amount, account]);
 
   return (
     <>
@@ -110,7 +113,10 @@ const WithdrawLiquidity: React.FC<WithdrawLiquidityProps> = ({
         <div className="px-6 flex justify-between text-sm mb-6 mt-auto">
           <span className="text-gray-400">Unlocked Balance</span>
           <span className="text-white">
-            {formatEther(lpState?.unlockedBalance?.toString() || "0")} ETH
+            {parseFloat(
+              formatEther(lpState?.unlockedBalance?.toString() || "0"),
+            ).toFixed(3)}{" "}
+            ETH
           </span>
         </div>
         <div className="mt-[auto] flex justify-between text-sm border-t border-[#262626] p-6">

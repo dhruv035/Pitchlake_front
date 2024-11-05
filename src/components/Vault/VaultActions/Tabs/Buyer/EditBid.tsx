@@ -10,6 +10,7 @@ import { useProtocolContext } from "@/context/ProtocolProvider";
 import { num } from "starknet";
 import useERC20 from "@/hooks/erc20/useERC20";
 import { useAccount } from "@starknet-react/core";
+import { useTransactionContext } from "@/context/TransactionProvider";
 
 interface EditModalProps {
   onConfirm: () => void;
@@ -31,6 +32,7 @@ const EditModal: React.FC<EditModalProps> = ({
   bidToEdit,
 }) => {
   const { account } = useAccount();
+  const { pendingTx } = useTransactionContext();
   const bid = bidToEdit
     ? bidToEdit.item
     : { amount: "0", price: "0", bid_id: "" };
@@ -93,7 +95,6 @@ const EditModal: React.FC<EditModalProps> = ({
         amount: num.toBigInt(cost),
         spender: selectedRoundState?.address ? selectedRoundState.address : "",
       });
-      onConfirm();
     }
   };
 
@@ -102,8 +103,9 @@ const EditModal: React.FC<EditModalProps> = ({
       bidId,
       priceIncrease: getPriceIncreaseWei(),
     });
-    localStorage.removeItem(LOCAL_STORAGE_KEY);
     setState((prevState) => ({ ...prevState, newPriceGwei: "" }));
+    localStorage.removeItem(LOCAL_STORAGE_KEY);
+    onClose();
   };
 
   const handleSubmitForEdit = async () => {
@@ -118,7 +120,7 @@ const EditModal: React.FC<EditModalProps> = ({
       </>,
       async () => {
         await handleEditBid();
-        onConfirm();
+        onClose();
       },
     );
   };
@@ -143,6 +145,15 @@ const EditModal: React.FC<EditModalProps> = ({
     localStorage.setItem(LOCAL_STORAGE_KEY, state.newPriceGwei);
   }, [state.newPriceGwei]);
 
+  const isButtonDisabled = (): boolean => {
+    if (!account) return true;
+    if (pendingTx) return true;
+    if (!state.newPriceGwei) return true;
+    if (state.newPriceGwei === oldPriceGwei) return true;
+
+    return false;
+  };
+
   useEffect(() => {
     let error = "";
     const newPriceGwei = state.newPriceGwei;
@@ -152,9 +163,9 @@ const EditModal: React.FC<EditModalProps> = ({
       error = "New price must be greater than current";
     }
     const cost = num.toBigInt(getTotalNewCostWei());
-    const isButtonDisabled = !newPriceGwei || newPriceGwei <= oldPriceGwei;
+    //const isButtonDisabled = !newPriceGwei || newPriceGwei <= oldPriceGwei;
 
-    updateState({ error, isButtonDisabled });
+    updateState({ error, isButtonDisabled: isButtonDisabled() });
     setNeedsApproval(
       num.toBigInt(allowance) < num.toBigInt(cost) ? cost.toString() : "0",
     );
@@ -165,8 +176,6 @@ const EditModal: React.FC<EditModalProps> = ({
     allowance,
     selectedRoundState?.address,
   ]);
-
-  console.log({ allowance });
 
   return (
     <div className="bg-[#121212] border border-[#262626] rounded-xl p-0 w-full flex flex-col h-full">
@@ -237,7 +246,7 @@ const EditModal: React.FC<EditModalProps> = ({
           {num.toBigInt(needsApproval) > 0 ? (
             <ActionButton
               onClick={handleSubmitForApproval}
-              disabled={false}
+              disabled={state.isButtonDisabled}
               text="Approve"
             />
           ) : (

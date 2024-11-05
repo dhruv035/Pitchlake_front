@@ -114,8 +114,6 @@ const useERC20 = (
 
   const approve = useCallback(
     async (approvalArgs: ApprovalArgs) => {
-      console.log("APPROVING, ", approvalArgs, account);
-
       if (!contract) {
         return;
       }

@@ -135,7 +135,6 @@ export default function Header() {
   );
 
   // todo: sum balances accross all vaults ?
-  console.log("balance", balance, balance.toString());
   const balanceData = {
     wallet: parseFloat(formatEther(num.toBigInt(balance).toString())).toFixed(
       3,

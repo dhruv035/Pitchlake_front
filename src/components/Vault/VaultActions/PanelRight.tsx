@@ -7,6 +7,7 @@ import { useTransactionContext } from "@/context/TransactionProvider";
 import { useProtocolContext } from "@/context/ProtocolProvider";
 import EditModal from "@/components/Vault/VaultActions/Tabs/Buyer/EditBid";
 import { HourglassIcon } from "@/components/Icons";
+import { useAccount } from "@starknet-react/core";
 
 interface VaultDetailsProps {
   userType: string;
@@ -29,6 +30,7 @@ const PanelRight: React.FC<VaultDetailsProps> = ({
 }) => {
   const { selectedRoundState, selectedRoundBuyerState } = useProtocolContext();
   const [activeTab, setActiveTab] = useState<string>("");
+  const { account } = useAccount();
   const [bidToEdit, setBidToEdit] = useState({});
   const [modalState, setModalState] = useState<{
     show: boolean;
@@ -68,6 +70,8 @@ const PanelRight: React.FC<VaultDetailsProps> = ({
       setActiveTab(tabs[0]);
     }
   }, [tabs, selectedRoundState?.roundState]);
+
+  useEffect(() => {}, [selectedRoundBuyerState, account]);
 
   useEffect(() => {
     if (modalState.type === "pending") {

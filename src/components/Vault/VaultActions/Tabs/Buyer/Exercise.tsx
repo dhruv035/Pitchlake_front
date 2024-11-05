@@ -9,6 +9,7 @@ import { useAccount } from "@starknet-react/core";
 import { RepeatEthIcon } from "@/components/Icons";
 import { formatNumberText } from "@/lib/utils";
 import { num } from "starknet";
+import { useTransactionContext } from "@/context/TransactionProvider";
 
 interface ExerciseProps {
   showConfirmation: (
@@ -19,8 +20,9 @@ interface ExerciseProps {
 }
 
 const Exercise: React.FC<ExerciseProps> = ({ showConfirmation }) => {
-  const { address } = useAccount();
+  const { address, account } = useAccount();
   const { roundActions, selectedRoundBuyerState } = useProtocolContext();
+  const { pendingTx } = useTransactionContext();
 
   const payoutBalanceWei = selectedRoundBuyerState
     ? selectedRoundBuyerState.payoutBalance
@@ -46,6 +48,18 @@ const Exercise: React.FC<ExerciseProps> = ({ showConfirmation }) => {
       </>,
       handleExerciseOptions,
     );
+  };
+
+  const isButtonDisabled = (): boolean => {
+    if (!account) return true;
+    if (pendingTx) return true;
+    if (
+      !selectedRoundBuyerState ||
+      Number(selectedRoundBuyerState.payoutBalance) === 0
+    )
+      return true;
+
+    return false;
   };
 
   return (
@@ -74,10 +88,7 @@ const Exercise: React.FC<ExerciseProps> = ({ showConfirmation }) => {
         <div className="px-6 flex justify-between text-sm mb-6 pt-6 border-t border-[#262626]">
           <ActionButton
             onClick={handleSubmit}
-            disabled={
-              !selectedRoundBuyerState ||
-              Number(selectedRoundBuyerState.payoutBalance) === 0
-            }
+            disabled={isButtonDisabled()}
             text="Exercise Now"
           />
         </div>

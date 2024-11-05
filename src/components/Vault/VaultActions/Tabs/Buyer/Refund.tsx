@@ -9,6 +9,7 @@ import { RepeatEthIcon } from "@/components/Icons";
 import { formatNumberText } from "@/lib/utils";
 import { num } from "starknet";
 import { formatEther } from "ethers";
+import { useTransactionContext } from "@/context/TransactionProvider";
 
 interface RefundProps {
   showConfirmation: (
@@ -19,8 +20,10 @@ interface RefundProps {
 }
 
 const Refund: React.FC<RefundProps> = ({ showConfirmation }) => {
-  const { address } = useAccount();
+  const { address, account } = useAccount();
   const { roundActions, selectedRoundBuyerState } = useProtocolContext();
+  const { pendingTx } = useTransactionContext();
+
   const refundBalanceWei = selectedRoundBuyerState
     ? selectedRoundBuyerState.refundableBalance
     : "0";
@@ -36,12 +39,23 @@ const Refund: React.FC<RefundProps> = ({ showConfirmation }) => {
       <>
         refund bids worth{" "}
         <span className="font-semibold text-[#fafafa]">
-          {Number(refundBalanceEth).toFixed(3)} ETH
+          {Number(refundBalanceEth)} ETH
         </span>
       </>,
       handleRefundBid,
     );
   };
+
+  const isButtonDisabled = (): boolean => {
+    if (!account) return true;
+    if (pendingTx) return true;
+    if (!selectedRoundBuyerState) return true;
+    if (Number(refundBalanceWei) === 0) return true;
+
+    return false;
+  };
+
+  useEffect(() => {}, [account]);
 
   return (
     <div className="flex flex-col h-full">
@@ -61,9 +75,7 @@ const Refund: React.FC<RefundProps> = ({ showConfirmation }) => {
         <div className="px-6 flex justify-between text-sm mb-6 pt-6 border-t border-[#262626]">
           <ActionButton
             onClick={handleSubmit}
-            disabled={
-              !selectedRoundBuyerState || Number(refundBalanceWei) === 0
-            }
+            disabled={isButtonDisabled()}
             text="Refund Now"
           />
         </div>

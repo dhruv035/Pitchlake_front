@@ -2,6 +2,8 @@ import React, { ReactNode } from "react";
 import { VaultStateType, LiquidityProviderStateType } from "@/lib/types";
 import ActionButton from "@/components/Vault/Utils/ActionButton";
 import { useProtocolContext } from "@/context/ProtocolProvider";
+import { useTransactionContext } from "@/context/TransactionProvider";
+import { useAccount } from "@starknet-react/core";
 
 interface WithdrawQueueProps {
   showConfirmation: (
@@ -15,6 +17,8 @@ const WithdrawLiquidity: React.FC<WithdrawQueueProps> = ({
   showConfirmation,
 }) => {
   const { vaultActions, lpState } = useProtocolContext();
+  const { pendingTx } = useTransactionContext();
+  const { account } = useAccount();
   const [state, setState] = React.useState({
     percentage: "0",
     //isButtonDisabled: true,
@@ -41,12 +45,13 @@ const WithdrawLiquidity: React.FC<WithdrawQueueProps> = ({
   };
 
   const isButtonDisabled = (): boolean => {
+    if (!account) return true;
+    if (pendingTx) return true;
     if (
       state.percentage ===
       bpsToPercentage(lpState?.queuedBps ? lpState.queuedBps.toString() : "0")
-    ) {
+    )
       return true;
-    }
 
     return false;
   };
@@ -84,7 +89,7 @@ const WithdrawLiquidity: React.FC<WithdrawQueueProps> = ({
       percentage: bpsToPercentage(lpState?.queuedBps?.toString() || "0"),
       //isButtonDisabled: true,
     });
-  }, []);
+  }, [account, pendingTx]);
 
   return (
     <div className="flex flex-col h-full">

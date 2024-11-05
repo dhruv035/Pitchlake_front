@@ -124,7 +124,7 @@ const StateTransition = ({
     Open: "Start Auction",
     Auctioning: "End Auction",
     FossilPending: "Fossil Pending...",
-    FossilReady: "Send Fossil Request",
+    FossilReady: "Request Fossil",
     Running: "Settle Round",
   };
 
@@ -145,29 +145,11 @@ const StateTransition = ({
           selectedRoundState.optionSettleDate.toString(),
         ),
       );
-      console.log("fossil response", response);
     } catch (error) {
       console.log("Error sending Fossil request:", error);
     }
 
     return;
-
-    /// User calls Fossil::client_callback()
-    //    console.log("Mocking fossil call");
-    //    const request = [
-    //      vaultState ? vaultState.address : "",
-    //      "1730719146",
-    //      "0x50495443485f4c414b455f5631",
-    //    ];
-    //    const result = [
-    //      "0x02540be400",
-    //      "0x0",
-    //      "0x0d05",
-    //      parseInt((Math.random() * 1000000000).toString()).toString(),
-    //      "0x0",
-    //      "0x0",
-    //    ];
-    //    await fossilCallback(request, result);
   };
 
   const setModalStateConditionally = () => {

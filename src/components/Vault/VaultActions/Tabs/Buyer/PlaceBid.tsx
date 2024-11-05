@@ -11,6 +11,7 @@ import { useAccount } from "@starknet-react/core";
 import useERC20 from "@/hooks/erc20/useERC20";
 import { num } from "starknet";
 import { formatNumberText } from "@/lib/utils";
+import { useTransactionContext } from "@/context/TransactionProvider";
 
 interface PlaceBidProps {
   showConfirmation: (
@@ -26,6 +27,7 @@ const LOCAL_STORAGE_KEY2 = "bidPriceGwei";
 const PlaceBid: React.FC<PlaceBidProps> = ({ showConfirmation }) => {
   const { vaultState, roundActions, selectedRoundState } = useProtocolContext();
   const { account } = useAccount();
+  const { pendingTx } = useTransactionContext();
   const [needsApproval, setNeedsApproval] = useState<string>("0");
   const [state, setState] = useState({
     bidAmount: localStorage.getItem(LOCAL_STORAGE_KEY1) || "",
@@ -77,18 +79,6 @@ const PlaceBid: React.FC<PlaceBidProps> = ({ showConfirmation }) => {
   };
 
   const handlePlaceBid = async (): Promise<void> => {
-    // const priceWei = Number(parseUnits(state.bidPrice, "gwei"));
-    // const amount = Number(state.bidAmount);
-    // const totalWei = priceWei * amount;
-    // if (Number(allowance) < Number(totalWei)) {
-    //   await approve({
-    //     amount: num.toBigInt(totalWei),
-    //     spender: selectedRoundState?.address
-    //       ? selectedRoundState.address.toString()
-    //       : "",
-    //   });
-    // }
-
     await roundActions?.placeBid({
       amount: BigInt(state.bidAmount),
       price: parseUnits(state.bidPrice, "gwei"),
@@ -167,10 +157,17 @@ const PlaceBid: React.FC<PlaceBidProps> = ({ showConfirmation }) => {
       priceReason = "Price must be at least the reserve price";
     }
 
-    const isButtonDisabled = !state.bidAmount || !state.bidPrice;
+    const isButtonDisabled = (): boolean => {
+      if (!account) return true;
+      if (pendingTx) return true;
+      if (!state.bidAmount || !state.bidPrice) return true;
+      return false;
+    };
+
+    //const isButtonDisabled = !state.bidAmount || !state.bidPrice || ;
     setState((prevState) => ({
       ...prevState,
-      isButtonDisabled,
+      isButtonDisabled: isButtonDisabled(),
       isAmountOk: amountReason,
       isPriceOk: priceReason,
     }));
@@ -239,7 +236,7 @@ const PlaceBid: React.FC<PlaceBidProps> = ({ showConfirmation }) => {
           {num.toBigInt(needsApproval) > 0 ? (
             <ActionButton
               onClick={handleSubmitForApproval}
-              disabled={false}
+              disabled={state.isButtonDisabled}
               text="Approve"
             />
           ) : (
