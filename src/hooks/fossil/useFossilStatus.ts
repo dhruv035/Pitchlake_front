@@ -1,25 +1,31 @@
 import { useEffect, useCallback, useState } from "react";
 
+// Poll a job's status using it's ID
+const INTERVAL_MS = 3000;
+
+interface StatusData {
+  status: string;
+}
+
 const useFossilStatus = (jobId: string | undefined) => {
-  const [status, setStatus] = useState<any>(null);
-  const [error, setError] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const [status, setStatus] = useState<StatusData | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const fetchStatus = useCallback(async () => {
     if (!jobId) return;
-
-    setStatus(null);
-    setError(null);
     setLoading(true);
     try {
-      const response = await fetch(`http://localhost:3000/job_status/${jobId}`);
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_FOSSIL_API_URL}/job_status/${jobId}`,
+      );
+      if (!response.ok) throw new Error("Network response was not ok");
+
       const data = await response.json();
       setStatus(data);
       setError(null);
     } catch (err) {
+      setStatus(null);
       setError("Error fetching job status");
     } finally {
       setLoading(false);
@@ -27,16 +33,17 @@ const useFossilStatus = (jobId: string | undefined) => {
   }, [jobId]);
 
   useEffect(() => {
-    const intervalId = setInterval(fetchStatus, 3000);
+    if (!jobId) return;
+
+    const intervalId = setInterval(fetchStatus, INTERVAL_MS);
     fetchStatus();
 
-    return () => clearInterval(intervalId);
-  }, [fetchStatus]);
-
-  useEffect(() => {
-    setStatus(null);
-    setError(null);
-  }, [jobId]);
+    return () => {
+      clearInterval(intervalId);
+      setStatus(null);
+      setError(null);
+    };
+  }, [jobId, fetchStatus]);
 
   return { status, error, loading };
 };
