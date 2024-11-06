@@ -33,15 +33,14 @@ const useFossilStatus = (jobId: string | undefined) => {
   }, [jobId]);
 
   useEffect(() => {
-    if (!jobId) return;
+    if (!jobId || status?.status === "Completed" || status?.status === "Failed")
+      return;
 
     const intervalId = setInterval(fetchStatus, INTERVAL_MS);
     fetchStatus();
 
     return () => {
       clearInterval(intervalId);
-      setStatus(null);
-      setError(null);
     };
   }, [jobId, fetchStatus]);
 
