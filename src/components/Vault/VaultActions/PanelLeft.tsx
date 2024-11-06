@@ -40,12 +40,14 @@ import StateTransition from "@/components/Vault/VaultActions/StateTransition";
 import { useProvider } from "@starknet-react/core";
 import useLatestTimestamp from "@/hooks/chain/useLatestTimestamp";
 import useFossilStatus from "@/hooks/fossil/useFossilStatus";
+import { useTransactionContext } from "@/context/TransactionProvider";
 
 // comment for git
 
 const PanelLeft = ({ userType }: { userType: string }) => {
   const { vaultState, selectedRoundState, currentRoundAddress } =
     useProtocolContext();
+  const { pendingTx } = useTransactionContext();
   const [vaultIsOpen, setVaultIsOpen] = useState<boolean>(true);
   const [optionRoundIsOpen, setOptionRoundIsOpen] = useState<boolean>(true);
   const [isPanelOpen, setIsPanelOpen] = useState<boolean>(false);
