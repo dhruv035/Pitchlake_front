@@ -38,7 +38,8 @@ import useFossil from "@/hooks/fossil/useFossil";
 import useAccountBalances from "@/hooks/vault/state/useAccountBalances";
 
 export default function Header() {
-  const { conn, timeStamp, mockTimeForward, vaultState, selectedRoundState } =
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const { conn, mockTimestamp, mockTimeForward, vaultState } =
     useProtocolContext();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const isDropdownOpenRef = useRef(isDropdownOpen);
@@ -46,95 +47,17 @@ export default function Header() {
   const { disconnect } = useDisconnect();
   const router = useRouter();
   const { account } = useAccount();
-  const { provider } = useProvider();
-  const { approve, fund, balance } = useERC20(
+  const { balance } = useERC20(
     "0x49d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
     vaultState?.address,
     account,
   );
-  const { fund: fundStrk } = useERC20(
-    "0x4718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d",
-    vaultState?.address,
-    account,
-  );
-
-  const mockFossilCall = async () => {
-    console.log("Mocking fossil call");
-    const roundId = selectedRoundState ? selectedRoundState.roundId : "";
-    const roundState = selectedRoundState
-      ? selectedRoundState
-      : { roundState: "", deploymentDate: "0", optionSettleDate: "0" };
-    const roundStateState = roundState.roundState;
-
-    // make request to fossil api using the settlement date (or auction start date if initial case)
-    const targetTimestamp =
-      roundId === "1" && roundStateState === "Open"
-        ? roundState.deploymentDate
-        : roundState.optionSettleDate;
-
-    // Fossil request
-    try {
-      const response = await fetch("http://localhost:3000/pricing_data", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": process.env.NEXT_PUBLIC_FOSSIL_API_KEY || "",
-        },
-        body: JSON.stringify({
-          identifiers: ["PITCH_LAKE_V1"],
-          params: {
-            twap: [Number(targetTimestamp) - 720, Number(targetTimestamp)],
-            volatility: [
-              Number(targetTimestamp) - 2160,
-              Number(targetTimestamp),
-            ],
-            reserve_price: [
-              Number(targetTimestamp) - 2160,
-              Number(targetTimestamp),
-            ],
-          },
-          client_info: {
-            client_address: vaultState ? vaultState.fossilClientAddress : "",
-            vault_address: vaultState ? vaultState.address : "",
-            timestamp: Number(targetTimestamp),
-          },
-        }),
-      });
-    } catch (error) {
-      console.log("Error sending Fossil request:", error);
-    }
-
-    return;
-
-    /// User calls Fossil::client_callback()
-    //    console.log("Mocking fossil call");
-    //    const request = [
-    //      vaultState ? vaultState.address : "",
-    //      targetTimestamp,
-    //      "0x50495443485f4c414b455f5631",
-    //    ];
-    //    const result = [
-    //      "0x02540be400",
-    //      "0x0",
-    //      "0x0d05",
-    //      parseInt((Math.random() * 1000000000).toString()).toString(),
-    //      "0x0",
-    //      "0x0",
-    //    ];
-    //    await fossilCallback(request, result);
-  };
-  const { fossilCallback } = useFossil(
-    vaultState ? vaultState.fossilClientAddress : "",
-    account,
-  );
-
-  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const { lockedBalance, unlockedBalance, stashedBalance } = useAccountBalances(
     vaultState ? vaultState.address : "",
   );
 
-  // todo: sum balances accross all vaults ?
+  // @NOTE: sum balances accross all vaults ?
   const balanceData = {
     wallet: parseFloat(formatEther(num.toBigInt(balance).toString())).toFixed(
       3,
@@ -195,24 +118,6 @@ export default function Header() {
     return str ? `${str.slice(0, 6)}...${str.slice(-4)}` : "";
   };
 
-  const fundAccount = async (): Promise<void> => {
-    /// Fund account
-    console.log("funding...");
-    await fund({
-      amount: num.toBigInt("100000000000000000000"),
-      spender: account ? account.address : "",
-    });
-
-    // Nonce issue when both in same function
-
-    await fundStrk({
-      amount: num.toBigInt("100000000000000000000"),
-      spender: account ? account.address : "",
-    });
-
-    console.log("funded");
-  };
-
   return (
     <nav className="absolute top-0 z-50 w-full h-[84px] bg-[#121212] px-8 py-6 flex justify-between items-center border-b border-[#262626]">
       <div className="flex-shrink-0">
@@ -236,7 +141,7 @@ export default function Header() {
       <div className="flex items-center space-x-4 text-[14px] font-medium">
         {conn === "mock" && (
           <div>
-            <p>{timeStamp.toString()}</p>
+            <p>{mockTimestamp.toString()}</p>
             <button onClick={() => mockTimeForward()}>Forward Mock Time</button>
           </div>
         )}
@@ -244,26 +149,30 @@ export default function Header() {
           <BellIcon className="h-6 w-6 text-primary" />
         </div>
 
-        {account ? (
-          <button
-            onClick={fundAccount}
-            className="font-medium cursor-pointer border-[1px] border-greyscale-800 p-2 rounded-md"
-          >
-            Fund Account
-          </button>
-        ) : (
-          <></>
-        )}
-        {account ? (
-          <button
-            onClick={mockFossilCall}
-            className="font-medium cursor-pointer border-[1px] border-greyscale-800 p-2 rounded-md"
-          >
-            Mock Fossil Call
-          </button>
-        ) : (
-          <></>
-        )}
+        {
+          //    account ? (
+          //    <button
+          //      onClick={fundAccount}
+          //      className="font-medium cursor-pointer border-[1px] border-greyscale-800 p-2 rounded-md"
+          //    >
+          //      Fund Account
+          //    </button>
+          //  ) : (
+          //    <></>
+          //  )
+          //  }
+          //  {
+          //    account ? (
+          //    <button
+          //      onClick={mockFossilCall}
+          //      className="font-medium cursor-pointer border-[1px] border-greyscale-800 p-2 rounded-md"
+          //    >
+          //      Mock Fossil Call
+          //    </button>
+          //  ) : (
+          //    <></>
+          //  )
+        }
         <div className="relative" ref={dropdownRef}>
           {account ? (
             <>
@@ -360,8 +269,3 @@ export default function Header() {
     </nav>
   );
 }
-
-const copyTxHash = (txHash: string) => {
-  copyToClipboard(txHash).then(() => {});
-  //toast("Transaction hash copied to clipboard!", { autoClose: 1000 }));
-};
