@@ -24,10 +24,11 @@ const StateTransition = ({
 }) => {
   const { vaultState, vaultActions, selectedRound, selectedRoundState } =
     useProtocolContext();
-  const { pendingTx } = useTransactionContext();
+  const { pendingTx, status: txStatus } = useTransactionContext();
   const { account } = useAccount();
   const { provider } = useProvider();
-  const { timestamp } = useLatestTimestamp(provider);
+  const { timestamp: timestampRaw } = useLatestTimestamp(provider);
+  const timestamp = timestampRaw ? timestampRaw : "0";
   const { status, error, loading } = useFossilStatus(
     createJobId(
       selectedRoundState?.optionSettleDate
@@ -44,6 +45,10 @@ const StateTransition = ({
       vaultState?.deploymentDate ? vaultState.deploymentDate.toString() : "",
     ),
   );
+  const [transactionComplete, setTransactionComplete] = useState(false);
+  // to trigger btn disabled
+  const [isFossilReqSent, setIsFossilReqSent] = useState<boolean>(false);
+  const [isFossilReqSentR1, setIsFossilReqSentR1] = useState<boolean>(false);
 
   const roundState = useMemo(() => {
     if (!vaultState || !selectedRoundState || !selectedRound) return "Settled";
@@ -54,11 +59,25 @@ const StateTransition = ({
     if (["Auctioning", "Settled"].includes(state)) return state;
     // Check if the round data has been set (for Settlement)
     else if (state === "Running") {
+      // Hook not running
       if (!status && !error && !loading) return "FossilReady";
-      if (status?.status === "Failed" || error || status?.error)
-        return "FossilReady";
+
+      // Request was just sent before the hoook refreshes
+      if (isFossilReqSent || isFossilReqSentR1) return "FossilPending";
+
+      // Request failed to finish (needs to be tried again)
+      if (status?.status === "Failed") return "FossilReady";
+      // Request failed to send
+      if (error) return "FossilReady";
+      // Request is pending
       if (status?.status === "Pending") return "FossilPending";
+      // Request is complete
       if (status?.status === "Completed") return "Running";
+
+      //  if (status?.status === "Failed" || error || status?.error) {
+      //    setIsFossilReqSent(false);
+      //    return "FossilReady";
+      //  }
     }
     // Check if it's the first round data has been set
     else {
@@ -98,6 +117,7 @@ const StateTransition = ({
   };
 
   const canRoundSettle = () => {
+    if (!selectedRoundState) return false;
     if (
       roundState === "Running" &&
       num.toBigInt(timestamp) >=
@@ -127,8 +147,8 @@ const StateTransition = ({
   };
 
   const isButtonDisabled = () => {
-    if (pendingTx) return true;
     if (!account) return true;
+    if (pendingTx) return true;
     if (roundState === "Open") return !canAuctionStart();
     if (roundState === "Auctioning") return !canAuctionEnd();
     if (roundState === "Running") return !canRoundSettle();
@@ -162,35 +182,23 @@ const StateTransition = ({
     | "FossilReadyR1"
     | "Running";
 
-  //  const makeFossilCall = async () => {
-  //    // Fossil request
-  //    try {
-  //      const response = await fetch(
-  //        `${process.env.NEXT_PUBLIC_FOSSIL_API_URL}/pricing_data`,
-  //        createJobRequest(
-  //          vaultState,
-  //          selectedRoundState.optionSettleDate.toString(),
-  //        ),
-  //      );
-  //    } catch (error) {
-  //      console.log("Error sending Fossil request:", error);
-  //    }
-  //
-  //    return;
-  //  };
-  //
   const setModalStateConditionally = () => {
     setModalState({
       show: true,
       action: actions[roundState as State],
       onConfirm: async () => {
-        if (roundState === "FossilReadyR1") {
-          makeFossilCallR1(vaultState);
-        } else if (roundState === "Open") await vaultActions.startAuction();
-        else if (roundState === "Auctioning") await vaultActions.endAuction();
+        // Send Fossil request to set round 1's pricing data
+        if (roundState === "FossilReadyR1") makeFossilCallR1(vaultState);
+        // Send Fossil request to set the settlement/next round's pricing data
         else if (roundState === "FossilReady") {
           makeFossilCall(vaultState, selectedRoundState);
-        } else if (roundState === "Running")
+        }
+        // Start the auction
+        else if (roundState === "Open") await vaultActions.startAuction();
+        // End the auction
+        else if (roundState === "Auctioning") await vaultActions.endAuction();
+        // Settle the round
+        else if (roundState === "Running")
           await vaultActions.settleOptionRound();
 
         setModalState((prev: any) => ({
@@ -214,13 +222,13 @@ const StateTransition = ({
     )
       return <Clock className="w-4 h-4 ml-2" />;
 
-    if (roundState === "Open") {
+    if (roundState === "Open")
       return <LineChartUpIcon classname="w-4 h-4 ml-2" stroke={stroke} />;
-    } else if (roundState === "Auctioning") {
+    else if (roundState === "Auctioning")
       return <LineChartDownIcon classname="w-4 h-4 ml-2" stroke={stroke} />;
-    } else if (roundState === "FossilReady") {
+    else if (roundState === "FossilReady")
       return <Cog className="w-4 h-4 ml-2" stroke={stroke} />;
-    } else if (roundState === "Running") {
+    else if (roundState === "Running")
       return (
         <BriefCaseIcon
           classname="w-4 h-4 ml-2"
@@ -228,58 +236,42 @@ const StateTransition = ({
           stroke={stroke}
         />
       );
-    }
   };
 
-  // Only the current round can transition states
-  if (vaultState.currentRoundId !== selectedRoundState.roundId) {
+  useEffect(() => {
+    if (!pendingTx && !transactionComplete) {
+      setTransactionComplete(true);
+      // Delay setting transaction complete to allow state changes to finalize
+      //const timer = setTimeout(() => setTransactionComplete(true), 1);
+      //return () => clearTimeout(timer);
+    }
+  }, [pendingTx, txStatus]);
+
+  // No action
+  if (
+    !transactionComplete ||
+    roundState === "Settled" ||
+    vaultState.currentRoundId !== selectedRoundState.roundId
+  ) {
     return null;
-  }
-
-  // For first round only
-  // First round needs Fossil request before auction starts
-  //if (vaultState.currentRoundId === 1) {
-  //  if (selectedRoundState.roundState === "Open") {
-  //    // if fossil job not already started
-
-  //    // do we care if it is delayed
-  //    return (
-  //      <Button
-  //        style={{ flex: 1 }}
-  //        className={[buttons.button, buttons.confirm].join(" ")}
-  //        title="Send Request to Fossil"
-  //        disabled={false}
-  //        onClick={async () => {
-  //          console.log("Sending request to fossil...");
-  //        }}
-  //      >
-  //        Request Fossil Data (TODO)
-  //      </Button>
-  //    );
-  //  }
-  //}
-
-  if (roundState === "Settled") {
-    return null;
-  }
-
-  return (
-    <>
-      <div className="px-6">
-        <button
-          disabled={isButtonDisabled()}
-          className={`${isPanelOpen ? "flex" : "hidden"} ${
-            roundState === "Settled" ? "hidden" : ""
-          } border border-greyscale-700 text-primary disabled:text-greyscale rounded-md mt-4 p-2 w-full justify-center items-center`}
-          onClick={async () => {
-            setModalStateConditionally();
-          }}
-        >
-          <p>{pendingTx ? "Pending" : actions[roundState as State]}</p>
-          {getIcon()}
-        </button>
-      </div>
-    </>
-  );
+  } else
+    return (
+      <>
+        <div className="px-6">
+          <button
+            disabled={isButtonDisabled()}
+            className={`${isPanelOpen ? "flex" : "hidden"} ${
+              roundState === "Settled" ? "hidden" : ""
+            } border border-greyscale-700 text-primary disabled:text-greyscale rounded-md mt-4 p-2 w-full justify-center items-center`}
+            onClick={async () => {
+              setModalStateConditionally();
+            }}
+          >
+            <p>{pendingTx ? "Pending" : actions[roundState as State]}</p>
+            {getIcon()}
+          </button>
+        </div>
+      </>
+    );
 };
 export default StateTransition;
