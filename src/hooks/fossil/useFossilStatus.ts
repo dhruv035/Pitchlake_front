@@ -4,7 +4,8 @@ import { useEffect, useCallback, useState } from "react";
 const INTERVAL_MS = 3000;
 
 interface StatusData {
-  status: string;
+  status?: string;
+  error?: string;
 }
 
 const useFossilStatus = (jobId: string | undefined) => {
