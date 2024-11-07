@@ -19,6 +19,7 @@ import History from "@/components/Vault/VaultActions/Tabs/Buyer/History";
 import Exercise from "@/components/Vault/VaultActions/Tabs/Buyer/Exercise";
 import Refund from "@/components/Vault/VaultActions/Tabs/Buyer/Refund";
 import MyInfo from "@/components/Vault/VaultActions/Tabs/Provider/MyInfo";
+import { useTransactionContext } from "@/context/TransactionProvider";
 
 export const useTabContent = (
   userType: string,
@@ -30,6 +31,7 @@ export const useTabContent = (
   setIsTabsHidden: (open: boolean) => void,
   setBidToEdit: (bid: any) => void,
 ) => {
+  const { pendingTx } = useTransactionContext();
   const commonTabs = [CommonTabs.MyInfo];
   const tabs = useMemo(() => {
     if (userType === "lp") {
@@ -82,7 +84,7 @@ export const useTabContent = (
           return <DepositContent showConfirmation={(amount, action) => {}} />;
         }
     }
-  }, [userType, activeTab, selectedRoundState?.roundState]);
+  }, [userType, activeTab, selectedRoundState?.roundState, pendingTx]);
 
   return { tabs, tabContent };
 };
