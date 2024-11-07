@@ -51,14 +51,14 @@ export default function VaultCard({ vaultAddress }: { vaultAddress: string }) {
   );
   const timeUntilText = roundState == "Open" ? "STARTS IN" : "TIME LEFT";
   const timeUntilValue = timeUntilTarget(
-    timestamp.toString(),
+    timestamp?.toString(),
     roundState == "Open"
       ? auctionStartDate
         ? auctionStartDate.toString()
         : timestamp.toString()
       : optionSettleDate
         ? optionSettleDate.toString()
-        : timestamp.toString(),
+        : timestamp?.toString(),
   );
 
   const router = useRouter();
