@@ -6,6 +6,7 @@ import { useMemo } from "react";
 import useContractReads from "../../lib/useContractReads";
 import useOptionRoundActions from "../optionRound/useOptionRoundActions";
 import useOptionRoundState from "../optionRound/useOptionRoundState";
+import useTimestamps from "../optionRound/state/useTimestamps";
 
 const useVaultState = ({
   conn,
@@ -105,6 +106,17 @@ const useVaultState = ({
     watch: true,
   }) as unknown as LiquidityProviderStateType;
 
+  const { data: round1Address } = useContractRead({
+    ...contractData,
+    functionName: "get_round_address",
+    args: [1],
+    watch: false,
+  });
+
+  const { deploymentDate } = useTimestamps(
+    stringToHex(round1Address ? round1Address.toString() : ""),
+  );
+
   const { data: currentRoundAddress } = useContractRead({
     ...contractData,
     functionName: "get_round_address",
@@ -129,8 +141,6 @@ const useVaultState = ({
     useOptionRoundState(usableString);
 
   const roundAction = useOptionRoundActions(usableString);
-
-  // Memoize the states and actions
   const selectedRoundState = useMemo(
     () => optionRoundState,
     [optionRoundState],
@@ -159,6 +169,7 @@ const useVaultState = ({
       stashedBalance: stashedBalance ? stashedBalance.toString() : 0,
       queuedBps: queuedBps ? queuedBps.toString() : 0,
       vaultType,
+      deploymentDate,
     } as VaultStateType,
     lpState,
     currentRoundAddress: currentRoundAddress
