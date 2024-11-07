@@ -14,7 +14,6 @@ export default function Home() {
     // short round
     "0x13257401fd2df63db6464035ab3ed13f3ef84ae71a07054f50d7bd20311e0a3",
     "0x8f4e98c8c7f2698ff9a98df855116154f0482b93127dc79b15f05effbe8237",
-    "0x74e29697b4c91918b088e61c8929a1a5a6a8d22a3452b6eb8e630acd5516be",
   ];
 
   const [isModalVisible, setIsModalVisible] = useState<boolean>();

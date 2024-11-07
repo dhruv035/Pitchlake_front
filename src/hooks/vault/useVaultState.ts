@@ -161,7 +161,7 @@ const useVaultState = ({
       strikeLevel: strikeLevel ? strikeLevel.toString() : 0,
       ethAddress: ethAddress ? stringToHex(ethAddress?.toString()) : "",
       fossilClientAddress: fossilClientAddress
-        ? stringToHex(fossilClientAddress?.toString())
+        ? stringToHex(fossilClientAddress.toString())
         : "",
       currentRoundId: currentRoundId ? currentRoundId.toString() : 0,
       lockedBalance: lockedBalance ? lockedBalance.toString() : 0,

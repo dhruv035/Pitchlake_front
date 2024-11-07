@@ -57,6 +57,7 @@ export const StarknetProvider = ({
       provider={provider}
       connectors={connectors}
       explorer={voyager}
+      autoConnect={true}
     >
       {children}
     </StarknetConfig>

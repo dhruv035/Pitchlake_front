@@ -205,15 +205,15 @@ const useOptionRoundState = (address: string | undefined) => {
   return {
     optionRoundState: {
       address,
-      vaultAddress: vaultAddress?.toString(),
+      vaultAddress: vaultAddress ? vaultAddress.toString() : "",
       roundId: roundId ? roundId.toString() : 0,
       roundState: roundState
         ? (roundState as CairoCustomEnum).activeVariant()
         : "",
-      deploymentDate: deploymentDate?.toString(),
-      auctionStartDate: auctionStartDate?.toString(),
-      auctionEndDate: auctionEndDate?.toString(),
-      optionSettleDate: optionSettleDate?.toString(),
+      deploymentDate: deploymentDate ? deploymentDate.toString() : "0",
+      auctionStartDate: auctionStartDate ? auctionStartDate.toString() : "0",
+      auctionEndDate: auctionEndDate ? auctionEndDate.toString() : "0",
+      optionSettleDate: optionSettleDate ? optionSettleDate.toString() : "0",
       startingLiquidity: startingLiquidity ? startingLiquidity.toString() : 0,
       soldLiquidity: soldLiquidity ? soldLiquidity.toString() : 0,
       unsoldLiquidity: unsoldLiquidity ? unsoldLiquidity.toString() : 0,
