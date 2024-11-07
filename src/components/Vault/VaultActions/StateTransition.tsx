@@ -92,16 +92,10 @@ const StateTransition = ({
     }
   }, [selectedRoundState?.roundState, error, status, statusR1, errorR1]);
 
-  // No data
-  if (!vaultState || !vaultActions || !selectedRoundState) {
-    return null;
-  }
-
   const canAuctionStart = () => {
     if (
       roundState === "Open" &&
-      num.toBigInt(timestamp) >=
-        num.toBigInt(selectedRoundState.auctionStartDate)
+      num.toBigInt(timestamp) >= Number(selectedRoundState?.auctionStartDate)
     ) {
       return true;
     } else return false;
@@ -110,7 +104,7 @@ const StateTransition = ({
   const canAuctionEnd = () => {
     if (
       roundState === "Auctioning" &&
-      num.toBigInt(timestamp) >= num.toBigInt(selectedRoundState.auctionEndDate)
+      num.toBigInt(timestamp) >= Number(selectedRoundState?.auctionEndDate)
     ) {
       return true;
     } else return false;
@@ -120,8 +114,7 @@ const StateTransition = ({
     if (!selectedRoundState) return false;
     if (
       roundState === "Running" &&
-      num.toBigInt(timestamp) >=
-        num.toBigInt(selectedRoundState.optionSettleDate)
+      num.toBigInt(timestamp) >= Number(selectedRoundState?.optionSettleDate)
     ) {
       return true;
     } else {
@@ -133,8 +126,7 @@ const StateTransition = ({
     if (
       roundState === "FossilReady" &&
       status?.status !== "Completed" &&
-      num.toBigInt(timestamp) >=
-        num.toBigInt(selectedRoundState?.optionSettleDate)
+      num.toBigInt(timestamp) >= Number(selectedRoundState?.optionSettleDate)
     )
       return true;
     else return false;
@@ -247,6 +239,11 @@ const StateTransition = ({
     }
   }, [pendingTx, txStatus]);
 
+  // No data
+  if (!vaultState || !vaultActions || !selectedRoundState) {
+    return null;
+  }
+
   // No action
   if (
     !transactionComplete ||
@@ -254,24 +251,25 @@ const StateTransition = ({
     vaultState.currentRoundId !== selectedRoundState.roundId
   ) {
     return null;
-  } else
-    return (
-      <>
-        <div className="px-6">
-          <button
-            disabled={isButtonDisabled()}
-            className={`${isPanelOpen ? "flex" : "hidden"} ${
-              roundState === "Settled" ? "hidden" : ""
-            } border border-greyscale-700 text-primary disabled:text-greyscale rounded-md mt-4 p-2 w-full justify-center items-center`}
-            onClick={async () => {
-              setModalStateConditionally();
-            }}
-          >
-            <p>{pendingTx ? "Pending" : actions[roundState as State]}</p>
-            {getIcon()}
-          </button>
-        </div>
-      </>
-    );
+  }
+
+  return (
+    <>
+      <div className="px-6">
+        <button
+          disabled={isButtonDisabled()}
+          className={`${isPanelOpen ? "flex" : "hidden"} ${
+            roundState === "Settled" ? "hidden" : ""
+          } border border-greyscale-700 text-primary disabled:text-greyscale rounded-md mt-4 p-2 w-full justify-center items-center`}
+          onClick={async () => {
+            setModalStateConditionally();
+          }}
+        >
+          <p>{pendingTx ? "Pending" : actions[roundState as State]}</p>
+          {getIcon()}
+        </button>
+      </div>
+    </>
+  );
 };
 export default StateTransition;
