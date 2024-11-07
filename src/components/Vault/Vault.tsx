@@ -12,7 +12,6 @@ import { useRouter } from "next/navigation";
 export const Vault = () => {
   const [isProviderView, setIsProviderView] = useState(true);
   const [isEditOpen, setIsEditOpen] = useState(false);
-
   const router = useRouter();
   // const {
   //   wsVaultState,

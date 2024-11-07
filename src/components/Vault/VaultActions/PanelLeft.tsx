@@ -45,8 +45,7 @@ import { useTransactionContext } from "@/context/TransactionProvider";
 // comment for git
 
 const PanelLeft = ({ userType }: { userType: string }) => {
-  const { vaultState, selectedRoundState, currentRoundAddress } =
-    useProtocolContext();
+  const { vaultState, selectedRoundState } = useProtocolContext();
   const { pendingTx } = useTransactionContext();
   const [vaultIsOpen, setVaultIsOpen] = useState<boolean>(true);
   const [optionRoundIsOpen, setOptionRoundIsOpen] = useState<boolean>(true);

@@ -5,7 +5,6 @@ import { stringToHex } from "@/lib/utils";
 import { useMemo } from "react";
 import useContractReads from "../../lib/useContractReads";
 import useOptionRoundActions from "../optionRound/useOptionRoundActions";
-import { CairoCustomEnum } from "starknet";
 import useOptionRoundState from "../optionRound/useOptionRoundState";
 
 const useVaultState = ({
@@ -19,10 +18,6 @@ const useVaultState = ({
   selectedRound?: number | string;
   getRounds: boolean;
 }) => {
-  //const account = getDevAccount(
-  //  new RpcProvider({ nodeUrl: "http://localhost:5050/rpc" }),
-  //);
-
   const contractData = useMemo(() => {
     return {
       abi: vaultABI,

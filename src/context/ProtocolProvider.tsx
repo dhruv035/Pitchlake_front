@@ -22,6 +22,7 @@ import {
   VaultActionsType,
   VaultStateType,
 } from "@/lib/types";
+import { num } from "starknet";
 import { useProvider } from "@starknet-react/core";
 
 /*This is the bridge for any transactions to go through, it's disabled by isTxDisabled if there is data loading or if
@@ -180,11 +181,15 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
   );
 
   useEffect(() => {
+    if (!vaultState) return;
+
     if (selectedRound === 0)
-      if (vaultState?.currentRoundId) {
-        setSelectedRound(Number(vaultState.currentRoundId));
-      }
-  }, [selectedRound, vaultState?.currentRoundId]);
+      setSelectedRound(Number(vaultState.currentRoundId));
+
+    if (selectedRound > Number(vaultState.currentRoundId)) {
+      setSelectedRound(Number(vaultState.currentRoundId));
+    }
+  }, [vaultAddress, selectedRound, vaultState?.currentRoundId]);
   return (
     <ProtocolContext.Provider
       value={{

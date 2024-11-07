@@ -11,6 +11,9 @@ export default function Home() {
     "0x038cfc94b5626c9355910304622f8270eaef77b62cb850e1ca0e38ecedcdee5b",
     // katana
     "0x2cbdf2381224c850975613fb42848ae1a3a608d91bcd7d7a59dcc2b459d98d4",
+
+    // short round
+    "0x8f4e98c8c7f2698ff9a98df855116154f0482b93127dc79b15f05effbe8237",
   ];
 
   const [isModalVisible, setIsModalVisible] = useState<boolean>();
