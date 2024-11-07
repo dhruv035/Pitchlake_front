@@ -13,11 +13,9 @@ export const createJobRequestParams = (targetTimestamp: string) => {
 
 export const createJobRequest = (
   vaultState: VaultStateType | undefined,
-  targetTimestamp: string,
+  targetTimestamp: string | undefined,
 ): any => {
-  if (!vaultState) return;
-
-  const apiKey = process.env.NEXT_PUBLIC_FOSSIL_API_KEY;
+  if (!vaultState || !targetTimestamp) return;
   const identifiers = ["PITCH_LAKE_V1"];
   const params = createJobRequestParams(targetTimestamp);
   const clientInfo = {
@@ -30,7 +28,7 @@ export const createJobRequest = (
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "x-api-key": apiKey,
+      "x-api-key": "<REPLACE_ME>",
     },
     body: JSON.stringify({
       identifiers,
@@ -41,12 +39,11 @@ export const createJobRequest = (
 };
 
 export const createJobId = (
-  roundState: OptionRoundStateType | undefined,
+  targetTimestamp: string,
+  //roundState: OptionRoundStateType | undefined,
 ): string => {
-  if (!roundState?.optionSettleDate) return "";
-
   const identifiers = ["PITCH_LAKE_V1"];
-  const params = createJobRequestParams(roundState.optionSettleDate.toString());
+  const params = createJobRequestParams(targetTimestamp);
 
   const input = [
     ...identifiers,
