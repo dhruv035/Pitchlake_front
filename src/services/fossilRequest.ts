@@ -15,17 +15,16 @@ export const makeFossilCall = async (
   request.headers["x-api-key"] = process.env.FOSSIL_API_KEY;
 
   // Send Fossil request
-  console.log("fossil", { request });
+  let resp;
   try {
-    await fetch(
-      `${process.env.NEXT_PUBLIC_FOSSIL_API_URL_IPV4}/pricing_data`,
+    resp = await fetch(
+      `${process.env.NEXT_PUBLIC_FOSSIL_API_URL}/pricing_data`,
       request,
     );
   } catch (error) {
     console.log("Error sending Fossil request:", error);
   }
-
-  return;
+  resp;
 };
 
 export const makeFossilCallR1 = async (
@@ -40,15 +39,15 @@ export const makeFossilCallR1 = async (
   request.headers["x-api-key"] = process.env.FOSSIL_API_KEY;
 
   // Send Fossil request
-  console.log("fossil", { request });
+  let resp;
   try {
-    await fetch(
-      `${process.env.NEXT_PUBLIC_FOSSIL_API_URL_IPV4}/pricing_data`,
+    resp = await fetch(
+      `${process.env.NEXT_PUBLIC_FOSSIL_API_URL}/pricing_data`,
       request,
     );
   } catch (error) {
     console.log("Error sending Fossil request:", error);
   }
 
-  return;
+  return resp;
 };
