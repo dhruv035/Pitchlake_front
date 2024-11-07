@@ -8,22 +8,19 @@ import VaultCard from "@/components/Vault/VaultCard/VaultCard";
 
 export default function Home() {
   const vaults = [
-    // katana
+    "0x038cfc94b5626c9355910304622f8270eaef77b62cb850e1ca0e38ecedcdee5b",
     "0x2cbdf2381224c850975613fb42848ae1a3a608d91bcd7d7a59dcc2b459d98d4",
-    //"0x32454ad97dd3aeb2c1417214207fdd05c47034daa82a1a45130ae6a9c45d36b",
-    // "0x34cf1817ba460fdf34eb8de99b2ee8a21ea235b4d220e6394f4de98425abc95",
-    //    // juno
-    //    "",
-    //    // sepolia
-    //    "0x0115736e919f6825a64431760d228a937680ebae18a672f03b2c996fe1405a68",
-    //    // other
-    //    "0x5d3641202cb46479772cfe3be1fa1e3ef15c53c498c8f131fb5762f36470657",
+
+    // short round
+    "0x13257401fd2df63db6464035ab3ed13f3ef84ae71a07054f50d7bd20311e0a3",
+    "0x8f4e98c8c7f2698ff9a98df855116154f0482b93127dc79b15f05effbe8237",
   ];
 
   const [isModalVisible, setIsModalVisible] = useState<boolean>();
   const handleCreateClick = () => {};
   const ws = useRef<WebSocket | null>(null);
   const isLoaded = useState(false);
+
   // useEffect(() => {
   //   if (isLoaded) {
   //     ws.current = new WebSocket("ws://localhost:8080/subscribeHome");
@@ -66,7 +63,6 @@ export default function Home() {
       <p className="my-2 text-base text-white-alt py-2 font-medium">
         Popular Vaults
       </p>
-
       <div className="grid grid-cols-2 w-full pt-6 gap-x-6 gap-y-6">
         {vaults?.map((vault: string, index: number) => (
           // <VaultTimeline key={vault.address + idx.toString()} vault={vault} />

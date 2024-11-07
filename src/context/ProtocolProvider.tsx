@@ -22,6 +22,7 @@ import {
   VaultActionsType,
   VaultStateType,
 } from "@/lib/types";
+import { num } from "starknet";
 import { useProvider } from "@starknet-react/core";
 
 /*This is the bridge for any transactions to go through, it's disabled by isTxDisabled if there is data loading or if
@@ -46,7 +47,7 @@ export type ProtocolContextType = {
   selectedRoundBuyerState?: OptionBuyerStateType;
   setVaultAddress: Dispatch<SetStateAction<string | undefined>>;
   mockTimeForward: () => void;
-  timeStamp: Number;
+  mockTimestamp: Number;
   selectedRoundAddress: string | undefined;
   currentRoundAddress: string | undefined;
 };
@@ -71,13 +72,13 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
   } = useWebSocketVault(conn, vaultAddress);
 
   const [selectedRound, setSelectedRound] = useState<number>(0);
-  const [timeStamp, setTimeStamp] = useState(0);
+  const [mockTimestamp, setMockTimestamp] = useState(0);
   const mockTimeForward = () => {
-    if (conn === "mock") setTimeStamp((prevState) => prevState + 100001);
+    if (conn === "mock") setMockTimestamp((prevState) => prevState + 100001);
   };
 
   useEffect(() => {
-    setTimeStamp(Date.now());
+    setMockTimestamp(Date.now());
   }, []);
   const {
     optionRoundStates: optionRoundStatesMock,
@@ -180,11 +181,15 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
   );
 
   useEffect(() => {
+    if (!vaultState) return;
+
     if (selectedRound === 0)
-      if (vaultState?.currentRoundId) {
-        setSelectedRound(Number(vaultState.currentRoundId));
-      }
-  }, [selectedRound, vaultState?.currentRoundId]);
+      setSelectedRound(Number(vaultState.currentRoundId));
+
+    if (selectedRound > Number(vaultState.currentRoundId)) {
+      setSelectedRound(Number(vaultState.currentRoundId));
+    }
+  }, [vaultAddress, selectedRound, vaultState?.currentRoundId]);
   return (
     <ProtocolContext.Provider
       value={{
@@ -202,7 +207,7 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
         setVaultAddress,
         selectedRoundBuyerState,
         mockTimeForward,
-        timeStamp,
+        mockTimestamp,
         selectedRoundAddress: undefined,
         currentRoundAddress,
       }}

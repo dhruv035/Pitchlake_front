@@ -10,7 +10,9 @@ import { useProtocolContext } from "@/context/ProtocolProvider";
 import { num } from "starknet";
 import useERC20 from "@/hooks/erc20/useERC20";
 import { useAccount } from "@starknet-react/core";
+import useLatestTimetamp from "@/hooks/chain/useLatestTimestamp";
 import { useTransactionContext } from "@/context/TransactionProvider";
+import { useProvider } from "@starknet-react/core";
 
 interface EditModalProps {
   onConfirm: () => void;
@@ -33,6 +35,8 @@ const EditModal: React.FC<EditModalProps> = ({
 }) => {
   const { account } = useAccount();
   const { pendingTx } = useTransactionContext();
+  const { provider } = useProvider();
+  const { timestamp } = useLatestTimetamp(provider);
   const bid = bidToEdit
     ? bidToEdit.item
     : { amount: "0", price: "0", bid_id: "" };
@@ -95,6 +99,8 @@ const EditModal: React.FC<EditModalProps> = ({
         amount: num.toBigInt(cost),
         spender: selectedRoundState?.address ? selectedRoundState.address : "",
       });
+
+      onConfirm();
     }
   };
 
@@ -150,6 +156,8 @@ const EditModal: React.FC<EditModalProps> = ({
     if (pendingTx) return true;
     if (!state.newPriceGwei) return true;
     if (state.newPriceGwei === oldPriceGwei) return true;
+    if (!selectedRoundState) return true;
+    if (timestamp > Number(selectedRoundState.auctionEndDate)) return true;
 
     return false;
   };
@@ -175,6 +183,7 @@ const EditModal: React.FC<EditModalProps> = ({
     account,
     allowance,
     selectedRoundState?.address,
+    pendingTx,
   ]);
 
   return (

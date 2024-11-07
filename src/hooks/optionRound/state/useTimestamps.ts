@@ -2,7 +2,10 @@ import { optionRoundABI } from "@/abi";
 import useContractReads from "@/lib/useContractReads";
 import { useMemo } from "react";
 
-const useTimestamps = (address: string, args?: { watch?: boolean }) => {
+const useTimestamps = (
+  address: string | undefined,
+  args?: { watch?: boolean },
+) => {
   const watch = args?.watch ?? false;
   const contractData = useMemo(() => {
     return { abi: optionRoundABI, address };

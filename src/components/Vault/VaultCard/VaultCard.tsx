@@ -1,7 +1,11 @@
 import { Progress } from "antd";
 import styles from "./VaultCard.module.css";
 import { useRouter } from "next/navigation";
-import { shortenString, timeUntilTarget } from "@/lib/utils";
+import {
+  shortenString,
+  timeUntilTarget,
+  timeUntilTargetFormal,
+} from "@/lib/utils";
 import useVaultState from "@/hooks/vault/useVaultState";
 import {
   ActivityIcon,
@@ -22,12 +26,16 @@ import useLatestTimestamp from "@/hooks/chain/useLatestTimestamp";
 import { useProvider } from "@starknet-react/core";
 
 export default function VaultCard({ vaultAddress }: { vaultAddress: string }) {
+  const { provider } = useProvider();
+  const { lockedBalance, unlockedBalance, stashedBalance } =
+    useVaultBalances(vaultAddress);
+
   const { vaultState, currentRoundAddress } = useVaultState({
     conn: "rpc",
     address: vaultAddress,
     getRounds: false,
   }); //conn arguement hardcoded here. Make conn a context variable to feed everywhere
-  const { provider } = useProvider();
+
   const { roundState } = useRoundState(
     currentRoundAddress ? currentRoundAddress : "",
   );
@@ -38,23 +46,20 @@ export default function VaultCard({ vaultAddress }: { vaultAddress: string }) {
     currentRoundAddress ? currentRoundAddress : "",
   );
   const { timestamp } = useLatestTimestamp(provider);
-  const { auctionStartDate, optionSettleDate } = useTimestamps(
+  const { auctionStartDate, auctionEndDate, optionSettleDate } = useTimestamps(
     currentRoundAddress ? currentRoundAddress : "",
   );
-  const timeUntilTag = roundState == "Open" ? "STARTS IN" : "TIME LEFT";
+  const timeUntilText = roundState == "Open" ? "STARTS IN" : "TIME LEFT";
   const timeUntilValue = timeUntilTarget(
-    timestamp.toString(),
+    timestamp?.toString(),
     roundState == "Open"
       ? auctionStartDate
         ? auctionStartDate.toString()
         : timestamp.toString()
       : optionSettleDate
         ? optionSettleDate.toString()
-        : timestamp.toString(),
+        : timestamp?.toString(),
   );
-
-  const { lockedBalance, unlockedBalance, stashedBalance } =
-    useVaultBalances(vaultAddress);
 
   const router = useRouter();
   var myHeaders = new Headers();
@@ -71,18 +76,16 @@ export default function VaultCard({ vaultAddress }: { vaultAddress: string }) {
       <div className="bg-faded-black rounded-t-lg p-4 text-white">
         <div className="flex flex-row items-center">
           <p className="text-[14px] font-semibold">
-            {
-              //Add date logic
-              "1 Month"
-            }
+            {auctionEndDate && optionSettleDate
+              ? timeUntilTargetFormal(
+                  auctionEndDate.toString(),
+                  optionSettleDate.toString(),
+                )
+              : ""}
           </p>
           <div className="bg-primary-800 rounded-full w-[5px] h-[5px] m-2" />
           <p className="text-[16px] font-regular text-[var(--buttongrey)]">
-            {
-              "TODO"
-              //vaultState.vaultType
-              //Add vault type here
-            }
+            {vaultState?.vaultType ? vaultState.vaultType : "--"}
           </p>
         </div>
         <p className="text-[16px] font-regular text-[var(--buttongrey)]">
@@ -99,7 +102,6 @@ export default function VaultCard({ vaultAddress }: { vaultAddress: string }) {
               />
               <p className="font-regular text-[14px] text-[#BFBFBF]">APY:</p>
             </div>
-
             <p className="text-[#fafafa] font-medium text-[14px]">{"--"}</p>
           </div>
           <div className="flex flex-row justify-between m-2">
@@ -110,7 +112,6 @@ export default function VaultCard({ vaultAddress }: { vaultAddress: string }) {
               />
               <p className="font-regular text-[14px] text-[#BFBFBF]">Cap:</p>
             </div>
-
             <p className="text-[#fafafa] font-medium text-[14px]">
               {parseInt(capLevel.toString()) / 100}%
             </p>
@@ -123,7 +124,6 @@ export default function VaultCard({ vaultAddress }: { vaultAddress: string }) {
               />
               <p className="font-regular text-[14px] text-[#BFBFBF]">Strike:</p>
             </div>
-
             <p className="text-[#fafafa] font-medium text-[14px]">
               {parseFloat(formatUnits(strikePrice.toString(), "gwei")).toFixed(
                 2,
@@ -138,7 +138,6 @@ export default function VaultCard({ vaultAddress }: { vaultAddress: string }) {
               <TagIcon classname="w-4 h-4 mr-2" stroke={"var(--greyscale)"} />
               <p className="font-regular text-[14px] text-[#BFBFBF]">FEES:</p>
             </div>
-
             <p className="text-[#fafafa] font-medium text-[14px]">{"0"}%</p>
           </div>
           <div className="flex flex-row justify-between m-2">
@@ -149,7 +148,6 @@ export default function VaultCard({ vaultAddress }: { vaultAddress: string }) {
               />
               <p className="font-regular text-[14px] text-[#BFBFBF]">TVL:</p>
             </div>
-
             <p className="text-[#fafafa] font-medium text-[14px]">
               {parseFloat(
                 formatEther(
@@ -168,15 +166,12 @@ export default function VaultCard({ vaultAddress }: { vaultAddress: string }) {
                 stroke={"var(--greyscale)"}
               />
               <p className="font-regular text-[14px] text-[#BFBFBF]">
-                {timeUntilTag}
+                {timeUntilText}
               </p>
             </div>
 
             <p className="text-[#fafafa] font-medium text-[14px]">
-              {
-                timeUntilValue === "" ? "--" : timeUntilValue
-                //Add Time left from state here
-              }
+              {timeUntilValue === "" ? "--" : timeUntilValue}
             </p>
           </div>
         </div>

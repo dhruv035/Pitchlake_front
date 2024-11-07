@@ -5,8 +5,8 @@ import { stringToHex } from "@/lib/utils";
 import { useMemo } from "react";
 import useContractReads from "../../lib/useContractReads";
 import useOptionRoundActions from "../optionRound/useOptionRoundActions";
-import { CairoCustomEnum } from "starknet";
 import useOptionRoundState from "../optionRound/useOptionRoundState";
+import useTimestamps from "../optionRound/state/useTimestamps";
 
 const useVaultState = ({
   conn,
@@ -19,10 +19,6 @@ const useVaultState = ({
   selectedRound?: number | string;
   getRounds: boolean;
 }) => {
-  //const account = getDevAccount(
-  //  new RpcProvider({ nodeUrl: "http://localhost:5050/rpc" }),
-  //);
-
   const contractData = useMemo(() => {
     return {
       abi: vaultABI,
@@ -110,6 +106,17 @@ const useVaultState = ({
     watch: true,
   }) as unknown as LiquidityProviderStateType;
 
+  const { data: round1Address } = useContractRead({
+    ...contractData,
+    functionName: "get_round_address",
+    args: [1],
+    watch: false,
+  });
+
+  const { deploymentDate } = useTimestamps(
+    stringToHex(round1Address ? round1Address.toString() : ""),
+  );
+
   const { data: currentRoundAddress } = useContractRead({
     ...contractData,
     functionName: "get_round_address",
@@ -134,8 +141,6 @@ const useVaultState = ({
     useOptionRoundState(usableString);
 
   const roundAction = useOptionRoundActions(usableString);
-
-  // Memoize the states and actions
   const selectedRoundState = useMemo(
     () => optionRoundState,
     [optionRoundState],
@@ -156,7 +161,7 @@ const useVaultState = ({
       strikeLevel: strikeLevel ? strikeLevel.toString() : 0,
       ethAddress: ethAddress ? stringToHex(ethAddress?.toString()) : "",
       fossilClientAddress: fossilClientAddress
-        ? stringToHex(fossilClientAddress?.toString())
+        ? stringToHex(fossilClientAddress.toString())
         : "",
       currentRoundId: currentRoundId ? currentRoundId.toString() : 0,
       lockedBalance: lockedBalance ? lockedBalance.toString() : 0,
@@ -164,6 +169,7 @@ const useVaultState = ({
       stashedBalance: stashedBalance ? stashedBalance.toString() : 0,
       queuedBps: queuedBps ? queuedBps.toString() : 0,
       vaultType,
+      deploymentDate,
     } as VaultStateType,
     lpState,
     currentRoundAddress: currentRoundAddress

@@ -49,6 +49,7 @@ export type VaultStateType = {
   stashedBalance: number | bigint | string;
   queuedBps: number | bigint | string;
   now: number | bigint | string;
+  deploymentDate: string;
 };
 
 export type LiquidityProviderStateType = {

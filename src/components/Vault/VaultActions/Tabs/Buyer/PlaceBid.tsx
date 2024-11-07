@@ -12,6 +12,8 @@ import useERC20 from "@/hooks/erc20/useERC20";
 import { num } from "starknet";
 import { formatNumberText } from "@/lib/utils";
 import { useTransactionContext } from "@/context/TransactionProvider";
+import useLatestTimetamp from "@/hooks/chain/useLatestTimestamp";
+import { useProvider } from "@starknet-react/core";
 
 interface PlaceBidProps {
   showConfirmation: (
@@ -26,6 +28,8 @@ const LOCAL_STORAGE_KEY2 = "bidPriceGwei";
 
 const PlaceBid: React.FC<PlaceBidProps> = ({ showConfirmation }) => {
   const { vaultState, roundActions, selectedRoundState } = useProtocolContext();
+  const { provider } = useProvider();
+  const { timestamp } = useLatestTimetamp(provider);
   const { account } = useAccount();
   const { pendingTx } = useTransactionContext();
   const [needsApproval, setNeedsApproval] = useState<string>("0");
@@ -161,6 +165,9 @@ const PlaceBid: React.FC<PlaceBidProps> = ({ showConfirmation }) => {
       if (!account) return true;
       if (pendingTx) return true;
       if (!state.bidAmount || !state.bidPrice) return true;
+      if (!selectedRoundState) return true;
+      if (timestamp > Number(selectedRoundState.auctionEndDate)) return true;
+
       return false;
     };
 

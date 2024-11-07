@@ -6,11 +6,14 @@ import {
   LineChartUpIcon,
   BriefCaseIcon,
 } from "@/components/Icons";
-import { useEffect, useRef, useState } from "react";
-import useFossil from "@/hooks/fossil/useFossil";
+import { Clock } from "lucide-react";
+import { useMemo, useEffect, useRef, useState } from "react";
 import useFossilStatus from "@/hooks/fossil/useFossilStatus";
 import { Cog } from "lucide-react";
 import { createJobId, createJobRequest } from "@/lib/utils";
+import { makeFossilCall, makeFossilCallR1 } from "@/services/fossilRequest";
+import { useTransactionContext } from "@/context/TransactionProvider";
+import { num } from "starknet";
 
 const StateTransition = ({
   isPanelOpen,
@@ -19,56 +22,80 @@ const StateTransition = ({
   isPanelOpen: boolean;
   setModalState: any;
 }) => {
-  const { vaultState, vaultActions, selectedRoundState } = useProtocolContext();
-  const { provider } = useProvider();
-  const { timestamp } = useLatestTimestamp(provider);
-  const now = Number(timestamp);
+  const { vaultState, vaultActions, selectedRound, selectedRoundState } =
+    useProtocolContext();
+  const { pendingTx, status: txStatus } = useTransactionContext();
   const { account } = useAccount();
+  const { provider } = useProvider();
+  const { timestamp: timestampRaw } = useLatestTimestamp(provider);
+  const timestamp = timestampRaw ? timestampRaw : "0";
+  const { status, error, loading } = useFossilStatus(
+    createJobId(
+      selectedRoundState?.optionSettleDate
+        ? selectedRoundState.optionSettleDate.toString()
+        : "",
+    ),
+  );
+  const {
+    status: statusR1,
+    error: errorR1,
+    loading: loadingR1,
+  } = useFossilStatus(
+    createJobId(
+      vaultState?.deploymentDate ? vaultState.deploymentDate.toString() : "",
+    ),
+  );
+  const [transactionComplete, setTransactionComplete] = useState(false);
+  // to trigger btn disabled
+  const [isFossilReqSent, setIsFossilReqSent] = useState<boolean>(false);
+  const [isFossilReqSentR1, setIsFossilReqSentR1] = useState<boolean>(false);
 
-  const jobId = createJobId(selectedRoundState);
-  const { status, error, loading } = useFossilStatus(jobId);
-  const { fossilCallback } = useFossil(vaultState?.fossilClientAddress);
+  const roundState = useMemo(() => {
+    if (!vaultState || !selectedRoundState || !selectedRound) return "Settled";
 
-  const roundStateRaw = selectedRoundState
-    ? selectedRoundState.roundState.toString()
-    : "Settled";
+    const state = selectedRoundState.roundState.toString();
 
-  const [statePreReq, setStatePreReq] = useState<any>(roundStateRaw);
-  const getActionState = () => {
-    if (
-      roundStateRaw === "Open" ||
-      roundStateRaw === "Auctioning" ||
-      roundStateRaw === "Settled"
-    )
-      return roundStateRaw;
+    // No Fossil required
+    if (["Auctioning", "Settled"].includes(state)) return state;
+    // Check if the round data has been set (for Settlement)
+    else if (state === "Running") {
+      // Hook not running
+      if (!status && !error && !loading) return "FossilReady";
 
-    if (!error && !status) return statePreReq;
-    if (error || status.status == "Failed") return "FossilReady";
+      // Request was just sent before the hoook refreshes
+      if (isFossilReqSent || isFossilReqSentR1) return "FossilPending";
 
-    if (status?.status === "Pending") {
-      return "FossilPending";
+      // Request failed to finish (needs to be tried again)
+      if (status?.status === "Failed") return "FossilReady";
+      // Request failed to send
+      if (error) return "FossilReady";
+      // Request is pending
+      if (status?.status === "Pending") return "FossilPending";
+      // Request is complete
+      if (status?.status === "Completed") return "Running";
+
+      //  if (status?.status === "Failed" || error || status?.error) {
+      //    setIsFossilReqSent(false);
+      //    return "FossilReady";
+      //  }
     }
-    if (status?.status === "Completed") return "Running";
-
-    return roundStateRaw;
-  };
-  const roundState: any = getActionState();
-
-  useEffect(() => {
-    setStatePreReq(roundState);
-  }, [roundState]);
-
-  useEffect(() => {}, [selectedRoundState]);
-
-  // No data
-  if (!vaultState || !vaultActions || !selectedRoundState) {
-    return null;
-  }
+    // Check if it's the first round data has been set
+    else {
+      if (selectedRound === 1) {
+        // Pre-Auction Fossil Request for Round 1
+        if (!statusR1 && !errorR1 && !loadingR1) return "FossilReadyR1";
+        if (statusR1?.status === "Failed" || errorR1 || statusR1?.error)
+          return "FossilReadyR1";
+        if (statusR1?.status === "Pending") return "FossilPending";
+        if (statusR1?.status === "Completed") return "Open";
+      } else if (state === "Open") return state;
+    }
+  }, [selectedRoundState?.roundState, error, status, statusR1, errorR1]);
 
   const canAuctionStart = () => {
     if (
       roundState === "Open" &&
-      now >= Number(selectedRoundState.auctionStartDate)
+      num.toBigInt(timestamp) >= Number(selectedRoundState?.auctionStartDate)
     ) {
       return true;
     } else return false;
@@ -77,16 +104,17 @@ const StateTransition = ({
   const canAuctionEnd = () => {
     if (
       roundState === "Auctioning" &&
-      now >= Number(selectedRoundState.auctionEndDate)
+      num.toBigInt(timestamp) >= Number(selectedRoundState?.auctionEndDate)
     ) {
       return true;
     } else return false;
   };
 
   const canRoundSettle = () => {
+    if (!selectedRoundState) return false;
     if (
       roundState === "Running" &&
-      now >= Number(selectedRoundState.optionSettleDate)
+      num.toBigInt(timestamp) >= Number(selectedRoundState?.optionSettleDate)
     ) {
       return true;
     } else {
@@ -98,19 +126,27 @@ const StateTransition = ({
     if (
       roundState === "FossilReady" &&
       status?.status !== "Completed" &&
-      timestamp >= Number(selectedRoundState?.optionSettleDate)
+      num.toBigInt(timestamp) >= Number(selectedRoundState?.optionSettleDate)
     )
+      return true;
+    else return false;
+  };
+
+  const canFossilRequestR1 = () => {
+    if (roundState === "FossilReadyR1" && status?.status !== "Completed")
       return true;
     else return false;
   };
 
   const isButtonDisabled = () => {
     if (!account) return true;
+    if (pendingTx) return true;
     if (roundState === "Open") return !canAuctionStart();
     if (roundState === "Auctioning") return !canAuctionEnd();
     if (roundState === "Running") return !canRoundSettle();
     if (roundState === "FossilPending") return true;
     if (roundState === "FossilReady") return !canFossilRequest();
+    if (roundState === "FossilReadyR1") return !canFossilRequestR1();
     return false;
   };
 
@@ -119,12 +155,14 @@ const StateTransition = ({
     Auctioning: string;
     FossilPending: string;
     FossilReady: string;
+    FossilReadyR1: string;
     Running: string;
   } = {
     Open: "Start Auction",
     Auctioning: "End Auction",
-    FossilPending: "Fossil Pending...",
+    FossilPending: "Pending",
     FossilReady: "Request Fossil",
+    FossilReadyR1: "Request Fossil (1)",
     Running: "Settle Round",
   };
 
@@ -133,35 +171,26 @@ const StateTransition = ({
     | "Auctioning"
     | "FossilPending"
     | "FossilReady"
+    | "FossilReadyR1"
     | "Running";
-
-  const makeFossilCall = async () => {
-    // Fossil request
-    try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_FOSSIL_API_URL}/pricing_data`,
-        createJobRequest(
-          vaultState,
-          selectedRoundState.optionSettleDate.toString(),
-        ),
-      );
-    } catch (error) {
-      console.log("Error sending Fossil request:", error);
-    }
-
-    return;
-  };
 
   const setModalStateConditionally = () => {
     setModalState({
       show: true,
       action: actions[roundState as State],
       onConfirm: async () => {
-        if (roundState === "Open") await vaultActions.startAuction();
-        else if (roundState === "Auctioning") await vaultActions.endAuction();
+        // Send Fossil request to set round 1's pricing data
+        if (roundState === "FossilReadyR1") makeFossilCallR1(vaultState);
+        // Send Fossil request to set the settlement/next round's pricing data
         else if (roundState === "FossilReady") {
-          makeFossilCall();
-        } else if (roundState === "Running")
+          makeFossilCall(vaultState, selectedRoundState);
+        }
+        // Start the auction
+        else if (roundState === "Open") await vaultActions.startAuction();
+        // End the auction
+        else if (roundState === "Auctioning") await vaultActions.endAuction();
+        // Settle the round
+        else if (roundState === "Running")
           await vaultActions.settleOptionRound();
 
         setModalState((prev: any) => ({
@@ -178,15 +207,20 @@ const StateTransition = ({
         ? "var(--greyscale)"
         : "var(--primary)";
 
-    if (roundState === "Open") {
+    if (
+      pendingTx ||
+      roundState === "FossilPending" ||
+      roundState === "FossilPendingR1"
+    )
+      return <Clock className="w-4 h-4 ml-2" />;
+
+    if (roundState === "Open")
       return <LineChartUpIcon classname="w-4 h-4 ml-2" stroke={stroke} />;
-    } else if (roundState === "Auctioning") {
+    else if (roundState === "Auctioning")
       return <LineChartDownIcon classname="w-4 h-4 ml-2" stroke={stroke} />;
-    } else if (roundState === "FossilReady") {
+    else if (roundState === "FossilReady")
       return <Cog className="w-4 h-4 ml-2" stroke={stroke} />;
-    } else if (roundState === "FossilPending") {
-      return;
-    } else if (roundState === "Running") {
+    else if (roundState === "Running")
       return (
         <BriefCaseIcon
           classname="w-4 h-4 ml-2"
@@ -194,38 +228,28 @@ const StateTransition = ({
           stroke={stroke}
         />
       );
-    }
   };
 
-  // Only the current round can transition states
-  if (vaultState.currentRoundId !== selectedRoundState.roundId) {
+  useEffect(() => {
+    if (!pendingTx && !transactionComplete) {
+      setTransactionComplete(true);
+      // Delay setting transaction complete to allow state changes to finalize
+      //const timer = setTimeout(() => setTransactionComplete(true), 1);
+      //return () => clearTimeout(timer);
+    }
+  }, [pendingTx, txStatus]);
+
+  // No data
+  if (!vaultState || !vaultActions || !selectedRoundState) {
     return null;
   }
 
-  // For first round only
-  // First round needs Fossil request before auction starts
-  //if (vaultState.currentRoundId === 1) {
-  //  if (selectedRoundState.roundState === "Open") {
-  //    // if fossil job not already started
-
-  //    // do we care if it is delayed
-  //    return (
-  //      <Button
-  //        style={{ flex: 1 }}
-  //        className={[buttons.button, buttons.confirm].join(" ")}
-  //        title="Send Request to Fossil"
-  //        disabled={false}
-  //        onClick={async () => {
-  //          console.log("Sending request to fossil...");
-  //        }}
-  //      >
-  //        Request Fossil Data (TODO)
-  //      </Button>
-  //    );
-  //  }
-  //}
-
-  if (roundState === "Settled") {
+  // No action
+  if (
+    !transactionComplete ||
+    roundState === "Settled" ||
+    vaultState.currentRoundId !== selectedRoundState.roundId
+  ) {
     return null;
   }
 
@@ -241,7 +265,7 @@ const StateTransition = ({
             setModalStateConditionally();
           }}
         >
-          <p>{actions[roundState as State]}</p>
+          <p>{pendingTx ? "Pending" : actions[roundState as State]}</p>
           {getIcon()}
         </button>
       </div>

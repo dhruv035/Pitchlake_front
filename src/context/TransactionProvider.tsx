@@ -40,8 +40,7 @@ export const TransactionContext = createContext<TransactionContextType>(
 const TransactionProvider = ({ children }: { children: ReactNode }) => {
   const [isDev, setIsDev] = useState<boolean>(false);
   const devAccount = getDevAccount(
-    //new RpcProvider({ nodeUrl: "http://localhost:5050/rpc" }),
-    new RpcProvider({ nodeUrl: process.env.NEXT_PUBLIC }),
+    new RpcProvider({ nodeUrl: "http://localhost:5050/rpc" }),
   );
   const [isTxDisabled, setIsTxDisabled] = useState<boolean>(false);
 

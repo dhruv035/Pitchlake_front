@@ -44,8 +44,7 @@ import useFossilStatus from "@/hooks/fossil/useFossilStatus";
 // comment for git
 
 const PanelLeft = ({ userType }: { userType: string }) => {
-  const { vaultState, selectedRoundState, currentRoundAddress } =
-    useProtocolContext();
+  const { vaultState, selectedRoundState } = useProtocolContext();
   const [vaultIsOpen, setVaultIsOpen] = useState<boolean>(true);
   const [optionRoundIsOpen, setOptionRoundIsOpen] = useState<boolean>(true);
   const [isPanelOpen, setIsPanelOpen] = useState<boolean>(false);

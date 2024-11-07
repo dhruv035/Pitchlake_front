@@ -27,6 +27,7 @@ const useMockVault = (selectedRound: number, address?: string) => {
     queuedBps: "0",
     strikeLevel: "-1111",
     now: "0",
+    deploymentDate: "0",
   });
   //States without a param
 
