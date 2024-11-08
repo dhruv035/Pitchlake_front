@@ -31,7 +31,7 @@ export const juno = {
       http: [],
     },
     public: {
-      http: ["http://localhost:6060/rpc"],
+      http: ["http://localhost:6060"],
     },
   },
 } as const satisfies Chain;
