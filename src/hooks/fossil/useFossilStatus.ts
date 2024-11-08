@@ -32,7 +32,6 @@ const useFossilStatus = (
     setLoading(true);
     try {
       const jobId = createJobId(targetTimestamp);
-      console.log("jobid ", jobId, targetTimestamp, roundId);
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_FOSSIL_API_URL}/job_status/${jobId}`,
       );
