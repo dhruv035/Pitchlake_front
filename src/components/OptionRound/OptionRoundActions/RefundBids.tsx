@@ -22,44 +22,44 @@ import useERC20 from "@/hooks/erc20/useERC20";
 import { useAccount } from "@starknet-react/core";
 import { useTransactionContext } from "@/context/TransactionProvider";
 
-export default function RefundBids({
-  vaultState,
-  optionRoundState,
-  refundBids,
-}: {
-  vaultState: VaultStateType;
-  optionRoundState: OptionRoundStateType;
-  refundBids: (refundBidArgs: RefundBidsArgs) => Promise<void>;
-}) {
-  const [amount, setAmount] = useState<string>("");
-  const [price, setPrice] = useState<string>("");
-  const { account } = useAccount();
-  const { isDev, devAccount } = useTransactionContext();
-  const [displayInsufficientBalance, setDisplayInsufficientBalance] =
-    useState<boolean>(false);
-
-  return (
-    <div className={classes.container}>
-      <p className={classes.title}>{"Refund Bids"}</p>
-      <div style={{ width: "100%" }}>
-        <Button
-          style={{ flex: 1 }}
-          className={[buttons.button, buttons.confirm].join(" ")}
-          title="Refund Bids"
-          disabled={
-            //!isDepositClickable || displayInsufficientBalance
-            false
-          }
-          onClick={async () => {
-            if (account)
-              await refundBids({
-                optionBuyer: account.address,
-              });
-          }}
-        >
-          Refund Bids
-        </Button>
-      </div>
-    </div>
-  );
-}
+//export default function RefundBids({
+//  vaultState,
+//  optionRoundState,
+//  refundBids,
+//}: {
+//  vaultState: VaultStateType;
+//  optionRoundState: OptionRoundStateType;
+//  refundBids: (refundBidArgs: RefundBidsArgs) => Promise<void>;
+//}) {
+//  const [amount, setAmount] = useState<string>("");
+//  const [price, setPrice] = useState<string>("");
+//  const { account } = useAccount();
+//  const { isDev, devAccount } = useTransactionContext();
+//  const [displayInsufficientBalance, setDisplayInsufficientBalance] =
+//    useState<boolean>(false);
+//
+//  return (
+//    <div className={classes.container}>
+//      <p className={classes.title}>{"Refund Bids"}</p>
+//      <div style={{ width: "100%" }}>
+//        <Button
+//          style={{ flex: 1 }}
+//          className={[buttons.button, buttons.confirm].join(" ")}
+//          title="Refund Bids"
+//          disabled={
+//            //!isDepositClickable || displayInsufficientBalance
+//            false
+//          }
+//          onClick={async () => {
+//            if (account)
+//              await refundBids({
+//                optionBuyer: account.address,
+//              });
+//          }}
+//        >
+//          Refund Bids
+//        </Button>
+//      </div>
+//    </div>
+//  );
+//}

@@ -49,6 +49,7 @@ export type VaultStateType = {
   stashedBalance: number | bigint | string;
   queuedBps: number | bigint | string;
   now: number | bigint | string;
+  deploymentDate: string;
 };
 
 export type LiquidityProviderStateType = {
@@ -61,10 +62,12 @@ export type LiquidityProviderStateType = {
 
 export type OptionBuyerStateType = {
   address: string;
+  bids: string[];
   roundId: bigint | number | string;
   tokenizableOptions: bigint | number | string;
   refundableBalance: bigint | number | string;
-  bids: string[];
+  totalOptions: bigint | number | string;
+  payoutBalance: bigint | number | string;
 };
 
 export type VaultActionsType = {
@@ -149,8 +152,7 @@ export type OptionRoundActionsType = {
 
 export type UpdateBidArgs = {
   bidId: string;
-  amount: number | bigint;
-  price: number | bigint;
+  priceIncrease: number | bigint;
 };
 export type PlaceBidArgs = {
   amount: number | bigint;

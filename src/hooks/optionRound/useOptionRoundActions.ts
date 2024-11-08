@@ -64,7 +64,6 @@ const useOptionRoundActions = (address?: string) => {
   );
   const placeBid = useCallback(
     async (args: PlaceBidArgs) => {
-      console.log("placing a bid", args);
       await callContract("place_bid")(args);
     },
     [callContract],
@@ -85,7 +84,7 @@ const useOptionRoundActions = (address?: string) => {
   );
 
   const tokenizeOptions = useCallback(async () => {
-    await callContract("tokenize_options")();
+    await callContract("mint_options")();
   }, [callContract]);
 
   const exerciseOptions = useCallback(async () => {

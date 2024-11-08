@@ -126,7 +126,7 @@ const useOptionRoundState = (address: string | undefined) => {
     payoutBalance,
   } = useContractReads({
     contractData,
-
+    watch: true,
     states: [
       {
         functionName: "get_bid_tree_nonce",
@@ -205,15 +205,15 @@ const useOptionRoundState = (address: string | undefined) => {
   return {
     optionRoundState: {
       address,
-      vaultAddress: vaultAddress?.toString(),
+      vaultAddress: vaultAddress ? vaultAddress.toString() : "",
       roundId: roundId ? roundId.toString() : 0,
       roundState: roundState
         ? (roundState as CairoCustomEnum).activeVariant()
         : "",
-      deploymentDate: deploymentDate?.toString(),
-      auctionStartDate: auctionStartDate?.toString(),
-      auctionEndDate: auctionEndDate?.toString(),
-      optionSettleDate: optionSettleDate?.toString(),
+      deploymentDate: deploymentDate ? deploymentDate.toString() : "0",
+      auctionStartDate: auctionStartDate ? auctionStartDate.toString() : "0",
+      auctionEndDate: auctionEndDate ? auctionEndDate.toString() : "0",
+      optionSettleDate: optionSettleDate ? optionSettleDate.toString() : "0",
       startingLiquidity: startingLiquidity ? startingLiquidity.toString() : 0,
       soldLiquidity: soldLiquidity ? soldLiquidity.toString() : 0,
       unsoldLiquidity: unsoldLiquidity ? unsoldLiquidity.toString() : 0,
@@ -228,9 +228,9 @@ const useOptionRoundState = (address: string | undefined) => {
       totalPayout: totalPayout ? totalPayout.toString() : 0,
       payoutPerOption: totalPayout
         ? optionsSold
-          ? Number(num.toBigInt(optionsSold.toString())) > 0
-            ? Number(num.toBigInt(totalPayout.toString())) /
-              Number(num.toBigInt(optionsSold.toString()))
+          ? num.toBigInt(num.toBigInt(optionsSold.toString())) > 0
+            ? num.toBigInt(num.toBigInt(totalPayout.toString())) /
+              num.toBigInt(num.toBigInt(optionsSold.toString()))
             : 0
           : 0
         : 0, // replace ?
@@ -241,9 +241,9 @@ const useOptionRoundState = (address: string | undefined) => {
     } as OptionRoundStateType,
     optionBuyerState: {
       address: account?.address as string,
+      bids: bids ? bids : [],
       roundId: roundId ? roundId.toString() : 0,
       bidderNonce: biddingNonce ? biddingNonce.toString() : 0,
-      bids: bids ? bids : [],
       refundableBalance: refundableBids ? refundableBids.toString() : 0,
       tokenizableOptions: tokenizableOptions
         ? tokenizableOptions.toString()

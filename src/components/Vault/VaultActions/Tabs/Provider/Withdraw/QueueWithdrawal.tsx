@@ -1,12 +1,14 @@
-import React from "react";
+import React, { ReactNode } from "react";
 import { VaultStateType, LiquidityProviderStateType } from "@/lib/types";
 import ActionButton from "@/components/Vault/Utils/ActionButton";
 import { useProtocolContext } from "@/context/ProtocolProvider";
+import { useTransactionContext } from "@/context/TransactionProvider";
+import { useAccount } from "@starknet-react/core";
 
 interface WithdrawQueueProps {
   showConfirmation: (
     modalHeader: string,
-    action: string,
+    action: ReactNode,
     onConfirm: () => Promise<void>,
   ) => void;
 }
@@ -15,6 +17,8 @@ const WithdrawLiquidity: React.FC<WithdrawQueueProps> = ({
   showConfirmation,
 }) => {
   const { vaultActions, lpState } = useProtocolContext();
+  const { pendingTx } = useTransactionContext();
+  const { account } = useAccount();
   const [state, setState] = React.useState({
     percentage: "0",
     //isButtonDisabled: true,
@@ -41,12 +45,13 @@ const WithdrawLiquidity: React.FC<WithdrawQueueProps> = ({
   };
 
   const isButtonDisabled = (): boolean => {
+    if (!account) return true;
+    if (pendingTx) return true;
     if (
       state.percentage ===
       bpsToPercentage(lpState?.queuedBps ? lpState.queuedBps.toString() : "0")
-    ) {
+    )
       return true;
-    }
 
     return false;
   };
@@ -61,9 +66,19 @@ const WithdrawLiquidity: React.FC<WithdrawQueueProps> = ({
   const handleSubmit = () => {
     showConfirmation(
       "Liquidity Withdraw",
-      `update how much of your locked position will be stashed from ${bpsToPercentage(lpState?.queuedBps ? lpState.queuedBps.toString() : "0")}% to ${parseFloat(
-        state.percentage,
-      ).toFixed(0)}%`,
+      <>
+        update how much of your locked position will be stashed from{" "}
+        <span className="font-semibold text-[#fafafa]">
+          {bpsToPercentage(
+            lpState?.queuedBps ? lpState.queuedBps.toString() : "0",
+          )}
+          %
+        </span>{" "}
+        to{" "}
+        <span className="font-semibold text-[#fafafa]">
+          {state.percentage}%
+        </span>
+      </>,
       queueWithdrawal,
     );
   };
@@ -74,7 +89,7 @@ const WithdrawLiquidity: React.FC<WithdrawQueueProps> = ({
       percentage: bpsToPercentage(lpState?.queuedBps?.toString() || "0"),
       //isButtonDisabled: true,
     });
-  }, []);
+  }, [account, pendingTx]);
 
   return (
     <div className="flex flex-col h-full">

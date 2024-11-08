@@ -17,12 +17,13 @@ const useContractReads = ({
 
   // Iterate over the states array and call useContractRead for each state
   states.forEach((state) => {
-     // eslint-disable-next-line react-hooks/rules-of-hooks
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     const { data } = useContractRead({
       ...contractData,
       functionName: state.functionName,
       args: state.args ?? [], // Default to an empty array if no args are provided
       watch,
+      //refetchInterval: 10000,
     });
 
     // Store the data using the state's key
@@ -36,6 +37,5 @@ const useContractReads = ({
     return { ...results };
   }, [states, contractData, watch]);
 };
-
 
 export default useContractReads;

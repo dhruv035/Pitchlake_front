@@ -19,15 +19,21 @@ import History from "@/components/Vault/VaultActions/Tabs/Buyer/History";
 import Exercise from "@/components/Vault/VaultActions/Tabs/Buyer/Exercise";
 import Refund from "@/components/Vault/VaultActions/Tabs/Buyer/Refund";
 import MyInfo from "@/components/Vault/VaultActions/Tabs/Provider/MyInfo";
-import { mockHistoryItems } from "@/components/Vault/MockData";
-import { useProtocolContext } from "@/context/ProtocolProvider";
+import { useTransactionContext } from "@/context/TransactionProvider";
 
-export const useTabContent = (userType: string, activeTab: string,selectedRoundState:OptionRoundStateType|undefined) => {
-
-  console.log("CHECK THIS",selectedRoundState)
+export const useTabContent = (
+  userType: string,
+  activeTab: string,
+  selectedRoundState: OptionRoundStateType | undefined,
+  isTabsHidden: boolean,
+  bidToEdit: any,
+  userBids: any,
+  setIsTabsHidden: (open: boolean) => void,
+  setBidToEdit: (bid: any) => void,
+) => {
+  const { pendingTx } = useTransactionContext();
   const commonTabs = [CommonTabs.MyInfo];
   const tabs = useMemo(() => {
-    console.log("RERENDERED")
     if (userType === "lp") {
       return [...Object.values(ProviderTabs), ...commonTabs];
     } else {
@@ -44,7 +50,7 @@ export const useTabContent = (userType: string, activeTab: string,selectedRoundS
           return [];
       }
     }
-  }, [userType,selectedRoundState?.roundState]);
+  }, [userType, selectedRoundState?.roundState]);
 
   const tabContent = useMemo(() => {
     switch (activeTab) {
@@ -55,13 +61,21 @@ export const useTabContent = (userType: string, activeTab: string,selectedRoundS
       case BuyerTabs.PlaceBid:
         return <PlaceBid showConfirmation={(amount, action) => {}} />;
       case BuyerTabs.History:
-        return <History items={mockHistoryItems} />;
+        return (
+          <History
+            items={userBids}
+            bidToEdit={bidToEdit}
+            isTabsHidden={isTabsHidden}
+            setIsTabsHidden={setIsTabsHidden}
+            setBidToEdit={setBidToEdit}
+          />
+        );
       case BuyerTabs.Refund:
-        return <Refund showConfirmation={(amount, action)=>{}}/>;
+        return <Refund showConfirmation={(amount, action) => {}} />;
       case BuyerTabs.Mint:
-        return <Mint showConfirmation={(amount, action)=>{}}/>;
+        return <Mint showConfirmation={(amount, action) => {}} />;
       case BuyerTabs.Exercise:
-        return <Exercise />;
+        return <Exercise showConfirmation={(amount, action) => {}} />;
       case CommonTabs.MyInfo:
         return <MyInfo />;
       default:
@@ -70,8 +84,7 @@ export const useTabContent = (userType: string, activeTab: string,selectedRoundS
           return <DepositContent showConfirmation={(amount, action) => {}} />;
         }
     }
-  }, [userType, activeTab,selectedRoundState?.roundState]);
-
+  }, [userType, activeTab, selectedRoundState?.roundState, pendingTx]);
 
   return { tabs, tabContent };
 };

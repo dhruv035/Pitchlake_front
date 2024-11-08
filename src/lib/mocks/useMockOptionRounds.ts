@@ -12,7 +12,6 @@ import { useAccount } from "@starknet-react/core";
 const useMockOptionRounds = (selectedRound: number) => {
   const { address } = useAccount();
   const date = Date.now();
-  console.log("HOOK DATE", date);
   const [rounds, setRounds] = useState<OptionRoundStateType[]>(
     // Initial mock data for option round states
     [
@@ -54,6 +53,8 @@ const useMockOptionRounds = (selectedRound: number) => {
       roundId: 0,
       tokenizableOptions: 11,
       refundableBalance: 24,
+      totalOptions: 35,
+      payoutBalance: 100,
       bids: [],
     },
   ]);

@@ -97,19 +97,10 @@ export default function UpdateBid({
                   false
                 }
                 onClick={async () => {
-                  if (isDev) {
-                    if (devAccount)
-                      await updateBid({
-                        bidId,
-                        amount: BigInt(amount),
-                        price: BigInt(price),
-                      });
-                  }
                   if (account)
                     await updateBid({
                       bidId,
-                      amount: BigInt(amount),
-                      price: BigInt(price),
+                      priceIncrease: BigInt(price),
                     });
                 }}
               >

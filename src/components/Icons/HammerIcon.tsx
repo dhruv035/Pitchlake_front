@@ -11,6 +11,7 @@ const HammerIcon = ({
     <svg
       className={classname}
       fill={fill}
+      stroke={stroke}
       width="49"
       height="49"
       viewBox="0 0 49 49"

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, ReactNode } from "react";
 import {
   LiquidityProviderStateType,
   VaultStateType,
@@ -14,7 +14,7 @@ import { CairoCustomEnum } from "starknet";
 interface WithdrawProps {
   showConfirmation: (
     modalHeader: string,
-    action: string,
+    action: ReactNode,
     onConfirm: () => Promise<void>,
   ) => void;
 }

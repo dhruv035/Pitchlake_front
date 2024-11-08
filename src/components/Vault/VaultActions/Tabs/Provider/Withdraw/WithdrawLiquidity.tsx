@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, ReactNode } from "react";
 import {
   LiquidityProviderStateType,
   VaultStateType,
@@ -11,22 +11,28 @@ import { formatEther, parseEther } from "ethers";
 import { useProtocolContext } from "@/context/ProtocolProvider";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
+import { useTransactionContext } from "@/context/TransactionProvider";
+import { useAccount } from "@starknet-react/core";
 
 interface WithdrawLiquidityProps {
   showConfirmation: (
     modalHeader: string,
-    action: string,
+    action: ReactNode,
     onConfirm: () => Promise<void>,
   ) => void;
 }
+
+const LOCAL_STORAGE_KEY = "withdrawAmount";
 
 const WithdrawLiquidity: React.FC<WithdrawLiquidityProps> = ({
   showConfirmation,
 }) => {
   const { lpState, vaultActions } = useProtocolContext();
   const [state, setState] = useState({
-    amount: "0",
+    amount: localStorage.getItem(LOCAL_STORAGE_KEY) || "",
   });
+  const { pendingTx } = useTransactionContext();
+  const { account } = useAccount();
 
   const updateState = (updates: Partial<typeof state>) => {
     setState((prevState: typeof state) => ({ ...prevState, ...updates }));
@@ -34,21 +40,28 @@ const WithdrawLiquidity: React.FC<WithdrawLiquidityProps> = ({
 
   const liquidityWithdraw = async (): Promise<void> => {
     await vaultActions.withdrawLiquidity({ amount: parseEther(state.amount) });
+    localStorage.removeItem(LOCAL_STORAGE_KEY);
   };
 
   const handleSubmit = () => {
     showConfirmation(
       "Liquidity Withdraw",
-      `withdraw ${state.amount} ETH from your unlocked balance?`,
+      <>
+        withdraw
+        <br />
+        <span className="font-semibold text-[#fafafa]">
+          {state.amount} ETH
+        </span>{" "}
+        from your unlocked balance
+      </>,
       liquidityWithdraw,
     );
   };
 
   const isWithdrawDisabled = (): boolean => {
-    // No negatives
-    if (Number(state.amount) <= Number(0)) {
-      return true;
-    }
+    if (!account) return true;
+    if (pendingTx) return true;
+    if (Number(state.amount) <= Number(0)) return true;
 
     // No more than unlocked balance
     let unlockedBalance = lpState?.unlockedBalance
@@ -59,14 +72,16 @@ const WithdrawLiquidity: React.FC<WithdrawLiquidityProps> = ({
         : 0.0
       : 0.0;
 
-    console.log("unlockedBalance as float", unlockedBalance);
-
     if (Number(state.amount) > unlockedBalance) {
       return true;
     }
 
     return false;
   };
+
+  useEffect(() => {
+    localStorage.setItem(LOCAL_STORAGE_KEY, state.amount);
+  }, [state.amount, account]);
 
   return (
     <>
@@ -76,7 +91,14 @@ const WithdrawLiquidity: React.FC<WithdrawLiquidityProps> = ({
             type="number"
             value={state.amount || ""}
             label="Enter Amount"
-            onChange={(e) => updateState({ amount: e.target.value })}
+            onChange={(e) => {
+              const value = e.target.value;
+              const formattedValue = value.includes(".")
+                ? value.slice(0, value.indexOf(".") + 19)
+                : value;
+
+              updateState({ amount: formattedValue });
+            }}
             placeholder="e.g. 5.0"
             icon={
               <FontAwesomeIcon
@@ -91,7 +113,10 @@ const WithdrawLiquidity: React.FC<WithdrawLiquidityProps> = ({
         <div className="px-6 flex justify-between text-sm mb-6 mt-auto">
           <span className="text-gray-400">Unlocked Balance</span>
           <span className="text-white">
-            {formatEther(lpState?.unlockedBalance?.toString() || "0")} ETH
+            {parseFloat(
+              formatEther(lpState?.unlockedBalance?.toString() || "0"),
+            ).toFixed(3)}{" "}
+            ETH
           </span>
         </div>
         <div className="mt-[auto] flex justify-between text-sm border-t border-[#262626] p-6">

@@ -5,6 +5,7 @@ import { sepolia, mainnet, devnet, Chain } from "@starknet-react/chains";
 import {
   StarknetConfig,
   publicProvider,
+  useNetwork,
   argent,
   braavos,
   useInjectedConnectors,
@@ -27,26 +28,36 @@ export const StarknetProvider = ({
     order: "alphabetical",
   });
 
-  // function rpc(chain: Chain) {
-  //   return {
-  //     nodeUrl: `https://{chain.network}.example.org`,
-  //   };
-  // }
-
   function rpc(chain: Chain) {
-    return {
-      nodeUrl: `http://localhost:5050/rpc`,
-    };
+    switch (chain.network) {
+      case "sepolia":
+        return {
+          nodeUrl: process.env.NEXT_PUBLIC_RPC_URL_SEPOLIA,
+        };
+      case "mainnet":
+        return {
+          nodeUrl: process.env.NEXT_PUBLIC_RPC_URL_MAINNET,
+        };
+
+      case "devnet":
+        return {
+          nodeUrl: process.env.NEXT_PUBLIC_RPC_URL_DEVNET,
+        };
+      default:
+        return {
+          nodeUrl: process.env.NEXT_PUBLIC_RPC_URL_DEVNET,
+        };
+    }
   }
   const provider = jsonRpcProvider({ rpc });
 
   return (
     <StarknetConfig
-      chains={[devnet]}
-      //chains={[mainnet, sepolia, devnet]}
+      chains={[sepolia, mainnet, devnet]}
       provider={provider}
       connectors={connectors}
       explorer={voyager}
+      autoConnect={true}
     >
       {children}
     </StarknetConfig>

@@ -15,9 +15,9 @@ const BalanceTooltip: React.FC<BalanceTooltipProps> = ({
   balance,
   children,
 }) => {
+  const [tooltipStyles, setTooltipStyles] = useState<React.CSSProperties>({});
   const [isHovered, setIsHovered] = useState(false);
   const iconRef = useRef<HTMLDivElement>(null);
-  const [tooltipStyles, setTooltipStyles] = useState<React.CSSProperties>({});
 
   useEffect(() => {
     if (isHovered && iconRef.current) {
@@ -70,19 +70,22 @@ const BalanceTooltip: React.FC<BalanceTooltipProps> = ({
               <div className="p-2 px-4 pb-0 flex justify-between">
                 <span>Locked</span>
                 <span>
-                  {Number(formatEther(balance.locked)).toFixed(2) || "0"} ETH
+                  {parseFloat(formatEther(balance.locked)).toFixed(3) || "0"}{" "}
+                  ETH
                 </span>
               </div>
               <div className="p-2 px-4 pb-0 flex justify-between">
                 <span>Unlocked</span>
                 <span>
-                  {Number(formatEther(balance.unlocked)).toFixed(2) || "0"} ETH
+                  {parseFloat(formatEther(balance.unlocked)).toFixed(3) || "0"}{" "}
+                  ETH
                 </span>
               </div>
               <div className="p-2 px-4 pb-0 flex justify-between">
                 <span>Stashed</span>
                 <span>
-                  {Number(formatEther(balance.stashed)).toFixed(2) || "0"} ETH
+                  {parseFloat(formatEther(balance.stashed)).toFixed(3) || "0"}{" "}
+                  ETH
                 </span>
               </div>
             </div>
