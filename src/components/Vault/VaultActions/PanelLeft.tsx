@@ -39,7 +39,6 @@ import { BalanceTooltip } from "@/components/BaseComponents/Tooltip";
 import StateTransition from "@/components/Vault/VaultActions/StateTransition";
 import { useProvider } from "@starknet-react/core";
 import useLatestTimestamp from "@/hooks/chain/useLatestTimestamp";
-import useFossilStatus from "@/hooks/fossil/useFossilStatus";
 
 // comment for git
 
