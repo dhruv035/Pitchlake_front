@@ -30,21 +30,15 @@ const StateTransition = ({
   const { timestamp: timestampRaw } = useLatestTimestamp(provider);
   const timestamp = timestampRaw ? timestampRaw : "0";
   const { status, error, loading } = useFossilStatus(
-    createJobId(
-      selectedRoundState?.optionSettleDate
-        ? selectedRoundState.optionSettleDate.toString()
-        : "",
-    ),
+    selectedRoundState?.optionSettleDate?.toString(),
+    selectedRoundState?.roundId?.toString(),
   );
   const {
     status: statusR1,
     error: errorR1,
     loading: loadingR1,
-  } = useFossilStatus(
-    createJobId(
-      vaultState?.deploymentDate ? vaultState.deploymentDate.toString() : "",
-    ),
-  );
+  } = useFossilStatus(vaultState?.deploymentDate?.toString(), "1");
+
   const [transactionComplete, setTransactionComplete] = useState(false);
   // to trigger btn disabled
   const [isFossilReqSent, setIsFossilReqSent] = useState<boolean>(false);
