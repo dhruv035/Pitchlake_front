@@ -14,6 +14,28 @@ import {
 } from "@starknet-react/core";
 import { Provider } from "starknet";
 
+export const juno = {
+  id: BigInt("0x1111"),
+  network: "juno",
+  name: "Juno Devnet",
+  nativeCurrency: {
+    address:
+      "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+    name: "Ether",
+    symbol: "ETH",
+    decimals: 18,
+  },
+  testnet: true,
+  rpcUrls: {
+    default: {
+      http: [],
+    },
+    public: {
+      http: ["http://localhost:6060/rpc"],
+    },
+  },
+} as const satisfies Chain;
+
 export const StarknetProvider = ({
   children,
 }: {
@@ -30,6 +52,10 @@ export const StarknetProvider = ({
 
   function rpc(chain: Chain) {
     switch (chain.network) {
+      case "juno":
+        return {
+          nodeUrl: process.env.NEXT_PUBLIC_RPC_URL_JUNO_DEVNET,
+        };
       case "sepolia":
         return {
           nodeUrl: process.env.NEXT_PUBLIC_RPC_URL_SEPOLIA,
@@ -38,7 +64,6 @@ export const StarknetProvider = ({
         return {
           nodeUrl: process.env.NEXT_PUBLIC_RPC_URL_MAINNET,
         };
-
       case "devnet":
         return {
           nodeUrl: process.env.NEXT_PUBLIC_RPC_URL_DEVNET,
@@ -53,7 +78,7 @@ export const StarknetProvider = ({
 
   return (
     <StarknetConfig
-      chains={[sepolia, mainnet, devnet]}
+      chains={[juno, sepolia, mainnet, devnet]}
       provider={provider}
       connectors={connectors}
       explorer={voyager}
