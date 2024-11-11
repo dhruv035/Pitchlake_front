@@ -56,8 +56,8 @@ jobs:
           IMAGE_TAG=pitchlake-ui-${{ github.sha }}
           IMAGE_URI=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           echo "IMAGE_URI=$IMAGE_URI" >> $GITHUB_ENV
-          docker buildx build --platform=linux/amd64 -f ./Dockerfile -t $IMAGE_URI ./
-          docker push $IMAGE_URI
+          docker-compose buildx build --platform=linux/amd64 -f ./docker-compose.yml -t $IMAGE_URI ./
+          docker-compose push $IMAGE_URI
     
       - name: Download task definition
         run: |
