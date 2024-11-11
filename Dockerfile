@@ -35,4 +35,4 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/node_modules ./node_modules
 
 # Define the command to run the app
-CMD ["pnpm", "start", "-p", "${PORT}"]
+CMD pnpm start -p ${PORT}

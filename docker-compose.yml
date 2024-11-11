@@ -5,6 +5,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    ports:
+      - "${PORT}:${PORT}"
     environment:
       - NODE_ENV=production
       - PORT= ${PORT}
@@ -18,3 +20,4 @@ services:
       - NEXT_PUBLIC_FOSSIL_API_URL=${NEXT_PUBLIC_FOSSIL_API_URL}
       - NEXT_PUBLIC_DEV_ADDRESS=${NEXT_PUBLIC_DEV_ADDRESS}
       - NEXT_PUBLIC_DEV_PK=${NEXT_PUBLIC_DEV_PK}
+      - NEXT_PUBLIC_WS_URL=${NEXT_PUBLIC_WS_URL}
