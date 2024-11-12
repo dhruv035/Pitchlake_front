@@ -5,7 +5,7 @@ import {
   useNetwork,
   useProvider,
 } from "@starknet-react/core";
-import { vaultABI } from "@/abi";
+import { vaultABI } from "@/lib/abi";
 import {
   DepositArgs,
   TransactionResult,

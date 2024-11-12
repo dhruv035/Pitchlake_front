@@ -4,17 +4,21 @@ import styles from "./page.module.css";
 import { useConnect } from "@starknet-react/core";
 import { Button } from "antd";
 import { useEffect, useRef, useState } from "react";
-import VaultCard from "@/components/Vault/VaultCard/VaultCard";
+import VaultCard from "@/components/VaultCard/VaultCard";
 
 export default function Home() {
-  const vaults = [
-    "0x038cfc94b5626c9355910304622f8270eaef77b62cb850e1ca0e38ecedcdee5b",
-    "0x2cbdf2381224c850975613fb42848ae1a3a608d91bcd7d7a59dcc2b459d98d4",
+  const vaults = process.env.NEXT_PUBLIC_VAULT_ADDRESSES?.split(",");
 
-    // short round
-    "0x13257401fd2df63db6464035ab3ed13f3ef84ae71a07054f50d7bd20311e0a3",
-    "0x8f4e98c8c7f2698ff9a98df855116154f0482b93127dc79b15f05effbe8237",
-  ];
+  //  console.log(vaultsRaw);
+  //
+  //  const vaults = [
+  //    "0x038cfc94b5626c9355910304622f8270eaef77b62cb850e1ca0e38ecedcdee5b",
+  //    "0x2cbdf2381224c850975613fb42848ae1a3a608d91bcd7d7a59dcc2b459d98d4",
+  //
+  //    // short round
+  //    "0x13257401fd2df63db6464035ab3ed13f3ef84ae71a07054f50d7bd20311e0a3",
+  //    "0x8f4e98c8c7f2698ff9a98df855116154f0482b93127dc79b15f05effbe8237",
+  //  ];
 
   const [isModalVisible, setIsModalVisible] = useState<boolean>();
   const handleCreateClick = () => {};
@@ -61,7 +65,7 @@ export default function Home() {
   return (
     <div className="flex flex-grow flex-col px-8 mt-6 w-full ">
       <p className="my-2 text-base text-white-alt py-2 font-medium">
-        Popular Vaults - {process.env.NEXT_PUBLIC_VAULT_ADDRESS}
+        Popular Vaults
       </p>
       <div className="grid grid-cols-2 w-full pt-6 gap-x-6 gap-y-6">
         {vaults?.map((vault: string, index: number) => (

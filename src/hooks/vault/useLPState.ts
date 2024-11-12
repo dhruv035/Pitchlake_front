@@ -1,4 +1,4 @@
-import { vaultABI } from "@/abi";
+import { vaultABI } from "@/lib/abi";
 import { LiquidityProviderStateType } from "@/lib/types";
 import useContractReads from "@/lib/useContractReads";
 import { useAccount } from "@starknet-react/core";

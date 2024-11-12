@@ -7,7 +7,7 @@ import { useProtocolContext } from "@/context/ProtocolProvider";
 import InputField from "@/components/Vault/Utils/InputField";
 import { User } from "lucide-react";
 import ActionButton from "@/components/Vault/Utils/ActionButton";
-import ButtonTabs from "../../ButtonTabs";
+import ButtonTabs from "../ButtonTabs";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 import { num } from "starknet";

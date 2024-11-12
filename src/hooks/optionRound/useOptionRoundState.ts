@@ -1,4 +1,4 @@
-import { optionRoundABI } from "@/abi";
+import { optionRoundABI } from "@/lib/abi";
 import { OptionBuyerStateType, OptionRoundStateType } from "@/lib/types";
 import useContractReads from "@/lib/useContractReads";
 import { useAccount, useContract, useContractRead } from "@starknet-react/core";

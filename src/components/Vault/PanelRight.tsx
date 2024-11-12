@@ -1,5 +1,5 @@
 import React, { ReactNode, useState, useEffect, ReactElement } from "react";
-import Tabs from "./Tabs/Tabs";
+import Tabs from "./VaultActions/Tabs/Tabs";
 import { useTabContent } from "@/hooks/vault/useTabContent";
 import ConfirmationModal from "@/components/Vault/Utils/ConfirmationModal";
 import SuccessModal from "@/components/Vault/Utils/SuccessModal";
@@ -69,7 +69,7 @@ const PanelRight: React.FC<VaultDetailsProps> = ({
     if (!(activeTab in tabs)) {
       setActiveTab(tabs[0]);
     }
-  }, [tabs, selectedRoundState?.roundState]);
+  }, [activeTab,tabs, selectedRoundState?.roundState]);
 
   useEffect(() => {}, [selectedRoundBuyerState, account]);
 
