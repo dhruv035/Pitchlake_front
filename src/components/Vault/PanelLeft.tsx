@@ -36,7 +36,7 @@ import {
 import { num } from "starknet";
 import { useExplorer } from "@starknet-react/core";
 import { BalanceTooltip } from "@/components/BaseComponents/Tooltip";
-import StateTransition from "@/components/Vault/VaultActions/StateTransition";
+import StateTransition from "@/components/Vault/StateTransition";
 import { useProvider } from "@starknet-react/core";
 import useLatestTimestamp from "@/hooks/chain/useLatestTimestamp";
 

@@ -4,7 +4,7 @@ import styles from "./page.module.css";
 import { useConnect } from "@starknet-react/core";
 import { Button } from "antd";
 import { useEffect, useRef, useState } from "react";
-import VaultCard from "@/components/Vault/VaultCard/VaultCard";
+import VaultCard from "@/components/VaultCard/VaultCard";
 
 export default function Home() {
   const vaults = process.env.NEXT_PUBLIC_VAULT_ADDRESSES?.split(",");

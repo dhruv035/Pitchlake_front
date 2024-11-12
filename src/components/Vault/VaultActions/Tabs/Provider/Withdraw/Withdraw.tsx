@@ -4,7 +4,7 @@ import {
   VaultStateType,
   WithdrawSubTabs,
 } from "@/lib/types";
-import ButtonTabs from "../../../ButtonTabs";
+import ButtonTabs from "../../ButtonTabs";
 import WithdrawLiquidity from "@/components/Vault/VaultActions/Tabs/Provider/Withdraw/WithdrawLiquidity";
 import QueueWithdrawal from "@/components/Vault/VaultActions/Tabs/Provider/Withdraw/QueueWithdrawal";
 import WithdrawStash from "@/components/Vault/VaultActions/Tabs/Provider/Withdraw/WithdrawStash";
