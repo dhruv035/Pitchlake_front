@@ -12,6 +12,6 @@ export default function Home({
   useEffect(() => {
     if (address && address.toLowerCase()!==vaultAddress?.toLowerCase()){
        setVaultAddress(address);}
-  }, []);
+  }, [address]);
   return <Vault />;
 }

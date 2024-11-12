@@ -7,7 +7,7 @@ import {
 } from "@starknet-react/core";
 import { useEffect, useCallback, useMemo, useState } from "react";
 import { ApprovalArgs, TransactionResult } from "@/lib/types";
-import { erc20ABI } from "@/abi";
+import { erc20ABI } from "@/lib/abi";
 import { Account, AccountInterface, RpcProvider } from "starknet";
 import { useTransactionContext } from "@/context/TransactionProvider";
 import { getDevAccount } from "@/lib/constants";

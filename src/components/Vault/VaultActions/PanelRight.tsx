@@ -69,7 +69,7 @@ const PanelRight: React.FC<VaultDetailsProps> = ({
     if (!(activeTab in tabs)) {
       setActiveTab(tabs[0]);
     }
-  }, [tabs, selectedRoundState?.roundState]);
+  }, [activeTab,tabs, selectedRoundState?.roundState]);
 
   useEffect(() => {}, [selectedRoundBuyerState, account]);
 

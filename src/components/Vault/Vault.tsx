@@ -13,58 +13,6 @@ export const Vault = () => {
   const [isProviderView, setIsProviderView] = useState(true);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const router = useRouter();
-  // const {
-  //   wsVaultState,
-  //   wsOptionRoundStates,
-  //   wsLiquidityProviderState,
-  //   wsOptionBuyerState,
-  // } = useWebSocketVault(conn, vaultAddress);
-
-  // const {
-  //   optionRoundStates: optionRoundStatesMock,
-  //   lpState: lpStateMock,
-  //   vaultState: vaultStateMock,
-  //   vaultActions: vaultActionsMock,
-  //   optionRoundActions: roundActionsMock,
-  //   optionBuyerStates: optionBuyerStatesMock,
-  // } = useMockVault(vaultAddress);
-  // const {
-  //   lpState: rpcLiquidityProviderState,
-  //   vaultState: rpcVaultState,
-  //   currentRoundAddress,
-  // } = useVaultState(conn, vaultAddress);
-
-  // const vaultState =
-  //   conn === "rpc"
-  //     ? rpcVaultState
-  //     : conn === "ws"
-  //     ? wsVaultState
-  //     : vaultStateMock;
-  // const vaultActionsChain = useVaultActions(vaultAddress);
-  // const vaultActions = conn !=='mock'?vaultActionsChain:vaultActionsMock
-  // const lpState =
-  //   conn === "rpc"
-  //     ? rpcLiquidityProviderState
-  //     : conn === "ws"
-  //     ? wsLiquidityProviderState
-  //     : lpStateMock;
-  // const {
-  //   optionRoundState: rpcCurrentRoundState,
-  //   optionBuyerState: rpcOptionBuyerState,
-  // } = useOptionRoundState(currentRoundAddress);
-  // const optionBuyerState =
-  //   conn === "rpc"
-  //     ? rpcOptionBuyerState
-  //     : conn === "ws"
-  //     ? wsOptionBuyerState
-  //     : optionBuyerStatesMock[2];
-  // const currentRoundState =
-  //   conn === "rpc"
-  //     ? rpcCurrentRoundState
-  //     : conn === "ws"
-  //     ? wsOptionRoundStates[Number(vaultState?.currentRoundId) - 1]
-  //     : optionRoundStatesMock[2];
-  // const roundActions = conn==="mock"?roundActionsMock
 
   const { vaultState } = useProtocolContext();
   return (
