@@ -34,7 +34,6 @@ import {
 } from "starknet";
 import { parseEther, formatEther } from "ethers";
 import useERC20 from "@/hooks/erc20/useERC20";
-import useFossil from "@/hooks/fossil/useFossil";
 import useAccountBalances from "@/hooks/vault/state/useAccountBalances";
 
 export default function Header() {
