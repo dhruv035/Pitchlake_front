@@ -80,7 +80,7 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
     optionBuyerStates: optionBuyerStatesMock,
   } = useMockVault(selectedRound, vaultAddress);
 
-//RPC States
+  //RPC States
   const {
     lpState: rpcLiquidityProviderState,
     vaultState: rpcVaultState,
@@ -97,18 +97,15 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
 
   const vaultActionsChain = useVaultActions(vaultAddress);
 
+  //WS States
+  const {
+    wsVaultState,
+    wsOptionRoundStates,
+    wsLiquidityProviderState,
+    wsOptionBuyerStates,
+  } = useWebSocketVault(conn, vaultAddress);
 
-
-//WS States
-const {
-  wsVaultState,
-  wsOptionRoundStates,
-  wsLiquidityProviderState,
-  wsOptionBuyerStates,
-} = useWebSocketVault(conn, vaultAddress);
-
-
-//Protocol States
+  //Protocol States
   const vaultState = useMemo(() => {
     if (conn === "rpc") return rpcVaultState;
     if (conn === "ws") return wsVaultState;
@@ -132,7 +129,6 @@ const {
     if (conn === "mock") return optionBuyerStatesMock;
     return [];
   }, [conn, optionBuyerStatesMock, wsOptionBuyerStates]);
-
 
   const selectedRoundState = useMemo(() => {
     if (conn !== "rpc") {
@@ -163,7 +159,7 @@ const {
     // : undefined,
   }, [conn, selectedRound, optionBuyerStates, selectedRoundBuyerStateRPC]);
 
-//Protocol actions
+  //Protocol actions
   const vaultActions = useMemo(() => {
     if (conn !== "mock") return vaultActionsChain;
     return vaultActionsMock;
@@ -173,7 +169,7 @@ const {
     if (conn === "mock") return roundActionsMock;
     return roundActionsChain;
   }, [conn, selectedRound, roundActionsMock, roundActionsChain]);
-  
+
   const setRound = useCallback(
     (roundId: number) => {
       if (roundId < 1) return;
@@ -192,16 +188,21 @@ const {
     setMockTimestamp(Date.now());
   }, []);
 
+  useEffect(() => {
+    if (!vaultState) return;
+    setSelectedRound(Number(vaultState.currentRoundId));
+  }, [vaultState?.currentRoundId]);
 
   useEffect(() => {
     if (!vaultState) return;
 
-    if (selectedRound === 0)
-      setSelectedRound(Number(vaultState.currentRoundId));
-
-    if (selectedRound > Number(vaultState.currentRoundId)) {
-      setSelectedRound(Number(vaultState.currentRoundId));
-    }
+    //    if (selectedRound === 0)
+    //      setSelectedRound(Number(vaultState.currentRoundId));
+    //
+    //    if (selectedRound > Number(vaultState.currentRoundId)) {
+    //      setSelectedRound(Number(vaultState.currentRoundId));
+    //
+    //    }
   }, [vaultAddress, selectedRound, vaultState?.currentRoundId]);
   return (
     <ProtocolContext.Provider
