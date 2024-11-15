@@ -1,28 +1,29 @@
-import { poseidonHashMany, poseidonHashSingle } from "@scure/starknet";
-import { bytesToNumberBE, numberToBytesBE } from "@noble/curves/abstract/utils";
-import { VaultStateType, OptionRoundStateType } from "@/lib/types";
-import { num } from "starknet";
+import { poseidonHashSingle } from "@scure/starknet";
+import { bytesToNumberBE } from "@noble/curves/abstract/utils";
+import { OptionRoundStateType, FossilParams } from "@/lib/types";
 
-export const createJobRequestParams = (targetTimestamp: string) => {
+export const createJobRequestParams = (
+  targetTimestamp: number,
+  roundDuration: number,
+) => {
   return {
-    twap: [Number(targetTimestamp) - 720, Number(targetTimestamp)],
-    volatility: [Number(targetTimestamp) - 2160, Number(targetTimestamp)],
-    reserve_price: [Number(targetTimestamp) - 2160, Number(targetTimestamp)],
+    // TWAP duration is 1 x round duration
+    twap: [targetTimestamp - roundDuration, targetTimestamp],
+    // Volatility duration is 3 x round duration
+    volatility: [targetTimestamp - 3 * roundDuration, targetTimestamp],
+    // Reserve price duration is 3 x round duration
+    reserve_price: [targetTimestamp - 3 * roundDuration, targetTimestamp],
   };
 };
 
-export const createJobRequest = (
-  vaultState: VaultStateType | undefined,
-  targetTimestamp: string | undefined,
-): any => {
-  if (!vaultState || !targetTimestamp) return;
-  const identifiers = ["PITCH_LAKE_V1"];
-  const params = createJobRequestParams(targetTimestamp);
-  const clientInfo = {
-    client_address: vaultState.fossilClientAddress,
-    vault_address: vaultState.address,
-    timestamp: Number(targetTimestamp),
-  };
+export const createJobRequest = ({
+  targetTimestamp,
+  roundDuration,
+  clientAddress,
+  vaultAddress,
+}: FossilParams): any => {
+  if (!targetTimestamp || !roundDuration || !clientAddress || !vaultAddress)
+    return;
 
   return {
     method: "POST",
@@ -31,19 +32,25 @@ export const createJobRequest = (
       "x-api-key": "<REPLACE_ME>",
     },
     body: JSON.stringify({
-      identifiers,
-      params,
-      client_info: clientInfo,
+      identifiers: ["PITCH_LAKE_V1"],
+      params: createJobRequestParams(targetTimestamp, roundDuration),
+      client_info: {
+        client_address: clientAddress,
+        vault_address: vaultAddress,
+        timestamp: targetTimestamp,
+      },
     }),
   };
 };
 
 export const createJobId = (
-  targetTimestamp: string,
-  //roundState: OptionRoundStateType | undefined,
+  targetTimestamp: number,
+  roundDuration: number,
 ): string => {
+  if (!targetTimestamp || !roundDuration) return "";
+
   const identifiers = ["PITCH_LAKE_V1"];
-  const params = createJobRequestParams(targetTimestamp);
+  const params = createJobRequestParams(targetTimestamp, roundDuration);
 
   const input = [
     ...identifiers,
@@ -59,8 +66,48 @@ export const createJobId = (
   const asNum = bytesToNumberBE(bytes);
 
   const hashResult = poseidonHashSingle(asNum);
-
   return hashResult.toString();
+};
+
+export const getTargetTimestampForRound = (
+  roundState: OptionRoundStateType | undefined,
+): number => {
+  if (
+    !roundState ||
+    !roundState.roundState ||
+    !roundState.deploymentDate ||
+    !roundState.optionSettleDate
+  )
+    return 0;
+
+  const state = roundState.roundState;
+  const targetTimestamp = Number(
+    state === "Open" ? roundState.deploymentDate : roundState.optionSettleDate,
+  );
+
+  return Number(targetTimestamp);
+};
+
+export const getDurationForRound = (
+  roundState: OptionRoundStateType | undefined,
+): number => {
+  if (!roundState || !roundState.auctionEndDate || !roundState.optionSettleDate)
+    return 0;
+
+  /// @NOTE Replace once sepolia instance duration >= 12 min
+  //let high = Number(roundState.optionSettleDate);
+  //let low = Number(roundState.auctionEndDate);
+  //return Number(high - low);
+  return 720;
+};
+
+export const getLocalStorage = (key: string): string => {
+  try {
+    return localStorage.getItem(key) || "";
+  } catch (error) {
+    console.log("Error getting from localStorage", error);
+    return "";
+  }
 };
 
 export const shortenString = (str: string) => {
