@@ -265,25 +265,27 @@ const PanelLeft = ({ userType }: { userType: string }) => {
                 <p className="text-[#BFBFBF] font-regular">Fees</p>
                 <p>0%</p>
               </div>
-              <div className="flex flex-row justify-between p-2 w-full">
-                <p className="text-[#BFBFBF]">TVL</p>
-                <p>
-                  {vaultState
-                    ? parseFloat(
-                        formatEther(
-                          (
-                            num.toBigInt(vaultState.lockedBalance.toString()) +
-                            num.toBigInt(
-                              vaultState.unlockedBalance.toString(),
-                            ) +
-                            num.toBigInt(vaultState.stashedBalance.toString())
-                          ).toString(),
-                        ),
-                      ).toFixed(0)
-                    : 0}
-                  /1,000 ETH
-                </p>
-              </div>
+              {
+                // <div className="flex flex-row justify-between p-2 w-full">
+                //   <p className="text-[#BFBFBF]">TVL</p>
+                //   <p>
+                //     {vaultState
+                //       ? parseFloat(
+                //           formatEther(
+                //             (
+                //               num.toBigInt(vaultState.lockedBalance.toString()) +
+                //               num.toBigInt(
+                //                 vaultState.unlockedBalance.toString(),
+                //               ) +
+                //               num.toBigInt(vaultState.stashedBalance.toString())
+                //             ).toString(),
+                //           ),
+                //         ).toFixed(0)
+                //       : 0}
+                //     /1,000 ETH
+                //   </p>
+                // </div>
+              }
               <div className="flex flex-row justify-between p-2 w-full">
                 <p className="text-[#BFBFBF] font-regular">APY</p>
                 <p>12.34%</p>
