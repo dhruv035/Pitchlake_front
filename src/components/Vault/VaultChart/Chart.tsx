@@ -38,7 +38,6 @@ const RoundPerformanceChart = () => {
   const [brushIndex, setBrushIndex] = useState(0);
   const [roundNavIsOpen, setRoundNavIsOpen] = useState(false);
 
-  // Define the dropdownRef with the correct type
   const dropdownRef = useRef<HTMLDivElement | null>(null);
 
   const decrementRound = () => {
@@ -136,16 +135,16 @@ const RoundPerformanceChart = () => {
     <div className="w-full h-[800px] bg-black-alt rounded-[12px] border border-greyscale-800 relative">
       <div>
         <div className="flex flex-row items-center p-5 justify-between border-b-[1px] border-greyscale-800 pb-4 h-[56px]">
-          <div
-            onClick={() => setRoundNavIsOpen(!roundNavIsOpen)}
-            className="font-medium text-[14px] text-primary flex flex-row items-center align-center hover:cursor-pointer"
-          >
+          <div className="font-medium text-[14px] text-primary flex flex-row items-center align-center">
             <p className="flex flex-row items-center">Round &nbsp;</p>
             {selectedRound ? selectedRound : 1}
             {Number(selectedRound) === Number(vaultState?.currentRoundId)
               ? " (Live)"
               : ""}
-            <div className="flex items-center ">
+            <div
+              onClick={() => setRoundNavIsOpen(!roundNavIsOpen)}
+              className="cursor-pointer flex items-center "
+            >
               {!roundNavIsOpen ? (
                 <ArrowDownIcon
                   stroke="var(--primary)"
