@@ -22,6 +22,11 @@ import { useProtocolContext } from "@/context/ProtocolProvider";
 const RoundPerformanceChart = () => {
   const { selectedRoundState, selectedRound, setSelectedRound, vaultState } =
     useProtocolContext();
+  setSelectedRound(
+    vaultState?.currentRoundId
+      ? Number(vaultState.currentRoundId)
+      : selectedRound,
+  );
   const [activeLines, setActiveLines] = useState<{ [key: string]: boolean }>({
     TWAP: true,
     BASEFEE: true,
@@ -111,7 +116,7 @@ const RoundPerformanceChart = () => {
             //vaultState?.currentRoundId?.toString()
             //  ? " (Live)"
             //  : " (Historic)")
-            selectedRound ? selectedRound : 0
+            selectedRound ? selectedRound : 1
           }
           {
             //Round number here
