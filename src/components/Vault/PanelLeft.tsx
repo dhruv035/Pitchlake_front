@@ -601,14 +601,10 @@ const PanelLeft = ({ userType }: { userType: string }) => {
               </div>
             </div>
           </div>
-          <div
-            className={`${isPanelOpen && roundState !== "Settled" ? "border border-transparent border-t-[#262626]" : ""} flex flex-col w-[100%] mx-[auto] mt-[auto] mb-[1rem]`}
-          >
-            <StateTransition
-              isPanelOpen={isPanelOpen}
-              setModalState={setModalState}
-            />
-          </div>
+          <StateTransition
+            isPanelOpen={isPanelOpen}
+            setModalState={setModalState}
+          />
         </div>
       </div>
       {modalState.show && (
