@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   ComposedChart,
   Area,
@@ -20,13 +20,8 @@ import {
 import { useProtocolContext } from "@/context/ProtocolProvider";
 
 const RoundPerformanceChart = () => {
-  const { selectedRoundState, selectedRound, setSelectedRound, vaultState } =
-    useProtocolContext();
-  setSelectedRound(
-    vaultState?.currentRoundId
-      ? Number(vaultState.currentRoundId)
-      : selectedRound,
-  );
+  const { selectedRound, setSelectedRound, vaultState } = useProtocolContext();
+
   const [activeLines, setActiveLines] = useState<{ [key: string]: boolean }>({
     TWAP: true,
     BASEFEE: true,
@@ -38,7 +33,17 @@ const RoundPerformanceChart = () => {
   const [zoomDomain, setZoomDomain] = useState(null);
   const [brushIndex, setBrushIndex] = useState(0);
   const [roundNavIsOpen, setRoundNavIsOpen] = useState(false);
-  const chartRef = useRef(null);
+
+  // Define the dropdownRef with the correct type
+  const dropdownRef = useRef<HTMLDivElement | null>(null);
+
+  const decrementRound = () => {
+    setSelectedRound(selectedRound - 1);
+  };
+
+  const incrementRound = () => {
+    setSelectedRound(selectedRound + 1);
+  };
 
   const handleZoom = (domain: any) => {
     setZoomDomain(domain);
@@ -48,24 +53,16 @@ const RoundPerformanceChart = () => {
     setZoomDomain(null);
   };
 
+  const toggleLine = (line: string) => {
+    setActiveLines((prev) => ({ ...prev, [line]: !prev[line] }));
+  };
+
   const handlePrev = () => {
     setBrushIndex((prevIndex: any) => Math.max(prevIndex - 1, 0));
   };
 
   const handleNext = () => {
     setBrushIndex((prevIndex: any) => Math.min(prevIndex + 1, data.length - 1));
-  };
-
-  const toggleLine = (line: string) => {
-    setActiveLines((prev) => ({ ...prev, [line]: !prev[line] }));
-  };
-
-  const decrementRound = () => {
-    setSelectedRound(selectedRound - 1);
-  };
-
-  const incrementRound = () => {
-    setSelectedRound(selectedRound + 1);
   };
 
   const CustomTooltip = ({
@@ -102,85 +99,141 @@ const RoundPerformanceChart = () => {
 
   const hourlyData = data.find((item) => item.date === activeDate)?.data || [];
 
+  useEffect(() => {
+    setSelectedRound(
+      vaultState?.currentRoundId
+        ? Number(vaultState.currentRoundId)
+        : selectedRound,
+    );
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setRoundNavIsOpen(false);
+      }
+    };
+
+    if (roundNavIsOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [roundNavIsOpen]);
+
   return (
-    <div className="w-full h-[800px] bg-black-alt rounded-[12px] border border-greyscale-800 flex flex-col">
-      <div className="flex flex-row items-center p-5 justify-between border-b-[1px] border-greyscale-800 pb-4 h-[56px]">
-        <div
-          onClick={() => setRoundNavIsOpen(!roundNavIsOpen)}
-          className="font-medium text-[14px] text-primary flex flex-row items-center align-center hover:cursor-pointer"
-        >
-          <p className="flex flex-row items-center">Round &nbsp;</p>
-          {
-            //selectedRoundState?.roundId +
-            //(selectedRoundState?.roundId.toString() ===
-            //vaultState?.currentRoundId?.toString()
-            //  ? " (Live)"
-            //  : " (Historic)")
-            selectedRound ? selectedRound : 1
-          }
-          {
-            //Round number here
-            //Concat  (Live) if live
-          }
-          <div className="flex items-center ">
-            {!roundNavIsOpen ? (
-              <ArrowDownIcon
-                stroke="var(--primary)"
-                classname="flex items-center ml-2 w-4 h-4"
+    <div className="w-full h-[800px] bg-black-alt rounded-[12px] border border-greyscale-800 relative">
+      <div>
+        <div className="flex flex-row items-center p-5 justify-between border-b-[1px] border-greyscale-800 pb-4 h-[56px]">
+          <div
+            onClick={() => setRoundNavIsOpen(!roundNavIsOpen)}
+            className="font-medium text-[14px] text-primary flex flex-row items-center align-center hover:cursor-pointer"
+          >
+            <p className="flex flex-row items-center">Round &nbsp;</p>
+            {selectedRound ? selectedRound : 1}
+            {Number(selectedRound) === Number(vaultState?.currentRoundId)
+              ? " (Live)"
+              : ""}
+            <div className="flex items-center ">
+              {!roundNavIsOpen ? (
+                <ArrowDownIcon
+                  stroke="var(--primary)"
+                  classname="flex items-center ml-2 w-4 h-4"
+                />
+              ) : (
+                <ArrowUpIcon stroke="var(--primary)" classname="ml-2 w-4 h-4" />
+              )}
+            </div>
+          </div>
+          <div className="flex flex-row items-center gap-4">
+            <div onClick={decrementRound}>
+              <ArrowLeftIcon
+                stroke={
+                  !selectedRound || selectedRound === 1
+                    ? "var(--greyscale)"
+                    : "var(--primary)"
+                }
+                classname={`w-3 h-3 mr-2 hover:cursor-pointer ${
+                  !selectedRound || selectedRound === 1
+                    ? "hover:cursor-default"
+                    : ""
+                }`}
               />
-            ) : (
-              <ArrowUpIcon stroke="var(--primary)" classname="ml-2 w-4 h-4" />
-            )}
+            </div>
+            <div onClick={incrementRound}>
+              <ArrowRightIcon
+                stroke={
+                  selectedRound &&
+                  vaultState?.currentRoundId &&
+                  Number(vaultState.currentRoundId) > selectedRound
+                    ? "var(--primary)"
+                    : "var(--greyscale)"
+                }
+                classname={`w-3 h-3 mr-2 hover:cursor-pointer ${
+                  !selectedRound || selectedRound === 1
+                    ? "hover:cursor-default"
+                    : ""
+                }`}
+              />
+            </div>
           </div>
         </div>
-        <div className="flex flex-row items-center gap-4">
-          <div onClick={decrementRound}>
-            <ArrowLeftIcon
-              stroke={
-                !selectedRound || selectedRound === 1
-                  ? "var(--greyscale)"
-                  : "var(--primary)"
-              }
-              classname={`w-3 h-3 mr-2 hover:cursor-pointer ${
-                !selectedRound || selectedRound === 1
-                  ? "hover:cursor-default"
-                  : ""
-              }`}
-            />
+
+        {roundNavIsOpen && (
+          <div
+            ref={dropdownRef}
+            className="absolute top-[61px] left-1 right-0 bg-[#161616] pt-2 z-10 border border-[#262626] rounded-lg w-[200px] h-[244px] overflow-scroll"
+          >
+            {[
+              ...Array(
+                vaultState?.currentRoundId
+                  ? Number(vaultState.currentRoundId)
+                  : 1,
+              ),
+            ]
+              .map((_, index) => index)
+              .reverse()
+              .map((index) => (
+                <div
+                  key={index}
+                  className="pl-3 pt-3 pb-3 hover:bg-greyscale-800 cursor-pointer font-regular text-[14px] text-[#FFFFFF]"
+                  onClick={() => {
+                    setSelectedRound(index + 1);
+                    setRoundNavIsOpen(false);
+                  }}
+                >
+                  Round {index + 1}
+                  {index + 1 === Number(vaultState?.currentRoundId)
+                    ? " (Live)"
+                    : ""}
+                </div>
+              ))}
           </div>
-          <div onClick={incrementRound}>
-            <ArrowRightIcon
-              stroke={
-                selectedRound &&
-                vaultState?.currentRoundId &&
-                Number(vaultState.currentRoundId) > selectedRound
-                  ? "var(--primary)"
-                  : "var(--greyscale)"
-              }
-              classname={`w-3 h-3 mr-2 hover:cursor-pointer ${
-                !selectedRound || selectedRound === 1
-                  ? "hover:cursor-default"
-                  : ""
-              }`}
-            />
-          </div>
-        </div>
+        )}
       </div>
+
       <div className="flex justify-center items-center my-4">
         <div className="flex gap-4">
           {["TWAP", "BASEFEE", "STRIKE", "CAP_LEVEL"].map((line) => (
             <button
               key={line}
               className={`flex flex-row items-center font-regular text-[12px]
-                ${
-                  line === "TWAP"
-                    ? "text-success"
-                    : line === "BASEFEE"
-                      ? "text-greyscale"
-                      : line === "STRIKE"
-                        ? "text-warning-300"
-                        : "text-error-300"
-                }`}
+                  ${
+                    line === "TWAP"
+                      ? "text-success"
+                      : line === "BASEFEE"
+                        ? "text-greyscale"
+                        : line === "STRIKE"
+                          ? "text-warning-300"
+                          : "text-error-300"
+                  }`}
               onClick={() => toggleLine(line)}
             >
               {line === "CAP_LEVEL" ? "CAP LEVEL" : line}
@@ -197,7 +250,6 @@ const RoundPerformanceChart = () => {
       <ResponsiveContainer width="100%" height="100%" className="px-4">
         <ComposedChart
           data={hourlyData}
-          //ref={chartRef}
           onMouseDown={(e) => {
             if (e && e.activeLabel) {
               const domain = e && e.activeLabel;
@@ -241,9 +293,6 @@ const RoundPerformanceChart = () => {
           <CartesianGrid strokeDasharray="3 3" stroke="#333" />
           <XAxis dataKey="date" stroke="#666" />
           <YAxis stroke="#666" />
-          {
-            //<Tooltip content={<CustomTooltip />} />
-          }
           {activeLines.TWAP && (
             <Area
               height={400}
