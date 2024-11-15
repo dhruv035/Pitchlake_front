@@ -155,17 +155,20 @@ const PanelLeft = ({ userType }: { userType: string }) => {
   return (
     <>
       <div
+        onClick={!isPanelOpen ? () => setIsPanelOpen(!isPanelOpen) : () => {}}
         className={`flex flex-col mr-4 max-w-[350px] transition-all duration-300 max-h-[834px] overflow-hidden ${
           isPanelOpen ? "w-full" : "w-[110px]"
-        }`}
+        } ${!isPanelOpen ? "cursor-pointer" : ""}`}
       >
         <div className="flex items-center align-center text-[14px] bg-black-alt border-[1px] border-greyscale-800 items-start rounded-lg w-full flex flex-col flex-grow h-full max-h-full">
-          <div className="flex items-center h-[56px] w-full border-b-1 p-4 border-white">
+          <div
+            onClick={() => setIsPanelOpen(!isPanelOpen)}
+            className="flex items-center h-[56px] w-full border-b-1 p-4 border-white"
+          >
             <div
               className={`flex flex-row w-full items-center rounded-md px-2 hover:cursor-pointer ${
                 isPanelOpen ? "justify-between" : "justify-center"
               }`}
-              onClick={() => setIsPanelOpen(!isPanelOpen)}
             >
               <p
                 className={`${
@@ -180,22 +183,13 @@ const PanelLeft = ({ userType }: { userType: string }) => {
                   stroke="var(--buttonwhite)"
                 />
               </div>
-              {
-                //  isPanelOpen ? (
-                //  <IconPanelLeft
-                //    className="stroke-[1px]"
-                //    stroke="var(--buttonwhite)"
-                //  />
-                //) : (
-                //  <IconPanelLeft stroke="var(--buttonwhite)" />
-                //)
-              }
             </div>
           </div>
           <div
             className={`flex flex-col w-full px-3 border-t-[1px] border-greyscale-800`}
           >
             <div
+              onClick={() => setVaultIsOpen((state) => !state)}
               className={`flex flex-row w-full mt-3 rounded-md p-3 ${
                 isPanelOpen
                   ? "justify-between cursor-pointer bg-faded-black"
@@ -211,7 +205,6 @@ const PanelLeft = ({ userType }: { userType: string }) => {
               </div>
               <div
                 className={`${isPanelOpen ? "flex" : "hidden"} flex-row w-full`}
-                onClick={() => setVaultIsOpen((state) => !state)}
               >
                 <div className="ml-2 text-white w-fit overflow-clip text-nowrap font-[] font-regular">
                   Vault
@@ -291,17 +284,6 @@ const PanelLeft = ({ userType }: { userType: string }) => {
                   /1,000 ETH
                 </p>
               </div>
-              {
-                //  <div className="flex flex-row justify-between p-2 w-full">
-                //    <p>Type:</p>
-                //    <p>
-                //      {
-                //        vaultState?.vaultType
-                //        //Add vault type from state here
-                //      }
-                //    </p>
-                //  </div>
-              }
               <div className="flex flex-row justify-between p-2 w-full">
                 <p className="text-[#BFBFBF] font-regular">APY</p>
                 <p>12.34%</p>
@@ -359,6 +341,7 @@ const PanelLeft = ({ userType }: { userType: string }) => {
           </div>
           <div className="flex flex-col w-full px-3 border-t-[1px] border-greyscale-800">
             <div
+              onClick={() => setOptionRoundIsOpen((state) => !state)}
               className={`flex flex-row w-full mt-3 rounded-md p-3 ${
                 isPanelOpen
                   ? "justify-between cursor-pointer bg-faded-black"
@@ -374,7 +357,6 @@ const PanelLeft = ({ userType }: { userType: string }) => {
               </div>
               <div
                 className={`${isPanelOpen ? "flex" : "hidden"} flex-row w-full`}
-                onClick={() => setOptionRoundIsOpen((state) => !state)}
               >
                 <div className="ml-2 text-white w-fit overflow-clip text-nowrap font-regular">
                   Round
