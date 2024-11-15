@@ -1,5 +1,12 @@
 import { Account, CairoCustomEnum } from "starknet";
 
+export type FossilParams = {
+  targetTimestamp: number | undefined;
+  roundDuration: number | undefined;
+  clientAddress: string | undefined;
+  vaultAddress: string | undefined;
+};
+
 export type DepositArgs = {
   beneficiary: string;
   amount: number | bigint;
