@@ -74,15 +74,19 @@ export const getTargetTimestampForRound = (
 ): number => {
   if (
     !roundState ||
+    !roundState.roundId ||
     !roundState.roundState ||
     !roundState.deploymentDate ||
     !roundState.optionSettleDate
   )
     return 0;
 
-  const state = roundState.roundState;
+  const state = roundState.roundState.toString();
+  const roundId = roundState.roundId.toString();
   const targetTimestamp = Number(
-    state === "Open" ? roundState.deploymentDate : roundState.optionSettleDate,
+    state === "Open" && roundId === "1"
+      ? roundState.deploymentDate
+      : roundState.optionSettleDate,
   );
 
   return Number(targetTimestamp);
