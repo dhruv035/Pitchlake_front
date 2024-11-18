@@ -33,7 +33,8 @@ const getRoundState = ({
   if (!vaultState || !selectedRoundState) return "Settled";
 
   const state = selectedRoundState.roundState.toString();
-  if (state === "Settled" || state === "Auctioning") return state;
+  if (state === "Open" || state === "Auctioning" || state === "Settled")
+    return state;
 
   const isFossilCompleted = fossilStatus?.status === "Completed";
   const isFossilPending = fossilStatus?.status === "Pending";
@@ -46,10 +47,7 @@ const getRoundState = ({
 
   //if (prevRoundStateRef.current === roundState) return "Pending";
 
-  if (
-    state === "Running" ||
-    (state === "Open" && selectedRoundState.roundId === "1")
-  ) {
+  if (state === "Running") {
     if (isFossilPending) return "Pending";
     if (isFossilCompleted) return "Running";
     if (isFossilFailed || !isFossilCompleted || isFossilReqFailed)
