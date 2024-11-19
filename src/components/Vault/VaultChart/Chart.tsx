@@ -298,7 +298,7 @@ const RoundPerformanceChart = () => {
             <div
               onClick={() => {
                 setRoundNavIsOpen(!roundNavIsOpen);
-                setIsExpandedView(false);
+                //setIsExpandedView(false);
               }}
               className="cursor-pointer flex items-center "
             >
@@ -398,7 +398,7 @@ const RoundPerformanceChart = () => {
               key={line}
               className={`flex flex-row items-center font-regular text-[12px]
                     ${
-                      line === "TWAP"
+                      line === "CAP_LEVEL"
                         ? "text-success"
                         : line === "BASEFEE"
                           ? "text-greyscale"
@@ -439,7 +439,7 @@ const RoundPerformanceChart = () => {
           onMouseUp={handleResetZoom}
         >
           <defs>
-            <linearGradient id="twapGradient" x1="0" y1="0" x2="0" y2="1">
+            <linearGradient id="capLevelGradient" x1="0" y1="0" x2="0" y2="1">
               <stop
                 offset="0%"
                 stopColor="var(--success-700)"
@@ -475,7 +475,7 @@ const RoundPerformanceChart = () => {
                 stopOpacity={0}
               />
             </linearGradient>
-            <linearGradient id="capLevelGradient" x1="0" y1="0" x2="0" y2="1">
+            <linearGradient id="twapGradient" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="#8B5CF6" stopOpacity={0.2} />
               <stop offset="50%" stopColor="#8B5CF6" stopOpacity={0} />
             </linearGradient>
@@ -501,10 +501,11 @@ const RoundPerformanceChart = () => {
             }}
           />
           {activeLines.STRIKE && gasData.length > 0 && (
-            <Area
+            <Line
               type="monotone"
               dataKey="STRIKE"
               stroke="var(--warning-300)"
+              strokeWidth={2}
               label="Strike Price"
               activeDot={false}
               dot={false}
@@ -516,7 +517,8 @@ const RoundPerformanceChart = () => {
             <Area
               type="monotone"
               dataKey="CAP_LEVEL"
-              stroke="#8B5CF6"
+              stroke="#10B981"
+              strokeWidth={2}
               label="Cap Level"
               activeDot={false}
               dot={false}
@@ -530,7 +532,8 @@ const RoundPerformanceChart = () => {
               height={400}
               type="monotone"
               dataKey="TWAP"
-              stroke="#10B981"
+              stroke="var(--error-300)"
+              strokeWidth={2}
               fill="url(#twapGradient)"
               fillOpacity={1}
               connectNulls={true}
@@ -542,7 +545,8 @@ const RoundPerformanceChart = () => {
             <Line
               type="monotone"
               dataKey="BASEFEE"
-              stroke="#E5E7EB"
+              stroke="var(--greyscale)"
+              strokeWidth={0.5}
               fill="url(#basefeeGradient)"
               fillOpacity={1}
               connectNulls={true}
