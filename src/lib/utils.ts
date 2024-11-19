@@ -103,6 +103,7 @@ export const getDurationForRound = (
   //let low = Number(roundState.auctionEndDate);
   //return Number(high - low);
   return 720;
+  //return 60 * 60 * 24 * 30;
 };
 
 export const getLocalStorage = (key: string): string => {
@@ -212,3 +213,56 @@ export const timeUntilTargetFormal = (timestamp: string, target: string) => {
 
   return str;
 };
+
+function generateMockData(
+  startDate: string,
+  itemCount: number,
+  stepInSeconds: number,
+) {
+  const data = [];
+  const start = new Date(startDate);
+  start.setSeconds(0, 0); // Ensure the date starts at the beginning of the minute
+
+  let previousBaseFee: number | null = null;
+
+  for (let i = 0; i < itemCount; i++) {
+    const currentTime = new Date(start.getTime() + i * stepInSeconds * 1000); // Add stepInSeconds seconds
+
+    // Get Unix timestamp in seconds
+    const timestamp = Math.floor(currentTime.getTime() / 1000);
+
+    // BASEFEE calculation
+    let baseFee: number;
+    if (previousBaseFee === null) {
+      baseFee = 20; // Starting BASEFEE
+    } else {
+      const min = previousBaseFee * 0.875; // -12.5%
+      const max = previousBaseFee * 1.125; // +12.5%
+      baseFee = getRandomNumber(min, max);
+    }
+    baseFee = parseFloat(baseFee.toFixed(2));
+
+    // TWAP calculation
+    const TWAP = baseFee + getRandomNumber(-1, 1); // Slight variation
+    const twapValue = parseFloat(TWAP.toFixed(2));
+
+    // Add the data point
+    data.push({
+      timestamp,
+      BASEFEE: baseFee,
+      TWAP: twapValue,
+    });
+
+    // Update previousBaseFee for the next iteration
+    previousBaseFee = baseFee;
+  }
+
+  return data;
+}
+
+function getRandomNumber(min: number, max: number): number {
+  return Math.random() * (max - min) + min;
+}
+
+//const mockData = generateMockData("2024-11-18T18:00:00Z", 10000, 20); // 2 days (in minutes)
+//console.log(JSON.stringify(mockData, null, 2));
