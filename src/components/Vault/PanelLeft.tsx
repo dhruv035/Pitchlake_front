@@ -40,8 +40,9 @@ import StateTransition from "@/components/Vault/StateTransition";
 import { useProvider } from "@starknet-react/core";
 import useLatestTimestamp from "@/hooks/chain/useLatestTimestamp";
 
-// comment for git
+const FOSSIL_DELAY = 10 * 60;
 
+// comment for git
 const PanelLeft = ({ userType }: { userType: string }) => {
   const { vaultState, selectedRoundState } = useProtocolContext();
   const [vaultIsOpen, setVaultIsOpen] = useState<boolean>(true);
@@ -80,17 +81,32 @@ const PanelLeft = ({ userType }: { userType: string }) => {
   //    ).toLocaleString();
 
   const getStateActionHeader = () => {
+    const round = selectedRoundState
+      ? selectedRoundState
+      : { optionSettleDate: "0" };
+
     const roundState = selectedRoundState?.roundState
       ? selectedRoundState.roundState
       : "Open";
-    if (roundState === "Open") {
-      return "Auction Starts In";
-    } else if (roundState === "Auctioning") {
-      return "Auction Ends In";
-    } else if (roundState === "Running") {
-      return "Round Ends In";
-    } else {
-      return "Round Ended";
+
+    //    if (roundState === "Open") {
+    //      return "Auction Starts In";
+    //    } else if (roundState === "Auctioning") {
+    //      return "Auction Ends In";
+    //    } else if (roundState === "Running") {
+    //      return "Round Ends In";
+    //    } else {
+    //      return "Round Ended";
+    //    }
+
+    if (roundState === "Open") return "Auction Starts In";
+    if (roundState === "Auctioning") return "Auction Ends In";
+    if (roundState === "Running") {
+      let settlementDate = Number(round.optionSettleDate);
+      if (timestamp < settlementDate) return "Round Ends In";
+      else if (timestamp < settlementDate + FOSSIL_DELAY)
+        return "Fossil Ready In";
+      else return "Round Ended";
     }
   };
 
@@ -104,13 +120,24 @@ const PanelLeft = ({ userType }: { userType: string }) => {
 
     let targetDate: string | number | bigint = "0";
 
-    if (roundState === "Open") {
-      targetDate = round.auctionStartDate;
-    } else if (roundState === "Auctioning") {
-      targetDate = round.auctionEndDate;
-    } else {
-      targetDate = round.optionSettleDate;
+    if (roundState === "Open") targetDate = round.auctionStartDate;
+    if (roundState === "Auctioning") targetDate = round.auctionEndDate;
+    if (roundState === "Running") {
+      let settlementDate = Number(round.optionSettleDate);
+      if (timestamp < settlementDate) targetDate = settlementDate;
+      else if (timestamp < settlementDate + FOSSIL_DELAY)
+        targetDate = settlementDate + FOSSIL_DELAY;
+      else targetDate = settlementDate;
     }
+
+    //if (roundState === "Running") targetDate = round.optionSettleDate;
+    //if (roundState === "Open") {
+    //  targetDate = round.auctionStartDate;
+    //} else if (roundState === "Auctioning") {
+    //  targetDate = round.auctionEndDate;
+    //} else {
+    //  targetDate = round.optionSettleDate;
+    //}
 
     targetDate = targetDate ? targetDate : "0";
     return timeUntilTarget(Number(timestamp).toString(), targetDate.toString());
