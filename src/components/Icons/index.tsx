@@ -1,5 +1,6 @@
 export { default as AuctionIcon } from "./AuctionIcon";
 export { default as CoinStackedIcon } from "./CoinStackedIcon";
+export { default as CheckIcon } from "./CheckIcon";
 export { default as SpeedometerIcon } from "./SpeedometerIcon";
 export { default as PieChartIcon } from "./PieChartIcon";
 export { default as ActivityIcon } from "./ActivityIcon";

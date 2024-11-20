@@ -15,6 +15,7 @@ import {
   ArrowLeftIcon,
   ArrowRightIcon,
   ArrowUpIcon,
+  CheckIcon,
 } from "@/components/Icons";
 import { History } from "lucide-react";
 import { useProtocolContext } from "@/context/ProtocolProvider";
@@ -374,7 +375,7 @@ const RoundPerformanceChart = () => {
               .map((index) => (
                 <div
                   key={index}
-                  className="pl-3 pt-3 pb-3 hover:bg-greyscale-800 cursor-pointer font-regular text-[14px] text-[#FFFFFF]"
+                  className="flex flex-row justify-between items-center px-4 pt-3 pb-3 hover:bg-greyscale-800 cursor-pointer font-regular text-[14px] text-[#FFFFFF]"
                   onClick={() => {
                     setSelectedRound(index + 1);
                     setRoundNavIsOpen(false);
@@ -384,6 +385,9 @@ const RoundPerformanceChart = () => {
                   {index + 1 === Number(vaultState?.currentRoundId)
                     ? " (Live)"
                     : ""}
+                  {index + 1 === selectedRound && (
+                    <CheckIcon stroke="#ffffff" fill="none" />
+                  )}
                 </div>
               ))}
           </div>
