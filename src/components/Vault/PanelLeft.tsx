@@ -40,7 +40,7 @@ import StateTransition from "@/components/Vault/StateTransition";
 import { useProvider } from "@starknet-react/core";
 import useLatestTimestamp from "@/hooks/chain/useLatestTimestamp";
 
-const FOSSIL_DELAY = 10 * 60;
+const FOSSIL_DELAY = 15 * 60;
 
 // comment for git
 const PanelLeft = ({ userType }: { userType: string }) => {
