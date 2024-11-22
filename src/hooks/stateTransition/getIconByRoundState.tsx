@@ -12,7 +12,8 @@ export const getIconByRoundState = (
 ) => {
   const stroke = isDisabled ? "var(--greyscale)" : "var(--primary)";
 
-  if (roundState === "Pending") return <Clock className="w-4 h-4 ml-2" />;
+  if (roundState === "Pending" || isDisabled)
+    return <Clock className="w-4 h-4 ml-2" />;
   if (roundState === "Open")
     return <LineChartUpIcon classname="w-4 h-4 ml-2" stroke={stroke} />;
   if (roundState === "Auctioning")
