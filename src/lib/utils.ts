@@ -99,11 +99,9 @@ export const getDurationForRound = (
     return 0;
 
   /// @NOTE Replace once sepolia instance duration >= 12 min
-  //let high = Number(roundState.optionSettleDate);
-  //let low = Number(roundState.auctionEndDate);
-  //return Number(high - low);
-  return 720;
-  //return 60 * 60 * 24 * 30;
+  let high = Number(roundState.optionSettleDate);
+  let low = Number(roundState.auctionEndDate);
+  return Number(high - low);
 };
 
 export const getLocalStorage = (key: string): string => {
@@ -122,11 +120,9 @@ export const shortenString = (str: string) => {
 export const copyToClipboard = (text: string) =>
   navigator.clipboard.writeText(text);
 
-export const stringToHex = (decimalString?: string) => {
-  if (!decimalString) return undefined;
-  decimalString = String(decimalString);
-
-  const num = BigInt(decimalString);
+export const stringToHex = (decimalString?: string): string => {
+  if (!decimalString) return "";
+  const num = BigInt(decimalString.toString());
 
   return `0x${num.toString(16)}`;
 };
@@ -214,55 +210,84 @@ export const timeUntilTargetFormal = (timestamp: string, target: string) => {
   return str;
 };
 
-function generateMockData(
-  startDate: string,
-  itemCount: number,
-  stepInSeconds: number,
-) {
-  const data = [];
-  const start = new Date(startDate);
-  start.setSeconds(0, 0); // Ensure the date starts at the beginning of the minute
-
-  let previousBaseFee: number | null = null;
-
-  for (let i = 0; i < itemCount; i++) {
-    const currentTime = new Date(start.getTime() + i * stepInSeconds * 1000); // Add stepInSeconds seconds
-
-    // Get Unix timestamp in seconds
-    const timestamp = Math.floor(currentTime.getTime() / 1000);
-
-    // BASEFEE calculation
-    let baseFee: number;
-    if (previousBaseFee === null) {
-      baseFee = 20; // Starting BASEFEE
-    } else {
-      const min = previousBaseFee * 0.875; // -12.5%
-      const max = previousBaseFee * 1.125; // +12.5%
-      baseFee = getRandomNumber(min, max);
-    }
-    baseFee = parseFloat(baseFee.toFixed(2));
-
-    // TWAP calculation
-    const TWAP = baseFee + getRandomNumber(-1, 1); // Slight variation
-    const twapValue = parseFloat(TWAP.toFixed(2));
-
-    // Add the data point
-    data.push({
-      timestamp,
-      BASEFEE: baseFee,
-      TWAP: twapValue,
-    });
-
-    // Update previousBaseFee for the next iteration
-    previousBaseFee = baseFee;
-  }
-
-  return data;
-}
-
-function getRandomNumber(min: number, max: number): number {
-  return Math.random() * (max - min) + min;
-}
-
-//const mockData = generateMockData("2024-11-18T18:00:00Z", 10000, 20); // 2 days (in minutes)
-//console.log(JSON.stringify(mockData, null, 2));
+///   function generateMockData(
+///     startDate: string,
+///     itemCount: number,
+///     stepInSeconds: number,
+///   ) {
+///     const data = [];
+///     const start = new Date(startDate);
+///     start.setSeconds(0, 0); // Ensure the date starts at the beginning of the minute
+///
+///     let previousBaseFee: number | null = null;
+///
+///     const baseFeeMin = 2;
+///     const baseFeeMax = 60;
+///
+///     for (let i = 0; i < itemCount; i++) {
+///       const currentTime = new Date(start.getTime() + i * stepInSeconds * 1000); // Add stepInSeconds seconds
+///
+///       // Get Unix timestamp in seconds
+///       const timestamp = Math.floor(currentTime.getTime() / 1000);
+///
+///       // BaseFee target with seasonality
+///       const baseFeeTarget = 30 + 10 * Math.sin((2 * Math.PI * i) / itemCount); // Seasonality between 20 and 40 gwei
+///
+///       // BASEFEE calculation
+///       let baseFee: number;
+///       if (previousBaseFee === null) {
+///         baseFee = 15; // Starting BASEFEE
+///       } else {
+///         // Calculate drift towards target
+///         const drift = (baseFeeTarget - previousBaseFee) * 0.05; // 5% of the distance to target
+///
+///         // Random noise, ±12.5% of previousBaseFee
+///         const randomFactor = getRandomNumber(0.875, 1.125);
+///
+///         baseFee = previousBaseFee * randomFactor + drift;
+///
+///         // Introduce upward bias if baseFee is too low
+///         if (baseFee < 5) {
+///           baseFee += getRandomNumber(1, 3); // Add 1 to 3 gwei
+///         }
+///
+///         // Introduce downward bias if baseFee is too high
+///         if (baseFee > 55) {
+///           baseFee -= getRandomNumber(1, 3); // Subtract 1 to 3 gwei
+///         }
+///
+///         // Ensure baseFee stays within bounds
+///         if (baseFee < baseFeeMin) {
+///           baseFee = baseFeeMin;
+///         } else if (baseFee > baseFeeMax) {
+///           baseFee = baseFeeMax;
+///         }
+///       }
+///
+///       baseFee = parseFloat(baseFee.toFixed(2));
+///
+///       // TWAP calculation
+///       const TWAP = baseFee + getRandomNumber(-1, 1); // Slight variation
+///       const twapValue = parseFloat(TWAP.toFixed(2));
+///
+///       // Add the data point
+///       data.push({
+///         timestamp,
+///         BASEFEE: baseFee,
+///         TWAP: twapValue,
+///       });
+///
+///       // Update previousBaseFee for the next iteration
+///       previousBaseFee = baseFee;
+///     }
+///
+///     return data;
+///   }
+///
+///   // Helper function to generate a random number between min and max
+///   function getRandomNumber(min: number, max: number): number {
+///     return Math.random() * (max - min) + min;
+///   }
+///
+///   const mockData = generateMockData("2024-11-21T01:11:00Z", 10000, 20); // 20 seconds x 10000 steps ~ 2 days
+///   console.log(JSON.stringify(mockData, null, 2));
