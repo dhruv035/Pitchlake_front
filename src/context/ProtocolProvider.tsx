@@ -1,4 +1,5 @@
 "use client";
+import axios from "axios";
 import {
   Dispatch,
   ReactNode,
@@ -22,8 +23,7 @@ import {
   VaultActionsType,
   VaultStateType,
 } from "@/lib/types";
-import { num } from "starknet";
-import { useProvider } from "@starknet-react/core";
+import { useHistoricalRoundParams } from "@/hooks/chart/useHistoricalRoundParams";
 
 /*This is the bridge for any transactions to go through, it's disabled by isTxDisabled if there is data loading or if
   there's a pending transaction. The data loading is enforced to ensure no transaction is done without latest data.
@@ -149,14 +149,6 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
     else if (selectedRound !== 0) {
       return optionBuyerStates[Number(selectedRound) - 1];
     } else return undefined;
-    return;
-    // selectedRound
-    // ? conn === "rpc"
-    //   ? selectedRoundBuyerStateRPC
-    //   : optionBuyerStates.length > selectedRound
-    //     ? optionBuyerStates[selectedRound]
-    //     : undefined
-    // : undefined,
   }, [conn, selectedRound, optionBuyerStates, selectedRoundBuyerStateRPC]);
 
   //Protocol actions
@@ -193,42 +185,52 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
     setSelectedRound(Number(vaultState.currentRoundId));
   }, [vaultState?.currentRoundId]);
 
-  useEffect(() => {
-    if (!vaultState) return;
+  const contextValue = useMemo(
+    () => ({
+      conn,
+      vaultAddress,
+      vaultActions,
+      vaultState,
+      roundActions,
+      optionRoundStates,
+      optionBuyerStates,
+      lpState,
+      selectedRound,
+      setSelectedRound: setRound,
+      selectedRoundState,
+      setVaultAddress,
+      selectedRoundBuyerState,
+      mockTimeForward,
+      mockTimestamp,
+      selectedRoundAddress: undefined,
+      currentRoundAddress,
+    }),
+    [
+      conn,
+      vaultAddress,
+      vaultActions,
+      vaultState,
+      roundActions,
+      optionRoundStates,
+      optionBuyerStates,
+      lpState,
+      selectedRound,
+      setRound,
+      setVaultAddress,
+      selectedRoundState,
+      selectedRoundBuyerState,
+      mockTimeForward,
+      mockTimestamp,
+      currentRoundAddress,
+    ],
+  );
 
-    //    if (selectedRound === 0)
-    //      setSelectedRound(Number(vaultState.currentRoundId));
-    //
-    //    if (selectedRound > Number(vaultState.currentRoundId)) {
-    //      setSelectedRound(Number(vaultState.currentRoundId));
-    //
-    //    }
-  }, [vaultAddress, selectedRound, vaultState?.currentRoundId]);
   return (
-    <ProtocolContext.Provider
-      value={{
-        conn,
-        vaultAddress,
-        vaultActions,
-        vaultState,
-        roundActions,
-        optionRoundStates,
-        optionBuyerStates,
-        lpState,
-        selectedRound,
-        setSelectedRound: setRound,
-        selectedRoundState,
-        setVaultAddress,
-        selectedRoundBuyerState,
-        mockTimeForward,
-        mockTimestamp,
-        selectedRoundAddress: undefined,
-        currentRoundAddress,
-      }}
-    >
+    <ProtocolContext.Provider value={contextValue}>
       {children}
     </ProtocolContext.Provider>
   );
 };
+
 export const useProtocolContext = () => useContext(ProtocolContext);
 export default ProtocolProvider;
