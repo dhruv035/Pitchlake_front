@@ -23,11 +23,8 @@ const GasPriceChart: React.FC<GasPriceChartProps> = ({
   historicalData,
   activeLines,
 }) => {
-  if (!data || data.length === 0) {
-    return; // Or any loading indicator you prefer
-  }
-
   const yMax = useMemo(() => {
+    if (!data) return 0;
     let max = 0;
     data.forEach((item) => {
       if (activeLines.TWAP && item.TWAP !== null && item.TWAP > max) {
@@ -63,11 +60,10 @@ const GasPriceChart: React.FC<GasPriceChartProps> = ({
     ];
   }, [yMax]);
 
-  /**
-   * 4. Generate ticks for X-axis (exactly 5 ticks)
-   */
   const desiredXTickCount = 5;
   const xTicks = useMemo(() => {
+    if (!data) return [];
+
     const timestamps = data.map((item) => item.timestamp);
     const minTimestamp = Math.min(...timestamps);
     const maxTimestamp = Math.max(...timestamps);
@@ -80,10 +76,6 @@ const GasPriceChart: React.FC<GasPriceChartProps> = ({
       ticks.push(minTimestamp + step * i);
     }
 
-    // Ensure the last tick is exactly the maxTimestamp
-    //ticks[0] = minTimestamp;
-    //ticks[ticks.length - 1] = maxTimestamp;
-
     return ticks;
   }, [data, desiredXTickCount]);
 
@@ -91,6 +83,8 @@ const GasPriceChart: React.FC<GasPriceChartProps> = ({
 
   const xTickFormatter = useCallback(
     (value: any, index: number): string => {
+      if (!data) return "";
+
       const date = new Date(Number(value) * 1000);
       const range = data[data.length - 1]?.timestamp - data[0]?.timestamp;
 

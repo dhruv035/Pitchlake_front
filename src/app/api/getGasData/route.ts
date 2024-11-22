@@ -117,7 +117,7 @@ export async function GET(request: Request) {
       });
     }
 
-    const data: BlockData[] = result.rows.map((row: any) => ({
+    const data: any[] = result.rows.map((row: any) => ({
       block_number: row.block_number ? row.block_number : undefined,
       timestamp: row.timestamp,
       BASEFEE: row.base_fee_per_gas
