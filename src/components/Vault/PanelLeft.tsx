@@ -108,6 +108,7 @@ const PanelLeft = ({ userType }: { userType: string }) => {
         return "Fossil Ready In";
       else return "Round Ended";
     }
+    if (roundState === "Settled") return "Round Ended";
   };
 
   const getTimeUntilNextStateTransition = () => {
@@ -129,6 +130,7 @@ const PanelLeft = ({ userType }: { userType: string }) => {
         targetDate = settlementDate + FOSSIL_DELAY;
       else targetDate = settlementDate;
     }
+    if (roundState === "Settled") targetDate = round.optionSettleDate;
 
     //if (roundState === "Running") targetDate = round.optionSettleDate;
     //if (roundState === "Open") {
