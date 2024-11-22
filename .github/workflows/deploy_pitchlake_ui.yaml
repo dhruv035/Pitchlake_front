@@ -81,8 +81,9 @@ jobs:
             --build-arg NEXT_PUBLIC_WS_URL=${{ env.NEXT_PUBLIC_WS_URL }} \
             --build-arg FOSSIL_API_KEY=${{ env.FOSSIL_API_KEY }} \
             --build-arg NEXT_PUBLIC_FOSSIL_API_URL=${{ env.NEXT_PUBLIC_FOSSIL_API_URL }} \
-            -f ./Dockerfile 
-            -t $IMAGE_URI ./
+            -f ./Dockerfile \
+            -t $IMAGE_URI \
+            ./
           docker push $IMAGE_URI
     
       - name: Download task definition
