@@ -78,7 +78,7 @@ export const StarknetProvider = ({
 
   return (
     <StarknetConfig
-      chains={[juno, sepolia, mainnet, devnet]}
+      chains={[ sepolia, mainnet, devnet, juno ]}
       provider={provider}
       connectors={connectors}
       explorer={voyager}
