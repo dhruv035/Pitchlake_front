@@ -67,7 +67,7 @@ const useFossilStatus = () => {
     };
   }, [fetchStatus, targetTimestamp]);
 
-  return { status: statusData, error, loading };
+  return { status: statusData, error, loading, setStatusData };
 };
 
 export default useFossilStatus;
