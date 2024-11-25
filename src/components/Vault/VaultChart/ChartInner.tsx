@@ -79,8 +79,6 @@ const GasPriceChart: React.FC<GasPriceChartProps> = ({
     return ticks;
   }, [data, desiredXTickCount]);
 
-  console.log("xTicks", xTicks);
-
   const xTickFormatter = useCallback(
     (value: any, index: number): string => {
       if (!data) return "";
@@ -124,48 +122,118 @@ const GasPriceChart: React.FC<GasPriceChartProps> = ({
     if (!historicalData || !historicalData.rounds || !data) return [];
 
     const segments: any = [];
+    const sortedData: any = [...data].sort((a, b) => a.timestamp - b.timestamp);
 
     historicalData.rounds.forEach((round: any) => {
-      if (!round) return;
-      if (!round.capLevel || !round.strikePrice) return;
+      if (!round || !round.capLevel || !round.strikePrice) return;
 
       const capLevel = Number(round.capLevel);
-      const cappedStrike =
-        (1 + capLevel / 10000) * Number(formatUnits(round.strikePrice, "gwei"));
-      const strikePrice = Number(formatUnits(round.strikePrice, "gwei"));
+      const strikePriceGwei = parseFloat(
+        formatUnits(round.strikePrice, "gwei"),
+      );
+      const deploymentDate = Number(round.deploymentDate);
+      const optionSettleDate = Number(round.optionSettleDate);
+      const capMultiplier = 1 + capLevel / 10000;
+      const cappedStrike = strikePriceGwei * capMultiplier;
 
       // Find the nearest data points for start and end timestamps
-      const start = data.find(
-        (d) => d.timestamp >= Number(round.deploymentDate),
-      );
-      const end = [...data]
+      const start = sortedData.find((d: any) => d.timestamp >= deploymentDate);
+      const end = [...sortedData]
         .reverse()
-        .find((d) => d.timestamp <= Number(round.optionSettleDate));
+        .find((d) => d.timestamp <= optionSettleDate);
 
       if (start) {
         segments.push({ x: start.timestamp, y: 0 });
         segments.push({ x: start.timestamp, y: cappedStrike });
-        //data.unshift({
-        //  timestamp: start.timestamp,
-        //  STRIKE: strikePrice,
-        //  CAP_LEVEL: cappedStrike,
-        //});
       }
       if (end) {
         segments.push({ x: end.timestamp, y: 0 });
         segments.push({ x: end.timestamp, y: cappedStrike });
-        //data.push({
-        //  timestamp: end.timestamp,
-        //  STRIKE: strikePrice,
-        //  CAP_LEVEL: cappedStrike,
-        //});
       }
-
-      data.sort((a, b) => a.timestamp - b.timestamp);
     });
 
     return segments;
   }, [historicalData, data]);
+  //  const verticalSegments = useMemo(() => {
+  //    if (!historicalData || !historicalData.rounds || !data) return [];
+  //
+  //    const segments: any = [];
+  //    const sortedData: any = [...data].sort((a, b) => a.timestamp - b.timestamp); // Create a sorted copy
+  //
+  //    historicalData.rounds.forEach((round: any) => {
+  //      if (!round || !round.capLevel || !round.strikePrice) return;
+  //
+  //      const capLevel = Number(round.capLevel);
+  //      const strikePrice = Number(formatUnits(round.strikePrice, "gwei"));
+  //      const cappedStrike = (1 + capLevel / 10000) * strikePrice;
+  //
+  //      // Find the nearest data points for start and end timestamps
+  //      const start = sortedData.find(
+  //        (d: any) => d.timestamp >= Number(round.deploymentDate),
+  //      );
+  //      const end = [...sortedData]
+  //        .reverse()
+  //        .find((d) => d.timestamp <= Number(round.optionSettleDate));
+  //
+  //      if (start) {
+  //        segments.push({ x: start.timestamp, y: 0 });
+  //        segments.push({ x: start.timestamp, y: cappedStrike });
+  //      }
+  //      if (end) {
+  //        segments.push({ x: end.timestamp, y: 0 });
+  //        segments.push({ x: end.timestamp, y: cappedStrike });
+  //      }
+  //    });
+  //
+  //    return segments;
+  //  }, [historicalData, data]);
+
+  //  const verticalSegments = useMemo(() => {
+  //    if (!historicalData || !historicalData.rounds || !data) return [];
+  //
+  //    const segments: any = [];
+  //
+  //    historicalData.rounds.forEach((round: any) => {
+  //      if (!round) return;
+  ///      if (!round.capLevel || !round.strikePrice) return;
+  //
+  //      const capLevel = Number(round.capLevel);
+  //      const cappedStrike =
+  //        (1 + capLevel / 10000) * Number(formatUnits(round.strikePrice, "gwei"));
+  //      const strikePrice = Number(formatUnits(round.strikePrice, "gwei"));
+  //
+  //      // Find the nearest data points for start and end timestamps
+  //      const start = data.find(
+  //        (d) => d.timestamp >= Number(round.deploymentDate),
+  //      );
+  //      const end = [...data]
+  //        .reverse()
+  //        .find((d) => d.timestamp <= Number(round.optionSettleDate));
+  //
+  //      if (start) {
+  //        segments.push({ x: start.timestamp, y: 0 });
+  //        segments.push({ x: start.timestamp, y: cappedStrike });
+  //        //data.unshift({
+  //        //  timestamp: start.timestamp,
+  //        //  STRIKE: strikePrice,
+  //        //  CAP_LEVEL: cappedStrike,
+  //        //});
+  //      }
+  //      if (end) {
+  //        segments.push({ x: end.timestamp, y: 0 });
+  //        segments.push({ x: end.timestamp, y: cappedStrike });
+  //        //data.push({
+  //        //  timestamp: end.timestamp,
+  //        //  STRIKE: strikePrice,
+  //        //  CAP_LEVEL: cappedStrike,
+  //        //});
+  //      }
+  //
+  //      data.sort((a, b) => a.timestamp - b.timestamp);
+  //    });
+  //
+  //    return segments;
+  //  }, [historicalData, data]);
 
   // Custom Tooltip
   const CustomTooltip = ({ active, payload, label }: any) => {

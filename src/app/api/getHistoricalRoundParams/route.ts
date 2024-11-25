@@ -1,3 +1,5 @@
+"use server";
+
 import { NextResponse } from "next/server";
 import { vaultABI, optionRoundABI } from "@/lib/abi"; // Ensure vaultABI is correctly defined
 import { num, RpcProvider, Contract } from "starknet";
