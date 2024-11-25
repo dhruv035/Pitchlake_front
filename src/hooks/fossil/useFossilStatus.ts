@@ -1,47 +1,42 @@
 import { useEffect, useCallback, useState } from "react";
-import { createJobId } from "@/lib/utils";
-import { OptionRoundStateType } from "@/lib/types";
+import {
+  createJobId,
+  getDurationForRound,
+  getTargetTimestampForRound,
+} from "@/lib/utils";
+import { useProtocolContext } from "@/context/ProtocolProvider";
 
-// Poll a job's status using it's ID
-const INTERVAL_MS = 3000;
-
-interface StatusData {
+export interface StatusData {
   status?: string;
   error?: string;
 }
 
-interface FossilStatusParams {
-  roundId: string | undefined;
-  targetTimestamp: string | undefined;
-  isInitialRequest: boolean;
-}
+const useFossilStatus = () => {
+  const { selectedRoundState } = useProtocolContext();
+  const targetTimestamp = getTargetTimestampForRound(selectedRoundState);
+  const roundDuration = getDurationForRound(selectedRoundState);
 
-//const useFossilStatus = (jobId: string | undefined) => {
-//const useFossilStatus = ({ roundId, targetTimestamp }: FossilStatusParams) => {
-const useFossilStatus = (
-  targetTimestamp: string | undefined,
-  roundId: string | undefined,
-) => {
-  const [status, setStatus] = useState<StatusData | null>(null);
+  const [statusData, setStatusData] = useState<StatusData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
   const fetchStatus = useCallback(async () => {
-    if (!targetTimestamp || targetTimestamp === "0") return;
-    if (!roundId || roundId === "0") return;
+    if (!selectedRoundState) return;
+    if (targetTimestamp === 0) return;
+
     setLoading(true);
     try {
-      const jobId = createJobId(targetTimestamp);
+      const jobId = createJobId(targetTimestamp, roundDuration);
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_FOSSIL_API_URL}/job_status/${jobId}`,
       );
+
       if (!response.ok) throw new Error("Network response was not ok");
 
       const data = await response.json();
-      setStatus(data);
+      setStatusData(data);
       setError(null);
     } catch (err) {
-      setStatus(null);
       setError("Error fetching job status");
     } finally {
       setLoading(false);
@@ -50,24 +45,29 @@ const useFossilStatus = (
 
   useEffect(() => {
     if (
-      !targetTimestamp ||
-      targetTimestamp === "0" ||
-      !roundId ||
-      roundId === "0" ||
-      status?.status === "Completed" ||
-      status?.status === "Failed"
+      selectedRoundState?.roundState === "Auctioning" ||
+      selectedRoundState?.roundState === "Settled"
     )
       return;
 
-    const intervalId = setInterval(fetchStatus, INTERVAL_MS);
+    const intervalId = setInterval(() => {
+      fetchStatus();
+
+      // Stop polling if status is "Completed"
+      if (statusData?.status === "Completed") {
+        clearInterval(intervalId);
+      }
+    }, 5000);
+
+    // Fetch immediately on mount
     fetchStatus();
 
     return () => {
       clearInterval(intervalId);
     };
-  }, [targetTimestamp, fetchStatus]);
+  }, [fetchStatus, targetTimestamp]);
 
-  return { status, error, loading };
+  return { status: statusData, error, loading, setStatusData };
 };
 
 export default useFossilStatus;

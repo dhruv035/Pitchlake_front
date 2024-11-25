@@ -44,7 +44,6 @@ const TransactionProvider = ({ children }: { children: ReactNode }) => {
   const [pendingTx, setPendingTx] = useState<string | undefined>();
   const { status } = useWaitForTransaction({ hash: pendingTx });
 
- 
   const resetState = () => {
     setPendingTx(undefined);
     setIsTxDisabled(false);
@@ -67,6 +66,7 @@ const TransactionProvider = ({ children }: { children: ReactNode }) => {
           clearTransaction();
           break;
       }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pendingTx, status]);
 

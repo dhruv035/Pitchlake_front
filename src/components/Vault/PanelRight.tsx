@@ -69,9 +69,13 @@ const PanelRight: React.FC<VaultDetailsProps> = ({
     if (!(activeTab in tabs)) {
       setActiveTab(tabs[0]);
     }
-  }, [activeTab,tabs, selectedRoundState?.roundState]);
+  }, [tabs, selectedRoundState?.roundState]);
 
-  useEffect(() => {}, [selectedRoundBuyerState, account]);
+  useEffect(() => {}, [
+    selectedRoundBuyerState,
+    selectedRoundBuyerState?.bids,
+    account,
+  ]);
 
   useEffect(() => {
     if (modalState.type === "pending") {

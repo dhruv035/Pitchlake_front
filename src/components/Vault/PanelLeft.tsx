@@ -40,8 +40,9 @@ import StateTransition from "@/components/Vault/StateTransition";
 import { useProvider } from "@starknet-react/core";
 import useLatestTimestamp from "@/hooks/chain/useLatestTimestamp";
 
-// comment for git
+const FOSSIL_DELAY = 15 * 60;
 
+// comment for git
 const PanelLeft = ({ userType }: { userType: string }) => {
   const { vaultState, selectedRoundState } = useProtocolContext();
   const [vaultIsOpen, setVaultIsOpen] = useState<boolean>(true);
@@ -80,18 +81,34 @@ const PanelLeft = ({ userType }: { userType: string }) => {
   //    ).toLocaleString();
 
   const getStateActionHeader = () => {
+    const round = selectedRoundState
+      ? selectedRoundState
+      : { optionSettleDate: "0" };
+
     const roundState = selectedRoundState?.roundState
       ? selectedRoundState.roundState
       : "Open";
-    if (roundState === "Open") {
-      return "Auction Starts In";
-    } else if (roundState === "Auctioning") {
-      return "Auction Ends In";
-    } else if (roundState === "Running") {
-      return "Round Ends In";
-    } else {
-      return "Round Ended";
+
+    //    if (roundState === "Open") {
+    //      return "Auction Starts In";
+    //    } else if (roundState === "Auctioning") {
+    //      return "Auction Ends In";
+    //    } else if (roundState === "Running") {
+    //      return "Round Ends In";
+    //    } else {
+    //      return "Round Ended";
+    //    }
+
+    if (roundState === "Open") return "Auction Starts In";
+    if (roundState === "Auctioning") return "Auction Ends In";
+    if (roundState === "Running") {
+      let settlementDate = Number(round.optionSettleDate);
+      if (timestamp < settlementDate) return "Round Ends In";
+      else if (timestamp < settlementDate + FOSSIL_DELAY)
+        return "Fossil Ready In";
+      else return "Round Ended";
     }
+    if (roundState === "Settled") return "Round Ended";
   };
 
   const getTimeUntilNextStateTransition = () => {
@@ -104,13 +121,25 @@ const PanelLeft = ({ userType }: { userType: string }) => {
 
     let targetDate: string | number | bigint = "0";
 
-    if (roundState === "Open") {
-      targetDate = round.auctionStartDate;
-    } else if (roundState === "Auctioning") {
-      targetDate = round.auctionEndDate;
-    } else {
-      targetDate = round.optionSettleDate;
+    if (roundState === "Open") targetDate = round.auctionStartDate;
+    if (roundState === "Auctioning") targetDate = round.auctionEndDate;
+    if (roundState === "Running") {
+      let settlementDate = Number(round.optionSettleDate);
+      if (timestamp < settlementDate) targetDate = settlementDate;
+      else if (timestamp < settlementDate + FOSSIL_DELAY)
+        targetDate = settlementDate + FOSSIL_DELAY;
+      else targetDate = settlementDate;
     }
+    if (roundState === "Settled") targetDate = round.optionSettleDate;
+
+    //if (roundState === "Running") targetDate = round.optionSettleDate;
+    //if (roundState === "Open") {
+    //  targetDate = round.auctionStartDate;
+    //} else if (roundState === "Auctioning") {
+    //  targetDate = round.auctionEndDate;
+    //} else {
+    //  targetDate = round.optionSettleDate;
+    //}
 
     targetDate = targetDate ? targetDate : "0";
     return timeUntilTarget(Number(timestamp).toString(), targetDate.toString());
@@ -155,17 +184,20 @@ const PanelLeft = ({ userType }: { userType: string }) => {
   return (
     <>
       <div
+        onClick={!isPanelOpen ? () => setIsPanelOpen(!isPanelOpen) : () => {}}
         className={`flex flex-col mr-4 max-w-[350px] transition-all duration-300 max-h-[834px] overflow-hidden ${
           isPanelOpen ? "w-full" : "w-[110px]"
-        }`}
+        } ${!isPanelOpen ? "cursor-pointer" : ""}`}
       >
         <div className="flex items-center align-center text-[14px] bg-black-alt border-[1px] border-greyscale-800 items-start rounded-lg w-full flex flex-col flex-grow h-full max-h-full">
-          <div className="flex items-center h-[56px] w-full border-b-1 p-4 border-white">
+          <div
+            onClick={() => setIsPanelOpen(!isPanelOpen)}
+            className="flex items-center h-[56px] w-full border-b-1 p-4 border-white"
+          >
             <div
               className={`flex flex-row w-full items-center rounded-md px-2 hover:cursor-pointer ${
                 isPanelOpen ? "justify-between" : "justify-center"
               }`}
-              onClick={() => setIsPanelOpen(!isPanelOpen)}
             >
               <p
                 className={`${
@@ -180,22 +212,13 @@ const PanelLeft = ({ userType }: { userType: string }) => {
                   stroke="var(--buttonwhite)"
                 />
               </div>
-              {
-                //  isPanelOpen ? (
-                //  <IconPanelLeft
-                //    className="stroke-[1px]"
-                //    stroke="var(--buttonwhite)"
-                //  />
-                //) : (
-                //  <IconPanelLeft stroke="var(--buttonwhite)" />
-                //)
-              }
             </div>
           </div>
           <div
             className={`flex flex-col w-full px-3 border-t-[1px] border-greyscale-800`}
           >
             <div
+              onClick={() => setVaultIsOpen((state) => !state)}
               className={`flex flex-row w-full mt-3 rounded-md p-3 ${
                 isPanelOpen
                   ? "justify-between cursor-pointer bg-faded-black"
@@ -211,7 +234,6 @@ const PanelLeft = ({ userType }: { userType: string }) => {
               </div>
               <div
                 className={`${isPanelOpen ? "flex" : "hidden"} flex-row w-full`}
-                onClick={() => setVaultIsOpen((state) => !state)}
               >
                 <div className="ml-2 text-white w-fit overflow-clip text-nowrap font-[] font-regular">
                   Vault
@@ -272,35 +294,26 @@ const PanelLeft = ({ userType }: { userType: string }) => {
                 <p className="text-[#BFBFBF] font-regular">Fees</p>
                 <p>0%</p>
               </div>
-              <div className="flex flex-row justify-between p-2 w-full">
-                <p className="text-[#BFBFBF]">TVL</p>
-                <p>
-                  {vaultState
-                    ? parseFloat(
-                        formatEther(
-                          (
-                            num.toBigInt(vaultState.lockedBalance.toString()) +
-                            num.toBigInt(
-                              vaultState.unlockedBalance.toString(),
-                            ) +
-                            num.toBigInt(vaultState.stashedBalance.toString())
-                          ).toString(),
-                        ),
-                      ).toFixed(0)
-                    : 0}
-                  /1,000 ETH
-                </p>
-              </div>
               {
-                //  <div className="flex flex-row justify-between p-2 w-full">
-                //    <p>Type:</p>
-                //    <p>
-                //      {
-                //        vaultState?.vaultType
-                //        //Add vault type from state here
-                //      }
-                //    </p>
-                //  </div>
+                // <div className="flex flex-row justify-between p-2 w-full">
+                //   <p className="text-[#BFBFBF]">TVL</p>
+                //   <p>
+                //     {vaultState
+                //       ? parseFloat(
+                //           formatEther(
+                //             (
+                //               num.toBigInt(vaultState.lockedBalance.toString()) +
+                //               num.toBigInt(
+                //                 vaultState.unlockedBalance.toString(),
+                //               ) +
+                //               num.toBigInt(vaultState.stashedBalance.toString())
+                //             ).toString(),
+                //           ),
+                //         ).toFixed(0)
+                //       : 0}
+                //     /1,000 ETH
+                //   </p>
+                // </div>
               }
               <div className="flex flex-row justify-between p-2 w-full">
                 <p className="text-[#BFBFBF] font-regular">APY</p>
@@ -359,6 +372,7 @@ const PanelLeft = ({ userType }: { userType: string }) => {
           </div>
           <div className="flex flex-col w-full px-3 border-t-[1px] border-greyscale-800">
             <div
+              onClick={() => setOptionRoundIsOpen((state) => !state)}
               className={`flex flex-row w-full mt-3 rounded-md p-3 ${
                 isPanelOpen
                   ? "justify-between cursor-pointer bg-faded-black"
@@ -374,7 +388,6 @@ const PanelLeft = ({ userType }: { userType: string }) => {
               </div>
               <div
                 className={`${isPanelOpen ? "flex" : "hidden"} flex-row w-full`}
-                onClick={() => setOptionRoundIsOpen((state) => !state)}
               >
                 <div className="ml-2 text-white w-fit overflow-clip text-nowrap font-regular">
                   Round
@@ -601,14 +614,10 @@ const PanelLeft = ({ userType }: { userType: string }) => {
               </div>
             </div>
           </div>
-          <div
-            className={`${isPanelOpen && roundState !== "Settled" ? "border border-transparent border-t-[#262626]" : ""} flex flex-col w-[100%] mx-[auto] mt-[auto] mb-[1rem]`}
-          >
-            <StateTransition
-              isPanelOpen={isPanelOpen}
-              setModalState={setModalState}
-            />
-          </div>
+          <StateTransition
+            isPanelOpen={isPanelOpen}
+            setModalState={setModalState}
+          />
         </div>
       </div>
       {modalState.show && (

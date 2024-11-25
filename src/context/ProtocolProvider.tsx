@@ -1,4 +1,5 @@
 "use client";
+import axios from "axios";
 import {
   Dispatch,
   ReactNode,
@@ -22,8 +23,7 @@ import {
   VaultActionsType,
   VaultStateType,
 } from "@/lib/types";
-import { num } from "starknet";
-import { useProvider } from "@starknet-react/core";
+import { useHistoricalRoundParams } from "@/hooks/chart/useHistoricalRoundParams";
 
 /*This is the bridge for any transactions to go through, it's disabled by isTxDisabled if there is data loading or if
   there's a pending transaction. The data loading is enforced to ensure no transaction is done without latest data.
@@ -80,7 +80,7 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
     optionBuyerStates: optionBuyerStatesMock,
   } = useMockVault(selectedRound, vaultAddress);
 
-//RPC States
+  //RPC States
   const {
     lpState: rpcLiquidityProviderState,
     vaultState: rpcVaultState,
@@ -97,18 +97,15 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
 
   const vaultActionsChain = useVaultActions(vaultAddress);
 
+  //WS States
+  const {
+    wsVaultState,
+    wsOptionRoundStates,
+    wsLiquidityProviderState,
+    wsOptionBuyerStates,
+  } = useWebSocketVault(conn, vaultAddress);
 
-
-//WS States
-const {
-  wsVaultState,
-  wsOptionRoundStates,
-  wsLiquidityProviderState,
-  wsOptionBuyerStates,
-} = useWebSocketVault(conn, vaultAddress);
-
-
-//Protocol States
+  //Protocol States
   const vaultState = useMemo(() => {
     if (conn === "rpc") return rpcVaultState;
     if (conn === "ws") return wsVaultState;
@@ -133,7 +130,6 @@ const {
     return [];
   }, [conn, optionBuyerStatesMock, wsOptionBuyerStates]);
 
-
   const selectedRoundState = useMemo(() => {
     if (conn !== "rpc") {
       if (selectedRound !== 0) {
@@ -153,17 +149,9 @@ const {
     else if (selectedRound !== 0) {
       return optionBuyerStates[Number(selectedRound) - 1];
     } else return undefined;
-    return;
-    // selectedRound
-    // ? conn === "rpc"
-    //   ? selectedRoundBuyerStateRPC
-    //   : optionBuyerStates.length > selectedRound
-    //     ? optionBuyerStates[selectedRound]
-    //     : undefined
-    // : undefined,
   }, [conn, selectedRound, optionBuyerStates, selectedRoundBuyerStateRPC]);
 
-//Protocol actions
+  //Protocol actions
   const vaultActions = useMemo(() => {
     if (conn !== "mock") return vaultActionsChain;
     return vaultActionsMock;
@@ -173,7 +161,7 @@ const {
     if (conn === "mock") return roundActionsMock;
     return roundActionsChain;
   }, [conn, selectedRound, roundActionsMock, roundActionsChain]);
-  
+
   const setRound = useCallback(
     (roundId: number) => {
       if (roundId < 1) return;
@@ -192,42 +180,57 @@ const {
     setMockTimestamp(Date.now());
   }, []);
 
-
   useEffect(() => {
     if (!vaultState) return;
+    setSelectedRound(Number(vaultState.currentRoundId));
+  }, [vaultState?.currentRoundId]);
 
-    if (selectedRound === 0)
-      setSelectedRound(Number(vaultState.currentRoundId));
+  const contextValue = useMemo(
+    () => ({
+      conn,
+      vaultAddress,
+      vaultActions,
+      vaultState,
+      roundActions,
+      optionRoundStates,
+      optionBuyerStates,
+      lpState,
+      selectedRound,
+      setSelectedRound: setRound,
+      selectedRoundState,
+      setVaultAddress,
+      selectedRoundBuyerState,
+      mockTimeForward,
+      mockTimestamp,
+      selectedRoundAddress: undefined,
+      currentRoundAddress,
+    }),
+    [
+      conn,
+      vaultAddress,
+      vaultActions,
+      vaultState,
+      roundActions,
+      optionRoundStates,
+      optionBuyerStates,
+      lpState,
+      selectedRound,
+      setRound,
+      setVaultAddress,
+      selectedRoundState,
+      selectedRoundBuyerState,
+      mockTimeForward,
+      mockTimestamp,
+      currentRoundAddress,
+    ],
+  );
 
-    if (selectedRound > Number(vaultState.currentRoundId)) {
-      setSelectedRound(Number(vaultState.currentRoundId));
-    }
-  }, [vaultAddress, selectedRound, vaultState?.currentRoundId]);
   return (
-    <ProtocolContext.Provider
-      value={{
-        conn,
-        vaultAddress,
-        vaultActions,
-        vaultState,
-        roundActions,
-        optionRoundStates,
-        optionBuyerStates,
-        lpState,
-        selectedRound,
-        setSelectedRound: setRound,
-        selectedRoundState,
-        setVaultAddress,
-        selectedRoundBuyerState,
-        mockTimeForward,
-        mockTimestamp,
-        selectedRoundAddress: undefined,
-        currentRoundAddress,
-      }}
-    >
+    <ProtocolContext.Provider value={contextValue}>
       {children}
     </ProtocolContext.Provider>
   );
 };
+
 export const useProtocolContext = () => useContext(ProtocolContext);
 export default ProtocolProvider;

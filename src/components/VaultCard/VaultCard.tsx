@@ -24,12 +24,14 @@ import useRoundState from "@/hooks/optionRound/state/useRoundState";
 import useTimestamps from "@/hooks/optionRound/state/useTimestamps";
 import useLatestTimestamp from "@/hooks/chain/useLatestTimestamp";
 import { useProvider } from "@starknet-react/core";
+import { useProtocolContext } from "@/context/ProtocolProvider";
 
 export default function VaultCard({ vaultAddress }: { vaultAddress: string }) {
   const { provider } = useProvider();
   const { lockedBalance, unlockedBalance, stashedBalance } =
     useVaultBalances(vaultAddress);
 
+  const { setSelectedRound } = useProtocolContext();
   const { vaultState, currentRoundAddress } = useVaultState({
     conn: "rpc",
     address: vaultAddress,
@@ -70,6 +72,7 @@ export default function VaultCard({ vaultAddress }: { vaultAddress: string }) {
     <div
       className="col-span-1 w-full border-[1px] border-greyscale-800 rounded-lg hover:cursor-pointer"
       onClick={() => {
+        setSelectedRound(Number(vaultState?.currentRoundId));
         router.push(`/vaults/${vaultAddress}`);
       }}
     >

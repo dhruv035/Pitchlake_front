@@ -5,7 +5,6 @@ import AuctionIcon from "../Icons/AuctionIcon";
 import CoinStackedIcon from "../Icons/CoinStackedIcon";
 import PanelRight from "./PanelRight";
 import PanelLeft from "./PanelLeft";
-import { useProtocolContext } from "@/context/ProtocolProvider";
 import { ChevronLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 
@@ -14,7 +13,6 @@ export const Vault = () => {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const router = useRouter();
 
-  const { vaultState } = useProtocolContext();
   return (
     <div className="px-7 py-7 flex-grow flex-box overflow-auto">
       <div className="flex flex-row-reverse text-primary">
@@ -78,7 +76,7 @@ export const Vault = () => {
         </div>
       </div>
       <div className="mt-6 flex flex-row">
-        {vaultState && <PanelLeft userType={isProviderView ? "lp" : "ob"} />}
+        {<PanelLeft userType={isProviderView ? "lp" : "ob"} />}
         {
           //Update the roundState to multiple roundStates and set selected round in the component
         }
