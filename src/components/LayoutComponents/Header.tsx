@@ -2,7 +2,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 
-import { BellIcon, ChevronDownIcon } from "lucide-react";
+import { BellIcon, ChevronDownIcon, LogOutIcon } from "lucide-react";
 import logo_full from "@/../public/logo_full.svg";
 import login from "@/../public/login.svg";
 import braavosIcon from "@/../public/braavos.svg";
@@ -34,8 +34,8 @@ import {
 } from "starknet";
 import { parseEther, formatEther } from "ethers";
 import useERC20 from "@/hooks/erc20/useERC20";
-import useFossil from "@/hooks/fossil/useFossil";
 import useAccountBalances from "@/hooks/vault/state/useAccountBalances";
+import { LoginIcon } from "../Icons";
 
 export default function Header() {
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -145,34 +145,9 @@ export default function Header() {
             <button onClick={() => mockTimeForward()}>Forward Mock Time</button>
           </div>
         )}
-        <div className="cursor-pointer border-[1px] border-greyscale-800 p-2 rounded-md">
+        <div className="hover:cursor-pointer border-[1px] border-greyscale-800 p-2 rounded-md">
           <BellIcon className="h-6 w-6 text-primary" />
         </div>
-
-        {
-          //    account ? (
-          //    <button
-          //      onClick={fundAccount}
-          //      className="font-medium cursor-pointer border-[1px] border-greyscale-800 p-2 rounded-md"
-          //    >
-          //      Fund Account
-          //    </button>
-          //  ) : (
-          //    <></>
-          //  )
-          //  }
-          //  {
-          //    account ? (
-          //    <button
-          //      onClick={mockFossilCall}
-          //      className="font-medium cursor-pointer border-[1px] border-greyscale-800 p-2 rounded-md"
-          //    >
-          //      Mock Fossil Call
-          //    </button>
-          //  ) : (
-          //    <></>
-          //  )
-        }
         <div className="relative" ref={dropdownRef}>
           {account ? (
             <>
@@ -218,14 +193,13 @@ export default function Header() {
                 onClick={() => setIsDropdownOpen((state) => !state)}
               >
                 <p>Connect</p>
-                <Image
-                  src={login}
-                  alt="Login"
-                  width={18}
-                  height={18}
-                  className="ml-1"
-                  style={{ objectFit: "contain" }}
-                />
+                <div>
+                  <LoginIcon
+                    classname="h-4 w-4 ml-1 text-[var(--buttongrey)]"
+                    stroke="#111111"
+                    fill="none"
+                  />
+                </div>
               </button>
               {isDropdownOpen && (
                 <div className="absolute right-0 h-[148px] w-[196px] text-sm flex flex-col mt-3 ">

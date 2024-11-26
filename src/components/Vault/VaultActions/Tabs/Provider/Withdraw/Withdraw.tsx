@@ -1,15 +1,10 @@
 import React, { useState, ReactNode } from "react";
-import {
-  LiquidityProviderStateType,
-  VaultStateType,
-  WithdrawSubTabs,
-} from "@/lib/types";
-import ButtonTabs from "../../../ButtonTabs";
+import { WithdrawSubTabs } from "@/lib/types";
+import ButtonTabs from "../../ButtonTabs";
 import WithdrawLiquidity from "@/components/Vault/VaultActions/Tabs/Provider/Withdraw/WithdrawLiquidity";
 import QueueWithdrawal from "@/components/Vault/VaultActions/Tabs/Provider/Withdraw/QueueWithdrawal";
 import WithdrawStash from "@/components/Vault/VaultActions/Tabs/Provider/Withdraw/WithdrawStash";
-import { ProtocolContext } from "@/context/ProtocolProvider";
-import { CairoCustomEnum } from "starknet";
+import { useProtocolContext } from "@/context/ProtocolProvider";
 
 interface WithdrawProps {
   showConfirmation: (
@@ -20,6 +15,7 @@ interface WithdrawProps {
 }
 
 const Withdraw: React.FC<WithdrawProps> = ({ showConfirmation }) => {
+  const { selectedRoundState } = useProtocolContext();
   const [state, setState] = useState({
     activeWithdrawTab: "Liquidity" as WithdrawSubTabs,
   });
@@ -32,7 +28,12 @@ const Withdraw: React.FC<WithdrawProps> = ({ showConfirmation }) => {
     <>
       <div className="flex-col space-y-6 p-6 pb-2">
         <ButtonTabs
-          tabs={["Liquidity", "Queue", "Collect"]}
+          tabs={
+            selectedRoundState?.roundState.toString() === "Auctioning" ||
+            selectedRoundState?.roundState.toString() === "Running"
+              ? ["Liquidity", "Queue", "Collect"]
+              : ["Liquidity", "Collect"]
+          }
           activeTab={state.activeWithdrawTab}
           setActiveTab={(tab) =>
             updateState({ activeWithdrawTab: tab as WithdrawSubTabs })
@@ -43,6 +44,7 @@ const Withdraw: React.FC<WithdrawProps> = ({ showConfirmation }) => {
         {state.activeWithdrawTab === "Liquidity" && (
           <WithdrawLiquidity showConfirmation={showConfirmation} />
         )}
+
         {state.activeWithdrawTab === "Queue" && (
           <QueueWithdrawal showConfirmation={showConfirmation} />
         )}

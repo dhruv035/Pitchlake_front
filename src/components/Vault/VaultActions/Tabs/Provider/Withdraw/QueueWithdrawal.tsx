@@ -13,7 +13,7 @@ interface WithdrawQueueProps {
   ) => void;
 }
 
-const WithdrawLiquidity: React.FC<WithdrawQueueProps> = ({
+const QueueWithdrawal: React.FC<WithdrawQueueProps> = ({
   showConfirmation,
 }) => {
   const { vaultActions, lpState } = useProtocolContext();
@@ -140,4 +140,4 @@ const WithdrawLiquidity: React.FC<WithdrawQueueProps> = ({
   );
 };
 
-export default WithdrawLiquidity;
+export default QueueWithdrawal;

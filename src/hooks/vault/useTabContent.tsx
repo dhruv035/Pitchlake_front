@@ -32,7 +32,10 @@ export const useTabContent = (
   setBidToEdit: (bid: any) => void,
 ) => {
   const { pendingTx } = useTransactionContext();
-  const commonTabs = [CommonTabs.MyInfo];
+  const env = process.env.NEXT_PUBLIC_ENVIRONMENT;
+
+  // @NOTE: For now we are hiding this panel, eventually we need to show it in WS mode and possibly RPC mode as well
+  const commonTabs = env === "ws" || env === "rpc" ? [CommonTabs.MyInfo] : [];
   const tabs = useMemo(() => {
     if (userType === "lp") {
       return [...Object.values(ProviderTabs), ...commonTabs];
@@ -84,7 +87,13 @@ export const useTabContent = (
           return <DepositContent showConfirmation={(amount, action) => {}} />;
         }
     }
-  }, [userType, activeTab, selectedRoundState?.roundState, pendingTx]);
+  }, [
+    userType,
+    activeTab,
+    selectedRoundState?.roundState,
+    pendingTx,
+    userBids,
+  ]);
 
   return { tabs, tabContent };
 };

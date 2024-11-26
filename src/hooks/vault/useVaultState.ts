@@ -1,5 +1,5 @@
 import { useAccount, useContractRead, useNetwork } from "@starknet-react/core";
-import { vaultABI } from "@/abi";
+import { vaultABI } from "@/lib/abi";
 import { LiquidityProviderStateType, VaultStateType } from "@/lib/types";
 import { stringToHex } from "@/lib/utils";
 import { useMemo } from "react";

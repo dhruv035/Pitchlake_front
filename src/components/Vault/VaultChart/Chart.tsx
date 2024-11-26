@@ -1,39 +1,128 @@
-import React, { useState, useRef } from "react";
-import {
-  ComposedChart,
-  Area,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  ResponsiveContainer,
-  ReferenceArea,
-} from "recharts";
-import data from "@/chart_data.json";
+import React, { useState, useEffect, useRef, useMemo } from "react";
+import classNames from "classnames";
+import axios from "axios";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import {
   ArrowDownIcon,
   ArrowLeftIcon,
   ArrowRightIcon,
   ArrowUpIcon,
+  CheckIcon,
 } from "@/components/Icons";
+import { History } from "lucide-react";
 import { useProtocolContext } from "@/context/ProtocolProvider";
+import { formatUnits } from "ethers";
+import data from "@/chart_data.json";
+import GasPriceChart from "@/components/Vault/VaultChart/ChartInner";
+import { useGasData } from "@/hooks/chart/useGasData";
+import { useHistoricalRoundParams } from "@/hooks/chart/useHistoricalRoundParams";
 
 const RoundPerformanceChart = () => {
-  const { selectedRoundState, selectedRound, setSelectedRound, vaultState } =
+  const [isExpandedView, setIsExpandedView] = useState(false);
+
+  const { selectedRound, selectedRoundState, setSelectedRound, vaultState } =
     useProtocolContext();
+
+  const vaultAddress = useMemo(() => {
+    return vaultState?.address;
+  }, [vaultState?.address]);
+
+  const toRound = useMemo(() => {
+    return selectedRound
+      ? Number(selectedRound)
+      : vaultState?.currentRoundId
+        ? Number(vaultState.currentRoundId)
+        : 1;
+  }, [selectedRound]);
+
+  const fromRound = useMemo(() => {
+    if (!isExpandedView) {
+      return toRound;
+    } else {
+      return toRound > 3 ? toRound - 3 : 1;
+    }
+  }, [toRound, isExpandedView]);
+
+  const { vaultData: historicalData } = useHistoricalRoundParams({
+    vaultAddress,
+    fromRound,
+    toRound,
+  });
+
+  const maxDataPoints = 100;
+
+  //  const [maxDataPoints, setMaxDataPoints] = useState<number>(100);
+  const twapRange = useMemo(() => {
+    if (
+      !selectedRoundState?.auctionStartDate ||
+      !selectedRoundState?.optionSettleDate
+    )
+      return 1;
+
+    return (
+      Number(selectedRoundState.optionSettleDate) -
+      Number(selectedRoundState.auctionEndDate)
+    );
+  }, [
+    selectedRoundState?.auctionEndDate,
+    selectedRoundState?.optionSettleDate,
+  ]);
+
+  //const [twapRange, setTwapRange] = useState<number>(720); // Example TWAP range in seconds
+
+  const bounds = useMemo(() => {
+    if (!selectedRoundState) return;
+
+    const deploymentTimestamp = Number(selectedRoundState.deploymentDate);
+    const optionSettleTimestamp = Number(selectedRoundState.optionSettleDate);
+
+    if (!isExpandedView) return [deploymentTimestamp, optionSettleTimestamp];
+    else {
+      return [
+        deploymentTimestamp - 3 * (optionSettleTimestamp - deploymentTimestamp),
+        optionSettleTimestamp,
+      ];
+    }
+  }, [
+    selectedRoundState?.deploymentDate,
+    selectedRoundState?.optionSettleDate,
+    isExpandedView,
+  ]);
+
+  // Use the useGasData hook
+  const { gasData, isLoading, isError, error } = useGasData({
+    lowerTimestamp: bounds ? bounds[0] : 0,
+    upperTimestamp: bounds ? bounds[1] : 0,
+    maxDataPoints,
+    twapRange,
+  });
+
   const [activeLines, setActiveLines] = useState<{ [key: string]: boolean }>({
     TWAP: true,
     BASEFEE: true,
     STRIKE: true,
     CAP_LEVEL: true,
   });
-
-  const [activeDate, setActiveDate] = useState(data[0].date);
-  const [zoomDomain, setZoomDomain] = useState(null);
-  const [brushIndex, setBrushIndex] = useState(0);
+  const [zoomDomain, setZoomDomain] = useState<any>(null);
   const [roundNavIsOpen, setRoundNavIsOpen] = useState(false);
-  const chartRef = useRef(null);
+
+  const headerRef = useRef<HTMLDivElement | null>(null);
+  const dropdownRef = useRef<HTMLDivElement | null>(null);
+
+  const decrementRound = () => {
+    if (selectedRound > 1) {
+      setSelectedRound(selectedRound - 1);
+    }
+  };
+
+  const incrementRound = () => {
+    if (
+      vaultState?.currentRoundId &&
+      selectedRound < Number(vaultState.currentRoundId)
+    ) {
+      setSelectedRound(selectedRound + 1);
+    }
+  };
 
   const handleZoom = (domain: any) => {
     setZoomDomain(domain);
@@ -43,80 +132,91 @@ const RoundPerformanceChart = () => {
     setZoomDomain(null);
   };
 
-  const handlePrev = () => {
-    setBrushIndex((prevIndex: any) => Math.max(prevIndex - 1, 0));
-  };
+  const parsedData = useMemo(() => {
+    if (!selectedRound || !gasData || !historicalData || !bounds) return [];
 
-  const handleNext = () => {
-    setBrushIndex((prevIndex: any) => Math.min(prevIndex + 1, data.length - 1));
-  };
+    return gasData?.map((item: any) => {
+      const newItem: any = { ...item };
+
+      const round = historicalData.rounds.find((r: any) => {
+        const lowerBound = Number(r.deploymentDate);
+        const upperBound = Number(r.optionSettleDate);
+        return item.timestamp >= lowerBound && item.timestamp <= upperBound;
+      });
+
+      if (round) {
+        const strike = Number(formatUnits(round.strikePrice, "gwei"));
+        const cap =
+          Number(formatUnits(round.strikePrice, "gwei")) *
+          (1 + Number(round.capLevel) / 10000);
+
+        newItem.STRIKE = strike;
+        newItem.CAP_LEVEL = cap;
+      } else {
+        newItem.STRIKE = undefined;
+        newItem.CAP_LEVEL = undefined;
+      }
+
+      return newItem;
+    });
+  }, [
+    gasData,
+    selectedRound,
+    historicalData,
+    selectedRoundState?.deploymentDate,
+    selectedRoundState?.optionSettleDate,
+    selectedRoundState?.capLevel,
+    selectedRoundState?.strikePrice,
+  ]);
 
   const toggleLine = (line: string) => {
     setActiveLines((prev) => ({ ...prev, [line]: !prev[line] }));
   };
 
-  const decrementRound = () => {
-    setSelectedRound(selectedRound - 1);
-  };
-
-  const incrementRound = () => {
-    setSelectedRound(selectedRound + 1);
-  };
-
-  const CustomTooltip = ({
-    active,
-    payload,
-    label,
-  }: {
-    active: any;
-    payload: any;
-    label: any;
-  }) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="bg-[#1E1E1E] p-4 rounded-lg shadow-lg">
-          <p className="text-white text-sm mb-2">{label}</p>
-          <div className="space-y-2">
-            {payload.map((entry: any, index: any) => (
-              <div key={index} className="flex items-center">
-                <div
-                  className="w-4 h-4 rounded-full mr-2"
-                  style={{ backgroundColor: entry.color }}
-                ></div>
-                <p className="text-white text-sm">
-                  {entry.name}: {entry.value.toFixed(2)}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      );
+  // Set initial selectedRound
+  useEffect(() => {
+    if (!selectedRound && vaultState?.currentRoundId) {
+      setSelectedRound(Number(vaultState.currentRoundId));
     }
-    return null;
-  };
+  }, [selectedRound]);
 
-  const hourlyData = data.find((item) => item.date === activeDate)?.data || [];
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node) &&
+        headerRef.current &&
+        !headerRef.current.contains(event.target as Node)
+      ) {
+        setRoundNavIsOpen(false);
+      }
+    };
+
+    if (roundNavIsOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [roundNavIsOpen]);
 
   return (
-    <div className="w-full h-[800px] bg-black-alt rounded-[12px] border border-greyscale-800 flex flex-col">
+    <div className="w-full h-[800px] bg-black-alt rounded-[12px] border border-greyscale-800 relative">
+      {/* Round Navigation */}
       <div className="flex flex-row items-center p-5 justify-between border-b-[1px] border-greyscale-800 pb-4 h-[56px]">
         <div
+          ref={headerRef}
           onClick={() => setRoundNavIsOpen(!roundNavIsOpen)}
-          className="font-medium text-[14px] text-primary flex flex-row items-center align-center hover:cursor-pointer"
+          className="cursor-pointer font-medium text-[14px] text-primary flex flex-row items-center"
         >
           <p className="flex flex-row items-center">Round &nbsp;</p>
-          {
-            //selectedRoundState?.roundId +
-            //(selectedRoundState?.roundId.toString() ===
-            //vaultState?.currentRoundId?.toString()
-            //  ? " (Live)"
-            //  : " (Historic)")
-            selectedRound ? selectedRound : 0
-          }
-          {
-            //Round number here
-            //Concat  (Live) if live
-          }
+          {selectedRound ? selectedRound : 1}
+          {Number(selectedRound) === Number(vaultState?.currentRoundId)
+            ? " (Live)"
+            : ""}
           <div className="flex items-center ">
             {!roundNavIsOpen ? (
               <ArrowDownIcon
@@ -136,11 +236,15 @@ const RoundPerformanceChart = () => {
                   ? "var(--greyscale)"
                   : "var(--primary)"
               }
-              classname={`w-3 h-3 mr-2 hover:cursor-pointer ${
+              classname={`${
+                !selectedRound || selectedRound === 1
+                  ? ""
+                  : "hover:cursor-pointer hover-zoom"
+              } w-4 h-4 mr-2 ${
                 !selectedRound || selectedRound === 1
                   ? "hover:cursor-default"
                   : ""
-              }`}
+              } `}
             />
           </div>
           <div onClick={incrementRound}>
@@ -152,30 +256,91 @@ const RoundPerformanceChart = () => {
                   ? "var(--primary)"
                   : "var(--greyscale)"
               }
-              classname={`w-3 h-3 mr-2 hover:cursor-pointer ${
-                !selectedRound || selectedRound === 1
+              classname={`${
+                selectedRound &&
+                vaultState?.currentRoundId &&
+                Number(vaultState.currentRoundId) > selectedRound
+                  ? "hover-zoom hover:cursor-pointer"
+                  : ""
+              } w-4 h-4 mr-2 ${
+                !selectedRound ||
+                selectedRound === Number(vaultState?.currentRoundId)
                   ? "hover:cursor-default"
                   : ""
               }`}
             />
           </div>
+          <div>
+            <History
+              onClick={() => setIsExpandedView(!isExpandedView)}
+              className={classNames(
+                "w-6 h-6 mr-2 cursor-pointer",
+                {
+                  "stroke-[var(--primary)]": isExpandedView,
+                  "stroke-[var(--greyscale)]": !isExpandedView,
+                },
+                "hover:stroke-[var(--primary)]  hover-zoom",
+              )}
+            />
+            {
+              //hover:scale-105 transition-transform duration-200 ease-in-out
+            }
+          </div>
         </div>
       </div>
+
+      {/* Dropdown */}
+      {roundNavIsOpen && (
+        <div
+          ref={dropdownRef}
+          className="absolute top-[61px] left-1 right-0 bg-[#161616] pt-2 z-10 border border-[#262626] rounded-lg w-[200px] max-h-[244px] overflow-scroll"
+        >
+          {[
+            ...Array(
+              vaultState?.currentRoundId
+                ? Number(vaultState.currentRoundId)
+                : 1,
+            ),
+          ]
+            .map((_, index) => index)
+            .reverse()
+            .map((index) => (
+              <div
+                key={index}
+                className="flex flex-row justify-between items-center px-4 pt-3 pb-3 hover:bg-greyscale-800 cursor-pointer font-regular text-[14px] text-[#FFFFFF]"
+                onClick={() => {
+                  setSelectedRound(index + 1);
+                  setRoundNavIsOpen(false);
+                }}
+              >
+                Round {index + 1}
+                {index + 1 === Number(vaultState?.currentRoundId)
+                  ? " (Live)"
+                  : ""}
+                {index + 1 === selectedRound && (
+                  <CheckIcon stroke="#ffffff" fill="none" />
+                )}
+              </div>
+            ))}
+        </div>
+      )}
+
+      {/* Line Toggle Buttons */}
       <div className="flex justify-center items-center my-4">
         <div className="flex gap-4">
           {["TWAP", "BASEFEE", "STRIKE", "CAP_LEVEL"].map((line) => (
             <button
               key={line}
-              className={`flex flex-row items-center font-regular text-[12px]
-                ${
-                  line === "TWAP"
-                    ? "text-success"
-                    : line === "BASEFEE"
-                      ? "text-greyscale"
-                      : line === "STRIKE"
-                        ? "text-warning-300"
-                        : "text-error-300"
-                }`}
+              className={`hover-zoom-small flex flex-row items-center font-regular text-[12px]
+                   ${
+                     line === "CAP_LEVEL"
+                       ? "text-success"
+                       : line === "BASEFEE"
+                         ? "text-greyscale"
+                         : line === "STRIKE"
+                           ? "text-warning-300"
+                           : "text-error-300"
+                   }`}
               onClick={() => toggleLine(line)}
             >
               {line === "CAP_LEVEL" ? "CAP LEVEL" : line}
@@ -189,101 +354,20 @@ const RoundPerformanceChart = () => {
         </div>
       </div>
 
-      <ResponsiveContainer width="100%" height="100%" className="px-4">
-        <ComposedChart
-          data={hourlyData}
-          //ref={chartRef}
-          onMouseDown={(e) => {
-            if (e && e.activeLabel) {
-              const domain = e && e.activeLabel;
-              handleZoom([domain, data[data.length - 1].date]);
-            }
-          }}
-          onMouseMove={(e) => {
-            if (zoomDomain && e && e.activeLabel) {
-              const domain = e && e.activeLabel;
-              handleZoom([domain, data[data.length - 1].date]);
-            }
-          }}
-          onMouseUp={handleResetZoom}
-        >
-          <defs>
-            <linearGradient id="twapGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop
-                offset="0%"
-                stopColor="var(--success-700)"
-                stopOpacity={0.2}
-              />
-              <stop
-                offset="50%"
-                stopColor="var(--success-700)"
-                stopOpacity={0}
-              />
-            </linearGradient>
-            <linearGradient id="basefeeGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop
-                offset="0%"
-                stopColor="var(--greyscale-600)"
-                stopOpacity={0.2}
-              />
-              <stop
-                offset="50%"
-                stopColor="var(--greyscale-600)"
-                stopOpacity={0}
-              />
-            </linearGradient>
-          </defs>
-          <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-          <XAxis dataKey="date" stroke="#666" />
-          <YAxis stroke="#666" />
-          {
-            //<Tooltip content={<CustomTooltip />} />
-          }
-          {activeLines.TWAP && (
-            <Area
-              height={400}
-              type="monotone"
-              dataKey="TWAP"
-              stroke="#10B981"
-              fill="url(#twapGradient)"
-              fillOpacity={1}
-            />
-          )}
-          {activeLines.BASEFEE && (
-            <Area
-              type="monotone"
-              dataKey="BASEFEE"
-              stroke="#E5E7EB"
-              fill="url(#basefeeGradient)"
-              fillOpacity={1}
-            />
-          )}
-          {activeLines.STRIKE && (
-            <Line
-              type="monotone"
-              dataKey="STRIKE"
-              stroke="var(--warning-300)"
-              dot={false}
-            />
-          )}
-          {activeLines.CAP_LEVEL && (
-            <Line
-              type="monotone"
-              dataKey="CAP_LEVEL"
-              stroke="#8B5CF6"
-              dot={false}
-            />
-          )}
-
-          {zoomDomain && (
-            <ReferenceArea
-              x1={zoomDomain[0]}
-              x2={zoomDomain[1]}
-              strokeOpacity={0.3}
-            />
-          )}
-        </ComposedChart>
-      </ResponsiveContainer>
+      {/* Chart */}
+      <GasPriceChart
+        data={parsedData}
+        historicalData={historicalData}
+        activeLines={activeLines}
+        fromRound={fromRound}
+        toRound={toRound}
+        isExpandedView={isExpandedView}
+        selectedRound={selectedRound}
+        setIsExpandedView={setIsExpandedView}
+        //zoomDomain={zoomDomain}
+        //handleZoom={handleZoom}
+        //handleResetZoom={handleResetZoom}
+      />
     </div>
   );
 };

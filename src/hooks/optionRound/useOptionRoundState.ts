@@ -1,4 +1,4 @@
-import { optionRoundABI } from "@/abi";
+import { optionRoundABI } from "@/lib/abi";
 import { OptionBuyerStateType, OptionRoundStateType } from "@/lib/types";
 import useContractReads from "@/lib/useContractReads";
 import { useAccount, useContract, useContractRead } from "@starknet-react/core";
@@ -167,21 +167,17 @@ const useOptionRoundState = (address: string | undefined) => {
   });
 
   const getPerformanceLP = () => {
-    const startingLiq = startingLiquidity
-      ? Number(startingLiquidity.toString())
-      : 0;
+    const soldLiq = soldLiquidity ? Number(soldLiquidity.toString()) : 0;
     const prem = premiums ? Number(premiums.toString()) : 0;
     const payout = totalPayout ? Number(totalPayout.toString()) : 0;
 
-    if (startingLiq == 0) {
-      return 0;
-    } else {
-      const gainLoss = prem - payout;
-      const percentage = Number(((gainLoss / startingLiq) * 100).toFixed(2));
+    if (soldLiq == 0) return 0;
 
-      const sign = percentage > 0 ? "+" : "";
-      return `${sign}${percentage}`;
-    }
+    const gainLoss = prem - payout;
+    const percentage = Number(((gainLoss / soldLiq) * 100).toFixed(2));
+
+    const sign = percentage > 0 ? "+" : "";
+    return `${sign}${percentage}`;
   };
 
   const getPerformanceOB = () => {

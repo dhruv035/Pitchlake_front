@@ -3,9 +3,8 @@ import RoundPerformanceChart from "./VaultChart/Chart";
 import { useState } from "react";
 import AuctionIcon from "../Icons/AuctionIcon";
 import CoinStackedIcon from "../Icons/CoinStackedIcon";
-import PanelRight from "./VaultActions/PanelRight";
-import PanelLeft from "./VaultActions/PanelLeft";
-import { useProtocolContext } from "@/context/ProtocolProvider";
+import PanelRight from "./PanelRight";
+import PanelLeft from "./PanelLeft";
 import { ChevronLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 
@@ -13,60 +12,7 @@ export const Vault = () => {
   const [isProviderView, setIsProviderView] = useState(true);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const router = useRouter();
-  // const {
-  //   wsVaultState,
-  //   wsOptionRoundStates,
-  //   wsLiquidityProviderState,
-  //   wsOptionBuyerState,
-  // } = useWebSocketVault(conn, vaultAddress);
 
-  // const {
-  //   optionRoundStates: optionRoundStatesMock,
-  //   lpState: lpStateMock,
-  //   vaultState: vaultStateMock,
-  //   vaultActions: vaultActionsMock,
-  //   optionRoundActions: roundActionsMock,
-  //   optionBuyerStates: optionBuyerStatesMock,
-  // } = useMockVault(vaultAddress);
-  // const {
-  //   lpState: rpcLiquidityProviderState,
-  //   vaultState: rpcVaultState,
-  //   currentRoundAddress,
-  // } = useVaultState(conn, vaultAddress);
-
-  // const vaultState =
-  //   conn === "rpc"
-  //     ? rpcVaultState
-  //     : conn === "ws"
-  //     ? wsVaultState
-  //     : vaultStateMock;
-  // const vaultActionsChain = useVaultActions(vaultAddress);
-  // const vaultActions = conn !=='mock'?vaultActionsChain:vaultActionsMock
-  // const lpState =
-  //   conn === "rpc"
-  //     ? rpcLiquidityProviderState
-  //     : conn === "ws"
-  //     ? wsLiquidityProviderState
-  //     : lpStateMock;
-  // const {
-  //   optionRoundState: rpcCurrentRoundState,
-  //   optionBuyerState: rpcOptionBuyerState,
-  // } = useOptionRoundState(currentRoundAddress);
-  // const optionBuyerState =
-  //   conn === "rpc"
-  //     ? rpcOptionBuyerState
-  //     : conn === "ws"
-  //     ? wsOptionBuyerState
-  //     : optionBuyerStatesMock[2];
-  // const currentRoundState =
-  //   conn === "rpc"
-  //     ? rpcCurrentRoundState
-  //     : conn === "ws"
-  //     ? wsOptionRoundStates[Number(vaultState?.currentRoundId) - 1]
-  //     : optionRoundStatesMock[2];
-  // const roundActions = conn==="mock"?roundActionsMock
-
-  const { vaultState } = useProtocolContext();
   return (
     <div className="px-7 py-7 flex-grow flex-box overflow-auto">
       <div className="flex flex-row-reverse text-primary">
@@ -118,7 +64,7 @@ export const Vault = () => {
         <div className="flex flex-row items-center ml-[16px] mr-[auto] text-[16px] font-medium text-[#FAFAFA]">
           Vault Details
         </div>
-        <div className="flex items-center justify-center">
+        <div className="hover-zoom-small flex items-center justify-center">
           <div
             onClick={() => {
               router.push("/");
@@ -130,7 +76,7 @@ export const Vault = () => {
         </div>
       </div>
       <div className="mt-6 flex flex-row">
-        {vaultState && <PanelLeft userType={isProviderView ? "lp" : "ob"} />}
+        {<PanelLeft userType={isProviderView ? "lp" : "ob"} />}
         {
           //Update the roundState to multiple roundStates and set selected round in the component
         }

@@ -1,4 +1,4 @@
-import { optionRoundABI } from "@/abi";
+import { optionRoundABI } from "@/lib/abi";
 import { useTransactionContext } from "@/context/TransactionProvider";
 import {
   OptionRoundActionsType,

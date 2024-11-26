@@ -1,28 +1,29 @@
-import { poseidonHashMany, poseidonHashSingle } from "@scure/starknet";
-import { bytesToNumberBE, numberToBytesBE } from "@noble/curves/abstract/utils";
-import { VaultStateType, OptionRoundStateType } from "@/lib/types";
-import { num } from "starknet";
+import { poseidonHashSingle } from "@scure/starknet";
+import { bytesToNumberBE } from "@noble/curves/abstract/utils";
+import { OptionRoundStateType, FossilParams } from "@/lib/types";
 
-export const createJobRequestParams = (targetTimestamp: string) => {
+export const createJobRequestParams = (
+  targetTimestamp: number,
+  roundDuration: number,
+) => {
   return {
-    twap: [Number(targetTimestamp) - 720, Number(targetTimestamp)],
-    volatility: [Number(targetTimestamp) - 2160, Number(targetTimestamp)],
-    reserve_price: [Number(targetTimestamp) - 2160, Number(targetTimestamp)],
+    // TWAP duration is 1 x round duration
+    twap: [targetTimestamp - roundDuration, targetTimestamp],
+    // Volatility duration is 3 x round duration
+    volatility: [targetTimestamp - 3 * roundDuration, targetTimestamp],
+    // Reserve price duration is 3 x round duration
+    reserve_price: [targetTimestamp - 3 * roundDuration, targetTimestamp],
   };
 };
 
-export const createJobRequest = (
-  vaultState: VaultStateType | undefined,
-  targetTimestamp: string | undefined,
-): any => {
-  if (!vaultState || !targetTimestamp) return;
-  const identifiers = ["PITCH_LAKE_V1"];
-  const params = createJobRequestParams(targetTimestamp);
-  const clientInfo = {
-    client_address: vaultState.fossilClientAddress,
-    vault_address: vaultState.address,
-    timestamp: Number(targetTimestamp),
-  };
+export const createJobRequest = ({
+  targetTimestamp,
+  roundDuration,
+  clientAddress,
+  vaultAddress,
+}: FossilParams): any => {
+  if (!targetTimestamp || !roundDuration || !clientAddress || !vaultAddress)
+    return;
 
   return {
     method: "POST",
@@ -31,19 +32,25 @@ export const createJobRequest = (
       "x-api-key": "<REPLACE_ME>",
     },
     body: JSON.stringify({
-      identifiers,
-      params,
-      client_info: clientInfo,
+      identifiers: ["PITCH_LAKE_V1"],
+      params: createJobRequestParams(targetTimestamp, roundDuration),
+      client_info: {
+        client_address: clientAddress,
+        vault_address: vaultAddress,
+        timestamp: targetTimestamp,
+      },
     }),
   };
 };
 
 export const createJobId = (
-  targetTimestamp: string,
-  //roundState: OptionRoundStateType | undefined,
+  targetTimestamp: number,
+  roundDuration: number,
 ): string => {
+  if (!targetTimestamp || !roundDuration) return "";
+
   const identifiers = ["PITCH_LAKE_V1"];
-  const params = createJobRequestParams(targetTimestamp);
+  const params = createJobRequestParams(targetTimestamp, roundDuration);
 
   const input = [
     ...identifiers,
@@ -59,8 +66,51 @@ export const createJobId = (
   const asNum = bytesToNumberBE(bytes);
 
   const hashResult = poseidonHashSingle(asNum);
-
   return hashResult.toString();
+};
+
+export const getTargetTimestampForRound = (
+  roundState: OptionRoundStateType | undefined,
+): number => {
+  if (
+    !roundState ||
+    !roundState.roundId ||
+    !roundState.roundState ||
+    !roundState.deploymentDate ||
+    !roundState.optionSettleDate
+  )
+    return 0;
+
+  const state = roundState.roundState.toString();
+  const roundId = roundState.roundId.toString();
+  const targetTimestamp = Number(
+    state === "Open" && roundId === "1"
+      ? roundState.deploymentDate
+      : roundState.optionSettleDate,
+  );
+
+  return Number(targetTimestamp);
+};
+
+export const getDurationForRound = (
+  roundState: OptionRoundStateType | undefined,
+): number => {
+  if (!roundState || !roundState.auctionEndDate || !roundState.optionSettleDate)
+    return 0;
+
+  /// @NOTE Replace once sepolia instance duration >= 12 min
+  let high = Number(roundState.optionSettleDate);
+  let low = Number(roundState.auctionEndDate);
+  return Number(high - low);
+};
+
+export const getLocalStorage = (key: string): string => {
+  try {
+    return localStorage.getItem(key) || "";
+  } catch (error) {
+    console.log("Error getting from localStorage", error);
+    return "";
+  }
 };
 
 export const shortenString = (str: string) => {
@@ -70,11 +120,9 @@ export const shortenString = (str: string) => {
 export const copyToClipboard = (text: string) =>
   navigator.clipboard.writeText(text);
 
-export const stringToHex = (decimalString?: string) => {
-  if (!decimalString) return undefined;
-  decimalString = String(decimalString);
-
-  const num = BigInt(decimalString);
+export const stringToHex = (decimalString?: string): string => {
+  if (!decimalString) return "";
+  const num = BigInt(decimalString.toString());
 
   return `0x${num.toString(16)}`;
 };
@@ -161,3 +209,85 @@ export const timeUntilTargetFormal = (timestamp: string, target: string) => {
 
   return str;
 };
+
+///   function generateMockData(
+///     startDate: string,
+///     itemCount: number,
+///     stepInSeconds: number,
+///   ) {
+///     const data = [];
+///     const start = new Date(startDate);
+///     start.setSeconds(0, 0); // Ensure the date starts at the beginning of the minute
+///
+///     let previousBaseFee: number | null = null;
+///
+///     const baseFeeMin = 2;
+///     const baseFeeMax = 60;
+///
+///     for (let i = 0; i < itemCount; i++) {
+///       const currentTime = new Date(start.getTime() + i * stepInSeconds * 1000); // Add stepInSeconds seconds
+///
+///       // Get Unix timestamp in seconds
+///       const timestamp = Math.floor(currentTime.getTime() / 1000);
+///
+///       // BaseFee target with seasonality
+///       const baseFeeTarget = 30 + 10 * Math.sin((2 * Math.PI * i) / itemCount); // Seasonality between 20 and 40 gwei
+///
+///       // BASEFEE calculation
+///       let baseFee: number;
+///       if (previousBaseFee === null) {
+///         baseFee = 15; // Starting BASEFEE
+///       } else {
+///         // Calculate drift towards target
+///         const drift = (baseFeeTarget - previousBaseFee) * 0.05; // 5% of the distance to target
+///
+///         // Random noise, ±12.5% of previousBaseFee
+///         const randomFactor = getRandomNumber(0.875, 1.125);
+///
+///         baseFee = previousBaseFee * randomFactor + drift;
+///
+///         // Introduce upward bias if baseFee is too low
+///         if (baseFee < 5) {
+///           baseFee += getRandomNumber(1, 3); // Add 1 to 3 gwei
+///         }
+///
+///         // Introduce downward bias if baseFee is too high
+///         if (baseFee > 55) {
+///           baseFee -= getRandomNumber(1, 3); // Subtract 1 to 3 gwei
+///         }
+///
+///         // Ensure baseFee stays within bounds
+///         if (baseFee < baseFeeMin) {
+///           baseFee = baseFeeMin;
+///         } else if (baseFee > baseFeeMax) {
+///           baseFee = baseFeeMax;
+///         }
+///       }
+///
+///       baseFee = parseFloat(baseFee.toFixed(2));
+///
+///       // TWAP calculation
+///       const TWAP = baseFee + getRandomNumber(-1, 1); // Slight variation
+///       const twapValue = parseFloat(TWAP.toFixed(2));
+///
+///       // Add the data point
+///       data.push({
+///         timestamp,
+///         BASEFEE: baseFee,
+///         TWAP: twapValue,
+///       });
+///
+///       // Update previousBaseFee for the next iteration
+///       previousBaseFee = baseFee;
+///     }
+///
+///     return data;
+///   }
+///
+///   // Helper function to generate a random number between min and max
+///   function getRandomNumber(min: number, max: number): number {
+///     return Math.random() * (max - min) + min;
+///   }
+///
+///   const mockData = generateMockData("2024-11-21T01:11:00Z", 10000, 20); // 20 seconds x 10000 steps ~ 2 days
+///   console.log(JSON.stringify(mockData, null, 2));

@@ -1,4 +1,4 @@
-import { optionRoundABI } from "@/abi";
+import { optionRoundABI } from "@/lib/abi";
 import useContractReads from "@/lib/useContractReads";
 import { useMemo } from "react";
 
