@@ -145,7 +145,7 @@ export default function Header() {
             <button onClick={() => mockTimeForward()}>Forward Mock Time</button>
           </div>
         )}
-        <div className="cursor-pointer border-[1px] border-greyscale-800 p-2 rounded-md">
+        <div className="hover:cursor-pointer border-[1px] border-greyscale-800 p-2 rounded-md">
           <BellIcon className="h-6 w-6 text-primary" />
         </div>
         <div className="relative" ref={dropdownRef}>

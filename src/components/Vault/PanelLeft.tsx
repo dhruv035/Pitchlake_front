@@ -192,7 +192,7 @@ const PanelLeft = ({ userType }: { userType: string }) => {
         <div className="flex items-center align-center text-[14px] bg-black-alt border-[1px] border-greyscale-800 items-start rounded-lg w-full flex flex-col flex-grow h-full max-h-full">
           <div
             onClick={() => setIsPanelOpen(!isPanelOpen)}
-            className="flex items-center h-[56px] w-full border-b-1 p-4 border-white"
+            className="flex items-center h-[56px] w-full border-b-1 p-4 border-white cursor-pointer"
           >
             <div
               className={`flex flex-row w-full items-center rounded-md px-2 hover:cursor-pointer ${
