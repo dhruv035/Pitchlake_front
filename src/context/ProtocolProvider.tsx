@@ -11,7 +11,7 @@ import {
   useMemo,
   useState,
 } from "react";
-import useWebSocketVault from "@/hooks/useWebSocket";
+import useWebSocketVault from "@/hooks/websocket/useWebSocketVault";
 import useMockVault from "@/hooks/mocks/useMockVault";
 import useVaultState from "@/hooks/vault/useVaultState";
 import useVaultActions from "@/hooks/vault/useVaultActions";
@@ -57,12 +57,8 @@ export const ProtocolContext = createContext<ProtocolContextType>(
 );
 const ProtocolProvider = ({ children }: { children: ReactNode }) => {
   const [vaultAddress, setVaultAddress] = useState<string | undefined>();
-  const [conn, setConn] = useState(
-    process.env.NEXT_PUBLIC_ENVIRONMENT &&
-      process.env.NEXT_PUBLIC_ENVIRONMENT === "mock"
-      ? "mock"
-      : "rpc",
-  );
+  const conn = process.env.NEXT_PUBLIC_ENVIRONMENT??"rpc"
+  
 
   const [selectedRound, setSelectedRound] = useState<number>(0);
   const [mockTimestamp, setMockTimestamp] = useState(0);
