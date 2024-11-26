@@ -8,9 +8,11 @@ import {
   CartesianGrid,
   ResponsiveContainer,
   ReferenceLine,
+  ReferenceArea,
   Tooltip,
 } from "recharts";
 import { formatUnits } from "ethers";
+import { useProtocolContext } from "@/context/ProtocolProvider";
 
 interface GasPriceChartProps {
   data: any[] | undefined;
@@ -18,6 +20,9 @@ interface GasPriceChartProps {
   historicalData: any;
   fromRound: number;
   toRound: number;
+  isExpandedView: boolean;
+  selectedRound: number;
+  setIsExpandedView: (value: boolean) => void;
 }
 
 const GasPriceChart: React.FC<GasPriceChartProps> = ({
@@ -26,103 +31,13 @@ const GasPriceChart: React.FC<GasPriceChartProps> = ({
   activeLines,
   fromRound,
   toRound,
+  isExpandedView,
+  selectedRound,
+  setIsExpandedView,
 }) => {
-  const yMax = useMemo(() => {
-    if (!data) return 0;
-    let max = 0;
-    data.forEach((item) => {
-      if (activeLines.TWAP && item.TWAP !== null && item.TWAP > max) {
-        max = item.TWAP;
-      }
-      if (activeLines.BASEFEE && item.BASEFEE !== null && item.BASEFEE > max) {
-        max = item.BASEFEE;
-      }
-      if (activeLines.STRIKE && item.STRIKE !== null && item.STRIKE > max) {
-        max = item.STRIKE;
-      }
-      if (
-        activeLines.CAP_LEVEL &&
-        item.CAP_LEVEL !== null &&
-        item.CAP_LEVEL > max
-      ) {
-        max = item.CAP_LEVEL;
-      }
-    });
-    // Optionally, add some padding to yMax
-    return max * 1.2; // 10% padding
-  }, [data, activeLines]);
-
-  const yTicks = useMemo(() => {
-    if (yMax === 0) return [0];
-    const step = yMax / 4;
-    return [
-      0,
-      parseFloat(step.toFixed(2)),
-      parseFloat((step * 2).toFixed(2)),
-      parseFloat((step * 3).toFixed(2)),
-      parseFloat(yMax.toFixed(2)),
-    ];
-  }, [yMax]);
-
-  const desiredXTickCount = 5;
-  const xTicks = useMemo(() => {
-    if (!data) return [];
-
-    const timestamps = data.map((item) => item.timestamp);
-    const minTimestamp = Math.min(...timestamps);
-    const maxTimestamp = Math.max(...timestamps);
-    const step = Math.floor(
-      (maxTimestamp - minTimestamp) / (desiredXTickCount - 1),
-    );
-
-    const ticks = [];
-    for (let i = 0; i < desiredXTickCount; i++) {
-      ticks.push(minTimestamp + step * i);
-    }
-
-    return ticks;
-  }, [data, desiredXTickCount]);
-
-  const xTickFormatter = useCallback(
-    (value: any, index: number): string => {
-      if (!data) return "";
-
-      const date = new Date(Number(value) * 1000);
-      const range = data[data.length - 1]?.timestamp - data[0]?.timestamp;
-
-      if (range <= 2 * 24 * 60 * 60) {
-        if (index === 2) {
-          return date
-            .toLocaleString("en-US", {
-              month: "short",
-              day: "numeric",
-              hour: "2-digit",
-              minute: "2-digit",
-              hour12: false,
-            })
-            .replace(",", "");
-        } else {
-          return date.toLocaleString("en-US", {
-            hour: "2-digit",
-            minute: "2-digit",
-            hour12: false,
-          });
-        }
-      } else {
-        return date.toLocaleString("en-US", {
-          month: "short",
-          day: "numeric",
-        });
-      }
-    },
-    [data],
-  );
-
-  const yTickFormatter = useCallback((value: number): string => {
-    return value.toFixed(1);
-  }, []);
-
-  const verticalSegments = useMemo(() => {
+  const { setSelectedRound } = useProtocolContext();
+  // Compute vertical segments and round areas based on historical data
+  const { verticalSegments, roundAreas } = useMemo(() => {
     if (
       !historicalData ||
       !historicalData.rounds ||
@@ -130,9 +45,10 @@ const GasPriceChart: React.FC<GasPriceChartProps> = ({
       !fromRound ||
       !toRound
     )
-      return [];
+      return { verticalSegments: [], roundAreas: [] };
 
     const segments: any = [];
+    const areas: any = [];
     const sortedData: any = [...data].sort((a, b) => a.timestamp - b.timestamp);
 
     // Filter rounds based on fromRoundId and toRoundId
@@ -160,40 +76,200 @@ const GasPriceChart: React.FC<GasPriceChartProps> = ({
         .find((d) => d.timestamp <= optionSettleDate);
 
       if (!start || !end) {
+        return;
+      }
+
+      // Add deployment date line
+      segments.push({
+        roundId: round.roundId,
+        segment: [
+          { x: start.timestamp, y: cappedStrike },
+          { x: start.timestamp, y: 0 },
+        ],
+      });
+
+      // Add settlement date line
+      segments.push({
+        roundId: round.roundId,
+        segment: [
+          { x: end.timestamp, y: cappedStrike },
+          { x: end.timestamp, y: 0 },
+        ],
+      });
+
+      // Add round area for interactive region
+      areas.push({
+        roundId: round.roundId,
+        x1: start.timestamp,
+        x2: end.timestamp,
+        y1: 0,
+        y2: cappedStrike,
+      });
+    });
+
+    return { verticalSegments: segments, roundAreas: areas };
+  }, [historicalData, data, fromRound, toRound]);
+
+  // Compute the maximum Y value based on active lines
+  const yMax = useMemo(() => {
+    if (!data) return 0;
+    let max = 0;
+    data.forEach((item) => {
+      if (activeLines.TWAP && item.TWAP !== null && item.TWAP > max) {
+        max = item.TWAP;
+      }
+      if (activeLines.BASEFEE && item.BASEFEE !== null && item.BASEFEE > max) {
+        max = item.BASEFEE;
+      }
+      if (activeLines.STRIKE && item.STRIKE !== null && item.STRIKE > max) {
+        max = item.STRIKE;
+      }
+      if (item.CAP_LEVEL !== null && item.CAP_LEVEL > max) {
+        max = item.CAP_LEVEL;
+      }
+    });
+    // Optionally, add some padding to yMax
+    return max * 1.2; // 20% padding
+  }, [data, activeLines]);
+
+  // Define Y-axis ticks
+  const yTicks = useMemo(() => {
+    if (yMax === 0) return [0];
+    const step = yMax / 4;
+    return [
+      0,
+      parseFloat(step.toFixed(2)),
+      parseFloat((step * 2).toFixed(2)),
+      parseFloat((step * 3).toFixed(2)),
+      parseFloat(yMax.toFixed(2)),
+    ];
+  }, [yMax]);
+
+  const desiredXTickCount = 5;
+
+  // Compute X-axis ticks and labels based on view
+  const { xTicks, xTickLabels } = useMemo(() => {
+    if (!data) return { xTicks: [], xTickLabels: {} };
+
+    const ticks: number[] = [];
+    const labels: {
+      [key: number]: { label: string | null; roundId?: number };
+    } = {};
+
+    if (!historicalData || !historicalData.rounds || !fromRound || !toRound) {
+      return { xTicks: ticks, xTickLabels: labels };
+    }
+
+    const sortedData = [...data].sort((a, b) => a.timestamp - b.timestamp);
+    const filteredRounds = historicalData.rounds.filter(
+      (round: any) => round.roundId >= fromRound && round.roundId <= toRound,
+    );
+
+    // Generate midpoints for round IDs
+    filteredRounds.forEach((round: any) => {
+      const deploymentDate = Number(round.deploymentDate);
+      const optionSettleDate = Number(round.optionSettleDate);
+      const start = sortedData.find((d) => d.timestamp >= deploymentDate);
+      const end = [...sortedData]
+        .reverse()
+        .find((d) => d.timestamp <= optionSettleDate);
+
+      if (!start || !end) {
         console.warn(
           `Could not find matching data points for roundId ${round.roundId}`,
         );
         return;
       }
 
-      // Add deployment date line
-      segments.push({
-        x: start.timestamp,
-        y: cappedStrike,
-      });
-      segments.push({
-        x: start.timestamp,
-        y: 0,
-      });
-
-      // Add settlement date line
-      segments.push({
-        x: end.timestamp,
-        y: cappedStrike,
-      });
-      segments.push({
-        x: end.timestamp,
-        y: 0,
-      });
+      const midpoint = (Number(start.timestamp) + Number(end.timestamp)) / 2;
+      ticks.push(midpoint);
+      labels[midpoint] = {
+        label: `Round ${round.roundId}`,
+        roundId: round.roundId,
+      };
     });
 
-    return segments;
-  }, [historicalData, data, fromRound, toRound]);
+    // Generate timestamp ticks
+    const timestamps = data.map((item) => item.timestamp);
+    const minTimestamp = Math.min(...timestamps);
+    const maxTimestamp = Math.max(...timestamps);
 
-  // Custom Tooltip
+    let timestampTickCount = desiredXTickCount;
+    if (isExpandedView) {
+      timestampTickCount = 0; // Fewer ticks in expanded view
+    }
+
+    const step = Math.floor(
+      (maxTimestamp - minTimestamp) / (timestampTickCount - 1),
+    );
+
+    for (let i = 0; i < timestampTickCount; i++) {
+      const tickValue = minTimestamp + step * i;
+      ticks.push(tickValue);
+      labels[tickValue] = { label: null }; // Will format in custom tick
+    }
+
+    // Ensure ticks are sorted
+    ticks.sort((a, b) => a - b);
+
+    return { xTicks: ticks, xTickLabels: labels };
+  }, [
+    data,
+    isExpandedView,
+    historicalData,
+    fromRound,
+    toRound,
+    desiredXTickCount,
+  ]);
+
+  // Custom X-axis tick component
+  const CustomizedXAxisTick = (props: any) => {
+    const { x, y, payload } = props;
+
+    const value = payload.value;
+
+    let label = "";
+    let color = "#8C8C8C"; // Default color for timestamps
+    const tickInfo = xTickLabels[value];
+
+    if (tickInfo && tickInfo.label) {
+      // It's a round ID
+      label = tickInfo.label || "";
+      if (tickInfo.roundId === selectedRound) {
+        color = "#ADA478"; // Color for selected round
+      } else {
+        color = "#524f44"; // color for other rounds
+      }
+    } else {
+      // Format the timestamp
+      const date = new Date(value * 1000);
+      label = date
+        .toLocaleString("en-US", {
+          month: "short",
+          day: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false,
+        })
+        .replace(",", "");
+    }
+
+    return (
+      <text x={x} y={y + 15} fill={color} textAnchor="middle">
+        {label}
+      </text>
+    );
+  };
+
+  // Format Y-axis ticks
+  const yTickFormatter = useCallback((value: number): string => {
+    return value.toFixed(1);
+  }, []);
+
+  // Custom Tooltip Component
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
-      const date = new Date(label * 1000);
+      const date = new Date(Number(label) * 1000);
       const dateString = date.toLocaleString("en-US", {
         month: "short",
         day: "numeric",
@@ -245,33 +321,10 @@ const GasPriceChart: React.FC<GasPriceChartProps> = ({
   }
 
   return (
-    <ResponsiveContainer width="100%" maxHeight={665} className="px-4 ">
-      <ComposedChart
-        data={data}
-        syncId="roundChart"
-        //onMouseDown={(e) => {
-        //  if (e && e.activeLabel) {
-        //    const domain = e.activeLabel;
-        //    handleZoom([domain, data[data.length - 1].timestamp]);
-        //  }
-        //}}
-        //onMouseMove={(e) => {
-        //  if (zoomDomain && e && e.activeLabel) {
-        //    const domain = e.activeLabel;
-        //    handleZoom([zoomDomain[0], domain]);
-        //  }
-        //}}
-        //onMouseUp={handleResetZoom}
-      >
+    <ResponsiveContainer width="100%" maxHeight={665} className="px-4">
+      <ComposedChart data={data} syncId="roundChart">
         <defs>
-          <linearGradient
-            //gradientUnits="userSpaceOnUse"
-            id="capLevelGradient"
-            x1="0"
-            y1="0"
-            x2="0"
-            y2="1"
-          >
+          <linearGradient id="capLevelGradient" x1="0" y1="0" x2="0" y2="1">
             <stop
               offset="0%"
               stopColor="var(--success-700)"
@@ -325,9 +378,9 @@ const GasPriceChart: React.FC<GasPriceChartProps> = ({
           type="number"
           scale="time"
           stroke="#666"
-          tickFormatter={xTickFormatter}
           ticks={xTicks}
           tickLine={false}
+          tick={<CustomizedXAxisTick />}
         />
 
         <YAxis
@@ -338,7 +391,6 @@ const GasPriceChart: React.FC<GasPriceChartProps> = ({
           ticks={yTicks}
           tickLine={false}
           allowDataOverflow={false}
-          //padding={{ top: 10, bottom: 10 }}
           tick={{ fill: "#AAA", fontSize: 12 }}
         />
         <Tooltip
@@ -366,7 +418,6 @@ const GasPriceChart: React.FC<GasPriceChartProps> = ({
         )}
         {activeLines.BASEFEE && data.length > 0 && (
           <Area
-            //,className={"h-[100%]"}
             type="monotone"
             dataKey="BASEFEE"
             stroke="var(--greyscale)"
@@ -376,34 +427,32 @@ const GasPriceChart: React.FC<GasPriceChartProps> = ({
             connectNulls={true}
             dot={false}
             isAnimationActive={false}
-
-            //activeDot={false}
           />
         )}
-        {verticalSegments.map((_: any, index: any) => {
-          if (index % 2 !== 0) return null; // Skip odd indices, only take pairs
-          return (
-            <ReferenceLine
-              key={`line-${index}`}
-              segment={[verticalSegments[index], verticalSegments[index + 1]]}
-              stroke="#524F44"
-              strokeWidth={2}
-            />
-          );
-        })}
-        {activeLines.STRIKE && (
-          <Line
-            type="monotone"
-            dataKey="STRIKE"
-            stroke="var(--warning-300)"
-            strokeWidth={2}
-            activeDot={false}
-            dot={false}
-            fill="url(#strikeGradient)"
-            connectNulls={false}
-            isAnimationActive={false}
-          />
-        )}
+        {isExpandedView &&
+          verticalSegments.map((segmentObj: any, index: any) => {
+            return (
+              <ReferenceLine
+                key={`line-${index}`}
+                segment={segmentObj.segment}
+                stroke={
+                  segmentObj.roundId === selectedRound ? "#ADA478" : "#524F44"
+                }
+                strokeWidth={2}
+              />
+            );
+          })}
+        <Line
+          type="monotone"
+          dataKey="STRIKE"
+          stroke={activeLines.STRIKE ? "var(--warning-300)" : "none"}
+          strokeWidth={2}
+          activeDot={false}
+          dot={false}
+          fill="url(#strikeGradient)"
+          connectNulls={false}
+          isAnimationActive={false}
+        />
         {activeLines.CAP_LEVEL && data.length > 0 && (
           <Area
             type="monotone"
@@ -418,6 +467,25 @@ const GasPriceChart: React.FC<GasPriceChartProps> = ({
             isAnimationActive={false}
           />
         )}
+        {isExpandedView &&
+          roundAreas.map((area: any, index: number) => (
+            <ReferenceArea
+              key={`area-${index}`}
+              x1={area.x1}
+              x2={area.x2}
+              y1={area.y1}
+              y2={area.y2}
+              stroke="none"
+              //stroke={area.roundId === selectedRound ? "#ADA478" : "#524F44"}
+              fillOpacity={area.roundId === selectedRound ? 0.07 : 0.03}
+              strokeWidth={2}
+              onClick={() => {
+                setSelectedRound(area.roundId);
+                setIsExpandedView(false);
+              }}
+              style={{ cursor: "pointer" }}
+            />
+          ))}
       </ComposedChart>
     </ResponsiveContainer>
   );

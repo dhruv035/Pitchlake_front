@@ -159,7 +159,15 @@ const RoundPerformanceChart = () => {
 
       return newItem;
     });
-  }, [gasData, selectedRound, historicalData]);
+  }, [
+    gasData,
+    selectedRound,
+    historicalData,
+    selectedRoundState?.deploymentDate,
+    selectedRoundState?.optionSettleDate,
+    selectedRoundState?.capLevel,
+    selectedRoundState?.strikePrice,
+  ]);
 
   const toggleLine = (line: string) => {
     setActiveLines((prev) => ({ ...prev, [line]: !prev[line] }));
@@ -353,6 +361,9 @@ const RoundPerformanceChart = () => {
         activeLines={activeLines}
         fromRound={fromRound}
         toRound={toRound}
+        isExpandedView={isExpandedView}
+        selectedRound={selectedRound}
+        setIsExpandedView={setIsExpandedView}
         //zoomDomain={zoomDomain}
         //handleZoom={handleZoom}
         //handleResetZoom={handleResetZoom}
