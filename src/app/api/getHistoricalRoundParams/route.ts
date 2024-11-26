@@ -27,12 +27,16 @@ interface RoundData {
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const vaultAddress = searchParams.get("vaultAddress");
+  const fromRound = searchParams.get("fromRound");
+  const toRound = searchParams.get("toRound");
 
   // Validate required parameters
   try {
-    if (!vaultAddress) {
+    if (!vaultAddress || !fromRound || !toRound) {
       return NextResponse.json(
-        { error: "Missing 'vaultAddress' query parameter." },
+        {
+          error: "Missing vaultAddress, fromRound, or toRound query parameter.",
+        },
         { status: 400 },
       );
     }
@@ -115,7 +119,12 @@ export async function GET(request: Request) {
     };
 
     const roundPromises: Promise<RoundData>[] = [];
-    for (let roundId = 1; roundId <= Number(currentRoundId); roundId++) {
+    const stop =
+      Number(toRound) > Number(currentRoundId)
+        ? Number(currentRoundId)
+        : Number(toRound);
+    const start = Number(fromRound);
+    for (let roundId = start; roundId <= stop; roundId++) {
       try {
         const roundAddress = await getRoundAddress(roundId);
         if (!roundAddress) continue;

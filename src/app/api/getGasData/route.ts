@@ -107,14 +107,24 @@ export async function GET(request: Request) {
 
     if (
       result.rows.length >= 1 &&
-      toTimestamp !== result.rows[result?.rows?.length - 1].timestamp
+      result.rows[result?.rows?.length - 1].timestamp <= toTimestamp
     ) {
-      result.rows.push({
-        block_number: undefined,
-        base_fee_per_gas: undefined,
-        timestamp: toTimestamp,
-        twap: undefined,
-      });
+      const lastKnownTimestamp = parseInt(
+        result.rows[result.rows.length - 1].timestamp,
+      );
+      if (
+        lastKnownTimestamp <=
+        toTimestamp -
+          12 -
+          Math.floor((toTimestamp - fromTimestamp) / MAX_RETURN_BLOCKS)
+      ) {
+        result.rows.push({
+          block_number: undefined,
+          base_fee_per_gas: undefined,
+          timestamp: toTimestamp,
+          twap: undefined,
+        });
+      }
     }
 
     const data: any[] = result.rows.map((row: any) => ({

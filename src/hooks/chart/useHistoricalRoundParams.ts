@@ -26,31 +26,39 @@ interface UseVaultRoundsResult {
 }
 
 const fetchVaultRounds = async (
-  vaultAddress: string,
+  vaultAddress: string | undefined,
+  fromRound: number | undefined,
+  toRound: number | undefined,
 ): Promise<ReadVaultRoundsResponse> => {
-  const response = await axios.get(
-    `/api/getHistoricalRoundParams?vaultAddress=${vaultAddress}`,
-  );
+  const response = await axios.get("/api/getHistoricalRoundParams", {
+    params: {
+      vaultAddress,
+      fromRound,
+      toRound,
+    },
+  });
   return response.data;
 };
 
-export const useHistoricalRoundParams = (): UseVaultRoundsResult => {
-  const { vaultState } = useProtocolContext();
-
+export const useHistoricalRoundParams = ({
+  vaultAddress,
+  fromRound,
+  toRound,
+}: {
+  vaultAddress: string | undefined;
+  fromRound: number | undefined;
+  toRound: number | undefined;
+}): UseVaultRoundsResult => {
   // Query UID
-  const queryKey = [
-    "roundHistoricalData",
-    vaultState?.address,
-    vaultState?.currentRoundId,
-  ];
+  const queryKey = ["roundHistoricalData", vaultAddress, fromRound, toRound];
 
   const { data, isLoading, isError, error } = useQuery({
     queryKey,
-    queryFn: () => fetchVaultRounds(vaultState?.address ?? ""),
-    enabled: vaultState?.address ? true : false,
+    queryFn: () => fetchVaultRounds(vaultAddress, fromRound, toRound),
+    enabled: !!vaultAddress && !!fromRound && !!toRound,
   });
 
-  useEffect(() => {}, [vaultState?.address, vaultState?.currentRoundId]);
+  useEffect(() => {}, [vaultAddress, toRound, fromRound]);
 
   return {
     vaultData: data,

@@ -16,12 +16,16 @@ interface GasPriceChartProps {
   data: any[] | undefined;
   activeLines: { [key: string]: boolean };
   historicalData: any;
+  fromRound: number;
+  toRound: number;
 }
 
 const GasPriceChart: React.FC<GasPriceChartProps> = ({
   data,
   historicalData,
   activeLines,
+  fromRound,
+  toRound,
 }) => {
   const yMax = useMemo(() => {
     if (!data) return 0;
@@ -119,12 +123,24 @@ const GasPriceChart: React.FC<GasPriceChartProps> = ({
   }, []);
 
   const verticalSegments = useMemo(() => {
-    if (!historicalData || !historicalData.rounds || !data) return [];
+    if (
+      !historicalData ||
+      !historicalData.rounds ||
+      !data ||
+      !fromRound ||
+      !toRound
+    )
+      return [];
 
     const segments: any = [];
     const sortedData: any = [...data].sort((a, b) => a.timestamp - b.timestamp);
 
-    historicalData.rounds.forEach((round: any) => {
+    // Filter rounds based on fromRoundId and toRoundId
+    const filteredRounds = historicalData.rounds.filter(
+      (round: any) => round.roundId >= fromRound && round.roundId <= toRound,
+    );
+
+    filteredRounds.forEach((round: any) => {
       if (!round || !round.capLevel || !round.strikePrice) return;
 
       const capLevel = Number(round.capLevel);
@@ -136,104 +152,43 @@ const GasPriceChart: React.FC<GasPriceChartProps> = ({
       const capMultiplier = 1 + capLevel / 10000;
       const cappedStrike = strikePriceGwei * capMultiplier;
 
-      // Find the nearest data points for start and end timestamps
+      // Find the nearest data points for deploymentDate and optionSettleDate
       const start = sortedData.find((d: any) => d.timestamp >= deploymentDate);
+
       const end = [...sortedData]
         .reverse()
         .find((d) => d.timestamp <= optionSettleDate);
 
-      if (start) {
-        segments.push({ x: start.timestamp, y: 0 });
-        segments.push({ x: start.timestamp, y: cappedStrike });
+      if (!start || !end) {
+        console.warn(
+          `Could not find matching data points for roundId ${round.roundId}`,
+        );
+        return;
       }
-      if (end) {
-        segments.push({ x: end.timestamp, y: 0 });
-        segments.push({ x: end.timestamp, y: cappedStrike });
-      }
+
+      // Add deployment date line
+      segments.push({
+        x: start.timestamp,
+        y: cappedStrike,
+      });
+      segments.push({
+        x: start.timestamp,
+        y: 0,
+      });
+
+      // Add settlement date line
+      segments.push({
+        x: end.timestamp,
+        y: cappedStrike,
+      });
+      segments.push({
+        x: end.timestamp,
+        y: 0,
+      });
     });
 
     return segments;
-  }, [historicalData, data]);
-  //  const verticalSegments = useMemo(() => {
-  //    if (!historicalData || !historicalData.rounds || !data) return [];
-  //
-  //    const segments: any = [];
-  //    const sortedData: any = [...data].sort((a, b) => a.timestamp - b.timestamp); // Create a sorted copy
-  //
-  //    historicalData.rounds.forEach((round: any) => {
-  //      if (!round || !round.capLevel || !round.strikePrice) return;
-  //
-  //      const capLevel = Number(round.capLevel);
-  //      const strikePrice = Number(formatUnits(round.strikePrice, "gwei"));
-  //      const cappedStrike = (1 + capLevel / 10000) * strikePrice;
-  //
-  //      // Find the nearest data points for start and end timestamps
-  //      const start = sortedData.find(
-  //        (d: any) => d.timestamp >= Number(round.deploymentDate),
-  //      );
-  //      const end = [...sortedData]
-  //        .reverse()
-  //        .find((d) => d.timestamp <= Number(round.optionSettleDate));
-  //
-  //      if (start) {
-  //        segments.push({ x: start.timestamp, y: 0 });
-  //        segments.push({ x: start.timestamp, y: cappedStrike });
-  //      }
-  //      if (end) {
-  //        segments.push({ x: end.timestamp, y: 0 });
-  //        segments.push({ x: end.timestamp, y: cappedStrike });
-  //      }
-  //    });
-  //
-  //    return segments;
-  //  }, [historicalData, data]);
-
-  //  const verticalSegments = useMemo(() => {
-  //    if (!historicalData || !historicalData.rounds || !data) return [];
-  //
-  //    const segments: any = [];
-  //
-  //    historicalData.rounds.forEach((round: any) => {
-  //      if (!round) return;
-  ///      if (!round.capLevel || !round.strikePrice) return;
-  //
-  //      const capLevel = Number(round.capLevel);
-  //      const cappedStrike =
-  //        (1 + capLevel / 10000) * Number(formatUnits(round.strikePrice, "gwei"));
-  //      const strikePrice = Number(formatUnits(round.strikePrice, "gwei"));
-  //
-  //      // Find the nearest data points for start and end timestamps
-  //      const start = data.find(
-  //        (d) => d.timestamp >= Number(round.deploymentDate),
-  //      );
-  //      const end = [...data]
-  //        .reverse()
-  //        .find((d) => d.timestamp <= Number(round.optionSettleDate));
-  //
-  //      if (start) {
-  //        segments.push({ x: start.timestamp, y: 0 });
-  //        segments.push({ x: start.timestamp, y: cappedStrike });
-  //        //data.unshift({
-  //        //  timestamp: start.timestamp,
-  //        //  STRIKE: strikePrice,
-  //        //  CAP_LEVEL: cappedStrike,
-  //        //});
-  //      }
-  //      if (end) {
-  //        segments.push({ x: end.timestamp, y: 0 });
-  //        segments.push({ x: end.timestamp, y: cappedStrike });
-  //        //data.push({
-  //        //  timestamp: end.timestamp,
-  //        //  STRIKE: strikePrice,
-  //        //  CAP_LEVEL: cappedStrike,
-  //        //});
-  //      }
-  //
-  //      data.sort((a, b) => a.timestamp - b.timestamp);
-  //    });
-  //
-  //    return segments;
-  //  }, [historicalData, data]);
+  }, [historicalData, data, fromRound, toRound]);
 
   // Custom Tooltip
   const CustomTooltip = ({ active, payload, label }: any) => {
@@ -281,9 +236,9 @@ const GasPriceChart: React.FC<GasPriceChartProps> = ({
   };
 
   // Handle Loading State
-  if (!data) {
+  if (!data || data.length === 0) {
     return (
-      <div className="w-full h-[800px] bg-black-alt rounded-[12px] border border-greyscale-800 flex items-center justify-center">
+      <div className="w-[100%] h-[665px] bg-black-alt rounded-[12px] flex flex-col items-center justify-center">
         Loading...
       </div>
     );
@@ -320,14 +275,8 @@ const GasPriceChart: React.FC<GasPriceChartProps> = ({
             <stop
               offset="0%"
               stopColor="var(--success-700)"
-              stopOpacity={0.1}
+              stopOpacity={0.2}
             />
-            <stop
-              offset="80%"
-              stopColor="var(--success-700)"
-              stopOpacity={0.1}
-            />
-
             <stop
               offset="100%"
               stopColor="var(--success-700)"
@@ -401,91 +350,6 @@ const GasPriceChart: React.FC<GasPriceChartProps> = ({
           }}
         />
 
-        {
-          //  activeLines.STRIKE &&
-          //  segments.length > 0 &&
-          //  segments.map((segment, index) => (
-          //    <Area
-          //      key={`strike-segment-${index}`}
-          //      type="monotone"
-          //      data={segment}
-          //      dataKey="STRIKE"
-          //      stroke="var(--warning-300)"
-          //      strokeWidth={2}
-          //      activeDot={false}
-          //      dot={false}
-          //      fill="url(#strikeGradient)"
-          //      connectNulls={false}
-          //      isAnimationActive={false}
-          //    />
-          //  ))
-        }
-
-        {
-          //  activeLines.CAP_LEVEL &&
-          //  segments.length > 0 &&
-          //  segments.map((segment, index) => (
-          //    <Area
-          //      key={`capLevel-segment-${index}`}
-          //      type="monotone"
-          //      data={segment}
-          //      dataKey="CAP_LEVEL"
-          //      stroke="var(--success)"
-          //      strokeWidth={2}
-          //      activeDot={false}
-          //      dot={false}
-          //      fill="url(#capLevelGradient)"
-          //      connectNulls={false}
-          //      isAnimationActive={false}
-          //    />
-          //  ))
-        }
-        {
-          //   activeLines.STRIKE && data.length > 0 && (
-          //   <Area
-          //     type="monotone"
-          //     dataKey="STRIKE"
-          //     stroke="var(--warning-300)"
-          //     strokeWidth={2}
-          //     activeDot={false}
-          //     dot={false}
-          //     fill="url(#strikeGradient)"
-          //     connectNulls={true}
-          //     isAnimationActive={false}
-          //   />
-          // )
-          //  activeLines.STRIKE &&
-          //    segments.length > 0 &&
-          //    segments.map((segment, index) => (
-          //      <Area
-          //        key={`strike-segment-${index}`}
-          //        type="monotone"
-          //        data={segment}
-          //        dataKey="STRIKE"
-          //        stroke="var(--warning-300)"
-          //        strokeWidth={2}
-          //        activeDot={false}
-          //        dot={false}
-          //        fill="url(#strikeGradient)"
-          //        connectNulls={false}
-          //        isAnimationActive={false}
-          //      />
-          //    ))
-          //   activeLines.TWAP && data.length > 0 && (
-          //   <Area
-          //     height={400}
-          //     type="monotone"
-          //     dataKey="TWAP"
-          //     stroke="var(--error-300)"
-          //     strokeWidth={2}
-          //     fill="url(#twapGradient)"
-          //     fillOpacity={1}
-          //     connectNulls={true}
-          //     dot={false}
-          //     isAnimationActive={false}
-          //   />
-          // )
-        }
         {activeLines.TWAP && data.length > 0 && (
           <Area
             height={400}
