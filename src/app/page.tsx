@@ -5,10 +5,10 @@ import { useConnect } from "@starknet-react/core";
 import { Button } from "antd";
 import { useEffect, useRef, useState } from "react";
 import VaultCard from "@/components/VaultCard/VaultCard";
+import useWebSocketHome from "@/hooks/websocket/useWebSocketHome";
 
 export default function Home() {
-  console.log("CHECK THIS LOG",process.env.NEXT_PUBLIC_VAULT_ADDRESSES)
-  const vaults = process.env.NEXT_PUBLIC_VAULT_ADDRESSES?.split(",");
+  console.log("CHECK THIS LOG", process.env.NEXT_PUBLIC_VAULT_ADDRESSES);
 
   //  console.log(vaultsRaw);
   //
@@ -21,47 +21,11 @@ export default function Home() {
   //    "0x8f4e98c8c7f2698ff9a98df855116154f0482b93127dc79b15f05effbe8237",
   //  ];
 
-  const [isModalVisible, setIsModalVisible] = useState<boolean>();
-  const handleCreateClick = () => {};
-  const ws = useRef<WebSocket | null>(null);
-  const isLoaded = useState(false);
-
-  // useEffect(() => {
-  //   if (isLoaded) {
-  //     ws.current = new WebSocket("ws://localhost:8080/subscribeHome");
-
-  //     ws.current.onopen = () => {
-  //       console.log("WebSocket connection established");
-  //       // Optionally, send a message to the server
-
-  //       ws.current?.send(
-  //         JSON.stringify({
-  //           address: Math.random().toString(),
-  //           userType: "lp",
-  //           optionRound: 0,
-  //           vaultAddress: "16",
-  //         }),
-  //       );
-  //     };
-
-  //     const wsCurrent = ws.current;
-  //     ws.current.onmessage = (event) => {
-  //       console.log("Message from server:", event.data);
-  //     };
-
-  //     ws.current.onerror = (error) => {
-  //       console.error("WebSocket error:", error);
-  //     };
-
-  //     ws.current.onclose = () => {
-  //       console.log("WebSocket connection closed");
-  //     };
-  //   }
-  //   // Cleanup function to close the WebSocket connection when the component unmounts
-  //   return () => {
-  //     ws.current?.close();
-  //   };
-  // }, [isLoaded]);
+  const { vaults: wsVaults } = useWebSocketHome();
+  const vaults =
+    process.env.NEXT_PUBLIC_ENVIRONMENT === "ws"
+      ? wsVaults
+      : process.env.NEXT_PUBLIC_VAULT_ADDRESSES?.split(",");
 
   return (
     <div className="flex flex-grow flex-col px-8 mt-6 w-full ">
