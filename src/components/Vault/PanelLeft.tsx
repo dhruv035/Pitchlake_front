@@ -290,10 +290,12 @@ const PanelLeft = ({ userType }: { userType: string }) => {
                   <SquareArrowOutUpRight size={16} />
                 </a>
               </div>
-              <div className="flex flex-row justify-between p-2 w-full">
-                <p className="text-[#BFBFBF] font-regular">Fees</p>
-                <p>0%</p>
-              </div>
+              {
+                //   <div className="flex flex-row justify-between p-2 w-full">
+                //     <p className="text-[#BFBFBF] font-regular">Fees</p>
+                //     <p>0%</p>
+                //   </div>
+              }
               {
                 // <div className="flex flex-row justify-between p-2 w-full">
                 //   <p className="text-[#BFBFBF]">TVL</p>
@@ -315,10 +317,12 @@ const PanelLeft = ({ userType }: { userType: string }) => {
                 //   </p>
                 // </div>
               }
-              <div className="flex flex-row justify-between p-2 w-full">
-                <p className="text-[#BFBFBF] font-regular">APY</p>
-                <p>12.34%</p>
-              </div>
+              {
+                //  <div className="flex flex-row justify-between p-2 w-full">
+                //    <p className="text-[#BFBFBF] font-regular">APY</p>
+                //    <p>12.34%</p>
+                //  </div>
+              }
               <div className="flex flex-row justify-between p-2 w-full z-50">
                 <p className="text-[#BFBFBF] font-regular">Balance</p>
                 <div className="flex flex-row items-center gap-1 overflow-visable">
