@@ -18,4 +18,3 @@ const ButtonTabs: React.FC<TabsProps> = ({ tabs, activeTab, setActiveTab }) => (
 );
 
 export default ButtonTabs;
-

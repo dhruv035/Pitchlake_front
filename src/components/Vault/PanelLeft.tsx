@@ -208,7 +208,7 @@ const PanelLeft = ({ userType }: { userType: string }) => {
               </p>
               <div className="w-[20px] h-[20px]">
                 <IconPanelLeft
-                  className="w-[20px] h-[20px] stroke-[1px]"
+                  className="w-[20px] h-[20px] stroke-[1px] hover-zoom"
                   stroke="var(--buttonwhite)"
                 />
               </div>
@@ -229,7 +229,7 @@ const PanelLeft = ({ userType }: { userType: string }) => {
                 <SafeIcon
                   fill="none"
                   stroke="var(--buttongrey)"
-                  classname="w-6 h-6 text-primary-800"
+                  classname="w-6 h-6 text-primary-800 hover-zoom"
                 />
               </div>
               <div
@@ -381,7 +381,7 @@ const PanelLeft = ({ userType }: { userType: string }) => {
             >
               <div>
                 <LayerStackIcon
-                  classname="w-6 h-6"
+                  classname="w-6 h-6 hover-zoom"
                   fill="none"
                   stroke="var(--buttongrey)"
                 />

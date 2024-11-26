@@ -64,7 +64,7 @@ export const Vault = () => {
         <div className="flex flex-row items-center ml-[16px] mr-[auto] text-[16px] font-medium text-[#FAFAFA]">
           Vault Details
         </div>
-        <div className="flex items-center justify-center">
+        <div className="hover-zoom flex items-center justify-center">
           <div
             onClick={() => {
               router.push("/");
