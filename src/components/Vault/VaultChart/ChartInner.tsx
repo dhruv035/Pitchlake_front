@@ -35,7 +35,7 @@ const GasPriceChart: React.FC<GasPriceChartProps> = ({
   selectedRound,
   setIsExpandedView,
 }) => {
-  const { setSelectedRound } = useProtocolContext();
+  const { setSelectedRound, selectedRoundState } = useProtocolContext();
   // Compute vertical segments and round areas based on historical data
   const { verticalSegments, roundAreas } = useMemo(() => {
     if (
@@ -243,15 +243,23 @@ const GasPriceChart: React.FC<GasPriceChartProps> = ({
     } else {
       // Format the timestamp
       const date = new Date(value * 1000);
-      label = date
-        .toLocaleString("en-US", {
-          month: "short",
-          day: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
-          hour12: false,
-        })
-        .replace(",", "");
+      const range =
+        Number(selectedRoundState?.optionSettleDate) -
+        Number(selectedRoundState?.deploymentDate);
+
+      label =
+        range < 3600 * 24
+          ? date.toLocaleString("en-US", {
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: false,
+            })
+          : date
+              .toLocaleString("en-US", {
+                month: "short",
+                day: "numeric",
+              })
+              .replace(",", "");
     }
 
     return (
@@ -475,8 +483,13 @@ const GasPriceChart: React.FC<GasPriceChartProps> = ({
               x2={area.x2}
               y1={area.y1}
               y2={area.y2}
-              stroke="none"
-              //stroke={area.roundId === selectedRound ? "#ADA478" : "#524F44"}
+              stroke={
+                activeLines.CAP_LEVEL
+                  ? "none"
+                  : area.roundId === selectedRound
+                    ? "#ADA478"
+                    : "#524F44"
+              }
               fillOpacity={area.roundId === selectedRound ? 0.07 : 0.03}
               strokeWidth={2}
               onClick={() => {
