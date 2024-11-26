@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import VaultCard from "@/components/VaultCard/VaultCard";
 
 export default function Home() {
+  console.log("CHECK THIS LOG",process.env.NEXT_PUBLIC_VAULT_ADDRESSES)
   const vaults = process.env.NEXT_PUBLIC_VAULT_ADDRESSES?.split(",");
 
   //  console.log(vaultsRaw);
