@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
+import classNames from "classnames";
 import axios from "axios";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import {
@@ -17,13 +18,40 @@ import { useGasData } from "@/hooks/chart/useGasData";
 import { useHistoricalRoundParams } from "@/hooks/chart/useHistoricalRoundParams";
 
 const RoundPerformanceChart = () => {
-  const { selectedRound, selectedRoundState, setSelectedRound, vaultState } =
-    useProtocolContext();
-  const { vaultData: historicalData } = useHistoricalRoundParams();
-
   const [isExpandedView, setIsExpandedView] = useState(false);
 
-  const [maxDataPoints, setMaxDataPoints] = useState<number>(100);
+  const { selectedRound, selectedRoundState, setSelectedRound, vaultState } =
+    useProtocolContext();
+
+  const vaultAddress = useMemo(() => {
+    return vaultState?.address;
+  }, [vaultState?.address]);
+
+  const toRound = useMemo(() => {
+    return selectedRound
+      ? Number(selectedRound)
+      : vaultState?.currentRoundId
+        ? Number(vaultState.currentRoundId)
+        : 1;
+  }, [selectedRound]);
+
+  const fromRound = useMemo(() => {
+    if (!isExpandedView) {
+      return toRound;
+    } else {
+      return toRound > 3 ? toRound - 3 : 1;
+    }
+  }, [toRound, isExpandedView]);
+
+  const { vaultData: historicalData } = useHistoricalRoundParams({
+    vaultAddress,
+    fromRound,
+    toRound,
+  });
+
+  const maxDataPoints = 100;
+
+  //  const [maxDataPoints, setMaxDataPoints] = useState<number>(100);
   const twapRange = useMemo(() => {
     if (
       !selectedRoundState?.auctionStartDate ||
@@ -69,7 +97,6 @@ const RoundPerformanceChart = () => {
     twapRange,
   });
 
-  const [rawData, setRawData] = useState<any[]>([]);
   const [activeLines, setActiveLines] = useState<{ [key: string]: boolean }>({
     TWAP: true,
     BASEFEE: true,
@@ -106,7 +133,7 @@ const RoundPerformanceChart = () => {
   };
 
   const parsedData = useMemo(() => {
-    if (!selectedRoundState || !gasData || !historicalData) return [];
+    if (!selectedRound || !gasData || !historicalData || !bounds) return [];
 
     return gasData?.map((item: any) => {
       const newItem: any = { ...item };
@@ -132,7 +159,7 @@ const RoundPerformanceChart = () => {
 
       return newItem;
     });
-  }, [gasData, selectedRoundState, historicalData]);
+  }, [gasData, selectedRound, historicalData]);
 
   const toggleLine = (line: string) => {
     setActiveLines((prev) => ({ ...prev, [line]: !prev[line] }));
@@ -168,24 +195,6 @@ const RoundPerformanceChart = () => {
     };
   }, [roundNavIsOpen]);
 
-  // Handle Loading State
-  if (isLoading) {
-    return (
-      <div className="w-full h-[800px] bg-black-alt rounded-[12px] border border-greyscale-800 flex items-center justify-center">
-        Loading...
-      </div>
-    );
-  }
-
-  // Handle Error State
-  if (isError) {
-    return (
-      <div className="w-full h-[800px] bg-black-alt rounded-[12px] border border-greyscale-800 flex items-center justify-center text-red-500">
-        Error: {error.message || "Something went wrong."}
-      </div>
-    );
-  }
-
   return (
     <div className="w-full h-[800px] bg-black-alt rounded-[12px] border border-greyscale-800 relative">
       {/* Round Navigation */}
@@ -219,7 +228,11 @@ const RoundPerformanceChart = () => {
                   ? "var(--greyscale)"
                   : "var(--primary)"
               }
-              classname={`w-4 h-4 mr-2 hover:cursor-pointer ${
+              classname={`${
+                !selectedRound || selectedRound === 1
+                  ? ""
+                  : "hover:cursor-pointer hover-zoom"
+              } w-4 h-4 mr-2 ${
                 !selectedRound || selectedRound === 1
                   ? "hover:cursor-default"
                   : ""
@@ -235,7 +248,13 @@ const RoundPerformanceChart = () => {
                   ? "var(--primary)"
                   : "var(--greyscale)"
               }
-              classname={`w-4 h-4 mr-2 hover:cursor-pointer ${
+              classname={`${
+                selectedRound &&
+                vaultState?.currentRoundId &&
+                Number(vaultState.currentRoundId) > selectedRound
+                  ? "hover-zoom hover:cursor-pointer"
+                  : ""
+              } w-4 h-4 mr-2 ${
                 !selectedRound ||
                 selectedRound === Number(vaultState?.currentRoundId)
                   ? "hover:cursor-default"
@@ -246,8 +265,18 @@ const RoundPerformanceChart = () => {
           <div>
             <History
               onClick={() => setIsExpandedView(!isExpandedView)}
-              className="w-4 h-4 mr-2 hover:cursor-pointer stroke-[var(--greyscale)] hover:stroke-[var(--primary)]"
+              className={classNames(
+                "w-6 h-6 mr-2 cursor-pointer",
+                {
+                  "stroke-[var(--primary)]": isExpandedView,
+                  "stroke-[var(--greyscale)]": !isExpandedView,
+                },
+                "hover:stroke-[var(--primary)]  hover-zoom",
+              )}
             />
+            {
+              //hover:scale-105 transition-transform duration-200 ease-in-out
+            }
           </div>
         </div>
       </div>
@@ -294,7 +323,7 @@ const RoundPerformanceChart = () => {
           {["TWAP", "BASEFEE", "STRIKE", "CAP_LEVEL"].map((line) => (
             <button
               key={line}
-              className={`flex flex-row items-center font-regular text-[12px]
+              className={`hover-zoom-small flex flex-row items-center font-regular text-[12px]
                    ${
                      line === "CAP_LEVEL"
                        ? "text-success"
@@ -322,6 +351,8 @@ const RoundPerformanceChart = () => {
         data={parsedData}
         historicalData={historicalData}
         activeLines={activeLines}
+        fromRound={fromRound}
+        toRound={toRound}
         //zoomDomain={zoomDomain}
         //handleZoom={handleZoom}
         //handleResetZoom={handleResetZoom}
