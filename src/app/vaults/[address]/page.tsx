@@ -11,7 +11,7 @@ export default function Home({
   const { setVaultAddress } = useProtocolContext();
 
   useEffect(() => {
-    console.log("address changed");
+    console.log("address changed 245");
     if (address) {
       setVaultAddress(address);
     }
