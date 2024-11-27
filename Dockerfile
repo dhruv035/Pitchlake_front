@@ -48,6 +48,7 @@ FROM node:20-alpine AS runner
 WORKDIR /app
 
 # Install pnpm
+ENV FOSSIL_DB_URL=${FOSSIL_DB_URL}
 RUN npm install -g pnpm
 
 # Copy necessary files from builder
