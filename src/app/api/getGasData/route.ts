@@ -147,7 +147,7 @@ export async function GET(request: Request) {
   } catch (error: any) {
     console.error("Error fetching data", error);
     return NextResponse.json(
-      { error: "Internal server error", details: error.message, db_url: process.env.FOSSIL_DB_URL},
+      { error: "Internal server error", details: process.env.FOSSIL_DB_URL??"Error"},
       { status: 500 },
     );
   }
