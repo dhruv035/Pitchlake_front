@@ -11,7 +11,7 @@ const useWebSocketHome = ()=>{
 
   useEffect(() => {
     if (isLoaded) {
-      ws.current = new WebSocket("ws://localhost:8080/subscribeHome");
+      ws.current = new WebSocket(`ws://${process.env.NEXT_PUBLIC_WS_URL}/subscribeHome`);
 
       ws.current.onopen = () => {
         console.log("WebSocket connection established");
