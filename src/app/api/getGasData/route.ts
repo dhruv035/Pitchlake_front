@@ -1,8 +1,8 @@
 "use server";
 
 import { NextResponse } from "next/server";
-import pool from "@/lib/db";
 import { formatUnits } from "ethers";
+import { Pool } from "pg";
 
 // Maximum number of blocks to return
 const MAX_RETURN_BLOCKS = 100;
@@ -103,8 +103,15 @@ export async function GET(request: Request) {
       TWAP_BLOCK_LIMIT,
     ];
 
+    const pool =
+    new Pool({
+      connectionString: process.env.FOSSIL_DB_URL,
+      ssl: {
+        rejectUnauthorized: false, // For testing purposes; consider proper SSL config in production
+      },
+    });
     const result = await pool.query(query, values);
-
+    pool.end();
     if (
       result.rows.length >= 1 &&
       result.rows[result?.rows?.length - 1].timestamp <= toTimestamp
