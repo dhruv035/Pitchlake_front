@@ -8,7 +8,7 @@ import VaultCard from "@/components/VaultCard/VaultCard";
 import useWebSocketHome from "@/hooks/websocket/useWebSocketHome";
 
 export default function Home() {
-  console.log("CHECK THIS LOG", process.env.NEXT_PUBLIC_VAULT_ADDRESSES);
+  console.log("CHECK THIS LOG", process.env.NEXT_PUBLIC_WS_URL);
 
   //  console.log(vaultsRaw);
   //
