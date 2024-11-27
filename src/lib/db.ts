@@ -6,15 +6,27 @@ declare global {
   var pgPool: Pool | undefined;
 }
 
+if (!process.env.FOSSIL_DB_URL) {
+  throw new Error("FOSSIL_DB_URL environment variable is not set");
+}
+
+const isProduction = process.env.NODE_ENV === "production";
+
 const pool =
   global.pgPool ||
   new Pool({
     connectionString: process.env.FOSSIL_DB_URL,
-    ssl: {
-      rejectUnauthorized: false, // For testing purposes; consider proper SSL config in production
-    },
+    ssl: { rejectUnauthorized: false },
+    max: 20,
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 2000,
   });
 
-if (process.env.NODE_ENV !== "production") global.pgPool = pool;
+pool.on("error", (err) => {
+  console.error("Unexpected error on idle client", err);
+  process.exit(-1);
+});
+
+if (!isProduction) global.pgPool = pool;
 
 export default pool;
