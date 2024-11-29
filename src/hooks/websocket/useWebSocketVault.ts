@@ -32,7 +32,7 @@ const useWebSocketVault = (conn: string, vaultAddress?: string) => {
 
   useEffect(() => {
     if (conn === "ws") {
-      ws.current = new WebSocket("ws://localhost:8080/subscribeVault");
+      ws.current = new WebSocket(`${process.env.NEXT_PUBLIC_WS_URL}/subscribeHome`);
 
       ws.current.onopen = () => {
         console.log("WebSocket connection established");
