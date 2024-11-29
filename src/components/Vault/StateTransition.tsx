@@ -68,13 +68,27 @@ const StateTransition = ({
 
   const handleAction = async () => {
     if (roundState === "FossilReady") {
-      await makeFossilCall({
-        targetTimestamp: getTargetTimestampForRound(selectedRoundState),
-        roundDuration: getDurationForRound(selectedRoundState),
-        clientAddress: vaultState?.fossilClientAddress,
-        vaultAddress: vaultState?.address,
+      const response = await fetch("/api/sendFossilRequest", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          targetTimestamp: getTargetTimestampForRound(selectedRoundState),
+          roundDuration: getDurationForRound(selectedRoundState),
+          clientAddress: vaultState?.fossilClientAddress,
+          vaultAddress: vaultState?.address,
+        }),
       });
-      setFossilStatus({ status: "Pending", error: undefined });
+
+      const data = await response.json();
+      console.log("Fossil response:", data);
+
+      if (!response.ok) {
+        setFossilStatus({ status: "Error", error: data.error });
+      } else {
+        setFossilStatus({ status: "Pending", error: undefined });
+      }
     } else if (roundState === "Open") {
       await vaultActions.startAuction();
     } else if (roundState === "Auctioning") {
