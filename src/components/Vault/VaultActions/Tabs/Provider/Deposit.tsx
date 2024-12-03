@@ -55,7 +55,12 @@ const Deposit: React.FC<DepositProps> = ({ showConfirmation }) => {
     const amountWei = parseEther(state.amount);
     await vaultActions.depositLiquidity({
       amount: amountWei,
-      beneficiary: account ? account.address : "",
+      beneficiary:
+        state.beneficiaryAddress !== ""
+          ? state.beneficiaryAddress
+          : account
+            ? account.address
+            : "",
     });
     localStorage.removeItem(LOCAL_STORAGE_KEY);
   };
