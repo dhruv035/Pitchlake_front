@@ -98,7 +98,6 @@ export const getDurationForRound = (
   if (!roundState || !roundState.auctionEndDate || !roundState.optionSettleDate)
     return 0;
 
-  /// @NOTE Replace once sepolia instance duration >= 12 min
   let high = Number(roundState.optionSettleDate);
   let low = Number(roundState.auctionEndDate);
   return Number(high - low);
