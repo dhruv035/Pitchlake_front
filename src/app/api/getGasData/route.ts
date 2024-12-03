@@ -23,12 +23,14 @@ export async function GET(request: Request) {
   const timestampFrom = searchParams.get("from_timestamp");
   const timestampTo = searchParams.get("to_timestamp");
   const twapRangeParam = searchParams.get("twap_range");
+  const roundStart = searchParams.get("round_start");
 
   // Validate required parameters
-  if (!timestampFrom || !timestampTo || !twapRangeParam) {
+  if (!timestampFrom || !timestampTo || !twapRangeParam || !roundStart) {
     return NextResponse.json(
       {
-        error: "Missing from_timestamp, to_timestamp, or twap_range parameter",
+        error:
+          "Missing from_timestamp, to_timestamp, twap_range, or round_start parameter",
       },
       { status: 400 },
     );
@@ -103,8 +105,7 @@ export async function GET(request: Request) {
       TWAP_BLOCK_LIMIT,
     ];
 
-    const pool =
-    new Pool({
+    const pool = new Pool({
       connectionString: process.env.FOSSIL_DB_URL,
       ssl: {
         rejectUnauthorized: false, // For testing purposes; consider proper SSL config in production
@@ -112,6 +113,22 @@ export async function GET(request: Request) {
     });
     const result = await pool.query(query, values);
     pool.end();
+
+    if (result.rows.length == 0) {
+      result.rows.push({
+        block_number: undefined,
+        base_fee_per_gas: undefined,
+        timestamp: toTimestamp,
+        twap: undefined,
+      });
+      result.rows.push({
+        block_number: undefined,
+        base_fee_per_gas: undefined,
+        timestamp: fromTimestamp,
+        twap: undefined,
+      });
+    }
+
     if (
       result.rows.length >= 1 &&
       result.rows[result?.rows?.length - 1].timestamp <= toTimestamp
@@ -119,6 +136,15 @@ export async function GET(request: Request) {
       const lastKnownTimestamp = parseInt(
         result.rows[result.rows.length - 1].timestamp,
       );
+      if (lastKnownTimestamp <= Number(roundStart)) {
+        result.rows.push({
+          block_number: undefined,
+          base_fee_per_gas: undefined,
+          timestamp: roundStart,
+          twap: undefined,
+        });
+      }
+
       if (
         lastKnownTimestamp <=
         toTimestamp -
@@ -143,11 +169,16 @@ export async function GET(request: Request) {
       TWAP: row.twap ? formatUnits(parseInt(row.twap), "gwei") : undefined,
     }));
 
+    data.sort((a, b) => a.timestamp - b.timestamp);
+
     return NextResponse.json(data, { status: 200 });
   } catch (error: any) {
     console.error("Error fetching data", error);
     return NextResponse.json(
-      { error: "Internal server error", details: process.env.FOSSIL_DB_URL??"Error"},
+      {
+        error: "Internal server error",
+        details: process.env.FOSSIL_DB_URL ?? "Error",
+      },
       { status: 500 },
     );
   }

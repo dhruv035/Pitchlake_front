@@ -54,7 +54,7 @@ const RoundPerformanceChart = () => {
   //  const [maxDataPoints, setMaxDataPoints] = useState<number>(100);
   const twapRange = useMemo(() => {
     if (
-      !selectedRoundState?.auctionStartDate ||
+      !selectedRoundState?.auctionEndDate ||
       !selectedRoundState?.optionSettleDate
     )
       return 1;
@@ -95,6 +95,7 @@ const RoundPerformanceChart = () => {
     upperTimestamp: bounds ? bounds[1] : 0,
     maxDataPoints,
     twapRange,
+    roundStart: Number(selectedRoundState?.deploymentDate),
   });
 
   const [activeLines, setActiveLines] = useState<{ [key: string]: boolean }>({

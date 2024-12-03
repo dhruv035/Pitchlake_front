@@ -16,6 +16,7 @@ interface UseGasDataParams {
   upperTimestamp: number;
   maxDataPoints: number;
   twapRange: number; // in seconds
+  roundStart: number;
 }
 
 // Define the API response type
@@ -26,12 +27,14 @@ const fetchGasData = async (
   fromTimestamp: number,
   toTimestamp: number,
   twapRange: number,
+  roundStart: number,
 ): Promise<GetGasDataResponse> => {
   const response = await axios.get("/api/getGasData", {
     params: {
       from_timestamp: fromTimestamp,
       to_timestamp: toTimestamp,
       twap_range: twapRange,
+      round_start: roundStart,
       // You can add maxReturnBlocks and twapBlockLimit as query params if your API supports them
     },
   });
@@ -43,6 +46,7 @@ export const useGasData = ({
   upperTimestamp,
   maxDataPoints,
   twapRange,
+  roundStart,
 }: UseGasDataParams): {
   gasData: GasDataPoint[] | undefined;
   isLoading: boolean;
@@ -58,19 +62,23 @@ export const useGasData = ({
     upperTimestamp,
     twapRange,
     maxDataPoints,
+    roundStart,
   ];
 
   // Use React Query's useQuery
   const { data, isLoading, isError, error } = useQuery({
     queryKey,
-    queryFn: () => fetchGasData(lowerTimestamp, upperTimestamp, twapRange),
+    queryFn: () =>
+      fetchGasData(lowerTimestamp, upperTimestamp, twapRange, roundStart),
 
     enabled:
       typeof lowerTimestamp === "number" &&
       typeof upperTimestamp === "number" &&
       typeof twapRange === "number" &&
+      typeof roundStart === "number" &&
       lowerTimestamp > 1 &&
-      upperTimestamp > 1,
+      upperTimestamp > 1 &&
+      roundStart > 1,
   });
 
   return {

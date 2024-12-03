@@ -45,9 +45,9 @@ const FOSSIL_DELAY = 15 * 60;
 // comment for git
 const PanelLeft = ({ userType }: { userType: string }) => {
   const { vaultState, selectedRoundState } = useProtocolContext();
-  const [vaultIsOpen, setVaultIsOpen] = useState<boolean>(true);
-  const [optionRoundIsOpen, setOptionRoundIsOpen] = useState<boolean>(true);
-  const [isPanelOpen, setIsPanelOpen] = useState<boolean>(false);
+  const [vaultIsOpen, setVaultIsOpen] = useState<boolean>(false);
+  const [optionRoundIsOpen, setOptionRoundIsOpen] = useState<boolean>(false);
+  const [isPanelOpen, setIsPanelOpen] = useState<boolean>(true);
   const [modalState, setModalState] = useState<{
     show: boolean;
     action: string;
@@ -74,12 +74,6 @@ const PanelLeft = ({ userType }: { userType: string }) => {
     await modalState.onConfirm();
   };
 
-  //  let date;
-  //  if (selectedRoundState?.auctionEndDate)
-  //    date = new Date(
-  //      Number(selectedRoundState?.auctionEndDate),
-  //    ).toLocaleString();
-
   const getStateActionHeader = () => {
     const round = selectedRoundState
       ? selectedRoundState
@@ -88,16 +82,6 @@ const PanelLeft = ({ userType }: { userType: string }) => {
     const roundState = selectedRoundState?.roundState
       ? selectedRoundState.roundState
       : "Open";
-
-    //    if (roundState === "Open") {
-    //      return "Auction Starts In";
-    //    } else if (roundState === "Auctioning") {
-    //      return "Auction Ends In";
-    //    } else if (roundState === "Running") {
-    //      return "Round Ends In";
-    //    } else {
-    //      return "Round Ended";
-    //    }
 
     if (roundState === "Open") return "Auction Starts In";
     if (roundState === "Auctioning") return "Auction Ends In";
@@ -132,15 +116,6 @@ const PanelLeft = ({ userType }: { userType: string }) => {
     }
     if (roundState === "Settled") targetDate = round.optionSettleDate;
 
-    //if (roundState === "Running") targetDate = round.optionSettleDate;
-    //if (roundState === "Open") {
-    //  targetDate = round.auctionStartDate;
-    //} else if (roundState === "Auctioning") {
-    //  targetDate = round.auctionEndDate;
-    //} else {
-    //  targetDate = round.optionSettleDate;
-    //}
-
     targetDate = targetDate ? targetDate : "0";
     return timeUntilTarget(Number(timestamp).toString(), targetDate.toString());
   };
@@ -172,11 +147,6 @@ const PanelLeft = ({ userType }: { userType: string }) => {
       border: "border-[#CC455E]",
     },
   };
-
-  //  const [isClient, setIsClient] = useState(false);
-  //  useEffect(() => {
-  //    setIsClient(true);
-  //  }, []);
 
   const roundState = selectedRoundState?.roundState.toString() || "Open";
   const styles = stateStyles[roundState] || stateStyles.Default;
@@ -254,8 +224,8 @@ const PanelLeft = ({ userType }: { userType: string }) => {
                 vaultIsOpen
                   ? "h-[0]"
                   : optionRoundIsOpen
-                    ? "h-[325px]"
-                    : "h-[265px]"
+                    ? "h-[215px]"
+                    : "h-[215px]"
               } transition-all duration-900ms `}
             >
               <div className="flex flex-row justify-between p-2 w-full">
@@ -446,20 +416,22 @@ const PanelLeft = ({ userType }: { userType: string }) => {
                   {selectedRoundState && selectedRoundState.roundState}
                 </p>
               </div>
-              {(roundState === "Open" || roundState == "Auctioning") && (
-                <div className="max-h-full flex flex-row justify-between items-center p-2 w-full">
-                  <p className="text-[#BFBFBF]">Last Round Perf.</p>
-                  <div
-                    onClick={() => {
-                      console.log("todo: decrement selected round id");
-                    }}
-                    className="flex flex-row justify-center items-center text-[#F5EBB8] cursor-pointer gap-[4px]"
-                  >
-                    <p className="">+12.34%</p>
-                    <ArrowRightIcon className="size-[16px]" />
-                  </div>
-                </div>
-              )}
+              {
+                ///  (roundState === "Open" || roundState == "Auctioning") && (
+                ///  <div className="max-h-full flex flex-row justify-between items-center p-2 w-full">
+                ///    <p className="text-[#BFBFBF]">Last Round Perf.</p>
+                ///    <div
+                ///      onClick={() => {
+                ///        console.log("todo: decrement selected round id");
+                ///      }}
+                ///      className="flex flex-row justify-center items-center text-[#F5EBB8] cursor-pointer gap-[4px]"
+                ///    >
+                ///      <p className="">+12.34%</p>
+                ///      <ArrowRightIcon className="size-[16px]" />
+                ///    </div>
+                ///  </div>
+                ///)
+              }
               {roundState === "Settled" && (
                 <div className="max-h-full flex flex-row justify-between items-center   p-2 w-full">
                   <p className="text-[#BFBFBF]">Round Perf.</p>
