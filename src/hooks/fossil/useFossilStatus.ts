@@ -57,7 +57,7 @@ const useFossilStatus = () => {
       if (statusData?.status === "Completed") {
         clearInterval(intervalId);
       }
-    }, 5000);
+    }, 9999);
 
     // Fetch immediately on mount
     fetchStatus();
