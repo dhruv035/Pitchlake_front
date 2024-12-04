@@ -143,6 +143,11 @@ const PanelLeft = ({ userType }: { userType: string }) => {
       text: "text-[#DA718C]",
       border: "border-[#CC455E]",
     },
+    Loading: {
+      bg: "bg-[#6D1D0D59]",
+      text: "text-[#F78771]",
+      border: "border-[#F78771]",
+    },
     Default: {
       bg: "bg-[#CC455E33]",
       text: "text-[#CC455E]",
@@ -150,7 +155,7 @@ const PanelLeft = ({ userType }: { userType: string }) => {
     },
   };
 
-  const roundState = selectedRoundState?.roundState.toString() || "Open";
+  const roundState = selectedRoundState?.roundState.toString() || "Loading";
   const styles = stateStyles[roundState] || stateStyles.Default;
 
   return (
@@ -391,8 +396,10 @@ const PanelLeft = ({ userType }: { userType: string }) => {
                 optionRoundIsOpen
                   ? "h-0"
                   : vaultIsOpen
-                    ? "h-[450px]"
-                    : "h-[260px]"
+                    ? "h-[475px]"
+                    : selectedRoundState?.roundState === "Settled"
+                      ? "h-[335px]"
+                      : "h-[315px]"
               } transition-all duration-900 max-h-full`}
             >
               <div className="max-h-full flex flex-row justify-between items-center p-2 w-full">
@@ -430,7 +437,9 @@ const PanelLeft = ({ userType }: { userType: string }) => {
                 <p
                   className={`border-[1px] ${styles.border} ${styles.bg} ${styles.text} font-medium rounded-full px-2 py-[1px]`}
                 >
-                  {selectedRoundState && selectedRoundState.roundState}
+                  {selectedRoundState?.roundState
+                    ? selectedRoundState.roundState
+                    : "Loading"}
                 </p>
               </div>
               {
