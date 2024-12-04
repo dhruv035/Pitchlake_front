@@ -4,6 +4,7 @@ import ActionButton from "@/components/Vault/Utils/ActionButton";
 import { useProtocolContext } from "@/context/ProtocolProvider";
 import { useTransactionContext } from "@/context/TransactionProvider";
 import { useAccount } from "@starknet-react/core";
+import { formatEther } from "ethers";
 
 interface WithdrawQueueProps {
   showConfirmation: (
@@ -84,12 +85,10 @@ const QueueWithdrawal: React.FC<WithdrawQueueProps> = ({
   };
 
   React.useEffect(() => {
-    // Set the initial percentage to 25% and disable the button
     updateState({
       percentage: bpsToPercentage(lpState?.queuedBps?.toString() || "0"),
-      //isButtonDisabled: true,
     });
-  }, [account, pendingTx]);
+  }, [account, pendingTx, lpState?.queuedBps]);
 
   return (
     <div className="flex flex-col h-full">
@@ -127,8 +126,17 @@ const QueueWithdrawal: React.FC<WithdrawQueueProps> = ({
           </div>
         </div>
       </div>
-      <div className="mt-auto">
-        <div className="flex justify-between text-sm p-6 border-t border-[#262626]">
+      <div className="flex flex-col h-[full] mt-[auto]">
+        <div className="px-6 flex justify-between text-sm mb-6 mt-auto">
+          <span className="text-gray-400">Current Locked Balance</span>
+          <span className="text-white">
+            {parseFloat(
+              formatEther(lpState?.lockedBalance?.toString() || "0"),
+            ).toFixed(3)}{" "}
+            ETH
+          </span>
+        </div>
+        <div className="mt-[auto] flex justify-between text-sm border-t border-[#262626] p-6">
           <ActionButton
             onClick={handleSubmit}
             disabled={isButtonDisabled()}

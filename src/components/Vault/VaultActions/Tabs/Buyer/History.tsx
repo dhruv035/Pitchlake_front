@@ -5,11 +5,13 @@ import { Provider } from "starknet";
 import { formatNumberText } from "@/lib/utils";
 import { formatUnits } from "ethers";
 import { useTransactionContext } from "@/context/TransactionProvider";
+import { useProtocolContext } from "@/context/ProtocolProvider";
 
 interface HistoryItem {
   bid_id: string;
   amount: string | number | bigint;
   price: string | number | bigint;
+  roundState: string;
 }
 
 interface HistoryProps {
@@ -28,6 +30,7 @@ const HistoryItem: React.FC<{
   setIsTabsHidden: (open: boolean) => void;
   setBidToEdit: (bid: any) => void;
   isTabsHidden: boolean;
+  roundState: string;
 }> = ({
   item,
   isLast,
@@ -35,23 +38,13 @@ const HistoryItem: React.FC<{
   isTabsHidden,
   setIsTabsHidden,
   setBidToEdit,
+  roundState,
 }) => {
   return (
     <div
       className={`py-4 px-4 flex flex-row justify-between items-center ${!isLast ? "border-b border-[#262626]" : ""} m-0`}
     >
       <div className="flex align-center flex-col gap-1">
-        {
-          //////// REPLACE WITH TXN HASH IF POSSIBLE LATER
-          // <a href={explorer.contract(item.address)} target="_blank">
-          //   <p className="text-[#F5EBB8] text-[12px] font-regular flex items-center cursor-pointer">
-          //   {item.address.slice(0, 6)}...{item.address.slice(-4)}{" "}
-          //   <span className="ml-1 cursor-pointer">
-          //     <SquareArrowOutUpRight size={13} className="text-[#F5EBB8]" />
-          //   </span>
-          // </p>
-          // </a>
-        }
         <p className="text-[#fafafa] font-regular text-[14px] text-sm">
           {formatNumberText(Number(item.amount))} options at{" "}
           {formatUnits(item.price, "gwei")} GWEI each
@@ -61,16 +54,18 @@ const HistoryItem: React.FC<{
           {Number(formatUnits(item.price, "ether")) * Number(item.amount)} ETH
         </p>
       </div>
-      <div className="bg-[#262626] p-2 rounded-lg cursor-pointer">
-        <SquarePen
-          onClick={() => {
-            setBidToEdit({ item });
-            setIsTabsHidden(!isTabsHidden);
-          }}
-          size={20}
-          className="text-[#E2E2E2]"
-        />
-      </div>
+      {roundState === "Auctioning" && (
+        <div className="bg-[#262626] p-2 rounded-lg cursor-pointer">
+          <SquarePen
+            onClick={() => {
+              setBidToEdit({ item });
+              setIsTabsHidden(!isTabsHidden);
+            }}
+            size={20}
+            className="text-[#E2E2E2]"
+          />
+        </div>
+      )}
     </div>
   );
 };
@@ -84,6 +79,7 @@ const History: React.FC<HistoryProps> = ({
 }) => {
   const explorer = useExplorer();
   const { pendingTx } = useTransactionContext();
+  const { selectedRoundState } = useProtocolContext();
 
   const [modalState, setModalState] = useState<{
     show: boolean;
@@ -122,6 +118,9 @@ const History: React.FC<HistoryProps> = ({
             // also need to now show edit modal
           }}
           setBidToEdit={setBidToEdit}
+          roundState={
+            selectedRoundState?.roundState ? selectedRoundState.roundState : ""
+          }
         />
       ))}
     </div>

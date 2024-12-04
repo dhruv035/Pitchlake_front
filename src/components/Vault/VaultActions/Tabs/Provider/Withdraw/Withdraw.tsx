@@ -45,9 +45,11 @@ const Withdraw: React.FC<WithdrawProps> = ({ showConfirmation }) => {
           <WithdrawLiquidity showConfirmation={showConfirmation} />
         )}
 
-        {state.activeWithdrawTab === "Queue" && (
-          <QueueWithdrawal showConfirmation={showConfirmation} />
-        )}
+        {(selectedRoundState?.roundState === "Auctioning" ||
+          selectedRoundState?.roundState === "Running") &&
+          state.activeWithdrawTab === "Queue" && (
+            <QueueWithdrawal showConfirmation={showConfirmation} />
+          )}
         {state.activeWithdrawTab === "Collect" && (
           <WithdrawStash showConfirmation={showConfirmation} />
         )}

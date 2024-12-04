@@ -117,7 +117,9 @@ const PanelLeft = ({ userType }: { userType: string }) => {
     if (roundState === "Settled") targetDate = round.optionSettleDate;
 
     targetDate = targetDate ? targetDate : "0";
-    return timeUntilTarget(Number(timestamp).toString(), targetDate.toString());
+    return Number(timestamp) !== 0 && Number(targetDate) !== 0
+      ? timeUntilTarget(Number(timestamp).toString(), targetDate.toString())
+      : "Loading...";
   };
 
   const stateStyles: any = {
@@ -141,6 +143,11 @@ const PanelLeft = ({ userType }: { userType: string }) => {
       text: "text-[#DA718C]",
       border: "border-[#CC455E]",
     },
+    Loading: {
+      bg: "bg-[#6D1D0D59]",
+      text: "text-[#F78771]",
+      border: "border-[#F78771]",
+    },
     Default: {
       bg: "bg-[#CC455E33]",
       text: "text-[#CC455E]",
@@ -148,7 +155,7 @@ const PanelLeft = ({ userType }: { userType: string }) => {
     },
   };
 
-  const roundState = selectedRoundState?.roundState.toString() || "Open";
+  const roundState = selectedRoundState?.roundState.toString() || "Loading";
   const styles = stateStyles[roundState] || stateStyles.Default;
 
   return (
@@ -232,12 +239,14 @@ const PanelLeft = ({ userType }: { userType: string }) => {
                 <p className="text-[#BFBFBF]">Run Time</p>
                 <p>
                   {selectedRoundState?.auctionEndDate &&
-                  selectedRoundState?.optionSettleDate
+                  selectedRoundState?.optionSettleDate &&
+                  selectedRoundState.auctionEndDate !== "0" &&
+                  selectedRoundState.optionSettleDate !== "0"
                     ? timeUntilTarget(
                         selectedRoundState.auctionEndDate.toString(),
                         selectedRoundState.optionSettleDate.toString(),
                       )
-                    : ""}
+                    : "Loading..."}
                 </p>
               </div>
               <div className="flex flex-row justify-between p-2 w-full">
@@ -251,9 +260,9 @@ const PanelLeft = ({ userType }: { userType: string }) => {
                 >
                   <p className="">
                     {
-                      vaultState?.address
+                      vaultState?.address && vaultState?.address !== "0x"
                         ? shortenString(vaultState?.address)
-                        : ""
+                        : "Loading..."
                       //Add vault address short string from state here
                     }
                   </p>
@@ -336,7 +345,11 @@ const PanelLeft = ({ userType }: { userType: string }) => {
 
               <div className="flex flex-row justify-between p-2 w-full">
                 <p className="text-[#BFBFBF] font-regular">Risk Level</p>
-                <p>{Number(vaultState?.alpha) / 100}%</p>
+                <p>
+                  {vaultState?.alpha && vaultState.alpha !== "0"
+                    ? `${Number(vaultState?.alpha) / 100}%`
+                    : "Loading..."}
+                </p>
               </div>
               <div className="flex flex-row justify-between p-2 w-full">
                 <p className="text-[#BFBFBF] font-regular">Strike Level</p>
@@ -383,29 +396,40 @@ const PanelLeft = ({ userType }: { userType: string }) => {
                 optionRoundIsOpen
                   ? "h-0"
                   : vaultIsOpen
-                    ? "h-[450px]"
-                    : "h-[260px]"
+                    ? "h-[475px]"
+                    : selectedRoundState?.roundState === "Settled"
+                      ? "h-[335px]"
+                      : "h-[315px]"
               } transition-all duration-900 max-h-full`}
             >
               <div className="max-h-full flex flex-row justify-between items-center p-2 w-full">
                 <p className="text-[#BFBFBF]">Selected Round</p>
-                <a
-                  href={explorer.contract(
-                    selectedRoundState?.address
-                      ? selectedRoundState.address
-                      : "",
-                  )}
-                  target="_blank"
-                  className="flex flex-row justify-center items-center text-[#F5EBB8] cursor-pointer gap-[4px]"
-                >
-                  <p className="">
-                    Round{" "}
-                    {selectedRoundState?.roundId
-                      ? `${selectedRoundState.roundId.toString().length == 1 ? "0" : ""}${selectedRoundState.roundId}`
-                      : ""}
-                  </p>
-                  <SquareArrowOutUpRight className="size-[16px]" />
-                </a>
+                {selectedRoundState?.address &&
+                selectedRoundState?.roundId &&
+                selectedRoundState.address !== "0x0" &&
+                selectedRoundState.roundId !== "0" ? (
+                  <a
+                    href={explorer.contract(
+                      selectedRoundState?.address
+                        ? selectedRoundState.address
+                        : "",
+                    )}
+                    target="_blank"
+                    className="flex flex-row justify-center items-center text-[#F5EBB8] cursor-pointer gap-[4px]"
+                  >
+                    <p>
+                      Round{" "}
+                      {selectedRoundState?.roundId
+                        ? `${selectedRoundState.roundId.toString().length == 1 ? "0" : ""}${selectedRoundState.roundId}`
+                        : ""}
+                    </p>
+                    <SquareArrowOutUpRight className="size-[16px]" />
+                  </a>
+                ) : (
+                  <a className="flex flex-row justify-center items-center text-[#F5EBB8] cursor-pointer gap-[4px]">
+                    <p>Loading... </p>
+                  </a>
+                )}
               </div>
 
               <div className="max-h-full flex flex-row justify-between items-center p-2 w-full">
@@ -413,7 +437,9 @@ const PanelLeft = ({ userType }: { userType: string }) => {
                 <p
                   className={`border-[1px] ${styles.border} ${styles.bg} ${styles.text} font-medium rounded-full px-2 py-[1px]`}
                 >
-                  {selectedRoundState && selectedRoundState.roundState}
+                  {selectedRoundState?.roundState
+                    ? selectedRoundState.roundState
+                    : "Loading"}
                 </p>
               </div>
               {
@@ -450,31 +476,29 @@ const PanelLeft = ({ userType }: { userType: string }) => {
                 <p className="text-[#BFBFBF]">Cap Level</p>
                 <p>
                   {
-                    selectedRoundState?.capLevel
-                      ? (
+                    selectedRoundState?.capLevel &&
+                    selectedRoundState.capLevel !== "0"
+                      ? `${(
                           (100 *
                             parseInt(selectedRoundState.capLevel.toString())) /
                           10_000
-                        ).toFixed(2)
-                      : "" //Add round duration from state here
+                        ).toFixed(2)}%`
+                      : "Loading..." //Add round duration from state here
                   }
-                  %
                 </p>
               </div>
               <div className="max-h-full flex flex-row justify-between items-center p-2 w-full">
                 <p className="text-[#BFBFBF]">Strike Price</p>
                 <p>
-                  {
-                    selectedRoundState?.strikePrice &&
-                      Number(
+                  {selectedRoundState?.strikePrice &&
+                  selectedRoundState.strikePrice !== "0"
+                    ? `${Number(
                         formatUnits(
                           selectedRoundState.strikePrice.toString(),
                           "gwei",
                         ),
-                      ).toFixed(2)
-                    //Add round duration from state here
-                  }{" "}
-                  GWEI
+                      ).toFixed(2)} GWEI`
+                    : "Loading..."}
                 </p>
               </div>
 

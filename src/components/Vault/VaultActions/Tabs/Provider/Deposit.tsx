@@ -1,8 +1,7 @@
-import React, { useState, ReactNode, useEffect } from "react";
+import React, { useState, ReactNode, useMemo, useEffect } from "react";
 import { useAccount } from "@starknet-react/core";
 import { useTransactionContext } from "@/context/TransactionProvider";
-import useERC20 from "@/hooks/erc20/useERC20";
-import { parseEther, parseUnits, formatEther } from "ethers";
+import { parseEther, formatEther } from "ethers";
 import { useProtocolContext } from "@/context/ProtocolProvider";
 import InputField from "@/components/Vault/Utils/InputField";
 import { User } from "lucide-react";
@@ -10,7 +9,11 @@ import ActionButton from "@/components/Vault/Utils/ActionButton";
 import ButtonTabs from "../ButtonTabs";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
-import { num } from "starknet";
+import { num, Call } from "starknet";
+import { useContractWrite, useContract } from "@starknet-react/core";
+import { erc20ABI, vaultABI } from "@/lib/abi";
+import useERC20 from "@/hooks/erc20/useERC20";
+import { shortenString } from "@/lib/utils";
 
 interface DepositProps {
   showConfirmation: (
@@ -20,127 +23,198 @@ interface DepositProps {
   ) => void;
 }
 
+function isValidHex64(input: string): boolean {
+  const regex = /^0x[a-fA-F0-9]{64}$/;
+  return regex.test(input);
+}
+
 const LOCAL_STORAGE_KEY = "depositAmountWei";
 
 interface DepositState {
   amount: string;
   isDepositAsBeneficiary: boolean;
   beneficiaryAddress: string;
-  activeWithdrawTab: "For Myself" | "For Someone Else";
+  activeWithdrawTab: "For Me" | "For Someone Else";
+  isButtonDisabled: boolean;
+  isAmountOk: string;
+  isBeneficiaryOk: string;
 }
 
 const Deposit: React.FC<DepositProps> = ({ showConfirmation }) => {
-  const { vaultState, lpState, vaultActions } = useProtocolContext();
-  const [needsApproval, setNeedsApproval] = useState<string>("0");
+  const { vaultState, lpState } = useProtocolContext();
   const [state, setState] = useState<DepositState>({
     amount: localStorage.getItem(LOCAL_STORAGE_KEY) || "",
     isDepositAsBeneficiary: false,
     beneficiaryAddress: "",
-    activeWithdrawTab: "For Myself",
+    activeWithdrawTab: "For Me",
+    isButtonDisabled: true,
+    isAmountOk: "",
+    isBeneficiaryOk: "",
   });
   const { account } = useAccount();
-  const { allowance, approve } = useERC20(
+  const { pendingTx, setPendingTx } = useTransactionContext();
+  const { allowance, balance } = useERC20(
     vaultState?.ethAddress,
     vaultState?.address,
     account,
   );
 
-  const { pendingTx } = useTransactionContext();
-
   const updateState = (updates: Partial<DepositState>) => {
     setState((prevState) => ({ ...prevState, ...updates }));
   };
 
-  const handleDeposit = async (): Promise<void> => {
-    const amountWei = parseEther(state.amount);
-    await vaultActions.depositLiquidity({
-      amount: amountWei,
-      beneficiary: account ? account.address : "",
-    });
-    localStorage.removeItem(LOCAL_STORAGE_KEY);
-  };
+  // Vault Contract
+  const { contract: vaultContractRaw } = useContract({
+    abi: vaultABI,
+    address: vaultState?.address,
+  });
+  const vaultContract = useMemo(() => {
+    if (!vaultContractRaw) return;
+    const typedContract = vaultContractRaw.typedv2(vaultABI);
+    if (account) typedContract.connect(account);
+    return typedContract;
+  }, [vaultContractRaw, account]);
 
-  const handleApprove = async (): Promise<void> => {
-    const amountWei = parseEther(state.amount);
-    await approve({
-      amount: num.toBigInt(amountWei),
-      spender: vaultState ? vaultState.address : "",
-    });
-  };
+  // ETH Contract
+  const { contract: ethContractRaw } = useContract({
+    abi: erc20ABI,
+    address: vaultState?.ethAddress,
+  });
+  const ethContract = useMemo(() => {
+    if (!ethContractRaw) return;
+    const typedContract = ethContractRaw.typedv2(erc20ABI);
+    if (account) typedContract.connect(account);
+    return typedContract;
+  }, [ethContractRaw, account]);
 
-  const handleSubmitForApproval = () => {
-    showConfirmation(
-      "Approve",
-      <>
-        approve this vault to transfer
-        <br />
-        <span className="font-semibold text-[#fafafa]">
-          {formatEther(needsApproval)} ETH
-        </span>
-      </>,
-      async () => {
-        await handleApprove();
-      },
+  // Approve and Deposit Multicall
+  const calls: Call[] = useMemo(() => {
+    const calls: Call[] = [];
+    if (
+      !vaultState ||
+      !state?.amount ||
+      !ethContract ||
+      !vaultContract ||
+      !account ||
+      (state.isDepositAsBeneficiary &&
+        !isValidHex64(state.beneficiaryAddress)) ||
+      Number(state.amount) <= 0
+    ) {
+      return calls;
+    }
+
+    const amountWei = parseEther(state.amount);
+    const beneficiaryAddress = state.isDepositAsBeneficiary
+      ? state.beneficiaryAddress
+      : account.address;
+
+    const approveCall = ethContract.populateTransaction.approve(
+      vaultState.address,
+      num.toBigInt(amountWei),
     );
-  };
+    const depositCall = vaultContract.populateTransaction.deposit(
+      num.toBigInt(amountWei),
+      beneficiaryAddress,
+    );
 
-  const handleSubmitForDeposit = () => {
+    if (approveCall && num.toBigInt(allowance) < amountWei)
+      calls.push(approveCall);
+    if (depositCall) calls.push(depositCall);
+
+    return calls;
+  }, [
+    state.amount,
+    state.beneficiaryAddress,
+    account,
+    ethContract,
+    vaultContract,
+  ]);
+  const { writeAsync } = useContractWrite({ calls });
+
+  // Send confirmation
+  const handleSubmitForMulticall = () => {
     showConfirmation(
       "Deposit",
       <>
-        deposit
         <br />
-        <span className="font-semibold text-[#fafafa]">
-          {state.amount} ETH
-        </span>{" "}
-        into this round
+        deposit{" "}
+        <span className="font-semibold text-[#fafafa]">{state.amount} ETH</span>
+        {state.isDepositAsBeneficiary && (
+          <>
+            <br />
+            for{" "}
+            <span className="font-semibold text-[#fafafa]">
+              {shortenString(state.beneficiaryAddress)}
+            </span>
+          </>
+        )}{" "}
+        {
+          // into this round
+        }
       </>,
       async () => {
-        await handleDeposit();
+        await handleMulticall();
         setState((prevState) => ({ ...prevState, amount: "" }));
       },
     );
   };
 
-  const isApprovalDisabled = (): boolean => {
-    if (pendingTx) return true;
-    if (!account) return true;
-    if (Number(needsApproval) <= 0) return true;
-    return false;
-  };
-
-  const isDepositDisabled = (): boolean => {
-    if (pendingTx) return true;
-    if (!account) return true;
-    if (Number(state.amount) <= 0) return true;
-    if (state.isDepositAsBeneficiary && state.beneficiaryAddress.trim() === "")
-      return true;
-    return false;
+  // Open wallet
+  const handleMulticall = async () => {
+    const data = await writeAsync();
+    setPendingTx(data?.transaction_hash);
+    localStorage.removeItem(LOCAL_STORAGE_KEY);
   };
 
   useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_KEY, state.amount);
-  }, [state.amount]);
+    // Check amount
+    let amountReason = "";
+    if (!account) {
+      amountReason = "Connect account";
+    } else if (state.amount == "") {
+    } else if (Number(state.amount) < 0) {
+      amountReason = "Amount must be positive";
+    } else if (Number(state.amount) === 0) {
+      amountReason = "Amount must be greater than 0";
+    } else if (parseEther(state.amount) > balance) {
+      amountReason = `Exceeds balance (${parseFloat(formatEther(balance.toString())).toFixed(4)} ETH)`;
+    }
 
-  useEffect(() => {
-    const amountEth = state.amount || "0";
-    const amountWei = parseUnits(amountEth, "ether");
-    setNeedsApproval(
-      num.toBigInt(allowance) < num.toBigInt(amountWei)
-        ? amountWei.toString()
-        : "0",
-    );
-  }, [state.amount, account, allowance]);
+    // Check beneficiary
+    let beneficiaryReason = "";
+    if (state.isDepositAsBeneficiary) {
+      if (state.beneficiaryAddress == "") {
+        beneficiaryReason = "Enter address";
+      } else if (!isValidHex64(state.beneficiaryAddress)) {
+        beneficiaryReason = "Invalid address";
+      }
+    }
+
+    const isButtonDisabled = (): boolean => {
+      //if (!account) return true;
+      if (pendingTx) return true;
+      if (amountReason !== "") return true;
+      if (beneficiaryReason !== "") return true;
+      return false;
+    };
+
+    setState((prevState) => ({
+      ...prevState,
+      isButtonDisabled: isButtonDisabled(),
+      isAmountOk: amountReason,
+      isBeneficiaryOk: beneficiaryReason,
+    }));
+  }, [state.amount, state.isBeneficiaryOk, state.beneficiaryAddress, balance]);
 
   return (
     <div className="flex flex-col h-full">
       <div className="flex-grow space-y-6 p-6">
         <ButtonTabs
-          tabs={["For Myself", "For Someone Else"]}
+          tabs={["For Me", "For Someone Else"]}
           activeTab={state.activeWithdrawTab}
           setActiveTab={(tab) =>
             updateState({
-              activeWithdrawTab: tab as "For Myself" | "For Someone Else",
+              activeWithdrawTab: tab as "For Me" | "For Someone Else",
               isDepositAsBeneficiary: tab === "For Someone Else",
             })
           }
@@ -157,19 +231,21 @@ const Deposit: React.FC<DepositProps> = ({ showConfirmation }) => {
             icon={
               <User className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400" />
             }
+            error={state.isBeneficiaryOk}
           />
         )}
-
         <InputField
           type="number"
           value={state.amount}
           label="Enter Amount"
-          onChange={(e) =>
+          onChange={(e) => {
             updateState({
               amount: e.target.value.slice(0, e.target.value.indexOf(".") + 19),
-            })
-          }
+            });
+            localStorage.setItem(LOCAL_STORAGE_KEY, e.target.value);
+          }}
           placeholder="e.g. 5.0"
+          error={state.isAmountOk}
           icon={
             <FontAwesomeIcon
               icon={faEthereum}
@@ -180,29 +256,23 @@ const Deposit: React.FC<DepositProps> = ({ showConfirmation }) => {
       </div>
 
       <div className="mt-auto">
-        <div className="px-6 flex justify-between text-sm mb-6 pt-6">
-          <span className="text-gray-400">Unlocked Balance</span>
-          <span className="text-white">
-            {parseFloat(
-              formatEther(lpState?.unlockedBalance?.toString() || "0"),
-            ).toFixed(3)}{" "}
-            ETH
-          </span>
-        </div>
+        {state.activeWithdrawTab === "For Me" && (
+          <div className="px-6 flex justify-between text-sm mb-6 pt-6">
+            <span className="text-gray-400">Unlocked Balance</span>
+            <span className="text-white">
+              {parseFloat(
+                formatEther(lpState?.unlockedBalance?.toString() || "0"),
+              ).toFixed(3)}{" "}
+              ETH
+            </span>
+          </div>
+        )}
         <div className="px-6 flex justify-between text-sm mb-6 pt-6 border-t border-[#262626]">
-          {num.toBigInt(needsApproval) > 0 ? (
-            <ActionButton
-              onClick={handleSubmitForApproval}
-              disabled={isApprovalDisabled()}
-              text="Approve"
-            />
-          ) : (
-            <ActionButton
-              onClick={handleSubmitForDeposit}
-              disabled={isDepositDisabled()}
-              text="Deposit"
-            />
-          )}
+          <ActionButton
+            onClick={handleSubmitForMulticall}
+            disabled={state.isButtonDisabled}
+            text={pendingTx ? "Pending" : "Deposit"}
+          />
         </div>
       </div>
     </div>
