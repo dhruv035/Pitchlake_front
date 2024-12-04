@@ -22,8 +22,9 @@ const useWebSocketVault = (conn: string, vaultAddress?: string) => {
   const [wsOptionRoundStates, setWsOptionRoundStates] = useState<
     OptionRoundStateType[]
   >([]);
-  const [wsLiquidityProviderState, setWsLiquidityProviderState] =
-    useState<LiquidityProviderStateType | undefined>();
+  const [wsLiquidityProviderState, setWsLiquidityProviderState] = useState<
+    LiquidityProviderStateType | undefined
+  >();
   const [wsOptionBuyerStates, setWsOptionBuyerStates] = useState<
     OptionBuyerStateType[] | null
   >(null);
@@ -32,16 +33,18 @@ const useWebSocketVault = (conn: string, vaultAddress?: string) => {
 
   useEffect(() => {
     if (conn === "ws") {
-      ws.current = new WebSocket(`${process.env.NEXT_PUBLIC_WS_URL}/subscribeHome`);
+      ws.current = new WebSocket(
+        `${process.env.NEXT_PUBLIC_WS_URL}/subscribeVault`,
+      );
 
       ws.current.onopen = () => {
         console.log("WebSocket connection established");
         ws.current?.send(
           JSON.stringify({
             address: accountAddress,
-            userType: "lp", // Adjust based on your logic
+            userType: "ob", // Adjust based on your logic
             vaultAddress: vaultAddress,
-          })
+          }),
         );
       };
 
@@ -104,7 +107,7 @@ const useWebSocketVault = (conn: string, vaultAddress?: string) => {
     wsVaultState,
     wsOptionRoundStates,
     wsLiquidityProviderState,
-    wsOptionBuyerStates:wsOptionBuyerStates??[],
+    wsOptionBuyerStates: wsOptionBuyerStates ?? [],
   };
 };
 

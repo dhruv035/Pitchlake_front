@@ -1,17 +1,18 @@
 import { useEffect, useRef, useState } from "react";
 
-
 type wsResponseType = {
-    vaultAddresses: string[]
-}
-const useWebSocketHome = ()=>{
-    const [vaults,setVaults]=useState<string[]>([])
-    const ws = useRef<WebSocket | null>(null);
-  const [isLoaded,setIsLoaded] = useState(false);
+  vaultAddresses: string[];
+};
+const useWebSocketHome = () => {
+  const [vaults, setVaults] = useState<string[]>([]);
+  const ws = useRef<WebSocket | null>(null);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
     if (isLoaded) {
-      ws.current = new WebSocket(`${process.env.NEXT_PUBLIC_WS_URL}/subscribeHome`);
+      ws.current = new WebSocket(
+        `${process.env.NEXT_PUBLIC_WS_URL}/subscribeHome`,
+      );
 
       ws.current.onopen = () => {
         console.log("WebSocket connection established");
@@ -20,8 +21,8 @@ const useWebSocketHome = ()=>{
 
       ws.current.onmessage = (event) => {
         console.log("Message from server:", event.data);
-        const wsResponse:wsResponseType = JSON.parse(event.data)
-        setVaults(wsResponse.vaultAddresses)
+        const wsResponse: wsResponseType = JSON.parse(event.data);
+        setVaults(wsResponse.vaultAddresses);
       };
 
       ws.current.onerror = (error) => {
@@ -36,16 +37,15 @@ const useWebSocketHome = ()=>{
     return () => {
       ws.current?.close();
     };
-    
   }, [isLoaded]);
-  useEffect(()=>{
-    setIsLoaded(true)
-  },[])
+  useEffect(() => {
+    setIsLoaded(true);
+  }, []);
 
   return {
-    vaults:vaults
-}
+    vaults: vaults,
+  };
+};
 
-}
+export default useWebSocketHome;
 
-export default useWebSocketHome
