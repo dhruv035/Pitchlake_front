@@ -123,15 +123,14 @@ const EditModal: React.FC<EditModalProps> = ({
     }
 
     const totalCostWei = num.toBigInt(totalNewCostWei);
-    const priceIncreasePerOptionWei = priceIncreaseWei;
 
     const approveCall = ethContract.populateTransaction.approve(
       selectedRoundState.address.toString(),
-      num.toBigInt(priceIncreasePerOptionWei),
+      num.toBigInt(totalCostWei),
     );
     const editBidCall = optionRoundContract.populateTransaction.update_bid(
       bidId,
-      priceIncreasePerOptionWei,
+      priceIncreaseWei,
     );
 
     if (

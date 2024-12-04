@@ -127,6 +127,7 @@ const PlaceBid: React.FC<PlaceBidProps> = ({ showConfirmation }) => {
     account,
     balance,
     allowance,
+    needsApproving,
   ]);
   const { writeAsync } = useContractWrite({ calls });
 
@@ -169,7 +170,7 @@ const PlaceBid: React.FC<PlaceBidProps> = ({ showConfirmation }) => {
     if (/^\d*$/.test(value)) {
       updateState({ bidAmount: value });
     }
-    localStorage.setItem(LOCAL_STORAGE_KEY1, state.bidAmount);
+    localStorage.setItem(LOCAL_STORAGE_KEY1, value);
   };
 
   const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
@@ -178,7 +179,7 @@ const PlaceBid: React.FC<PlaceBidProps> = ({ showConfirmation }) => {
       ? value.slice(0, value.indexOf(".") + 10)
       : value;
     updateState({ bidPrice: formattedValue });
-    localStorage.setItem(LOCAL_STORAGE_KEY2, state.bidPrice);
+    localStorage.setItem(LOCAL_STORAGE_KEY2, value);
   };
 
   const bidPriceWei = parseUnits(state.bidPrice ? state.bidPrice : "0", "gwei");
