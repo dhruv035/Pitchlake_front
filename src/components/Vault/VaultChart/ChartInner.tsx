@@ -229,7 +229,7 @@ const GasPriceChart: React.FC<GasPriceChartProps> = ({
     const value = payload.value;
 
     let label = "";
-    let color = "#8C8C8C"; // Default color for timestamps
+    let color = "#AAA"; // Default color for timestamps
     const tickInfo = xTickLabels[value];
 
     if (tickInfo && tickInfo.label) {
@@ -263,7 +263,7 @@ const GasPriceChart: React.FC<GasPriceChartProps> = ({
     }
 
     return (
-      <text x={x} y={y + 15} fill={color} textAnchor="middle">
+      <text x={x} y={y + 15} fill={color} fontSize="12" textAnchor="middle">
         {label}
       </text>
     );
