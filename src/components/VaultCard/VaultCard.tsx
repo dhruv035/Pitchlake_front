@@ -39,7 +39,7 @@ export default function VaultCard({ vaultAddress }: { vaultAddress: string }) {
   }); //conn arguement hardcoded here. Make conn a context variable to feed everywhere
 
   const { roundState } = useRoundState(
-    currentRoundAddress ? currentRoundAddress : "",
+    currentRoundAddress ? currentRoundAddress : "Loading",
   );
   const { capLevel } = useCapLevel(
     currentRoundAddress ? currentRoundAddress : "",
@@ -51,17 +51,20 @@ export default function VaultCard({ vaultAddress }: { vaultAddress: string }) {
   const { auctionStartDate, auctionEndDate, optionSettleDate } = useTimestamps(
     currentRoundAddress ? currentRoundAddress : "",
   );
-  const timeUntilText = roundState == "Open" ? "STARTS IN" : "TIME LEFT";
-  const timeUntilValue = timeUntilTarget(
-    timestamp?.toString(),
-    roundState == "Open"
-      ? auctionStartDate
-        ? auctionStartDate.toString()
-        : timestamp.toString()
-      : optionSettleDate
-        ? optionSettleDate.toString()
-        : timestamp?.toString(),
-  );
+  const timeUntilText = roundState === "Open" ? "STARTS IN" : "TIME LEFT";
+  const timeUntilValue =
+    roundState === "Loading" ||
+    roundState === "" ||
+    !auctionStartDate ||
+    !optionSettleDate ||
+    !timestamp
+      ? "0"
+      : timeUntilTarget(
+          timestamp.toString(),
+          roundState === "Open"
+            ? auctionStartDate.toString()
+            : optionSettleDate.toString(),
+        );
 
   const router = useRouter();
   var myHeaders = new Headers();
@@ -84,7 +87,7 @@ export default function VaultCard({ vaultAddress }: { vaultAddress: string }) {
                   auctionEndDate.toString(),
                   optionSettleDate.toString(),
                 )
-              : ""}
+              : "Loading..."}
           </p>
           <div className="bg-primary-800 rounded-full w-[5px] h-[5px] m-2" />
           <p className="text-[16px] font-regular text-[var(--buttongrey)]">
@@ -116,7 +119,9 @@ export default function VaultCard({ vaultAddress }: { vaultAddress: string }) {
               <p className="font-regular text-[14px] text-[#BFBFBF]">Cap:</p>
             </div>
             <p className="text-[#fafafa] font-medium text-[14px]">
-              {parseInt(capLevel.toString()) / 100}%
+              {capLevel.toString() === "0"
+                ? "Loading..."
+                : `${parseInt(capLevel.toString()) / 100}%`}
             </p>
           </div>
           <div className="flex flex-row justify-between m-2">
@@ -128,10 +133,11 @@ export default function VaultCard({ vaultAddress }: { vaultAddress: string }) {
               <p className="font-regular text-[14px] text-[#BFBFBF]">Strike:</p>
             </div>
             <p className="text-[#fafafa] font-medium text-[14px]">
-              {parseFloat(formatUnits(strikePrice.toString(), "gwei")).toFixed(
-                2,
-              )}
-              &nbsp; GWEI
+              {strikePrice.toString() === "0"
+                ? "Loading..."
+                : `${parseFloat(
+                    formatUnits(strikePrice.toString(), "gwei"),
+                  ).toFixed(2)} GWEI`}
             </p>
           </div>
         </div>
@@ -141,7 +147,7 @@ export default function VaultCard({ vaultAddress }: { vaultAddress: string }) {
               <TagIcon classname="w-4 h-4 mr-2" stroke={"var(--greyscale)"} />
               <p className="font-regular text-[14px] text-[#BFBFBF]">FEES:</p>
             </div>
-            <p className="text-[#fafafa] font-medium text-[14px]">{"0"}%</p>
+            <p className="text-[#fafafa] font-medium text-[14px]">{"--"}</p>
           </div>
           <div className="flex flex-row justify-between m-2">
             <div className="flex flex-row items-center">
@@ -174,7 +180,7 @@ export default function VaultCard({ vaultAddress }: { vaultAddress: string }) {
             </div>
 
             <p className="text-[#fafafa] font-medium text-[14px]">
-              {timeUntilValue === "" ? "--" : timeUntilValue}
+              {timeUntilValue === "0" ? "Loading..." : timeUntilValue}
             </p>
           </div>
         </div>
