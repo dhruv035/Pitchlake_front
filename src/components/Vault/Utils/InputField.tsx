@@ -38,11 +38,11 @@ const InputField: React.FC<InputFieldProps> = ({
         value={value}
         onChange={onChange}
         disabled={disabled}
-        className={`w-full bg-[#0A0A0A] border rounded-md p-2 pr-8 appearance-none flex flex-row justify-between
+        className={`outline-none w-full bg-[#0A0A0A] border rounded-md p-2 pr-8 appearance-none flex flex-row justify-between
           [&::-webkit-outer-spin-button]:appearance-none
           [&::-webkit-inner-spin-button]:appearance-none
-          ${error ? "border-[#CC455E]" : "border-gray-700"}
-          ${error ? "text-[#CC455E]" : "text-white"} px-6 ${className}`}
+          ${error ? "border-[#CC455E] text-[#CC455E]" : "border-gray-700 focus:blue-400 text-white"} 
+          px-6 ${className}`}
       />
       <div className="flex items-center pointer-events-none">{icon}</div>
     </div>

@@ -329,8 +329,8 @@ const GasPriceChart: React.FC<GasPriceChartProps> = ({
   }
 
   return (
-    <ResponsiveContainer width="100%" maxHeight={665} className="px-4">
-      <ComposedChart data={data} syncId="roundChart">
+    <ResponsiveContainer  width="100%" maxHeight={665} className="pr-4">
+      <ComposedChart margin={{left:-20}} data={data} syncId="roundChart">
         <defs>
           <linearGradient id="capLevelGradient" x1="0" y1="0" x2="0" y2="1">
             <stop
