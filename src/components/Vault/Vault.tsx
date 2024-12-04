@@ -22,7 +22,7 @@ export const Vault = () => {
               setIsProviderView(true);
               setIsEditOpen(false);
             }}
-            className={`flex flex-row items-center m-[1px] hover:cursor-pointer px-4 py-1 rounded-md text-[14px] ${
+            className={`flex flex-row items-center  justify-center m-[1px] hover:cursor-pointer px-4 py-1 rounded-md text-[14px] w-[115px] ${
               isProviderView ? "bg-primary-900" : ""
             }`}
           >
@@ -43,7 +43,7 @@ export const Vault = () => {
               setIsProviderView(false);
               //setIsEditOpen(false);
             }}
-            className={`flex flex-row items-center m-[1px] hover:cursor-pointer p-4 rounded-md text-[14px] h-[44px] ${
+            className={`flex flex-row items-center m-[1px] hover:cursor-pointer p-4 rounded-md text-[14px] h-[44px] justify-center w-[115px] ${
               !isProviderView ? "bg-primary-900" : ""
             }`}
           >
