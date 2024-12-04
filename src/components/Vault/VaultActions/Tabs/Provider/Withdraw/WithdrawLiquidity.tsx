@@ -99,10 +99,10 @@ const WithdrawLiquidity: React.FC<WithdrawLiquidityProps> = ({
     }
 
     const isButtonDisabled = (): boolean => {
-      if (!account) return true;
+      //if (!account) return true;
+      //if (!state.amount) return true;
+      //if (!lpState?.unlockedBalance) return true;
       if (pendingTx) return true;
-      if (!state.amount) return true;
-      if (!lpState?.unlockedBalance) return true;
       if (amountReason !== "") return true;
       return false;
     };
