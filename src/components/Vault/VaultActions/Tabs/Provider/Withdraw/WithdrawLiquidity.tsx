@@ -13,6 +13,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 import { useTransactionContext } from "@/context/TransactionProvider";
 import { useAccount } from "@starknet-react/core";
+import { num } from "starknet";
 
 interface WithdrawLiquidityProps {
   showConfirmation: (
@@ -30,6 +31,7 @@ const WithdrawLiquidity: React.FC<WithdrawLiquidityProps> = ({
   const { lpState, vaultActions } = useProtocolContext();
   const [state, setState] = useState({
     amount: localStorage.getItem(LOCAL_STORAGE_KEY) || "",
+    isAmountOk: "",
   });
   const { pendingTx } = useTransactionContext();
   const { account } = useAccount();
@@ -80,8 +82,39 @@ const WithdrawLiquidity: React.FC<WithdrawLiquidityProps> = ({
   };
 
   useEffect(() => {
+    // Check amount
+    let amountReason = "";
+    if (!account) {
+      amountReason = "Connect account";
+    } else if (state.amount == "") {
+    } else if (Number(state.amount) < 0) {
+      amountReason = "Amount must be positive";
+    } else if (Number(state.amount) == 0) {
+      amountReason = "Amount must be greater than 0";
+    } else if (
+      lpState?.unlockedBalance &&
+      parseEther(state.amount) > num.toBigInt(lpState.unlockedBalance)
+    ) {
+      amountReason = `Exceeds balance (${parseFloat(formatEther(lpState?.unlockedBalance?.toString())).toFixed(4)} ETH)`;
+    }
+
+    const isButtonDisabled = (): boolean => {
+      if (!account) return true;
+      if (pendingTx) return true;
+      if (!state.amount) return true;
+      if (!lpState?.unlockedBalance) return true;
+      if (amountReason !== "") return true;
+      return false;
+    };
+
+    setState((prevState) => ({
+      ...prevState,
+      isButtonDisabled: isButtonDisabled(),
+      isAmountOk: amountReason,
+    }));
+
     localStorage.setItem(LOCAL_STORAGE_KEY, state.amount);
-  }, [state.amount, account]);
+  }, [state.amount, lpState?.unlockedBalance, account]);
 
   return (
     <>
@@ -106,6 +139,7 @@ const WithdrawLiquidity: React.FC<WithdrawLiquidityProps> = ({
                 className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 pr-2"
               />
             }
+            error={state.isAmountOk}
           />
         </div>
       </div>
