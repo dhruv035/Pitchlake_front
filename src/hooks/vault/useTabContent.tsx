@@ -35,7 +35,7 @@ export const useTabContent = (
   const env = process.env.NEXT_PUBLIC_ENVIRONMENT;
 
   // @NOTE: For now we are hiding this panel, eventually we need to show it in WS mode and possibly RPC mode as well
-  const commonTabs = env === "ws" || env === "rpc" ? [CommonTabs.MyInfo] : [];
+  const commonTabs = env === "ws" || env === "rpc" ? [] : [CommonTabs.MyInfo];
   const tabs = useMemo(() => {
     if (userType === "lp") {
       return [...Object.values(ProviderTabs), ...commonTabs];
@@ -46,9 +46,19 @@ export const useTabContent = (
         case "Auctioning":
           return [BuyerTabs.PlaceBid, BuyerTabs.History, ...commonTabs];
         case "Running":
-          return [BuyerTabs.Refund, BuyerTabs.Mint, ...commonTabs];
+          return [
+            BuyerTabs.Mint,
+            BuyerTabs.Refund,
+            BuyerTabs.History,
+            ...commonTabs,
+          ];
         case "Settled":
-          return [BuyerTabs.Refund, BuyerTabs.Exercise, ...commonTabs];
+          return [
+            BuyerTabs.Exercise,
+            BuyerTabs.Refund,
+            BuyerTabs.History,
+            ...commonTabs,
+          ];
         default:
           return [];
       }
