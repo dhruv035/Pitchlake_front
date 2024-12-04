@@ -6,6 +6,7 @@ import {
   OptionBuyerStateType,
 } from "@/lib/types";
 import { useAccount } from "@starknet-react/core";
+import { getPerformanceLP, getPerformanceOB } from "@/lib/utils";
 
 type wsResponseType = {
   payloadType: string;
@@ -34,7 +35,7 @@ const useWebSocketVault = (conn: string, vaultAddress?: string) => {
   useEffect(() => {
     if (conn === "ws") {
       ws.current = new WebSocket(
-        `${process.env.NEXT_PUBLIC_WS_URL}/subscribeVault`,
+        `${process.env.NEXT_PUBLIC_WS_URL}/subscribeVault`
       );
 
       ws.current.onopen = () => {
@@ -44,7 +45,7 @@ const useWebSocketVault = (conn: string, vaultAddress?: string) => {
             address: accountAddress,
             userType: "ob", // Adjust based on your logic
             vaultAddress: vaultAddress,
-          }),
+          })
         );
       };
 
@@ -52,7 +53,21 @@ const useWebSocketVault = (conn: string, vaultAddress?: string) => {
         const wsResponse: wsResponseType = JSON.parse(event.data);
         if (wsResponse.payloadType === "initial") {
           setWsVaultState(wsResponse.vaultState);
-          setWsOptionRoundStates(wsResponse.optionRoundStates ?? []);
+          const roundStates = wsResponse.optionRoundStates?.map((state) => {
+            return {
+              ...state,
+              performanceLP: getPerformanceLP(
+                state.soldLiquidity,
+                state.premiums,
+                state.totalPayout
+              ),
+              performanceOB: getPerformanceOB(
+                state.premiums,
+                state.totalPayout
+              ),
+            } as OptionRoundStateType;
+          });
+          setWsOptionRoundStates(roundStates ?? []);
         } else if (
           wsResponse.payloadType === "lp_update" &&
           wsResponse.liquidityProviderState
