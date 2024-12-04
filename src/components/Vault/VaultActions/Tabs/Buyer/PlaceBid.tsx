@@ -1,4 +1,4 @@
-import React, { useState, ReactNode, useEffect } from "react";
+import React, { useState, ReactNode, useMemo, useEffect } from "react";
 import InputField from "@/components/Vault/Utils/InputField";
 import { Layers3, Currency } from "lucide-react";
 import ActionButton from "@/components/Vault/Utils/ActionButton";
@@ -9,11 +9,17 @@ import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 import { formatUnits, parseUnits, parseEther, formatEther } from "ethers";
 import { useAccount } from "@starknet-react/core";
 import useERC20 from "@/hooks/erc20/useERC20";
-import { num } from "starknet";
+import { num, Call } from "starknet";
 import { formatNumberText } from "@/lib/utils";
 import { useTransactionContext } from "@/context/TransactionProvider";
 import useLatestTimetamp from "@/hooks/chain/useLatestTimestamp";
 import { useProvider } from "@starknet-react/core";
+import {
+  useContractWrite,
+  useWaitForTransaction,
+  useContract,
+} from "@starknet-react/core";
+import { erc20ABI, optionRoundABI } from "@/lib/abi";
 
 interface PlaceBidProps {
   showConfirmation: (
@@ -28,11 +34,6 @@ const LOCAL_STORAGE_KEY2 = "bidPriceGwei";
 
 const PlaceBid: React.FC<PlaceBidProps> = ({ showConfirmation }) => {
   const { vaultState, roundActions, selectedRoundState } = useProtocolContext();
-  const { provider } = useProvider();
-  const { timestamp } = useLatestTimetamp(provider);
-  const { account } = useAccount();
-  const { pendingTx } = useTransactionContext();
-  const [needsApproval, setNeedsApproval] = useState<string>("0");
   const [state, setState] = useState({
     bidAmount: localStorage.getItem(LOCAL_STORAGE_KEY1) || "",
     bidPrice: localStorage.getItem(LOCAL_STORAGE_KEY2) || "",
@@ -40,78 +41,98 @@ const PlaceBid: React.FC<PlaceBidProps> = ({ showConfirmation }) => {
     isAmountOk: "",
     isPriceOk: "",
   });
-  const { allowance, approve, balance } = useERC20(
+
+  const { account } = useAccount();
+  const { pendingTx, setPendingTx } = useTransactionContext();
+  const { provider } = useProvider();
+  const { timestamp } = useLatestTimetamp(provider);
+
+  const { allowance, balance } = useERC20(
     vaultState?.ethAddress,
     selectedRoundState?.address,
     account,
   );
+  const [needsApproving, setNeedsApproving] = useState<string>("0");
+
+  // Option Round Contract
+  const { contract: optionRoundContractRaw } = useContract({
+    abi: optionRoundABI,
+    address: selectedRoundState?.address,
+  });
+  const optionRoundContract = useMemo(() => {
+    if (!optionRoundContractRaw) return;
+    const typedContract = optionRoundContractRaw.typedv2(optionRoundABI);
+    if (account) typedContract.connect(account);
+    return typedContract;
+  }, [optionRoundContractRaw, account]);
+
+  // ETH Contract
+  const { contract: ethContractRaw } = useContract({
+    abi: erc20ABI,
+    address: vaultState?.ethAddress,
+  });
+  const ethContract = useMemo(() => {
+    if (!ethContractRaw) return;
+    const typedContract = ethContractRaw.typedv2(erc20ABI);
+    if (account) typedContract.connect(account);
+    return typedContract;
+  }, [ethContractRaw, account]);
 
   const updateState = (updates: Partial<typeof state>) => {
     setState((prevState) => ({ ...prevState, ...updates }));
   };
 
-  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    const value = e.target.value;
-    if (/^\d*$/.test(value)) {
-      updateState({ bidAmount: value });
+  // Approve and Bid Multicall
+  const calls: Call[] = useMemo(() => {
+    const calls: Call[] = [];
+    if (
+      !account ||
+      !selectedRoundState?.address ||
+      !optionRoundContract ||
+      !ethContract ||
+      !state.bidPrice ||
+      !state.bidAmount ||
+      Number(state.bidAmount) <= 0 ||
+      Number(state.bidPrice) <= 0
+    ) {
+      return calls;
     }
-  };
 
-  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    const value = e.target.value;
-
-    const formattedValue = value.includes(".")
-      ? value.slice(0, value.indexOf(".") + 10)
-      : value;
-
-    updateState({ bidPrice: formattedValue });
-  };
-
-  const handleApprove = async (): Promise<void> => {
-    /// Update allowance if needed
     const priceWei = num.toBigInt(parseUnits(state.bidPrice, "gwei"));
     const amount = num.toBigInt(state.bidAmount);
     const totalWei = priceWei * amount;
-    if (num.toBigInt(allowance) < totalWei) {
-      await approve({
-        amount: totalWei,
-        spender: selectedRoundState?.address
-          ? selectedRoundState.address.toString()
-          : "",
-      });
-    }
-  };
 
-  const handlePlaceBid = async (): Promise<void> => {
-    await roundActions?.placeBid({
-      amount: BigInt(state.bidAmount),
-      price: parseUnits(state.bidPrice, "gwei"),
-    });
-    localStorage.removeItem(LOCAL_STORAGE_KEY1);
-    localStorage.removeItem(LOCAL_STORAGE_KEY2);
-  };
-
-  const bidPriceWei = parseUnits(state.bidPrice ? state.bidPrice : "0", "gwei");
-  const bidPriceEth = formatEther(bidPriceWei);
-  const bidPriceGwei = formatUnits(bidPriceWei, "gwei");
-  const bidAmount = state.bidAmount ? state.bidAmount : "0";
-  const bidTotalEth = Number(bidPriceEth) * Number(bidAmount);
-
-  const handleSubmitForApproval = () => {
-    showConfirmation(
-      "Approve",
-      <>
-        approve this vault to transfer
-        <br />
-        <span className="font-semibold text-[#fafafa]">
-          {formatEther(needsApproval)} ETH{" "}
-        </span>{" "}
-      </>,
-      handleApprove,
+    const approveCall = ethContract.populateTransaction.approve(
+      selectedRoundState.address.toString(),
+      num.toBigInt(totalWei),
     );
-  };
+    const bidCall = optionRoundContract.populateTransaction.place_bid(
+      BigInt(state.bidAmount),
+      parseUnits(state.bidPrice, "gwei"),
+    );
 
-  const handleSubmitForPlaceBid = () => {
+    if (
+      approveCall &&
+      num.toBigInt(allowance) < num.toBigInt(needsApproving) &&
+      totalWei < num.toBigInt(balance)
+    )
+      calls.push(approveCall);
+    if (bidCall) calls.push(bidCall);
+
+    return calls;
+  }, [
+    state.bidPrice,
+    state.bidAmount,
+    selectedRoundState?.address,
+    account,
+    balance,
+    allowance,
+    needsApproving,
+  ]);
+  const { writeAsync } = useContractWrite({ calls });
+
+  // Send confirmation
+  const handleSubmitForMulticall = () => {
     showConfirmation(
       "Bid",
       <>
@@ -129,23 +150,60 @@ const PlaceBid: React.FC<PlaceBidProps> = ({ showConfirmation }) => {
         <br />
         <span className="font-semibold text-[#fafafa]">{bidTotalEth} ETH</span>?
       </>,
-      handlePlaceBid,
+      async () => {
+        await handleMulticall();
+        setState((prevState) => ({ ...prevState, amount: "" }));
+      },
     );
   };
 
-  useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_KEY1, state.bidAmount);
-    localStorage.setItem(LOCAL_STORAGE_KEY2, state.bidPrice);
-  }, [state.bidAmount, state.bidPrice]);
+  // Open wallet
+  const handleMulticall = async () => {
+    const data = await writeAsync();
+    setPendingTx(data?.transaction_hash);
+    localStorage.removeItem(LOCAL_STORAGE_KEY1);
+    localStorage.removeItem(LOCAL_STORAGE_KEY2);
+  };
+
+  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    const value = e.target.value;
+    if (/^\d*$/.test(value)) {
+      updateState({ bidAmount: value });
+    }
+    localStorage.setItem(LOCAL_STORAGE_KEY1, value);
+  };
+
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    const value = e.target.value;
+    const formattedValue = value.includes(".")
+      ? value.slice(0, value.indexOf(".") + 10)
+      : value;
+    updateState({ bidPrice: formattedValue });
+    localStorage.setItem(LOCAL_STORAGE_KEY2, value);
+  };
+
+  const bidPriceWei = parseUnits(state.bidPrice ? state.bidPrice : "0", "gwei");
+  const bidPriceEth = formatEther(bidPriceWei);
+  const bidPriceGwei = formatUnits(bidPriceWei, "gwei");
+  const bidAmount = state.bidAmount ? state.bidAmount : "0";
+  const bidTotalEth = Number(bidPriceEth) * Number(bidAmount);
 
   useEffect(() => {
     // Check amount
     let amountReason = "";
-    if (state.bidAmount == "") {
+    if (timestamp > Number(selectedRoundState?.auctionEndDate)) {
+      amountReason = "Auction ended";
+    } else if (!account) {
+      amountReason = "Connect account";
+    } else if (state.bidAmount == "") {
     } else if (Number(state.bidAmount) < 0) {
       amountReason = "Amount must be positive";
     } else if (Number(state.bidAmount) == 0) {
       amountReason = "Amount must be greater than 0";
+    } else if (
+      Number(state.bidAmount) > Number(selectedRoundState?.availableOptions)
+    ) {
+      amountReason = "Amount is more than total available";
     }
 
     // Check price
@@ -154,7 +212,11 @@ const PlaceBid: React.FC<PlaceBidProps> = ({ showConfirmation }) => {
       selectedRoundState ? selectedRoundState.reservePrice : 0,
       "gwei",
     );
-    if (state.bidPrice == "") {
+    if (timestamp > Number(selectedRoundState?.auctionEndDate)) {
+      priceReason = "Auction ended";
+    } else if (!account) {
+      priceReason = "Connect account";
+    } else if (state.bidPrice == "") {
     } else if (Number(state.bidPrice) < 0) {
       priceReason = "Price must be positive";
     } else if (Number(state.bidPrice) < Number(reservePriceGwei)) {
@@ -162,16 +224,11 @@ const PlaceBid: React.FC<PlaceBidProps> = ({ showConfirmation }) => {
     }
 
     const isButtonDisabled = (): boolean => {
-      if (!account) return true;
       if (pendingTx) return true;
-      if (!state.bidAmount || !state.bidPrice) return true;
-      if (!selectedRoundState) return true;
-      if (timestamp > Number(selectedRoundState.auctionEndDate)) return true;
-
+      if (priceReason !== "" || amountReason !== "") return true;
       return false;
     };
 
-    //const isButtonDisabled = !state.bidAmount || !state.bidPrice || ;
     setState((prevState) => ({
       ...prevState,
       isButtonDisabled: isButtonDisabled(),
@@ -185,12 +242,12 @@ const PlaceBid: React.FC<PlaceBidProps> = ({ showConfirmation }) => {
     const amount = num.toBigInt(state.bidAmount ? state.bidAmount : "0");
     const totalWei = priceWei * amount;
 
-    setNeedsApproval(
+    setNeedsApproving(
       num.toBigInt(allowance) < num.toBigInt(totalWei)
         ? totalWei.toString()
         : "0",
     );
-  }, [state.bidAmount, state.bidPrice, account, allowance]);
+  }, [account, timestamp, state.bidAmount, state.bidPrice, allowance]);
 
   return (
     <div className="flex flex-col h-full">
@@ -201,7 +258,7 @@ const PlaceBid: React.FC<PlaceBidProps> = ({ showConfirmation }) => {
           //value={state.bidAmount}
           value={state.bidAmount}
           onChange={handleAmountChange}
-          placeholder="e.g. 5"
+          placeholder="e.g. 5000"
           icon={
             <Layers3
               size="20px"
@@ -211,7 +268,7 @@ const PlaceBid: React.FC<PlaceBidProps> = ({ showConfirmation }) => {
           error={state.isAmountOk}
         />
         <InputField
-          label="Enter Price"
+          label="Enter Price (GWEI)"
           type="number"
           value={state.bidPrice}
           onChange={handlePriceChange}
@@ -240,19 +297,11 @@ const PlaceBid: React.FC<PlaceBidProps> = ({ showConfirmation }) => {
       </div>
       <div className="mt-auto">
         <div className="px-6 flex justify-between text-sm mb-6 pt-6 border-t border-[#262626]">
-          {num.toBigInt(needsApproval) > 0 ? (
-            <ActionButton
-              onClick={handleSubmitForApproval}
-              disabled={state.isButtonDisabled}
-              text="Approve"
-            />
-          ) : (
-            <ActionButton
-              onClick={handleSubmitForPlaceBid}
-              disabled={state.isButtonDisabled}
-              text="Place Bid"
-            />
-          )}
+          <ActionButton
+            onClick={handleSubmitForMulticall}
+            disabled={state.isButtonDisabled}
+            text="Place Bid"
+          />
         </div>
       </div>
     </div>
