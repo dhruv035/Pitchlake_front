@@ -1,5 +1,3 @@
-import { Progress } from "antd";
-import styles from "./VaultCard.module.css";
 import { useRouter } from "next/navigation";
 import {
   shortenString,
@@ -73,13 +71,13 @@ export default function VaultCard({ vaultAddress }: { vaultAddress: string }) {
 
   return (
     <div
-      className="col-span-1 w-full border-[1px] border-greyscale-800 rounded-lg hover:cursor-pointer"
+      className={`hover-zoom-tiny col-span-1 w-full border-[1px] border-[#262626] hover:border-[#454545] rounded-lg hover:cursor-pointer transition duration-200 group`}
       onClick={() => {
         setSelectedRound(Number(vaultState?.currentRoundId));
         router.push(`/vaults/${vaultAddress}`);
       }}
     >
-      <div className="bg-faded-black rounded-t-lg p-4 text-white">
+      <div className="bg-[#1A1A16] rounded-t-lg p-4 text-white group-hover:bg-[#1D1D18] transition duration-200">
         <div className="flex flex-row items-center">
           <p className="text-[14px] font-semibold">
             {auctionEndDate && optionSettleDate
