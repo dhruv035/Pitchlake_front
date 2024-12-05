@@ -6,6 +6,7 @@ import {
   OptionBuyerStateType,
 } from "@/lib/types";
 import { useAccount } from "@starknet-react/core";
+import { getPerformanceLP, getPerformanceOB } from "@/lib/utils";
 
 type wsResponseType = {
   payloadType: string;
@@ -22,8 +23,9 @@ const useWebSocketVault = (conn: string, vaultAddress?: string) => {
   const [wsOptionRoundStates, setWsOptionRoundStates] = useState<
     OptionRoundStateType[]
   >([]);
-  const [wsLiquidityProviderState, setWsLiquidityProviderState] =
-    useState<LiquidityProviderStateType | undefined>();
+  const [wsLiquidityProviderState, setWsLiquidityProviderState] = useState<
+    LiquidityProviderStateType | undefined
+  >();
   const [wsOptionBuyerStates, setWsOptionBuyerStates] = useState<
     OptionBuyerStateType[] | null
   >(null);
@@ -32,14 +34,16 @@ const useWebSocketVault = (conn: string, vaultAddress?: string) => {
 
   useEffect(() => {
     if (conn === "ws") {
-      ws.current = new WebSocket(`${process.env.NEXT_PUBLIC_WS_URL}/subscribeHome`);
+      ws.current = new WebSocket(
+        `${process.env.NEXT_PUBLIC_WS_URL}/subscribeVault`
+      );
 
       ws.current.onopen = () => {
         console.log("WebSocket connection established");
         ws.current?.send(
           JSON.stringify({
             address: accountAddress,
-            userType: "lp", // Adjust based on your logic
+            userType: "ob", // Adjust based on your logic
             vaultAddress: vaultAddress,
           })
         );
@@ -49,7 +53,21 @@ const useWebSocketVault = (conn: string, vaultAddress?: string) => {
         const wsResponse: wsResponseType = JSON.parse(event.data);
         if (wsResponse.payloadType === "initial") {
           setWsVaultState(wsResponse.vaultState);
-          setWsOptionRoundStates(wsResponse.optionRoundStates ?? []);
+          const roundStates = wsResponse.optionRoundStates?.map((state) => {
+            return {
+              ...state,
+              performanceLP: getPerformanceLP(
+                state.soldLiquidity,
+                state.premiums,
+                state.totalPayout
+              ),
+              performanceOB: getPerformanceOB(
+                state.premiums,
+                state.totalPayout
+              ),
+            } as OptionRoundStateType;
+          });
+          setWsOptionRoundStates(roundStates ?? []);
         } else if (
           wsResponse.payloadType === "lp_update" &&
           wsResponse.liquidityProviderState
@@ -104,7 +122,7 @@ const useWebSocketVault = (conn: string, vaultAddress?: string) => {
     wsVaultState,
     wsOptionRoundStates,
     wsLiquidityProviderState,
-    wsOptionBuyerStates:wsOptionBuyerStates??[],
+    wsOptionBuyerStates: wsOptionBuyerStates ?? [],
   };
 };
 

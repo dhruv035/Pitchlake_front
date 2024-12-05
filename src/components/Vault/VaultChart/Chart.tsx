@@ -241,7 +241,7 @@ const RoundPerformanceChart = () => {
                 !selectedRound || selectedRound === 1
                   ? ""
                   : "hover:cursor-pointer hover-zoom"
-              } w-4 h-4 mr-2 ${
+              } w-[15px] h-[15px] mr-2 ${
                 !selectedRound || selectedRound === 1
                   ? "hover:cursor-default"
                   : ""
@@ -263,7 +263,7 @@ const RoundPerformanceChart = () => {
                 Number(vaultState.currentRoundId) > selectedRound
                   ? "hover-zoom hover:cursor-pointer"
                   : ""
-              } w-4 h-4 mr-2 ${
+              } w-[15px] h-[15px] mr-2 ${
                 !selectedRound ||
                 selectedRound === Number(vaultState?.currentRoundId)
                   ? "hover:cursor-default"
@@ -275,7 +275,7 @@ const RoundPerformanceChart = () => {
             <History
               onClick={() => setIsExpandedView(!isExpandedView)}
               className={classNames(
-                "w-6 h-6 mr-2 cursor-pointer",
+                "w-5 h-5 mr-2 cursor-pointer",
                 {
                   "stroke-[var(--primary)]": isExpandedView,
                   "stroke-[var(--greyscale)]": !isExpandedView,
@@ -294,7 +294,8 @@ const RoundPerformanceChart = () => {
       {roundNavIsOpen && (
         <div
           ref={dropdownRef}
-          className="absolute top-[61px] left-1 right-0 bg-[#161616] pt-2 z-10 border border-[#262626] rounded-lg w-[200px] max-h-[244px] overflow-scroll"
+          tabIndex={-1}
+          className="custom-scrollbar absolute top-[61px] left-1 right-0 bg-[#161616] pt-2 z-10 border border-[#262626] rounded-lg w-[200px] max-h-[244px] overflow-scroll"
         >
           {[
             ...Array(
@@ -308,7 +309,11 @@ const RoundPerformanceChart = () => {
             .map((index) => (
               <div
                 key={index}
-                className="flex flex-row justify-between items-center px-4 pt-3 pb-3 hover:bg-greyscale-800 cursor-pointer font-regular text-[14px] text-[#FFFFFF]"
+                className={`flex flex-row justify-between items-center px-4 pt-3 pb-3 hover:bg-greyscale-800 cursor-pointer font-regular text-[14px] text-[#FFFFFF] ${
+                  index + 1 === Number(vaultState?.currentRoundId)
+                    ? "bg-greyscale-800"
+                    : ""
+                }`}
                 onClick={() => {
                   setSelectedRound(index + 1);
                   setRoundNavIsOpen(false);

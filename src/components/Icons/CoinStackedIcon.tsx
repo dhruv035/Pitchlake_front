@@ -9,6 +9,7 @@ const CoinStackedIcon = ({
 }) => {
   return (
     <svg
+    className={classname}
       width="17"
       height="16"
       viewBox="0 0 17 16"

@@ -1,39 +1,17 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import ConfirmationModal from "@/components/Vault/Utils/ConfirmationModal";
-import SuccessModal from "@/components/Vault/Utils/SuccessModal";
-import {
-  ArrowDownIcon,
-  ArrowUpIcon,
-  ArrowLeftIcon,
-  LayerStackIcon,
-  LayoutLeftIcon,
-  LineChartDownIcon,
-  SafeIcon,
-} from "@/components/Icons";
-import {
-  timeFromNow,
-  timeUntilTarget,
-  shortenString,
-  formatNumberText,
-  createJobId,
-} from "@/lib/utils";
-import { formatUnits, formatEther, parseEther } from "ethers";
+import React, { useState } from "react";
+import { LayerStackIcon, SafeIcon } from "@/components/Icons";
+import { timeUntilTarget, shortenString, formatNumberText } from "@/lib/utils";
+import { formatUnits, formatEther } from "ethers";
 import { useProtocolContext } from "@/context/ProtocolProvider";
 import StateTransitionConfirmationModal from "@/components/Vault/Utils/StateTransitionConfirmationModal";
 import {
-  ArrowRightIcon,
   ChevronUp,
   ChevronDown,
-  ChevronLeft,
-  ChevronRight,
-  ExternalLinkIcon,
   SquareArrowOutUpRight,
-  Icon,
   Info,
   PanelLeft as IconPanelLeft,
 } from "lucide-react";
-import { num } from "starknet";
 import { useExplorer } from "@starknet-react/core";
 import { BalanceTooltip } from "@/components/BaseComponents/Tooltip";
 import StateTransition from "@/components/Vault/StateTransition";
@@ -47,7 +25,7 @@ const PanelLeft = ({ userType }: { userType: string }) => {
   const { vaultState, selectedRoundState } = useProtocolContext();
   const [vaultIsOpen, setVaultIsOpen] = useState<boolean>(false);
   const [optionRoundIsOpen, setOptionRoundIsOpen] = useState<boolean>(false);
-  const [isPanelOpen, setIsPanelOpen] = useState<boolean>(true);
+  const [isPanelOpen, setIsPanelOpen] = useState<boolean>(false);
   const [modalState, setModalState] = useState<{
     show: boolean;
     action: string;
@@ -154,21 +132,29 @@ const PanelLeft = ({ userType }: { userType: string }) => {
       border: "border-[#CC455E]",
     },
   };
-
   const roundState = selectedRoundState?.roundState.toString() || "Loading";
   const styles = stateStyles[roundState] || stateStyles.Default;
 
   return (
     <>
       <div
-        onClick={!isPanelOpen ? () => setIsPanelOpen(!isPanelOpen) : () => {}}
         className={`flex flex-col mr-4 max-w-[350px] transition-all duration-300 max-h-[834px] overflow-hidden ${
           isPanelOpen ? "w-full" : "w-[110px]"
         } ${!isPanelOpen ? "cursor-pointer" : ""}`}
       >
         <div className="flex items-center align-center text-[14px] bg-black-alt border-[1px] border-greyscale-800 items-start rounded-lg w-full flex flex-col flex-grow h-full max-h-full">
           <div
-            onClick={() => setIsPanelOpen(!isPanelOpen)}
+            onClick={() => {
+              if (isPanelOpen) {
+                setIsPanelOpen(false);
+                setVaultIsOpen(false);
+                setOptionRoundIsOpen(false);
+              } else {
+                setIsPanelOpen(true);
+                setVaultIsOpen(true);
+                setOptionRoundIsOpen(true);
+              }
+            }}
             className="flex items-center h-[56px] w-full border-b-1 p-4 border-white cursor-pointer"
           >
             <div
@@ -195,7 +181,15 @@ const PanelLeft = ({ userType }: { userType: string }) => {
             className={`flex flex-col w-full px-3 border-t-[1px] border-greyscale-800`}
           >
             <div
-              onClick={() => setVaultIsOpen((state) => !state)}
+              onClick={() => {
+                if (isPanelOpen) {
+                  setVaultIsOpen((state) => !state);
+                } else {
+                  setIsPanelOpen(true);
+                  setVaultIsOpen(true);
+                  setOptionRoundIsOpen(false);
+                }
+              }}
               className={`flex flex-row w-full mt-3 rounded-md p-3 ${
                 isPanelOpen
                   ? "justify-between cursor-pointer bg-faded-black"
@@ -212,7 +206,7 @@ const PanelLeft = ({ userType }: { userType: string }) => {
               <div
                 className={`${isPanelOpen ? "flex" : "hidden"} flex-row w-full`}
               >
-                <div className="ml-2 text-white w-fit overflow-clip text-nowrap font-[] font-regular">
+                <div className="ml-2 text-white w-fit text-nowrap font-[] font-regular">
                   Vault
                 </div>
                 <div className="flex flex-row-reverse w-full">
@@ -228,9 +222,9 @@ const PanelLeft = ({ userType }: { userType: string }) => {
               className={`flex flex-col mt-2 overflow-scroll no-scrollbar gap-1 ${
                 isPanelOpen ? "" : "hidden"
               } ${
-                vaultIsOpen
+                !vaultIsOpen
                   ? "h-[0]"
-                  : optionRoundIsOpen
+                  : !optionRoundIsOpen
                     ? "h-[215px]"
                     : "h-[215px]"
               } transition-all duration-900ms `}
@@ -359,7 +353,15 @@ const PanelLeft = ({ userType }: { userType: string }) => {
           </div>
           <div className="flex flex-col w-full px-3 border-t-[1px] border-greyscale-800">
             <div
-              onClick={() => setOptionRoundIsOpen((state) => !state)}
+              onClick={() => {
+                if (isPanelOpen) {
+                  setOptionRoundIsOpen((state) => !state);
+                } else {
+                  setIsPanelOpen(true);
+                  setOptionRoundIsOpen(true);
+                  setVaultIsOpen(false);
+                }
+              }}
               className={`flex flex-row w-full mt-3 rounded-md p-3 ${
                 isPanelOpen
                   ? "justify-between cursor-pointer bg-faded-black"
@@ -376,7 +378,7 @@ const PanelLeft = ({ userType }: { userType: string }) => {
               <div
                 className={`${isPanelOpen ? "flex" : "hidden"} flex-row w-full`}
               >
-                <div className="ml-2 text-white w-fit overflow-clip text-nowrap font-regular">
+                <div className="ml-2 text-white w-fit text-nowrap font-regular">
                   Round
                 </div>
 
@@ -393,9 +395,9 @@ const PanelLeft = ({ userType }: { userType: string }) => {
               className={`flex flex-col mt-2 overflow-scroll no-scrollbar ${
                 isPanelOpen ? "" : "hidden"
               } ${
-                optionRoundIsOpen
+                !optionRoundIsOpen
                   ? "h-0"
-                  : vaultIsOpen
+                  : !vaultIsOpen
                     ? "h-[475px]"
                     : selectedRoundState?.roundState === "Settled"
                       ? "h-[335px]"
