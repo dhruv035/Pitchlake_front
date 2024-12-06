@@ -12,7 +12,7 @@ import {
 } from "@starknet-react/core";
 
 export const juno = {
-  id: BigInt("0x1111"),
+  id: BigInt("0x534e5f4a554e4f5f53455155454e434552"), // SN_JUNO_SEQUENCER
   network: "juno",
   name: "Juno Devnet",
   nativeCurrency: {
@@ -77,7 +77,7 @@ export const StarknetProvider = ({
 
   return (
     <StarknetConfig
-      chains={[sepolia, devnet, juno]}
+      chains={[sepolia, devnet, juno, mainnet]}
       provider={provider}
       connectors={connectors}
       explorer={voyager}
