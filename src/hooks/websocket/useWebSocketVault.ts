@@ -37,7 +37,7 @@ const useWebSocketVault = (conn: string, vaultAddress?: string) => {
   }, []);
 
   useEffect(() => {
-    if (conn === "ws" && isLoaded) {
+    if (conn === "ws" && isLoaded && vaultAddress) {
       ws.current = new WebSocket(
         `${process.env.NEXT_PUBLIC_WS_URL}/subscribeVault`
       );
@@ -55,6 +55,7 @@ const useWebSocketVault = (conn: string, vaultAddress?: string) => {
 
       ws.current.onmessage = (event: MessageEvent) => {
         const wsResponse: wsResponseType = JSON.parse(event.data);
+        console.log("RESPONSE",wsResponse)
         if (wsResponse.payloadType === "initial") {
           setWsVaultState(wsResponse.vaultState);
           const roundStates = wsResponse.optionRoundStates?.map((state) => {
@@ -72,7 +73,7 @@ const useWebSocketVault = (conn: string, vaultAddress?: string) => {
             } as OptionRoundStateType;
           });
           setWsOptionRoundStates(roundStates ?? []);
-          setWsLiquidityProviderState(wsResponse.liquidityProviderState);
+          setWsLiquidityProviderState(wsResponse.liquidityProviderState?.address?wsResponse.liquidityProviderState:undefined);
           setWsOptionBuyerStates(wsResponse.optionBuyerStates ?? []);
         } else if (wsResponse.payloadType === "account_update") {
           if (wsResponse.liquidityProviderState?.address)
@@ -133,7 +134,7 @@ const useWebSocketVault = (conn: string, vaultAddress?: string) => {
     return () => {
       ws.current?.close();
     };
-  }, [conn, isLoaded]);
+  }, [conn, isLoaded,vaultAddress]);
 
   useEffect(() => {
     if(ws.current?.readyState===1)
@@ -148,6 +149,7 @@ const useWebSocketVault = (conn: string, vaultAddress?: string) => {
       console.log(err);
     }
   }, [accountAddress]);
+
   return {
     wsVaultState,
     wsOptionRoundStates,
