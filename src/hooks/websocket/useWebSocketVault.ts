@@ -68,6 +68,8 @@ const useWebSocketVault = (conn: string, vaultAddress?: string) => {
             } as OptionRoundStateType;
           });
           setWsOptionRoundStates(roundStates ?? []);
+          setWsLiquidityProviderState(wsResponse.liquidityProviderState)
+          setWsOptionBuyerStates(wsResponse.optionBuyerStates??[])
         } else if (
           wsResponse.payloadType === "lp_update" &&
           wsResponse.liquidityProviderState

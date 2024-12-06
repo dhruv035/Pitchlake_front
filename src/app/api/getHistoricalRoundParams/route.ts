@@ -29,20 +29,21 @@ export async function GET(request: Request) {
   const vaultAddress = searchParams.get("vaultAddress");
   const fromRound = searchParams.get("fromRound");
   const toRound = searchParams.get("toRound");
+  const nodeUrl = searchParams.get("nodeUrl");
 
   // Validate required parameters
   try {
-    if (!vaultAddress || !fromRound || !toRound) {
+    if (!vaultAddress || !fromRound || !toRound || !nodeUrl) {
       return NextResponse.json(
         {
-          error: "Missing vaultAddress, fromRound, or toRound query parameter.",
+          error:
+            "Missing vaultAddress, fromRound, toRound, or nodeUrl query parameter.",
         },
         { status: 400 },
       );
     }
 
     // Create provider
-    const nodeUrl = process.env.NEXT_PUBLIC_RPC_URL_SEPOLIA;
     const provider = new RpcProvider({ nodeUrl });
 
     if (!nodeUrl || !provider) {
