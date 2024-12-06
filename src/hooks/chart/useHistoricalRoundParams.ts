@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { useProtocolContext } from "@/context/ProtocolProvider";
 import { useEffect } from "react";
+import { useProvider } from "@starknet-react/core";
 
 // Return type(s) for data and hook
 export interface ReadVaultRoundsResponse {
@@ -29,12 +30,14 @@ const fetchVaultRounds = async (
   vaultAddress: string | undefined,
   fromRound: number | undefined,
   toRound: number | undefined,
+  nodeUrl: string | undefined,
 ): Promise<ReadVaultRoundsResponse> => {
   const response = await axios.get("/api/getHistoricalRoundParams", {
     params: {
       vaultAddress,
       fromRound,
       toRound,
+      nodeUrl,
     },
   });
   return response.data;
@@ -51,10 +54,17 @@ export const useHistoricalRoundParams = ({
 }): UseVaultRoundsResult => {
   // Query UID
   const queryKey = ["roundHistoricalData", vaultAddress, fromRound, toRound];
+  const { provider } = useProvider();
 
   const { data, isLoading, isError, error } = useQuery({
     queryKey,
-    queryFn: () => fetchVaultRounds(vaultAddress, fromRound, toRound),
+    queryFn: () =>
+      fetchVaultRounds(
+        vaultAddress,
+        fromRound,
+        toRound,
+        provider?.channel?.nodeUrl,
+      ),
     enabled: !!vaultAddress && !!fromRound && !!toRound,
   });
 
