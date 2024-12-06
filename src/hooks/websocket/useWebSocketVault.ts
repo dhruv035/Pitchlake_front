@@ -31,6 +31,10 @@ const useWebSocketVault = (conn: string, vaultAddress?: string) => {
   >(null);
   const ws = useRef<WebSocket | null>(null);
   const { address: accountAddress } = useAccount();
+  const [isLoaded, setIsLoaded] = useState(false);
+  useEffect(() => {
+    setIsLoaded(true);
+  }, []);
 
   useEffect(() => {
     if (conn === "ws") {
@@ -68,8 +72,19 @@ const useWebSocketVault = (conn: string, vaultAddress?: string) => {
             } as OptionRoundStateType;
           });
           setWsOptionRoundStates(roundStates ?? []);
-          setWsLiquidityProviderState(wsResponse.liquidityProviderState)
-          setWsOptionBuyerStates(wsResponse.optionBuyerStates??[])
+          setWsLiquidityProviderState(wsResponse.liquidityProviderState);
+          setWsOptionBuyerStates(wsResponse.optionBuyerStates ?? []);
+        } else if (wsResponse.payloadType === "account_update") {
+          if (wsResponse.liquidityProviderState?.address)
+            setWsLiquidityProviderState(wsResponse.liquidityProviderState);
+          else {
+            setWsLiquidityProviderState(undefined)
+          }
+          if (wsResponse.optionBuyerStates?.length)
+            setWsOptionBuyerStates(wsResponse.optionBuyerStates);
+          else {
+            setWsOptionBuyerStates([])
+          }
         } else if (
           wsResponse.payloadType === "lp_update" &&
           wsResponse.liquidityProviderState
@@ -118,8 +133,20 @@ const useWebSocketVault = (conn: string, vaultAddress?: string) => {
     return () => {
       ws.current?.close();
     };
-  }, [conn, vaultAddress, accountAddress]);
+  }, [conn, vaultAddress]);
 
+  useEffect(() => {
+    try {
+      ws.current?.send(
+        JSON.stringify({
+          updatedField: "address",
+          updatedValue: accountAddress,
+        })
+      );
+    } catch (err) {
+      console.log(err);
+    }
+  }, [accountAddress]);
   return {
     wsVaultState,
     wsOptionRoundStates,
