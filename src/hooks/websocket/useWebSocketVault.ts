@@ -37,7 +37,7 @@ const useWebSocketVault = (conn: string, vaultAddress?: string) => {
   }, []);
 
   useEffect(() => {
-    if (conn === "ws") {
+    if (conn === "ws" && isLoaded) {
       ws.current = new WebSocket(
         `${process.env.NEXT_PUBLIC_WS_URL}/subscribeVault`
       );
@@ -133,9 +133,10 @@ const useWebSocketVault = (conn: string, vaultAddress?: string) => {
     return () => {
       ws.current?.close();
     };
-  }, [conn, vaultAddress]);
+  }, [conn, isLoaded]);
 
   useEffect(() => {
+    if(ws.current?.readyState===1)
     try {
       ws.current?.send(
         JSON.stringify({
