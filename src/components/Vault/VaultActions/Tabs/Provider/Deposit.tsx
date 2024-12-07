@@ -260,11 +260,11 @@ const Deposit: React.FC<DepositProps> = ({ showConfirmation }) => {
           <div className="px-6 flex justify-between text-sm mb-6 pt-6">
             <span className="text-gray-400">Unlocked Balance</span>
             <span className="text-white">
-              {lpState?.address && lpState?.unlockedBalance
-                ? parseFloat(
-                    formatEther(Number(lpState?.unlockedBalance?.toString())),
-                  ).toFixed(3)
-                : 0}{" "}
+              {parseFloat(
+                formatEther(
+                  Number(lpState?.unlockedBalance?.toString() || "0"),
+                ),
+              ).toFixed(3)}{" "}
               ETH
             </span>
           </div>
