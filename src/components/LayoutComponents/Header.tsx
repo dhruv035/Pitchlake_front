@@ -36,6 +36,7 @@ import { parseEther, formatEther } from "ethers";
 import useERC20 from "@/hooks/erc20/useERC20";
 import useAccountBalances from "@/hooks/vault/state/useAccountBalances";
 import { LoginIcon } from "../Icons";
+import useIsMobile from "@/hooks/window/useIsMobile";
 
 export default function Header() {
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -43,6 +44,7 @@ export default function Header() {
     useProtocolContext();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const isDropdownOpenRef = useRef(isDropdownOpen);
+  const { isMobile } = useIsMobile();
   const { connect, connectors } = useConnect();
   const { disconnect } = useDisconnect();
   const router = useRouter();
@@ -119,125 +121,129 @@ export default function Header() {
   };
 
   return (
-    <nav className="absolute top-0 z-50 w-full h-[84px] bg-[#121212] px-8 py-6 flex justify-between items-center border-b border-[#262626]">
-      <div className="flex-shrink-0">
-        <Image
-          onClick={() => {
-            router.push("/");
-          }}
-          src={logo_full}
-          alt="Pitchlake logo"
-          width={200}
-          height={100}
-          className="cursor-pointer h-8 sm:h-10 md:h-12 lg:h-14"
-          style={{ objectFit: "contain" }}
-        />
-      </div>
-
-      <div className="flex items-center space-x-4 text-[14px] font-medium">
-        {conn === "mock" && (
-          <div>
-            <p>{mockTimestamp.toString()}</p>
-            <button onClick={() => mockTimeForward()}>Forward Mock Time</button>
-          </div>
-        )}
-        {
-          //<div className="hover:cursor-pointer border-[1px] border-greyscale-800 p-2 rounded-md">
-          //  <BellIcon className="h-6 w-6 text-primary" />
-          //</div>
-        }
-        <div className="relative" ref={dropdownRef}>
-          {account ? (
-            <>
-              <button
-                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="flex items-center space-x-2 py-2 px-3 rounded-md border border-greyscale-800 w-[164px] h-[44px]"
-              >
-                <Image
-                  src={avatar}
-                  alt="User avatar"
-                  width={24}
-                  height={24}
-                  className="rounded-full"
-                />
-                <span className="text-white font-medium">
-                  {shortenString(account.address)}
-                </span>
-                <ChevronDownIcon className="h-4 w-4 text-white" />
-              </button>
-
-              {isDropdownOpen && (
-                <>
-                  <ProfileDropdown
-                    account={account}
-                    balance={balanceData}
-                    disconnect={disconnect}
-                    copyToClipboard={copyToClipboard}
-                  />
-                  <ToastContainer
-                    autoClose={3000}
-                    closeOnClick
-                    hideProgressBar={false}
-                    transition={Bounce}
-                    //theme="dark"
-                  />
-                </>
-              )}
-            </>
-          ) : (
-            <>
-              <button
-                className="flex flex-row min-w-16 bg-primary-400 text-black text-sm px-8 py-4 rounded-md w-[123px] h-[44px] items-center justify-center"
-                onClick={() => setIsDropdownOpen((state) => !state)}
-              >
-                <p>Connect</p>
-                <div>
-                  <LoginIcon
-                    classname="h-4 w-4 ml-1 text-[var(--buttongrey)]"
-                    stroke="#111111"
-                    fill="none"
-                  />
-                </div>
-              </button>
-              {isDropdownOpen && (
-                <div className="absolute right-0 h-[148px] w-[196px] text-sm flex flex-col mt-3 ">
-                  <div className="bg-[#161616] rounded-md">
-                    <div className="p-4 font-regular text-[12px] border border-transparent border-b-[#454545] ">
-                      CHOOSE A WALLET
-                    </div>
-                    {connectors.map((connector) => (
-                      <div
-                        key={connector.name}
-                        onClick={() => connect({ connector })}
-                        className="cursor-pointer sticky p-2 px-3 bg-[#161616] w-full text-[#FAFAFA] text-[14px] font-medium hover:bg-[#262626]"
-                      >
-                        {
-                          <div className="flex flex-row items-center">
-                            <Image
-                              src={
-                                connector.name === "braavos"
-                                  ? braavosIcon
-                                  : argent
-                              }
-                              alt="Login"
-                              width={20}
-                              height={30}
-                              className="m-2 pr-1"
-                              color="#BFBFBF"
-                              style={{ objectFit: "contain" }}
-                            />
-                            {connector.name.toLocaleUpperCase()}
-                          </div>
-                        }
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </>
-          )}
+    !isMobile && (
+      <nav className="absolute top-0 z-50 w-full h-[84px] bg-[#121212] px-8 py-6 flex justify-between items-center border-b border-[#262626]">
+        <div className="flex-shrink-0">
+          <Image
+            onClick={() => {
+              router.push("/");
+            }}
+            src={logo_full}
+            alt="Pitchlake logo"
+            width={200}
+            height={100}
+            className="cursor-pointer h-8 sm:h-10 md:h-12 lg:h-14"
+            style={{ objectFit: "contain" }}
+          />
         </div>
-      </div>
-    </nav>
+
+        <div className="flex items-center space-x-4 text-[14px] font-medium">
+          {conn === "mock" && (
+            <div>
+              <p>{mockTimestamp.toString()}</p>
+              <button onClick={() => mockTimeForward()}>
+                Forward Mock Time
+              </button>
+            </div>
+          )}
+          {
+            //<div className="hover:cursor-pointer border-[1px] border-greyscale-800 p-2 rounded-md">
+            //  <BellIcon className="h-6 w-6 text-primary" />
+            //</div>
+          }
+          <div className="relative" ref={dropdownRef}>
+            {account ? (
+              <>
+                <button
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                  className="flex items-center space-x-2 py-2 px-3 rounded-md border border-greyscale-800 w-[164px] h-[44px]"
+                >
+                  <Image
+                    src={avatar}
+                    alt="User avatar"
+                    width={24}
+                    height={24}
+                    className="rounded-full"
+                  />
+                  <span className="text-white font-medium">
+                    {shortenString(account.address)}
+                  </span>
+                  <ChevronDownIcon className="h-4 w-4 text-white" />
+                </button>
+
+                {isDropdownOpen && (
+                  <>
+                    <ProfileDropdown
+                      account={account}
+                      balance={balanceData}
+                      disconnect={disconnect}
+                      copyToClipboard={copyToClipboard}
+                    />
+                    <ToastContainer
+                      autoClose={3000}
+                      closeOnClick
+                      hideProgressBar={false}
+                      transition={Bounce}
+                      //theme="dark"
+                    />
+                  </>
+                )}
+              </>
+            ) : (
+              <>
+                <button
+                  className="flex flex-row min-w-16 bg-primary-400 text-black text-sm px-8 py-4 rounded-md w-[123px] h-[44px] items-center justify-center"
+                  onClick={() => setIsDropdownOpen((state) => !state)}
+                >
+                  <p>Connect</p>
+                  <div>
+                    <LoginIcon
+                      classname="h-4 w-4 ml-1 text-[var(--buttongrey)]"
+                      stroke="#111111"
+                      fill="none"
+                    />
+                  </div>
+                </button>
+                {isDropdownOpen && (
+                  <div className="absolute right-0 h-[148px] w-[196px] text-sm flex flex-col mt-3 ">
+                    <div className="bg-[#161616] rounded-md">
+                      <div className="p-4 font-regular text-[12px] border border-transparent border-b-[#454545] ">
+                        CHOOSE A WALLET
+                      </div>
+                      {connectors.map((connector) => (
+                        <div
+                          key={connector.name}
+                          onClick={() => connect({ connector })}
+                          className="cursor-pointer sticky p-2 px-3 bg-[#161616] w-full text-[#FAFAFA] text-[14px] font-medium hover:bg-[#262626]"
+                        >
+                          {
+                            <div className="flex flex-row items-center">
+                              <Image
+                                src={
+                                  connector.name === "braavos"
+                                    ? braavosIcon
+                                    : argent
+                                }
+                                alt="Login"
+                                width={20}
+                                height={30}
+                                className="m-2 pr-1"
+                                color="#BFBFBF"
+                                style={{ objectFit: "contain" }}
+                              />
+                              {connector.name.toLocaleUpperCase()}
+                            </div>
+                          }
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+      </nav>
+    )
   );
 }
