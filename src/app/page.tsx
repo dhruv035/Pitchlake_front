@@ -32,11 +32,11 @@ export default function Home() {
   }
 
   return (
-    <div className="flex flex-grow flex-col px-8 mt-6 w-full ">
+    <div className="flex flex-grow flex-col px-8 mt-4 w-full ">
       <p className="my-2 text-base text-white-alt py-2 font-medium">
         Popular Vaults
       </p>
-      <div className="grid grid-cols-2 w-full pt-6 gap-x-6 gap-y-6">
+      <div className="grid grid-cols-2 w-full pt-4 gap-x-6 gap-y-6">
         {vaults?.map((vault: string, index: number) => (
           // <VaultTimeline key={vault.address + idx.toString()} vault={vault} />
           <VaultCard key={index} vaultAddress={vault} />
