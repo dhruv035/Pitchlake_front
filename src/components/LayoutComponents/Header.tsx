@@ -7,6 +7,7 @@ import logo_full from "@/../public/logo_full.svg";
 import login from "@/../public/login.svg";
 import braavosIcon from "@/../public/braavos.svg";
 import argent from "@/../public/argent.svg";
+import keplr from "@/../public/keplr.svg";
 import avatar from "@/../public/avatar.svg";
 import { toast, ToastContainer, Bounce } from "react-toastify";
 import {
@@ -222,7 +223,9 @@ export default function Header() {
                                 src={
                                   connector.name === "braavos"
                                     ? braavosIcon
-                                    : argent
+                                    : connector.name === "argentX"
+                                      ? argent
+                                      : keplr
                                 }
                                 alt="Login"
                                 width={20}
