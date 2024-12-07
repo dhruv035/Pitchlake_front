@@ -24,10 +24,10 @@ const Refund: React.FC<RefundProps> = ({ showConfirmation }) => {
   const { roundActions, selectedRoundBuyerState } = useProtocolContext();
   const { pendingTx } = useTransactionContext();
 
-  const refundBalanceWei = selectedRoundBuyerState
-    ? selectedRoundBuyerState.refundableBalance
-    : "0";
-  const refundBalanceEth = formatEther(num.toBigInt(refundBalanceWei));
+  const refundBalanceWei: BigInt = selectedRoundBuyerState
+    ? BigInt(selectedRoundBuyerState.refundableBalance)
+    : BigInt(0);
+  const refundBalanceEth = formatEther(refundBalanceWei.toString());
 
   const handleRefundBid = async (): Promise<void> => {
     address && (await roundActions?.refundUnusedBids({ optionBuyer: address }));
