@@ -1,32 +1,35 @@
 "use client";
-import buttonClass from "@/styles/Button.module.css";
-import styles from "./page.module.css";
-import { useConnect } from "@starknet-react/core";
-import { Button } from "antd";
-import { useEffect, useRef, useState } from "react";
 import VaultCard from "@/components/VaultCard/VaultCard";
 import useWebSocketHome from "@/hooks/websocket/useWebSocketHome";
+import useIsMobile from "@/hooks/window/useIsMobile";
 
 export default function Home() {
-  // console.log("CHECK THIS LOG", process.env.NEXT_PUBLIC_VAULT_ADDRESSES);
-  // console.log("CHECK THIS LOG", process.env.NEXT_PUBLIC_WS_URL);
-
-  //  console.log(vaultsRaw);
-  //
-  //  const vaults = [
-  //    "0x038cfc94b5626c9355910304622f8270eaef77b62cb850e1ca0e38ecedcdee5b",
-  //    "0x2cbdf2381224c850975613fb42848ae1a3a608d91bcd7d7a59dcc2b459d98d4",
-  //
-  //    // short round
-  //    "0x13257401fd2df63db6464035ab3ed13f3ef84ae71a07054f50d7bd20311e0a3",
-  //    "0x8f4e98c8c7f2698ff9a98df855116154f0482b93127dc79b15f05effbe8237",
-  //  ];
-
   const { vaults: wsVaults } = useWebSocketHome();
   const vaults =
     process.env.NEXT_PUBLIC_ENVIRONMENT === "ws"
       ? wsVaults
       : process.env.NEXT_PUBLIC_VAULT_ADDRESSES?.split(",");
+
+  const { isMobile } = useIsMobile();
+
+  if (isMobile) {
+    return (
+      <div className="flex flex-row items-center justify-center absolute top-0 left-0 right-0 bottom-0">
+        <div className="flex flex-col items-center p-6 mb-4 bg-[#121212] border border-[#262626] rounded-lg flex flex-col max-w-[326px] m-5">
+          <div className="bg-[#F5EBB8] rounded-full w-[48px] h-[48px] flex items-center justify-center mx-auto mb-6 border-[8px] border-[#524F44]">
+            <span className="text-black text-2xl font-bold ">!</span>
+          </div>
+
+          <h2 className="text-center text-white text-[16px] my-[0.5rem]">
+            Device Not Supported
+          </h2>
+          <p className="text-gray-400 text-center text-[14px]">
+            Please use a desktop or laptop to access Pitchlake.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-grow flex-col px-8 mt-6 w-full ">
