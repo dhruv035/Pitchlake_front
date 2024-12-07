@@ -14,11 +14,7 @@ import { formatNumberText } from "@/lib/utils";
 import { useTransactionContext } from "@/context/TransactionProvider";
 import useLatestTimetamp from "@/hooks/chain/useLatestTimestamp";
 import { useProvider } from "@starknet-react/core";
-import {
-  useContractWrite,
-  useWaitForTransaction,
-  useContract,
-} from "@starknet-react/core";
+import { useContractWrite, useContract } from "@starknet-react/core";
 import { erc20ABI, optionRoundABI } from "@/lib/abi";
 
 interface PlaceBidProps {
@@ -152,7 +148,7 @@ const PlaceBid: React.FC<PlaceBidProps> = ({ showConfirmation }) => {
       </>,
       async () => {
         await handleMulticall();
-        setState((prevState) => ({ ...prevState, amount: "" }));
+        setState((prevState) => ({ ...prevState, bidAmount: "" }));
       },
     );
   };
@@ -201,7 +197,8 @@ const PlaceBid: React.FC<PlaceBidProps> = ({ showConfirmation }) => {
     } else if (Number(state.bidAmount) == 0) {
       amountReason = "Amount must be greater than 0";
     } else if (
-      Number(state.bidAmount) > Number(selectedRoundState?.availableOptions)
+      BigInt(state.bidAmount) >
+      BigInt(selectedRoundState?.availableOptions?.toString() || "0")
     ) {
       amountReason = "Amount is more than total available";
     }
@@ -247,7 +244,15 @@ const PlaceBid: React.FC<PlaceBidProps> = ({ showConfirmation }) => {
         ? totalWei.toString()
         : "0",
     );
-  }, [account, timestamp, state.bidAmount, state.bidPrice, allowance]);
+  }, [
+    account,
+    timestamp,
+    state.bidAmount,
+    state.bidPrice,
+    allowance,
+    selectedRoundState?.availableOptions,
+    selectedRoundState?.reservePrice,
+  ]);
 
   return (
     <div className="flex flex-col h-full">
@@ -280,9 +285,6 @@ const PlaceBid: React.FC<PlaceBidProps> = ({ showConfirmation }) => {
             />
           }
           error={state.isPriceOk}
-          //          icon={
-          //            <Currency className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400" />
-          //          }
         />
       </div>
       <div className="flex justify-between text-sm px-6 pb-1">
