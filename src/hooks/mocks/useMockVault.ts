@@ -131,9 +131,9 @@ const useMockVault = (selectedRound: number, address?: string) => {
         ...prevState,
         {
           address: address ?? "0x1",
-          roundId: BigInt(vaultState.currentRoundId) + BigInt(1),
-          tokenizableOptions: "",
-          refundableBalance: "",
+          roundAddress: "0x1",
+          mintableOptions: "",
+          refundableOptions: "",
           bids: [],
           totalOptions: "0",
           payoutBalance: "0",

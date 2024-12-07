@@ -120,7 +120,9 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
     return [];
   }, [conn, optionRoundStatesMock, wsOptionRoundStates]);
 
+
   const optionBuyerStates = useMemo(() => {
+    console.log("wsOptionBuyer",wsOptionBuyerStates)
     if (conn === "ws") return wsOptionBuyerStates;
     if (conn === "mock") return optionBuyerStatesMock;
     return [];
@@ -142,11 +144,18 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
   ]);
   const selectedRoundBuyerState = useMemo(() => {
     if (conn === "rpc") return selectedRoundBuyerStateRPC;
-    else if (selectedRound !== 0) {
-      return optionBuyerStates[Number(selectedRound) - 1];
-    } else return undefined;
-  }, [conn, selectedRound, optionBuyerStates, selectedRoundBuyerStateRPC]);
+    if (conn === "mock")
+      return optionBuyerStatesMock[Number(selectedRound) - 1];
+    console.log("HERE",optionBuyerStates, selectedRoundState)
+       const match = optionBuyerStates.find(state=>{
+        console.log("COMP",state.roundAddress===selectedRoundState?.address, state.roundAddress, selectedRoundState?.address)
+        return state.roundAddress===selectedRoundState?.address
+       })
+       console.log()
+       return match
+  }, [conn, selectedRoundState?.address, optionBuyerStates, selectedRoundBuyerStateRPC]);
 
+  console.log("SELECTBUYER",selectedRoundBuyerState)
   //Protocol actions
   const vaultActions = useMemo(() => {
     if (conn !== "mock") return vaultActionsChain;

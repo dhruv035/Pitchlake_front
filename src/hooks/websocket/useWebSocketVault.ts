@@ -30,7 +30,7 @@ const useWebSocketVault = (conn: string, vaultAddress?: string) => {
     OptionBuyerStateType[] | null
   >(null);
   const ws = useRef<WebSocket | null>(null);
-  const { address: accountAddress } = useAccount();
+const accountAddress = "0x1dd67753928b83f761a5d8b387bf02f257926c36c27e11ac38257000097efa1"
   const [isLoaded, setIsLoaded] = useState(false);
   useEffect(() => {
     setIsLoaded(true);

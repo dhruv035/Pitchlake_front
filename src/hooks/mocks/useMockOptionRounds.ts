@@ -51,8 +51,8 @@ const useMockOptionRounds = (selectedRound: number) => {
     {
       address: address ?? "0x1",
       roundId: 0,
-      tokenizableOptions: 11,
-      refundableBalance: 24,
+      mintableOptions: 11,
+      refundableOptions: 24,
       totalOptions: 35,
       payoutBalance: 100,
       bids: [],
