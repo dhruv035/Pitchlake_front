@@ -262,7 +262,7 @@ const Deposit: React.FC<DepositProps> = ({ showConfirmation }) => {
             <span className="text-white">
               {parseFloat(
                 formatEther(
-                  Number(lpState?.unlockedBalance?.toString() || "0"),
+                  BigInt(lpState?.unlockedBalance?.toString() || "0"),
                 ),
               ).toFixed(3)}{" "}
               ETH
