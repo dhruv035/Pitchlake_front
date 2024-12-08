@@ -39,7 +39,7 @@ const useFossilStatus = () => {
 
       const jobId = createJobId(targetTimestamp, roundDuration);
       const response = await fetch(
-        `${process.env.NEXT_PUBsLIC_FOSSIL_API_URL}/job_status/${jobId}`
+        `${process.env.NEXT_PUBLIC_FOSSIL_API_URL}/job_status/${jobId}`
       );
 
       if (!response.ok) throw new Error("Network response was not ok");

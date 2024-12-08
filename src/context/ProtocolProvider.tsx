@@ -48,7 +48,7 @@ export type ProtocolContextType = {
   selectedRoundBuyerState?: OptionBuyerStateType;
   setVaultAddress: Dispatch<SetStateAction<string | undefined>>;
   mockTimeForward: () => void;
-  mockTimestamp: number;
+timestamp:number;
   selectedRoundAddress: string | undefined;
   currentRoundAddress: string | undefined;
 };
@@ -72,8 +72,8 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
 
   const timestamp = useMemo(()=>{
     if(conn==="mock") return mockTimestamp
-    else return block?.timestamp
-  },[mockTimestamp])
+    else return block?.timestamp??0
+  },[mockTimestamp,block?.timestamp])
   //Mock States
   const {
     optionRoundStates: optionRoundStatesMock,
@@ -209,7 +209,7 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
       setVaultAddress,
       selectedRoundBuyerState,
       mockTimeForward,
-      mockTimestamp,
+      timestamp,
       selectedRoundAddress: undefined,
       currentRoundAddress,
     }),
@@ -228,7 +228,7 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
       selectedRoundState,
       selectedRoundBuyerState,
       mockTimeForward,
-      mockTimestamp,
+      timestamp,
       currentRoundAddress,
     ],
   );
