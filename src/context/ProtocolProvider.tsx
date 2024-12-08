@@ -47,7 +47,7 @@ export type ProtocolContextType = {
   selectedRoundBuyerState?: OptionBuyerStateType;
   setVaultAddress: Dispatch<SetStateAction<string | undefined>>;
   mockTimeForward: () => void;
-  mockTimestamp: Number;
+  mockTimestamp: number;
   selectedRoundAddress: string | undefined;
   currentRoundAddress: string | undefined;
 };
@@ -155,7 +155,6 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
        return match
   }, [conn, selectedRoundState?.address, optionBuyerStates, selectedRoundBuyerStateRPC]);
 
-  console.log("SELECTBUYER",selectedRoundBuyerState)
   //Protocol actions
   const vaultActions = useMemo(() => {
     if (conn !== "mock") return vaultActionsChain;

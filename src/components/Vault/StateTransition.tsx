@@ -4,9 +4,7 @@ import useLatestTimestamp from "@/hooks/chain/useLatestTimestamp";
 import { useMemo, useState, useEffect } from "react";
 import useFossilStatus from "@/hooks/fossil/useFossilStatus";
 import { getDurationForRound, getTargetTimestampForRound } from "@/lib/utils";
-import { makeFossilCall } from "@/services/fossilRequest";
 import { useTransactionContext } from "@/context/TransactionProvider";
-import { num } from "starknet";
 import { useRoundState } from "@/hooks/stateTransition/useRoundState";
 import { useIsDisabled } from "@/hooks/stateTransition/useIsDisabled";
 import { getIconByRoundState } from "@/hooks/stateTransition/getIconByRoundState";
@@ -19,11 +17,10 @@ const StateTransition = ({
   isPanelOpen: boolean;
   setModalState: any;
 }) => {
-  const { vaultState, vaultActions, selectedRoundState } = useProtocolContext();
+  const { vaultState, vaultActions, selectedRoundState,mockTimestamp:timestampRaw } = useProtocolContext();
   const { pendingTx } = useTransactionContext();
   const { account } = useAccount();
   const { provider } = useProvider();
-  const { timestamp: timestampRaw } = useLatestTimestamp(provider);
   const timestamp = timestampRaw ? timestampRaw : "0";
   const {
     status: fossilStatus,
@@ -42,6 +39,7 @@ const StateTransition = ({
     isAwaitingRoundStateUpdate,
   });
 
+  console.log("roundState,prevRoundState",roundState,prevRoundState)
   const FOSSIL_DELAY = 15 * 60;
 
   const {
@@ -54,6 +52,11 @@ const StateTransition = ({
     selectedRoundState,
     FOSSIL_DELAY,
   );
+  
+  console.log("cNs",canAuctionStart,
+    canAuctionEnd,
+    canRoundSettle,
+    canSendFossilRequest)
 
   const actions: Record<string, string> = useMemo(
     () => ({
@@ -131,6 +134,7 @@ const StateTransition = ({
     roundState === "Settled" ||
     vaultState.currentRoundId !== selectedRoundState.roundId
   ) {
+    console.log("CURRENT",vaultState.currentRoundId,selectedRoundState.roundId)
     return null;
   }
 

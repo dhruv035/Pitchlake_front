@@ -8,6 +8,7 @@ export const useRoundPermissions = (
   FOSSIL_DELAY: number,
 ) => {
   const canAuctionStart = useMemo(() => {
+    console.log("TIMESTAMPS",timestamp,selectedRoundState?.auctionStartDate )
     return (
       num.toBigInt(timestamp) >= Number(selectedRoundState?.auctionStartDate)
     );

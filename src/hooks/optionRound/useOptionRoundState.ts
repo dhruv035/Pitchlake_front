@@ -238,7 +238,7 @@ const useOptionRoundState = (address: string | undefined) => {
     optionBuyerState: {
       address: account?.address as string,
       bids: bids ? bids : [],
-      roundId: roundId ? roundId.toString() : 0,
+      roundAddress:address,
       bidderNonce: biddingNonce ? biddingNonce.toString() : 0,
       refundableOptions: refundableBids ? refundableBids.toString() : 0,
       mintableOptions: mintableOptions

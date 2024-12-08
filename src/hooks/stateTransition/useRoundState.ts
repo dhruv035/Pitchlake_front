@@ -15,6 +15,14 @@ const getRoundState = ({
   isPendingTx: boolean;
   isAwaitingRoundStateUpdate: boolean;
 }): string => {
+  console.log(
+    "SElecte",
+    selectedRoundState,
+    fossilStatus,
+    fossilError,
+    isPendingTx,
+    isAwaitingRoundStateUpdate
+  );
   if (
     isPendingTx ||
     isAwaitingRoundStateUpdate ||
