@@ -55,7 +55,6 @@ const accountAddress = "0x1dd67753928b83f761a5d8b387bf02f257926c36c27e11ac382570
 
       ws.current.onmessage = (event: MessageEvent) => {
         const wsResponse: wsResponseType = JSON.parse(event.data);
-        console.log("RESPONSE",wsResponse)
         if (wsResponse.payloadType === "initial") {
           setWsVaultState(wsResponse.vaultState);
           const roundStates = wsResponse.optionRoundStates?.map((state) => {

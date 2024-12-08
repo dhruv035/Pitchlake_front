@@ -39,7 +39,6 @@ const StateTransition = ({
     isAwaitingRoundStateUpdate,
   });
 
-  console.log("roundState,prevRoundState",roundState,prevRoundState,fossilStatus)
   const FOSSIL_DELAY = 15 * 60;
 
   const {
@@ -53,10 +52,6 @@ const StateTransition = ({
     FOSSIL_DELAY,
   );
   
-  console.log("cNs",canAuctionStart,
-    canAuctionEnd,
-    canRoundSettle,
-    canSendFossilRequest)
 
   const actions: Record<string, string> = useMemo(
     () => ({
@@ -138,7 +133,6 @@ const StateTransition = ({
     roundState === "Settled" ||
     vaultState.currentRoundId !== selectedRoundState.roundId
   ) {
-    console.log("CURRENT",vaultState.currentRoundId,selectedRoundState.roundId)
     return null;
   }
 

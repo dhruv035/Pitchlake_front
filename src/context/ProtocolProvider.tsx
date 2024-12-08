@@ -130,7 +130,6 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
 
 
   const optionBuyerStates = useMemo(() => {
-    console.log("wsOptionBuyer",wsOptionBuyerStates)
     if (conn === "ws") return wsOptionBuyerStates;
     if (conn === "mock") return optionBuyerStatesMock;
     return [];
@@ -154,9 +153,7 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
     if (conn === "rpc") return selectedRoundBuyerStateRPC;
     if (conn === "mock")
       return optionBuyerStatesMock[Number(selectedRound) - 1];
-    console.log("HERE",optionBuyerStates, selectedRoundState)
        const match = optionBuyerStates.find(state=>{
-        console.log("COMP",state.roundAddress===selectedRoundState?.address, state.roundAddress, selectedRoundState?.address)
         return state.roundAddress===selectedRoundState?.address
        })
        console.log()

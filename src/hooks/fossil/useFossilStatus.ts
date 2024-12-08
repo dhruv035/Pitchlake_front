@@ -20,19 +20,14 @@ console.log("selectedRoundState",selectedRoundState)
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
-  console.log("statusData",statusData)
   const fetchStatus = useCallback(async () => {
-    console.log("target",targetTimestamp)
     if (!selectedRoundState) return;
-    console.log("ATLEAST target",targetTimestamp)
     if (targetTimestamp === 0) return;
     if (conn === "mock") {
-      console.log("ATLEAST HERE", selectedRoundState)
       if (
         selectedRoundState.roundState === "FossilReady" ||
         selectedRoundState.roundState === "Running"
       ) {
-        console.log("ALSO ATLEAST HERE")
         setStatusData({
           status: "Completed",
         } as StatusData);
@@ -50,7 +45,6 @@ console.log("selectedRoundState",selectedRoundState)
 
       if (!response.ok) throw new Error("Network response was not ok");
 
-      console.log("REACHING HERE ALSO THOUGH")
       const data = await response.json();
       setStatusData(data);
       setError(null);
