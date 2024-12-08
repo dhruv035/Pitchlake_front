@@ -146,9 +146,7 @@ const useVaultState = ({
   const { optionRoundState:selectedRoundState, optionBuyerState:selectedRoundBuyerState } =
     useOptionRoundState(usableString);
 
-  const roundAction = useOptionRoundActions(usableString);
-
-  const roundActions = useMemo(() => roundAction, [roundAction]);
+  const roundActions = useOptionRoundActions(usableString);
 
   const k = strikeLevel ? Number(strikeLevel.toString()) : 0;
   const vaultType = k > 0 ? "OTM" : k == 0 ? "ATM" : "ITM";
