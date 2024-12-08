@@ -12,27 +12,45 @@ export interface StatusData {
 }
 
 const useFossilStatus = () => {
-  const { selectedRoundState } = useProtocolContext();
+  const { selectedRoundState, conn } = useProtocolContext();
   const targetTimestamp = getTargetTimestampForRound(selectedRoundState);
   const roundDuration = getDurationForRound(selectedRoundState);
-
+console.log("selectedRoundState",selectedRoundState)
   const [statusData, setStatusData] = useState<StatusData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
+  console.log("statusData",statusData)
   const fetchStatus = useCallback(async () => {
+    console.log("target",targetTimestamp)
     if (!selectedRoundState) return;
+    console.log("ATLEAST target",targetTimestamp)
     if (targetTimestamp === 0) return;
+    if (conn === "mock") {
+      console.log("ATLEAST HERE", selectedRoundState)
+      if (
+        selectedRoundState.roundState === "FossilReady" ||
+        selectedRoundState.roundState === "Running"
+      ) {
+        console.log("ALSO ATLEAST HERE")
+        setStatusData({
+          status: "Completed",
+        } as StatusData);
+      }
+      return;
+    }
 
     setLoading(true);
     try {
+
       const jobId = createJobId(targetTimestamp, roundDuration);
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_FOSSIL_API_URL}/job_status/${jobId}`,
+        `${process.env.NEXT_PUBsLIC_FOSSIL_API_URL}/job_status/${jobId}`
       );
 
       if (!response.ok) throw new Error("Network response was not ok");
 
+      console.log("REACHING HERE ALSO THOUGH")
       const data = await response.json();
       setStatusData(data);
       setError(null);
@@ -41,7 +59,7 @@ const useFossilStatus = () => {
     } finally {
       setLoading(false);
     }
-  }, [targetTimestamp]);
+  }, [targetTimestamp, conn]);
 
   useEffect(() => {
     if (
@@ -65,7 +83,7 @@ const useFossilStatus = () => {
     return () => {
       clearInterval(intervalId);
     };
-  }, [fetchStatus, targetTimestamp]);
+  }, [fetchStatus, targetTimestamp, selectedRoundState?.roundState]);
 
   return { status: statusData, error, loading, setStatusData };
 };

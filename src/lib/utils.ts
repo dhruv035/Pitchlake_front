@@ -72,6 +72,8 @@ export const createJobId = (
 export const getTargetTimestampForRound = (
   roundState: OptionRoundStateType | undefined
 ): number => {
+  console.log("CHECK THIS ",
+    roundState?.deploymentDate)
   if (
     !roundState ||
     !roundState.roundId ||

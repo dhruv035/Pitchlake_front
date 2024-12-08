@@ -17,7 +17,7 @@ const StateTransition = ({
   isPanelOpen: boolean;
   setModalState: any;
 }) => {
-  const { vaultState, vaultActions, selectedRoundState,mockTimestamp:timestampRaw } = useProtocolContext();
+  const { vaultState, vaultActions, selectedRoundState,mockTimestamp:timestampRaw,conn } = useProtocolContext();
   const { pendingTx } = useTransactionContext();
   const { account } = useAccount();
   const { provider } = useProvider();
@@ -39,7 +39,7 @@ const StateTransition = ({
     isAwaitingRoundStateUpdate,
   });
 
-  console.log("roundState,prevRoundState",roundState,prevRoundState)
+  console.log("roundState,prevRoundState",roundState,prevRoundState,fossilStatus)
   const FOSSIL_DELAY = 15 * 60;
 
   const {
@@ -71,6 +71,9 @@ const StateTransition = ({
 
   const handleAction = async () => {
     if (roundState === "FossilReady") {
+      if(conn!=="mock"){
+        
+      
       const response = await fetch("/api/sendFossilRequest", {
         method: "POST",
         headers: {
@@ -92,6 +95,7 @@ const StateTransition = ({
       } else {
         setFossilStatus({ status: "Pending", error: undefined });
       }
+    }
     } else if (roundState === "Open") {
       await vaultActions.startAuction();
     } else if (roundState === "Auctioning") {

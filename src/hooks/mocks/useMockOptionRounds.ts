@@ -33,7 +33,7 @@ const useMockOptionRounds = (selectedRound: number) => {
         auctionStartDate: date + 200000,
         auctionEndDate: date + 400000,
         optionSettleDate: date + 600000,
-        deploymentDate: "",
+        deploymentDate: "1",
         soldLiquidity: "",
         unsoldLiquidity: "",
         optionSold: "",

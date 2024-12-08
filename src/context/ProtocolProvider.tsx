@@ -82,7 +82,7 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
     vaultActions: vaultActionsMock,
     optionRoundActions: roundActionsMock,
     optionBuyerStates: optionBuyerStatesMock,
-  } = useMockVault(selectedRound, vaultAddress);
+  } = useMockVault(selectedRound, mockTimestamp??0,vaultAddress);
 
   //RPC States
   const {
