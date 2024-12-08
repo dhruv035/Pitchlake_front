@@ -156,7 +156,6 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
        const match = optionBuyerStates.find(state=>{
         return state.roundAddress===selectedRoundState?.address
        })
-       console.log()
        return match
   }, [conn, selectedRoundState?.address, optionBuyerStates, selectedRoundBuyerStateRPC]);
 

@@ -15,7 +15,6 @@ const useFossilStatus = () => {
   const { selectedRoundState, conn } = useProtocolContext();
   const targetTimestamp = getTargetTimestampForRound(selectedRoundState);
   const roundDuration = getDurationForRound(selectedRoundState);
-console.log("selectedRoundState",selectedRoundState)
   const [statusData, setStatusData] = useState<StatusData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
