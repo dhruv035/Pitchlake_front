@@ -167,28 +167,30 @@ const useOptionRoundState = (address: string | undefined) => {
   });
 
   const getPerformanceLP = () => {
-    const soldLiq = soldLiquidity ? Number(soldLiquidity.toString()) : 0;
-    const prem = premiums ? Number(premiums.toString()) : 0;
-    const payout = totalPayout ? Number(totalPayout.toString()) : 0;
+    const soldLiq = soldLiquidity
+      ? BigInt(soldLiquidity.toString())
+      : BigInt(0);
+    const prem = premiums ? BigInt(premiums.toString()) : BigInt(0);
+    const payout = totalPayout ? BigInt(totalPayout.toString()) : BigInt(0);
 
-    if (soldLiq == 0) return 0;
+    if (soldLiq === BigInt(0)) return 0;
 
     const gainLoss = prem - payout;
-    const percentage = Number(((gainLoss / soldLiq) * 100).toFixed(2));
+    const percentage = Number((Number(gainLoss / soldLiq) * 100).toFixed(2));
 
     const sign = percentage > 0 ? "+" : "";
     return `${sign}${percentage}`;
   };
 
   const getPerformanceOB = () => {
-    const prem = premiums ? Number(premiums.toString()) : 0;
-    const payout = totalPayout ? Number(totalPayout.toString()) : 0;
+    const prem = premiums ? BigInt(premiums.toString()) : BigInt(0);
+    const payout = totalPayout ? BigInt(totalPayout.toString()) : BigInt(0);
 
-    if (prem == 0) {
+    if (prem === BigInt(0)) {
       return 0;
     } else {
       const gainLoss = payout - prem;
-      const percentage = Number(((gainLoss / prem) * 100).toFixed(2));
+      const percentage = Number((Number(gainLoss / prem) * 100).toFixed(2));
 
       const sign = percentage > 0 ? "+" : "";
       return `${sign}${percentage}`;
