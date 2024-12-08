@@ -24,6 +24,7 @@ import {
   VaultStateType,
 } from "@/lib/types";
 import { useHistoricalRoundParams } from "@/hooks/chart/useHistoricalRoundParams";
+import { useBlock, useNetwork } from "@starknet-react/core";
 
 /*This is the bridge for any transactions to go through, it's disabled by isTxDisabled if there is data loading or if
   there's a pending transaction. The data loading is enforced to ensure no transaction is done without latest data.
@@ -62,10 +63,17 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
 
   const [selectedRound, setSelectedRound] = useState<number>(0);
   const [mockTimestamp, setMockTimestamp] = useState(0);
+  const {data:block} = useBlock({
+    refetchInterval:5000,    
+  });
   const mockTimeForward = () => {
     if (conn === "mock") setMockTimestamp((prevState) => prevState + 100001);
   };
 
+  const timestamp = useMemo(()=>{
+    if(conn==="mock") return mockTimestamp
+    else return block?.timestamp
+  },[mockTimestamp])
   //Mock States
   const {
     optionRoundStates: optionRoundStatesMock,
