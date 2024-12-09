@@ -192,6 +192,7 @@ const PlaceBid: React.FC<PlaceBidProps> = ({ showConfirmation }) => {
     } else if (!account) {
       amountReason = "Connect account";
     } else if (state.bidAmount == "") {
+      // amountReason = "Enter amount";
     } else if (Number(state.bidAmount) < 0) {
       amountReason = "Amount must be positive";
     } else if (Number(state.bidAmount) == 0) {
@@ -214,6 +215,7 @@ const PlaceBid: React.FC<PlaceBidProps> = ({ showConfirmation }) => {
     } else if (!account) {
       priceReason = "Connect account";
     } else if (state.bidPrice == "") {
+      // priceReason = "Enter price";
     } else if (Number(state.bidPrice) < 0) {
       priceReason = "Price must be positive";
     } else if (Number(state.bidPrice) < Number(reservePriceGwei)) {
@@ -223,6 +225,7 @@ const PlaceBid: React.FC<PlaceBidProps> = ({ showConfirmation }) => {
     const isButtonDisabled = (): boolean => {
       if (pendingTx) return true;
       if (priceReason !== "" || amountReason !== "") return true;
+      if (!state.bidAmount || !state.bidPrice) return true;
       return false;
     };
 

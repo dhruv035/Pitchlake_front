@@ -172,6 +172,7 @@ const Deposit: React.FC<DepositProps> = ({ showConfirmation }) => {
     if (!account) {
       amountReason = "Connect account";
     } else if (state.amount == "") {
+      //amountReason = "Enter amount";
     } else if (Number(state.amount) < 0) {
       amountReason = "Amount must be positive";
     } else if (Number(state.amount) === 0) {
@@ -193,7 +194,7 @@ const Deposit: React.FC<DepositProps> = ({ showConfirmation }) => {
     const isButtonDisabled = (): boolean => {
       //if (!account) return true;
       if (pendingTx) return true;
-      if (amountReason !== "") return true;
+      if (amountReason !== "" || state.amount === "") return true;
       if (beneficiaryReason !== "") return true;
       return false;
     };
