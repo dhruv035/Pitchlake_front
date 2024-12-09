@@ -4,16 +4,22 @@ import {
   OptionRoundStateType,
   LiquidityProviderStateType,
   OptionBuyerStateType,
+  Bid,
 } from "@/lib/types";
 import { useAccount } from "@starknet-react/core";
 import { getPerformanceLP, getPerformanceOB } from "@/lib/utils";
 
+type BidData = {
+  operation: string;
+  bid: Bid;
+};
 type wsResponseType = {
   payloadType: string;
   liquidityProviderState?: LiquidityProviderStateType;
   optionBuyerStates?: OptionBuyerStateType[];
-  vaultState: VaultStateType;
+  vaultState?: VaultStateType;
   optionRoundStates?: OptionRoundStateType[];
+  bidData?: BidData;
 };
 
 const useWebSocketVault = (conn: string, vaultAddress?: string) => {
@@ -30,7 +36,7 @@ const useWebSocketVault = (conn: string, vaultAddress?: string) => {
     OptionBuyerStateType[] | null
   >(null);
   const ws = useRef<WebSocket | null>(null);
-const {address:accountAddress} = useAccount()
+  const { address: accountAddress } = useAccount();
   const [isLoaded, setIsLoaded] = useState(false);
   useEffect(() => {
     setIsLoaded(true);
@@ -72,18 +78,43 @@ const {address:accountAddress} = useAccount()
             } as OptionRoundStateType;
           });
           setWsOptionRoundStates(roundStates ?? []);
-          setWsLiquidityProviderState(wsResponse.liquidityProviderState?.address?wsResponse.liquidityProviderState:undefined);
+          setWsLiquidityProviderState(
+            wsResponse.liquidityProviderState?.address
+              ? wsResponse.liquidityProviderState
+              : undefined
+          );
           setWsOptionBuyerStates(wsResponse.optionBuyerStates ?? []);
         } else if (wsResponse.payloadType === "account_update") {
           if (wsResponse.liquidityProviderState?.address)
             setWsLiquidityProviderState(wsResponse.liquidityProviderState);
           else {
-            setWsLiquidityProviderState(undefined)
+            setWsLiquidityProviderState(undefined);
           }
           if (wsResponse.optionBuyerStates?.length)
             setWsOptionBuyerStates(wsResponse.optionBuyerStates);
           else {
-            setWsOptionBuyerStates([])
+            setWsOptionBuyerStates([]);
+          }
+        } else if (
+          wsResponse.payloadType === "bid_update" &&
+          wsResponse.bidData?.operation
+        ) {
+          if (wsResponse.bidData.operation === "insert") {
+            setWsOptionBuyerStates((states) => {
+
+              const newStates = states?.map((state) => {
+                if (state.roundAddress === wsResponse.bidData?.bid.roundAddress)
+                {
+                  const bids = state.bids?.map((bid:Bid)=>{
+                    return bid
+                  })
+                  return state
+                }
+                  return state;
+              });
+
+              return states;
+            });
           }
         } else if (
           wsResponse.payloadType === "lp_update" &&
@@ -133,20 +164,20 @@ const {address:accountAddress} = useAccount()
     return () => {
       ws.current?.close();
     };
-  }, [conn, isLoaded,vaultAddress]);
+  }, [conn, isLoaded, vaultAddress]);
 
   useEffect(() => {
-    if(ws.current?.readyState===1)
-    try {
-      ws.current?.send(
-        JSON.stringify({
-          updatedField: "address",
-          updatedValue: accountAddress,
-        })
-      );
-    } catch (err) {
-      console.log(err);
-    }
+    if (ws.current?.readyState === 1)
+      try {
+        ws.current?.send(
+          JSON.stringify({
+            updatedField: "address",
+            updatedValue: accountAddress,
+          })
+        );
+      } catch (err) {
+        console.log(err);
+      }
   }, [accountAddress]);
 
   return {

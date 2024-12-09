@@ -10,24 +10,37 @@ import { RepeatEthIcon } from "@/components/Icons";
 import { formatNumberText } from "@/lib/utils";
 import { num } from "starknet";
 import { useTransactionContext } from "@/context/TransactionProvider";
+import useERC20 from "@/hooks/erc20/useERC20";
 
 interface ExerciseProps {
   showConfirmation: (
     modalHeader: string,
     action: ReactNode,
-    onConfirm: () => Promise<void>,
+    onConfirm: () => Promise<void>
   ) => void;
 }
 
 const Exercise: React.FC<ExerciseProps> = ({ showConfirmation }) => {
   const { address, account } = useAccount();
-  const { roundActions, selectedRoundBuyerState } = useProtocolContext();
+  const {
+    roundActions,
+    selectedRoundBuyerState,
+    selectedRoundState,
+    vaultAddress,
+  } = useProtocolContext();
   const { pendingTx } = useTransactionContext();
 
-  const payoutBalanceWei = selectedRoundBuyerState?.payoutBalance
-    ? selectedRoundBuyerState.payoutBalance
-    : "0";
-  const payoutBalanceEth = formatEther(num.toBigInt(payoutBalanceWei));
+  const { balance } = useERC20(selectedRoundState?.address);
+  const totalOptions = selectedRoundBuyerState?.mintableOptions && selectedRoundBuyerState.hasMinted===false
+    ? (BigInt(selectedRoundBuyerState.mintableOptions.toString()) +
+      BigInt(balance))
+    : BigInt(balance);
+  const payoutBalanceWei=selectedRoundState?.payoutPerOption
+  ?totalOptions*BigInt(selectedRoundState?.payoutPerOption.toString())
+  :"0"
+  const payoutBalanceEth = formatEther(payoutBalanceWei);
+
+  console.log("TOTAL",totalOptions)
 
   const handleExerciseOptions = async (): Promise<void> => {
     address && (await roundActions?.exerciseOptions());
@@ -39,14 +52,14 @@ const Exercise: React.FC<ExerciseProps> = ({ showConfirmation }) => {
       <>
         exercise{" "}
         <span className="font-semibold text-[#fafafa]">
-          {formatNumberText(Number(selectedRoundBuyerState?.totalOptions))}
+          {formatNumberText(Number(totalOptions.toString()))}
         </span>{" "}
         options for{" "}
         <span className="font-semibold text-[#fafafa]">
           {Number(payoutBalanceEth).toFixed(3)} ETH
         </span>
       </>,
-      handleExerciseOptions,
+      handleExerciseOptions
     );
   };
 
@@ -73,7 +86,9 @@ const Exercise: React.FC<ExerciseProps> = ({ showConfirmation }) => {
         <p className="max-w-[290px] text-[#bfbfbf] text-center">
           You currently have{" "}
           <span className="font-semibold text-[#fafafa]">
-            {selectedRoundBuyerState?.totalOptions?formatNumberText(Number(selectedRoundBuyerState?.totalOptions)):0}
+            {totalOptions
+              ? formatNumberText(Number(totalOptions.toString()))
+              : 0}
           </span>{" "}
           options worth
           <br />{" "}

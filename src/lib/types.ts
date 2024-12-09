@@ -69,8 +69,11 @@ export type LiquidityProviderStateType = {
 
 export type OptionBuyerStateType = {
   address: string;
-  bids: string[]|Bid[];
+  bidHashes?:string
+  bids?:Bid[]|any;
   roundAddress: string;
+  hasMinted?:boolean;
+  hasRefunded?:boolean;
   mintableOptions: bigint | number | string;
   refundableOptions: bigint | number | string;
   totalOptions: bigint | number | string;

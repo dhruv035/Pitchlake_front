@@ -74,7 +74,7 @@ const useMockOptionRounds = (selectedRound: number) => {
         amount: placeBidArgs.amount,
         price: placeBidArgs.price,
       };
-      newState[selectedRound].bids.push();
+      newState[selectedRound].bids?.push();
       return newState;
     });
   };
