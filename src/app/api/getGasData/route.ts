@@ -4,20 +4,16 @@ import { NextResponse } from "next/server";
 import { formatUnits } from "ethers";
 import { Pool } from "pg";
 
-// Maximum number of blocks to return
 const MAX_RETURN_BLOCKS = 100;
-// Maximum number of blocks to consider for TWAP
 const TWAP_BLOCK_LIMIT = 100;
 
-// Type to return
 interface BlockData {
-  block_number: number;
-  base_fee_per_gas: string;
-  timestamp: string;
-  twap: string;
+  block_number: number | undefined;
+  base_fee_per_gas: string | undefined;
+  timestamp: number;
+  twap: string | undefined;
 }
 
-/// Get gas data (basefee & twap) for the blocks in a given range
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const timestampFrom = searchParams.get("from_timestamp");
@@ -25,7 +21,6 @@ export async function GET(request: Request) {
   const twapRangeParam = searchParams.get("twap_range");
   const roundStart = searchParams.get("round_start");
 
-  // Validate required parameters
   if (!timestampFrom || !timestampTo || !twapRangeParam || !roundStart) {
     return NextResponse.json(
       {
@@ -39,9 +34,8 @@ export async function GET(request: Request) {
   const fromTimestamp = parseInt(timestampFrom, 10);
   const toTimestamp = parseInt(timestampTo, 10);
   const timestampRange = toTimestamp - fromTimestamp;
-  const twapRange = parseInt(twapRangeParam, 10); // in seconds
+  const twapRange = parseInt(twapRangeParam, 10);
 
-  // Validate timestamp range (maximum 121 days)
   if (timestampRange > 121 * 24 * 60 * 60) {
     return NextResponse.json(
       { error: "Invalid timestamp range; maximum 120 days allowed." },
@@ -49,7 +43,6 @@ export async function GET(request: Request) {
     );
   }
 
-  // Validate TWAP range (0 to 31 days)
   if (twapRange < 0 || twapRange > 31 * 24 * 60 * 60) {
     return NextResponse.json(
       {
@@ -60,7 +53,6 @@ export async function GET(request: Request) {
   }
 
   try {
-    // SQL Query to select sampled blocks and calculate TWAP
     const query = `
       WITH selected_blocks AS (
         SELECT DISTINCT ON (bucket) number, base_fee_per_gas, timestamp
@@ -71,67 +63,40 @@ export async function GET(request: Request) {
           WHERE timestamp BETWEEN $2 AND $3
         ) AS sub
         ORDER BY bucket, timestamp DESC
-      ),
-      twap_calculations AS (
-        SELECT sb.number AS block_number,
-               sb.base_fee_per_gas,
-               sb.timestamp,
-               SUM(tb.base_fee_per_gas_numeric * tb.duration) / SUM(tb.duration) AS twap
-        FROM selected_blocks sb
-        JOIN LATERAL (
-          SELECT
-            tb.base_fee_per_gas,
-            LEAD(tb.timestamp) OVER (ORDER BY tb.timestamp ASC) - tb.timestamp AS duration,
-            CAST(tb.base_fee_per_gas AS numeric) AS base_fee_per_gas_numeric
-          FROM blockheaders tb
-          WHERE tb.timestamp BETWEEN (sb.timestamp - $4) AND sb.timestamp
-          ORDER BY tb.timestamp ASC
-          LIMIT $5
-        ) tb ON true
-        WHERE tb.duration IS NOT NULL
-        GROUP BY sb.number, sb.base_fee_per_gas, sb.timestamp
       )
-      SELECT block_number, base_fee_per_gas, timestamp, twap
-      FROM twap_calculations
+      SELECT number AS block_number, base_fee_per_gas, timestamp
+      FROM selected_blocks
       ORDER BY timestamp ASC;
     `;
 
-    // Parameters for the SQL query
-    const values = [
-      MAX_RETURN_BLOCKS,
-      fromTimestamp,
-      toTimestamp,
-      twapRange,
-      TWAP_BLOCK_LIMIT,
-    ];
+    const values = [MAX_RETURN_BLOCKS, fromTimestamp, toTimestamp];
 
     const pool = new Pool({
       connectionString: process.env.FOSSIL_DB_URL,
       ssl: {
-        rejectUnauthorized: false, // For testing purposes; consider proper SSL config in production
+        rejectUnauthorized: false,
       },
     });
+
     const result = await pool.query(query, values);
-    pool.end();
+    await pool.end();
 
     if (result.rows.length == 0) {
       result.rows.push({
         block_number: undefined,
         base_fee_per_gas: undefined,
         timestamp: toTimestamp,
-        twap: undefined,
       });
       result.rows.push({
         block_number: undefined,
         base_fee_per_gas: undefined,
         timestamp: fromTimestamp,
-        twap: undefined,
       });
     }
 
     if (
       result.rows.length >= 1 &&
-      result.rows[result?.rows?.length - 1].timestamp <= toTimestamp
+      result.rows[result.rows.length - 1].timestamp <= toTimestamp
     ) {
       const lastKnownTimestamp = parseInt(
         result.rows[result.rows.length - 1].timestamp,
@@ -140,8 +105,7 @@ export async function GET(request: Request) {
         result.rows.push({
           block_number: undefined,
           base_fee_per_gas: undefined,
-          timestamp: roundStart,
-          twap: undefined,
+          timestamp: Number(roundStart),
         });
       }
 
@@ -155,21 +119,85 @@ export async function GET(request: Request) {
           block_number: undefined,
           base_fee_per_gas: undefined,
           timestamp: toTimestamp,
-          twap: undefined,
         });
       }
     }
 
-    const data: any[] = result.rows.map((row: any) => ({
-      block_number: row.block_number ? row.block_number : undefined,
+    const sortedData = result.rows
+      .map((r: any) => ({
+        block_number: r.block_number || undefined,
+        timestamp: Number(r.timestamp),
+        base_fee_per_gas: r.base_fee_per_gas
+          ? BigInt(r.base_fee_per_gas)
+          : undefined,
+      }))
+      .sort((a, b) => a.timestamp - b.timestamp);
+
+    // Find the last known block (where base_fee_per_gas is defined)
+    let lastKnownBlockIndex = -1;
+    for (let i = 0; i < sortedData.length; i++) {
+      if (sortedData[i].base_fee_per_gas !== undefined) {
+        lastKnownBlockIndex = i;
+      }
+    }
+
+    let bfDeltaSum = BigInt(0);
+    let timeDeltaSum = 0;
+    let lastBaseFee =
+      lastKnownBlockIndex >= 0
+        ? sortedData[lastKnownBlockIndex].base_fee_per_gas
+        : BigInt(0);
+    let prevTimestamp = sortedData.length > 0 ? sortedData[0].timestamp : 0;
+
+    const withTwap = sortedData.map((item, index) => {
+      // If we're beyond the last known block index, no TWAP should be calculated
+      if (index > lastKnownBlockIndex) {
+        return { ...item, twap: undefined };
+      }
+
+      if (index === 0) {
+        // TWAP = base fee at first point
+        return {
+          ...item,
+          twap: item.base_fee_per_gas ? Number(item.base_fee_per_gas) : 0,
+        };
+      } else {
+        const currentTimestamp = item.timestamp;
+        const deltaTime = currentTimestamp - prevTimestamp;
+
+        // Use current block's base fee if defined, otherwise use the last known one
+        const currentBaseFee = item.base_fee_per_gas ?? lastBaseFee;
+
+        if (deltaTime > 0) {
+          bfDeltaSum += currentBaseFee * BigInt(deltaTime);
+          timeDeltaSum += deltaTime;
+        }
+
+        const currentTwap =
+          timeDeltaSum > 0
+            ? Number(bfDeltaSum / BigInt(timeDeltaSum))
+            : Number(currentBaseFee);
+
+        prevTimestamp = currentTimestamp;
+        lastBaseFee = currentBaseFee;
+        return {
+          ...item,
+          twap: currentTwap,
+        };
+      }
+    });
+
+    const data: any[] = withTwap.map((row) => ({
+      block_number: row.block_number,
       timestamp: row.timestamp,
       BASEFEE: row.base_fee_per_gas
-        ? formatUnits(row.base_fee_per_gas, "gwei")
+        ? formatUnits(row.base_fee_per_gas.toString(), "gwei")
         : undefined,
-      TWAP: row.twap ? formatUnits(parseInt(row.twap), "gwei") : undefined,
+      TWAP:
+        row.twap !== undefined
+          ? formatUnits(Math.floor(row.twap).toString(), "gwei")
+          : undefined,
     }));
-
-    data.sort((a, b) => a.timestamp - b.timestamp);
 
     return NextResponse.json(data, { status: 200 });
   } catch (error: any) {
