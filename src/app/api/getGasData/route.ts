@@ -166,7 +166,8 @@ export async function GET(request: Request) {
         const deltaTime = currentTimestamp - prevTimestamp;
 
         // Use current block's base fee if defined, otherwise use the last known one
-        const currentBaseFee = item.base_fee_per_gas ?? lastBaseFee;
+        const currentBaseFee =
+          item.base_fee_per_gas ?? lastBaseFee ?? BigInt(1);
 
         if (deltaTime > 0) {
           bfDeltaSum += currentBaseFee * BigInt(deltaTime);
