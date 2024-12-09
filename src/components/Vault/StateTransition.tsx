@@ -16,7 +16,13 @@ const StateTransition = ({
   isPanelOpen: boolean;
   setModalState: any;
 }) => {
-  const { vaultState, vaultActions, selectedRoundState,timestamp:timestampRaw,conn } = useProtocolContext();
+  const {
+    vaultState,
+    vaultActions,
+    selectedRoundState,
+    timestamp: timestampRaw,
+    conn,
+  } = useProtocolContext();
   const { pendingTx } = useTransactionContext();
   const { account } = useAccount();
   const { provider } = useProvider();
@@ -48,9 +54,8 @@ const StateTransition = ({
   } = useRoundPermissions(
     timestamp.toString(),
     selectedRoundState,
-    FOSSIL_DELAY,
+    FOSSIL_DELAY
   );
-  
 
   const actions: Record<string, string> = useMemo(
     () => ({
@@ -60,36 +65,34 @@ const StateTransition = ({
       Running: "Settle Round",
       Pending: "Pending",
     }),
-    [],
+    []
   );
 
   const handleAction = async () => {
     if (roundState === "FossilReady") {
-      if(conn!=="mock"){
-        
-      
-      const response = await fetch("/api/sendFossilRequest", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          targetTimestamp: getTargetTimestampForRound(selectedRoundState),
-          roundDuration: getDurationForRound(selectedRoundState),
-          clientAddress: vaultState?.fossilClientAddress,
-          vaultAddress: vaultState?.address,
-        }),
-      });
+      if (conn !== "mock") {
+        const response = await fetch("/api/sendFossilRequest", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            targetTimestamp: getTargetTimestampForRound(selectedRoundState),
+            roundDuration: getDurationForRound(selectedRoundState),
+            clientAddress: vaultState?.fossilClientAddress,
+            vaultAddress: vaultState?.address,
+          }),
+        });
 
-      const data = await response.json();
-      console.log("Fossil response:", data);
+        const data = await response.json();
+        console.log("Fossil response:", data);
 
-      if (!response.ok) {
-        setFossilStatus({ status: "Error", error: data.error });
-      } else {
-        setFossilStatus({ status: "Pending", error: undefined });
+        if (!response.ok) {
+          setFossilStatus({ status: "Error", error: data.error });
+        } else {
+          setFossilStatus({ status: "Pending", error: undefined });
+        }
       }
-    }
     } else if (roundState === "Open") {
       await vaultActions.startAuction();
     } else if (roundState === "Auctioning") {
@@ -125,12 +128,9 @@ const StateTransition = ({
     }
   }, [roundState, prevRoundState]);
 
-  if (!vaultState?.currentRoundId || !selectedRoundState || !vaultActions)
-   
-   
-   {
-    console.log("FAIL HERE")
-     return null;}
+  if (!vaultState?.currentRoundId || !selectedRoundState || !vaultActions) {
+    return null;
+  }
 
   if (
     roundState === "Settled" ||

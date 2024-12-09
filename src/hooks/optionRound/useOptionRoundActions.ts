@@ -39,7 +39,6 @@ const useOptionRoundActions = (address?: string) => {
   const callContract = useCallback(
     (functionName: string) =>
       async (args?: PlaceBidArgs | UpdateBidArgs | RefundBidsArgs) => {
-        console.log("here1",typedContract)
         if (!typedContract) return;
 
         let argsData;
@@ -49,8 +48,6 @@ const useOptionRoundActions = (address?: string) => {
           provider && account
             ? await provider.getNonceForAddress(account.address)
             : "0";
-
-            console.log("nonce",nonce,data,argsData)
         if (argsData) {
           data = await typedContract?.[functionName](...argsData, { nonce });
         } else {
@@ -89,7 +86,6 @@ const useOptionRoundActions = (address?: string) => {
   }, [callContract]);
 
   const exerciseOptions = useCallback(async () => {
-    console.log("CALED")
     await callContract("exercise_options")();
   }, [callContract]);
 

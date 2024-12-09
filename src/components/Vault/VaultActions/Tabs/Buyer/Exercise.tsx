@@ -40,7 +40,6 @@ const Exercise: React.FC<ExerciseProps> = ({ showConfirmation }) => {
   :"0"
   const payoutBalanceEth = formatEther(payoutBalanceWei);
 
-  console.log("TOTAL",totalOptions)
 
   const handleExerciseOptions = async (): Promise<void> => {
     address && (await roundActions?.exerciseOptions());
