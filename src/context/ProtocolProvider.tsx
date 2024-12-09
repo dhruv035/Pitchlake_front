@@ -57,8 +57,7 @@ export const ProtocolContext = createContext<ProtocolContextType>(
 );
 const ProtocolProvider = ({ children }: { children: ReactNode }) => {
   const [vaultAddress, setVaultAddress] = useState<string | undefined>();
-  const conn = process.env.NEXT_PUBLIC_ENVIRONMENT??"rpc"
-  
+  const conn = process.env.NEXT_PUBLIC_ENVIRONMENT ?? "rpc";
 
   const [selectedRound, setSelectedRound] = useState<number>(0);
   const [mockTimestamp, setMockTimestamp] = useState(0);
@@ -91,7 +90,7 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
     getRounds: true,
   });
 
-  const vaultActionsChain = useVaultActions(vaultAddress);
+  const vaultActionsChain = useVaultActions(vaultAddress as `0x${string}`);
 
   //WS States
   const {
