@@ -50,8 +50,6 @@ const Exercise: React.FC<ExerciseProps> = ({ showConfirmation }) => {
     );
   };
 
-  console.log("BUYERSTATE",selectedRoundBuyerState)
-
   const isButtonDisabled = (): boolean => {
     if (!account) return true;
     if (pendingTx) return true;
