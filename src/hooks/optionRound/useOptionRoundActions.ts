@@ -17,8 +17,6 @@ const useOptionRoundActions = (address?: string) => {
     address,
   });
 
-  const { isDev, devAccount } = useTransactionContext();
-  const { account: connectorAccount } = useAccount();
   const { setPendingTx } = useTransactionContext();
 
   //  const account = useMemo(() => {
@@ -41,7 +39,9 @@ const useOptionRoundActions = (address?: string) => {
   const callContract = useCallback(
     (functionName: string) =>
       async (args?: PlaceBidArgs | UpdateBidArgs | RefundBidsArgs) => {
+        console.log("here1",typedContract)
         if (!typedContract) return;
+
         let argsData;
         if (args) argsData = Object.values(args).map((value) => value);
         let data;
@@ -50,6 +50,7 @@ const useOptionRoundActions = (address?: string) => {
             ? await provider.getNonceForAddress(account.address)
             : "0";
 
+            console.log("nonce",nonce,data,argsData)
         if (argsData) {
           data = await typedContract?.[functionName](...argsData, { nonce });
         } else {
@@ -88,6 +89,7 @@ const useOptionRoundActions = (address?: string) => {
   }, [callContract]);
 
   const exerciseOptions = useCallback(async () => {
+    console.log("CALED")
     await callContract("exercise_options")();
   }, [callContract]);
 

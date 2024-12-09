@@ -125,8 +125,9 @@ const useWebSocketVault = (conn: string, vaultAddress?: string) => {
           wsResponse.payloadType === "or_update" &&
           wsResponse.optionRoundStates
         ) {
+          console.log("or_update")
           setWsOptionRoundStates((prevStates) => {
-            const newStates = [...prevStates];
+            const newStates = prevStates
             if (
               wsResponse.optionRoundStates &&
               wsResponse.optionRoundStates.length > 0
