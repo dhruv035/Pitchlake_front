@@ -72,7 +72,7 @@ const Mint: React.FC<MintProps> = ({ showConfirmation }) => {
           <br />
           <span className="font-semibold text-[#fafafa]">
             {formatNumberText(
-              Number(selectedRoundBuyerState?.mintableOptions),
+              Number(selectedRoundBuyerState?.mintableOptions?.toString()??"0"),
             )}
           </span>
         </p>
