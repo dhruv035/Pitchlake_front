@@ -193,8 +193,7 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
     setSelectedRound(Number(vaultState.currentRoundId));
   }, [vaultState?.currentRoundId]);
 
-  const contextValue = useMemo(
-    () => ({
+  const contextValue = {
       conn,
       vaultAddress,
       vaultActions,
@@ -212,26 +211,7 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
       timestamp,
       selectedRoundAddress: undefined,
       currentRoundAddress,
-    }),
-    [
-      conn,
-      vaultAddress,
-      vaultActions,
-      vaultState,
-      roundActions,
-      optionRoundStates,
-      optionBuyerStates,
-      lpState,
-      selectedRound,
-      setRound,
-      setVaultAddress,
-      selectedRoundState,
-      selectedRoundBuyerState,
-      mockTimeForward,
-      timestamp,
-      currentRoundAddress,
-    ],
-  );
+    }
 
   return (
     <ProtocolContext.Provider value={contextValue}>
