@@ -16,7 +16,7 @@ interface ExerciseProps {
   showConfirmation: (
     modalHeader: string,
     action: ReactNode,
-    onConfirm: () => Promise<void>
+    onConfirm: () => Promise<void>,
   ) => void;
 }
 
@@ -31,15 +31,16 @@ const Exercise: React.FC<ExerciseProps> = ({ showConfirmation }) => {
   const { pendingTx } = useTransactionContext();
 
   const { balance } = useERC20(selectedRoundState?.address);
-  const totalOptions = selectedRoundBuyerState?.mintableOptions && selectedRoundBuyerState.hasMinted===false
-    ? (BigInt(selectedRoundBuyerState.mintableOptions.toString()) +
-      BigInt(balance))
-    : BigInt(balance);
-  const payoutBalanceWei=selectedRoundState?.payoutPerOption
-  ?totalOptions*BigInt(selectedRoundState?.payoutPerOption.toString())
-  :"0"
+  const totalOptions =
+    selectedRoundBuyerState?.mintableOptions &&
+    selectedRoundBuyerState.hasMinted === false
+      ? BigInt(selectedRoundBuyerState.mintableOptions.toString()) +
+        BigInt(balance)
+      : BigInt(balance);
+  const payoutBalanceWei = selectedRoundState?.payoutPerOption
+    ? totalOptions * BigInt(selectedRoundState?.payoutPerOption.toString())
+    : "0";
   const payoutBalanceEth = formatEther(payoutBalanceWei);
-
 
   const handleExerciseOptions = async (): Promise<void> => {
     address && (await roundActions?.exerciseOptions());
@@ -58,18 +59,15 @@ const Exercise: React.FC<ExerciseProps> = ({ showConfirmation }) => {
           {Number(payoutBalanceEth).toFixed(3)} ETH
         </span>
       </>,
-      handleExerciseOptions
+      handleExerciseOptions,
     );
   };
 
   const isButtonDisabled = (): boolean => {
     if (!account) return true;
     if (pendingTx) return true;
-    if (
-      !selectedRoundBuyerState ||
-      Number(selectedRoundBuyerState.payoutBalance) === 0
-    )
-      return true;
+    if (!selectedRoundBuyerState) return true;
+    if (Number(payoutBalanceWei) === 0) return true;
 
     return false;
   };
