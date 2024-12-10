@@ -48,7 +48,7 @@ export type ProtocolContextType = {
   selectedRoundBuyerState?: OptionBuyerStateType;
   setVaultAddress: Dispatch<SetStateAction<string | undefined>>;
   mockTimeForward: () => void;
-timestamp:number;
+  timestamp: number;
   selectedRoundAddress: string | undefined;
   currentRoundAddress: string | undefined;
 };
@@ -58,22 +58,21 @@ export const ProtocolContext = createContext<ProtocolContextType>(
 );
 const ProtocolProvider = ({ children }: { children: ReactNode }) => {
   const [vaultAddress, setVaultAddress] = useState<string | undefined>();
-  const conn = process.env.NEXT_PUBLIC_ENVIRONMENT??"rpc"
-  
+  const conn = process.env.NEXT_PUBLIC_ENVIRONMENT ?? "rpc";
 
   const [selectedRound, setSelectedRound] = useState<number>(0);
   const [mockTimestamp, setMockTimestamp] = useState(0);
-  const {data:block} = useBlock({
-    refetchInterval:5000,    
+  const { data: block } = useBlock({
+    refetchInterval: 5000,
   });
   const mockTimeForward = () => {
     if (conn === "mock") setMockTimestamp((prevState) => prevState + 100001);
   };
 
-  const timestamp = useMemo(()=>{
-    if(conn==="mock") return mockTimestamp
-    else return block?.timestamp??0
-  },[mockTimestamp,block?.timestamp])
+  const timestamp = useMemo(() => {
+    if (conn === "mock") return mockTimestamp;
+    else return block?.timestamp ?? 0;
+  }, [mockTimestamp, block?.timestamp]);
   //Mock States
   const {
     optionRoundStates: optionRoundStatesMock,
@@ -82,7 +81,7 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
     vaultActions: vaultActionsMock,
     optionRoundActions: roundActionsMock,
     optionBuyerStates: optionBuyerStatesMock,
-  } = useMockVault(selectedRound, mockTimestamp??0,vaultAddress);
+  } = useMockVault(selectedRound, mockTimestamp ?? 0, vaultAddress);
 
   //RPC States
   const {
@@ -128,7 +127,6 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
     return [];
   }, [conn, optionRoundStatesMock, wsOptionRoundStates]);
 
-
   const optionBuyerStates = useMemo(() => {
     if (conn === "ws") return wsOptionBuyerStates;
     if (conn === "mock") return optionBuyerStatesMock;
@@ -153,11 +151,16 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
     if (conn === "rpc") return selectedRoundBuyerStateRPC;
     if (conn === "mock")
       return optionBuyerStatesMock[Number(selectedRound) - 1];
-       const match = optionBuyerStates.find(state=>{
-        return state.roundAddress===selectedRoundState?.address
-       })
-       return match
-  }, [conn, selectedRoundState?.address, optionBuyerStates, selectedRoundBuyerStateRPC]);
+    const match = optionBuyerStates.find((state) => {
+      return state.roundAddress === selectedRoundState?.address;
+    });
+    return match;
+  }, [
+    conn,
+    selectedRoundState?.address,
+    optionBuyerStates,
+    selectedRoundBuyerStateRPC,
+  ]);
 
   //Protocol actions
   const vaultActions = useMemo(() => {
@@ -194,24 +197,24 @@ const ProtocolProvider = ({ children }: { children: ReactNode }) => {
   }, [vaultState?.currentRoundId]);
 
   const contextValue = {
-      conn,
-      vaultAddress,
-      vaultActions,
-      vaultState,
-      roundActions,
-      optionRoundStates,
-      optionBuyerStates,
-      lpState,
-      selectedRound,
-      setSelectedRound: setRound,
-      selectedRoundState,
-      setVaultAddress,
-      selectedRoundBuyerState,
-      mockTimeForward,
-      timestamp,
-      selectedRoundAddress: undefined,
-      currentRoundAddress,
-    }
+    conn,
+    vaultAddress,
+    vaultActions,
+    vaultState,
+    roundActions,
+    optionRoundStates,
+    optionBuyerStates,
+    lpState,
+    selectedRound,
+    setSelectedRound: setRound,
+    selectedRoundState,
+    setVaultAddress,
+    selectedRoundBuyerState,
+    mockTimeForward,
+    timestamp,
+    selectedRoundAddress: undefined,
+    currentRoundAddress,
+  };
 
   return (
     <ProtocolContext.Provider value={contextValue}>
