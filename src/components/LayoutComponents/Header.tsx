@@ -41,7 +41,7 @@ import useIsMobile from "@/hooks/window/useIsMobile";
 
 export default function Header() {
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const { conn, mockTimestamp, mockTimeForward, vaultState } =
+  const { conn, timestamp, mockTimeForward, vaultState } =
     useProtocolContext();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const isDropdownOpenRef = useRef(isDropdownOpen);
@@ -53,7 +53,6 @@ export default function Header() {
   const { balance } = useERC20(
     "0x49d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
     vaultState?.address,
-    account,
   );
 
   const { lockedBalance, unlockedBalance, stashedBalance } = useAccountBalances(
@@ -141,7 +140,7 @@ export default function Header() {
         <div className="flex items-center space-x-4 text-[14px] font-medium">
           {conn === "mock" && (
             <div>
-              <p>{mockTimestamp.toString()}</p>
+              <p>{timestamp.toString()}</p>
               <button onClick={() => mockTimeForward()}>
                 Forward Mock Time
               </button>
