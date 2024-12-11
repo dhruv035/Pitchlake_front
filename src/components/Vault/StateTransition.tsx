@@ -102,6 +102,7 @@ const StateTransition = ({
     }
     setIsAwaitingRoundStateUpdate(true);
 
+    if(roundState!=="FossilReady")
     setCheck(true)
     setModalState((prev: any) => ({
       ...prev,
