@@ -13,7 +13,7 @@ export const getIconByRoundState = (
 ) => {
   const stroke = isDisabled ? "var(--greyscale)" : "var(--primary)";
 
-  const cName: string = `w-4 h-4 ${isPanelOpen ? "ml-2" : ""}`;
+  const cName: string = `w-4 h-4 ${isPanelOpen ? "ml-2" : ""} min-h-[18px] min-w-[18px]`;
 
   if (roundState === "Pending" || isDisabled)
     return <Clock className={cName} />;
@@ -25,11 +25,7 @@ export const getIconByRoundState = (
     return <Cog className={cName} stroke={stroke} />;
   if (roundState === "Running")
     return (
-      <BriefCaseIcon
-        classname="w-4 h-4 ml-2"
-        fill="transparent"
-        stroke={stroke}
-      />
+      <BriefCaseIcon classname={cName} fill="transparent" stroke={stroke} />
     );
   return null;
 };

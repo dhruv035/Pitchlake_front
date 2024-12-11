@@ -22,7 +22,7 @@ const FOSSIL_DELAY = 15 * 60;
 
 // comment for git
 const PanelLeft = ({ userType }: { userType: string }) => {
-  const { vaultState, selectedRoundState,timestamp } = useProtocolContext();
+  const { vaultState, selectedRoundState, timestamp } = useProtocolContext();
   const [vaultIsOpen, setVaultIsOpen] = useState<boolean>(false);
   const [optionRoundIsOpen, setOptionRoundIsOpen] = useState<boolean>(false);
   const [isPanelOpen, setIsPanelOpen] = useState<boolean>(false);

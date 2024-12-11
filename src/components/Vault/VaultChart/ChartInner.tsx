@@ -43,7 +43,8 @@ const GasPriceChart: React.FC<GasPriceChartProps> = ({
       !historicalData.rounds ||
       !data ||
       !fromRound ||
-      !toRound
+      !toRound ||
+      !isExpandedView
     )
       return { verticalSegments: [], roundAreas: [] };
 
@@ -108,7 +109,7 @@ const GasPriceChart: React.FC<GasPriceChartProps> = ({
     });
 
     return { verticalSegments: segments, roundAreas: areas };
-  }, [historicalData, data, fromRound, toRound]);
+  }, [isExpandedView, historicalData, data, fromRound, toRound]);
 
   // Compute the maximum Y value based on active lines
   const yMax = useMemo(() => {
@@ -329,8 +330,8 @@ const GasPriceChart: React.FC<GasPriceChartProps> = ({
   }
 
   return (
-    <ResponsiveContainer  width="100%" maxHeight={665} className="pr-4">
-      <ComposedChart margin={{left:-20}} data={data} syncId="roundChart">
+    <ResponsiveContainer width="100%" maxHeight={665} className="pr-4">
+      <ComposedChart margin={{ left: -20 }} data={data} syncId="roundChart">
         <defs>
           <linearGradient id="capLevelGradient" x1="0" y1="0" x2="0" y2="1">
             <stop
@@ -437,7 +438,8 @@ const GasPriceChart: React.FC<GasPriceChartProps> = ({
             isAnimationActive={false}
           />
         )}
-        {isExpandedView &&
+        {
+          // Round Boundaries
           verticalSegments.map((segmentObj: any, index: any) => {
             return (
               <ReferenceLine
@@ -449,7 +451,8 @@ const GasPriceChart: React.FC<GasPriceChartProps> = ({
                 strokeWidth={2}
               />
             );
-          })}
+          })
+        }
         <Line
           type="monotone"
           dataKey="STRIKE"
@@ -461,7 +464,7 @@ const GasPriceChart: React.FC<GasPriceChartProps> = ({
           connectNulls={false}
           isAnimationActive={false}
         />
-        {activeLines.CAP_LEVEL && data.length > 0 && (
+        {activeLines.CAP_LEVEL && (
           <Area
             type="monotone"
             dataKey="CAP_LEVEL"
