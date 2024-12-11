@@ -123,7 +123,7 @@ const StateTransition = ({
 
 
   const [check,setCheck]= useState(false)
-  const icon = getIconByRoundState(roundState, isDisabled);
+  const icon = getIconByRoundState(roundState, isDisabled||check);
 
   useEffect(()=>{
     setCheck(false)
