@@ -212,7 +212,7 @@ export default function Header() {
                       </div>
                       {connectors.map((connector) => (
                         <div
-                          key={connector.name}
+                          key={connector.id}
                           onClick={() => connect({ connector })}
                           className="cursor-pointer sticky p-2 px-3 bg-[#161616] w-full text-[#FAFAFA] text-[14px] font-medium hover:bg-[#262626]"
                         >
@@ -220,11 +220,11 @@ export default function Header() {
                             <div className="flex flex-row items-center">
                               <Image
                                 src={
-                                  connector.name === "braavos"
+                                  connector.id === "braavos"
                                     ? braavosIcon
-                                    : connector.name === "argentX"
-                                      ? argent
-                                      : keplr
+                                    : connector.id === "keplr"
+                                      ? keplr
+                                      : argent
                                 }
                                 alt="Login"
                                 width={20}
@@ -233,7 +233,7 @@ export default function Header() {
                                 color="#BFBFBF"
                                 style={{ objectFit: "contain" }}
                               />
-                              {connector.name.toLocaleUpperCase()}
+                              {connector.id.toLocaleUpperCase()}
                             </div>
                           }
                         </div>
