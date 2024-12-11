@@ -54,7 +54,7 @@ const StateTransition = ({
   } = useRoundPermissions(
     timestamp.toString(),
     selectedRoundState,
-    FOSSIL_DELAY
+    FOSSIL_DELAY,
   );
 
   const actions: Record<string, string> = useMemo(
@@ -65,7 +65,7 @@ const StateTransition = ({
       Running: "Settle Round",
       Pending: "Pending",
     }),
-    []
+    [],
   );
 
   const handleAction = async () => {
@@ -120,7 +120,7 @@ const StateTransition = ({
     canRoundSettle,
   });
 
-  const icon = getIconByRoundState(roundState, isDisabled);
+  const icon = getIconByRoundState(roundState, isDisabled, isPanelOpen);
 
   useEffect(() => {
     if (prevRoundState !== roundState) {
@@ -144,15 +144,15 @@ const StateTransition = ({
       className={`${
         isPanelOpen && roundState !== "Settled"
           ? "border border-transparent border-t-[#262626]"
-          : ""
+          : "border border-transparent border-t-[#262626]"
       } flex flex-col w-full mx-auto mt-auto mb-4`}
     >
       <div className="px-6">
         <button
           disabled={isDisabled}
-          className={`${isPanelOpen ? "flex" : "hidden"} ${
+          className={`flex ${!isPanelOpen && !isDisabled ? "hover-zoom" : ""} ${
             roundState === "Settled" ? "hidden" : ""
-          } border border-greyscale-700 text-primary disabled:text-greyscale rounded-md mt-4 p-2 w-full justify-center items-center`}
+          } border border-greyscale-700 text-primary disabled:text-greyscale rounded-md mt-4 p-2 w-full justify-center items-center min-w-[44px] min-h-[44px]`}
           onClick={() => {
             setModalState({
               show: true,
@@ -161,7 +161,7 @@ const StateTransition = ({
             });
           }}
         >
-          <p>
+          <p className={`${isPanelOpen ? "" : "hidden"}`}>
             {prevRoundState !== roundState ? "Pending" : actions[roundState]}
           </p>
           {icon}
