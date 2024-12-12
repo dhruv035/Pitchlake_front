@@ -7,7 +7,7 @@ import {
   Bid,
 } from "@/lib/types";
 import { useAccount } from "@starknet-react/core";
-import { getPerformanceLP, getPerformanceOB } from "@/lib/utils";
+import { getPerformanceLP, getPerformanceOB, removeLeadingZeroes } from "@/lib/utils";
 
 type InitialPayload = {
   payloadType: string;
@@ -42,7 +42,8 @@ const useWebSocketVault = (conn: string, vaultAddress?: string) => {
     OptionBuyerStateType[] | null
   >(null);
   const ws = useRef<WebSocket | null>(null);
-  const { address: accountAddress } = useAccount();
+  const { address } = useAccount();
+  const accountAddress=address?removeLeadingZeroes(address):undefined
   const [isLoaded, setIsLoaded] = useState(false);
   useEffect(() => {
     setIsLoaded(true);
@@ -51,7 +52,7 @@ const useWebSocketVault = (conn: string, vaultAddress?: string) => {
   useEffect(() => {
     if (conn === "ws" && isLoaded && vaultAddress) {
       ws.current = new WebSocket(
-        `${process.env.NEXT_PUBLIC_WS_URL}/subscribeVault`
+        `${process.env.NEXT_PUBLIC_WS_URL}/subscribeVault`,
       );
 
       ws.current.onopen = () => {
@@ -60,14 +61,14 @@ const useWebSocketVault = (conn: string, vaultAddress?: string) => {
           JSON.stringify({
             address: accountAddress,
             userType: "ob", // Adjust based on your logic
-            vaultAddress: vaultAddress,
+            vaultAddress: removeLeadingZeroes(vaultAddress),
           })
+
         );
       };
 
       ws.current.onmessage = (event: MessageEvent) => {
         const wsResponse = JSON.parse(event.data);
-        console.log(wsResponse)
         if (wsResponse.payloadType === "initial") {
           handleInitialPayload(wsResponse as InitialPayload);
           return;
@@ -104,28 +105,29 @@ const useWebSocketVault = (conn: string, vaultAddress?: string) => {
           JSON.stringify({
             updatedField: "address",
             updatedValue: accountAddress,
-          })
+          }),
         );
       } catch (err) {
         console.log(err);
       }
   }, [accountAddress]);
 
-  const updateRound =(operation:string)=> (updatedRound: OptionRoundStateType) => {
-    if(operation==="insert")
-    setWsOptionRoundStates((prevStates)=>{
-  return [...prevStates,updatedRound]
-})
-  if(operation==="update")
-    setWsOptionRoundStates((prevStates) => {
-      const newStates = prevStates;
-      if (updatedRound.address) {
-        const updatedRoundIndex = Number(updatedRound.roundId) - 1;
-        newStates[updatedRoundIndex] = updatedRound;
-      }
-      return newStates;
-    });
-  };
+  const updateRound =
+    (operation: string) => (updatedRound: OptionRoundStateType) => {
+      if (operation === "insert")
+        setWsOptionRoundStates((prevStates) => {
+          return [...prevStates, updatedRound];
+        });
+      if (operation === "update")
+        setWsOptionRoundStates((prevStates) => {
+          const newStates = prevStates;
+          if (updatedRound.address) {
+            const updatedRoundIndex = Number(updatedRound.roundId) - 1;
+            newStates[updatedRoundIndex] = updatedRound;
+          }
+          return newStates;
+        });
+    };
 
   const updateBuyer = (payload: OptionBuyerStateType) => {
     setWsOptionBuyerStates((states) => {
@@ -186,7 +188,7 @@ const useWebSocketVault = (conn: string, vaultAddress?: string) => {
         performanceLP: getPerformanceLP(
           state.soldLiquidity,
           state.premiums,
-          state.totalPayout
+          state.totalPayout,
         ),
         performanceOB: getPerformanceOB(state.premiums, state.totalPayout),
       } as OptionRoundStateType;
@@ -195,7 +197,7 @@ const useWebSocketVault = (conn: string, vaultAddress?: string) => {
     setWsLiquidityProviderState(
       wsResponse.liquidityProviderState?.address
         ? wsResponse.liquidityProviderState
-        : undefined
+        : undefined,
     );
     setWsOptionBuyerStates(wsResponse.optionBuyerStates ?? []);
   };
@@ -210,7 +212,9 @@ const useWebSocketVault = (conn: string, vaultAddress?: string) => {
     } else if (wsResponse.type === "bid" && wsResponse.operation) {
       updateBid(wsResponse.operation)(wsResponse.payload as Bid);
     } else if (wsResponse.type === "optionRoundState" && wsResponse.operation) {
-      updateRound(wsResponse.operation)(wsResponse.payload as OptionRoundStateType);
+      updateRound(wsResponse.operation)(
+        wsResponse.payload as OptionRoundStateType,
+      );
     } else if (wsResponse.type === "optionBuyerState") {
       updateBuyer(wsResponse.payload as OptionBuyerStateType);
     } else if (wsResponse.type === "vaultState") {
