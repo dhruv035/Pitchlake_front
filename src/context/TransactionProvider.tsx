@@ -9,9 +9,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { useBlock, useBlockNumber, useTransactionReceipt } from "@starknet-react/core";
-import { getDevAccount } from "@/lib/constants";
-import { Account, RpcProvider } from "starknet";
+import {  useWaitForTransaction } from "@starknet-react/core";
 
 /*This is the bridge for any transactions to go through, it's disabled by isTxDisabled if there is data loading or if
   there's a pending transaction. The data loading is enforced to ensure no transaction is done without latest data.
@@ -36,12 +34,10 @@ const TransactionProvider = ({ children }: { children: ReactNode }) => {
   const [isTxDisabled, setIsTxDisabled] = useState<boolean>(false);
 
   const [pendingTx, setPendingTx] = useState<string | undefined>();
-  const { status,data } = useTransactionReceipt({ hash: pendingTx });
+  const { status,data } = useWaitForTransaction({ hash: pendingTx });
 
   
-  const {data:lastBlock,refetch} = useBlockNumber({
-    refetchInterval:false
-  })
+
   const resetState = () => {
     
     setPendingTx(undefined);
@@ -52,7 +48,6 @@ const TransactionProvider = ({ children }: { children: ReactNode }) => {
     resetState();
   };
 
-  console.log("lastBlock",lastBlock)
   useEffect(() => {
     if (pendingTx)
       switch (status) {
@@ -86,7 +81,6 @@ const TransactionProvider = ({ children }: { children: ReactNode }) => {
         setIsTxDisabled,
         setPendingTx,
         status,
-        lastBlock,
 
       }}
     >

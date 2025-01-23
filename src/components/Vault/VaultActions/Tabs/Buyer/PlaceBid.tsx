@@ -6,12 +6,11 @@ import { useProtocolContext } from "@/context/ProtocolProvider";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 import { formatUnits, parseUnits, parseEther, formatEther } from "ethers";
-import { useAccount, useSendTransaction } from "@starknet-react/core";
+import { useAccount, useContractWrite } from "@starknet-react/core";
 import useERC20 from "@/hooks/erc20/useERC20";
 import { num, Call } from "starknet";
 import { formatNumberText } from "@/lib/utils";
 import { useTransactionContext } from "@/context/TransactionProvider";
-import useLatestTimetamp from "@/hooks/chain/useLatestTimestamp";
 import { useProvider } from "@starknet-react/core";
 import {  useContract } from "@starknet-react/core";
 import { erc20ABI, optionRoundABI } from "@/lib/abi";
@@ -28,7 +27,7 @@ const LOCAL_STORAGE_KEY1 = "bidAmount";
 const LOCAL_STORAGE_KEY2 = "bidPriceGwei";
 
 const PlaceBid: React.FC<PlaceBidProps> = ({ showConfirmation }) => {
-  const { vaultState, roundActions, selectedRoundState } = useProtocolContext();
+  const { vaultState, roundActions, selectedRoundState,timestamp } = useProtocolContext();
   const [state, setState] = useState({
     bidAmount: localStorage.getItem(LOCAL_STORAGE_KEY1) || "",
     bidPrice: localStorage.getItem(LOCAL_STORAGE_KEY2) || "",
@@ -40,7 +39,7 @@ const PlaceBid: React.FC<PlaceBidProps> = ({ showConfirmation }) => {
   const { account } = useAccount();
   const { pendingTx, setPendingTx } = useTransactionContext();
   const { provider } = useProvider();
-  const { timestamp } = useLatestTimetamp(provider);
+
 
   const { allowance, balance } = useERC20(
     vaultState?.ethAddress as `0x${string}`,
@@ -123,7 +122,7 @@ const PlaceBid: React.FC<PlaceBidProps> = ({ showConfirmation }) => {
     allowance,
     needsApproving,
   ]);
-  const { sendAsync } = useSendTransaction({ calls });
+  const { writeAsync } = useContractWrite({ calls });
 
   // Send confirmation
   const handleSubmitForMulticall = () => {
@@ -153,10 +152,14 @@ const PlaceBid: React.FC<PlaceBidProps> = ({ showConfirmation }) => {
 
   // Open wallet
   const handleMulticall = async () => {
-    const data = await sendAsync();
-    setPendingTx(data?.transaction_hash);
-    localStorage.removeItem(LOCAL_STORAGE_KEY1);
-    localStorage.removeItem(LOCAL_STORAGE_KEY2);
+    try {
+      const data = await writeAsync();
+      setPendingTx(data?.transaction_hash);
+      localStorage.removeItem(LOCAL_STORAGE_KEY1);
+      localStorage.removeItem(LOCAL_STORAGE_KEY2);
+    } catch (error) {
+      console.error("Error calling contract", error);
+    }
   };
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>): void => {

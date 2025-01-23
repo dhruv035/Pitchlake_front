@@ -20,7 +20,6 @@ import useStrikePrice from "@/hooks/optionRound/state/useStrikePrice";
 import useCapLevel from "@/hooks/optionRound/state/useCapLevel";
 import useRoundState from "@/hooks/optionRound/state/useRoundState";
 import useTimestamps from "@/hooks/optionRound/state/useTimestamps";
-import useLatestTimestamp from "@/hooks/chain/useLatestTimestamp";
 import { useProvider } from "@starknet-react/core";
 import { useProtocolContext } from "@/context/ProtocolProvider";
 
@@ -29,7 +28,7 @@ export default function VaultCard({ vaultAddress }: { vaultAddress: string }) {
   const { lockedBalance, unlockedBalance, stashedBalance } =
     useVaultBalances(vaultAddress);
 
-  const { setSelectedRound } = useProtocolContext();
+  const { setSelectedRound,timestamp } = useProtocolContext();
   const { vaultState, currentRoundAddress } = useVaultState({
     conn: "rpc",
     address: vaultAddress,
@@ -45,7 +44,6 @@ export default function VaultCard({ vaultAddress }: { vaultAddress: string }) {
   const { strikePrice } = useStrikePrice(
     currentRoundAddress ? currentRoundAddress : "",
   );
-  const { timestamp } = useLatestTimestamp(provider);
   const { auctionStartDate, auctionEndDate, optionSettleDate } = useTimestamps(
     currentRoundAddress ? currentRoundAddress : "",
   );
@@ -95,7 +93,7 @@ export default function VaultCard({ vaultAddress }: { vaultAddress: string }) {
                 )
               : "Loading..."}
           </p>
-          <div className="bg-primary-800 rounded-full w-[5px] h-[5px] m-2" />
+          <div className="bg-primary-800 rounded-full w-[5px] h-[5px] m-2 vault-type" />
           <p className="text-[16px] font-regular text-[var(--buttongrey)]">
             {vaultState?.vaultType ? vaultState.vaultType : "--"}
           </p>

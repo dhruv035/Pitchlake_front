@@ -1,7 +1,6 @@
 import {
   useAccount,
   useContract,
-  useNetwork,
   useProvider,
 } from "@starknet-react/core";
 import { vaultABI } from "@/lib/abi";
@@ -13,8 +12,6 @@ import {
   QueueArgs,
   CollectArgs,
 } from "@/lib/types";
-import { getDevAccount } from "@/lib/constants";
-import { Account, RpcProvider } from "starknet";
 import { useCallback, useMemo } from "react";
 import { useTransactionContext } from "@/context/TransactionProvider";
 
@@ -49,11 +46,13 @@ const useVaultActions = (address?: `0x${string}`) => {
       async (
         args?: DepositArgs | WithdrawLiquidityArgs | QueueArgs | CollectArgs,
       ) => {
-        if (!typedContract) return;
-        let argsData;
-        if (args) argsData = Object.values(args).map((value) => value);
-        let data;
-        const nonce =
+
+        try {
+          if (!typedContract) return;
+          let argsData;
+          if (args) argsData = Object.values(args).map((value) => value);
+          let data;
+          const nonce =
           provider && account
             ? await provider.getNonceForAddress(account.address)
             : "0";
@@ -68,7 +67,10 @@ const useVaultActions = (address?: `0x${string}`) => {
         setPendingTx(typedData.transaction_hash);
         // const data = await writeAsync({ calls: [callData] });
         return typedData;
-      },
+      } catch (error) {
+        console.error("Error calling contract", error);
+      }
+    },
     [typedContract, account, provider, setPendingTx],
   );
 

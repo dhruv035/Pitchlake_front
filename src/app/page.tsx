@@ -23,18 +23,39 @@ export default function Home() {
   }
 
   return (
-    <div className="flex flex-grow flex-col px-8 mt-4 w-full ">
-      <p className="my-2 text-base text-white-alt py-2 font-medium">
-        Popular Vaults
-      </p>
-      <div className="grid grid-cols-2 w-full pt-4 gap-x-6 gap-y-6">
-        {vaults?.map((vault: string, index: number) => (
-          // <VaultTimeline key={vault.address + idx.toString()} vault={vault} />
-          <VaultCard key={index} vaultAddress={vault} />
-        ))}
-        {/* <CreateVault {...{ handleCreateClick }} /> */}
-      </div>
+    <div
+      className={`flex flex-grow flex-col px-8 py-4 pt-[84px]  w-full bg-faded-black-alt `}
+    >
+      {
+      //Disable mainnet
+    
+      (
+        <div>
+          <p className="my-2 text-base text-white-alt py-2 font-medium">
+            Popular Vaults
+          </p>
+          <div className="grid grid-cols-2 w-full pt-4 gap-x-6 gap-y-6">
+            {vaults?.map((vault: string, index: number) => (
+              // <VaultTimeline key={vault.address + idx.toString()} vault={vault} />
+              <VaultCard key={index} vaultAddress={vault} />
+            ))}
 
+            {/* <CreateVault {...{ handleCreateClick }} /> */}
+          </div>
+        </div>
+      )}
+
+{
+//   chain.network === "mainnet"&&
+// //Disabled Mainnet Prompt
+// <div className="fixed h-full w-full text-error-400 justify-center text-center mt-[-80px] text-[40px]  flex flex-col">
+//   <p>
+//     {
+//       "Mainnet is not yet released. Please switch to a supported network"
+//     }
+//   </p>
+//   </div>
+}
       {
         // <CreateVaultModal isModalVisible={isModalVisible} closeModal={() => setIsModalVisible(false)} />
       }

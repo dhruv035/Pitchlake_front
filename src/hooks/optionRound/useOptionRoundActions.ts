@@ -39,7 +39,8 @@ const useOptionRoundActions = (address?: string) => {
   const callContract = useCallback(
     (functionName: string) =>
       async (args?: PlaceBidArgs | UpdateBidArgs | RefundBidsArgs) => {
-        if (!typedContract) return;
+        try {
+          if (!typedContract) return;
 
         let argsData;
         if (args) argsData = Object.values(args).map((value) => value);
@@ -57,7 +58,10 @@ const useOptionRoundActions = (address?: string) => {
         setPendingTx(typedData.transaction_hash);
         // const data = await writeAsync({ calls: [callData] });
         return typedData;
-      },
+      } catch (error) {
+        console.error("Error calling contract", error);
+      }
+    },
     [typedContract, account, provider, setPendingTx],
   );
   const placeBid = useCallback(
