@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useMemo } from "react";
 import { RpcProvider } from "starknet";
 import { sepolia, mainnet, devnet, Chain } from "@starknet-react/chains";
 import {
@@ -10,6 +10,8 @@ import {
   voyager,
   jsonRpcProvider,
 } from "@starknet-react/core";
+import { QueryClient } from "@tanstack/react-query";
+import { TrendingUp } from "lucide-react";
 
 export const juno = {
   id: BigInt("0x534e5f4a554e4f5f53455155454e434552"), // SN_JUNO_SEQUENCER
@@ -73,12 +75,26 @@ export const StarknetProvider = ({
         };
     }
   }
+  const queryClient = useMemo(() => new QueryClient({
+    defaultOptions: {
+      queries: {
+        // Disable automatic refetching
+        refetchInterval: false,
+        refetchOnWindowFocus: false,
+        refetchOnMount: false,
+        refetchOnReconnect: false,
+        // Only refetch if the data is stale
+        staleTime: Infinity
+      }
+    }
+  }), [] );
   const provider = jsonRpcProvider({ rpc });
 
   return (
     <StarknetConfig
       chains={[sepolia, devnet, juno, mainnet]}
       provider={provider}
+      queryClient={queryClient}
       connectors={connectors}
       explorer={voyager}
       autoConnect={true}

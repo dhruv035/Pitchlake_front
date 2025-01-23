@@ -3,11 +3,9 @@ import MobileScreen from "@/components/BaseComponents/MobileScreen";
 import VaultCard from "@/components/VaultCard/VaultCard";
 import useWebSocketHome from "@/hooks/websocket/useWebSocketHome";
 import useIsMobile from "@/hooks/window/useIsMobile";
-import { useNetwork } from "@starknet-react/core";
 
 export default function Home() {
   const { vaults: wsVaults } = useWebSocketHome();
-  const { chain } = useNetwork();
   // @NOTE filtering done in this order to maintain correct ordering (until proper vault sorting is implemented)
   const vaults =
     process.env.NEXT_PUBLIC_ENVIRONMENT === "ws"
@@ -30,7 +28,7 @@ export default function Home() {
     >
       {
       //Disable mainnet
-     chain.network !== "mainnet" &&
+    
       (
         <div>
           <p className="my-2 text-base text-white-alt py-2 font-medium">
@@ -48,15 +46,15 @@ export default function Home() {
       )}
 
 {
-  chain.network === "mainnet"&&
-//Disabled Mainnet Prompt
-<div className="fixed h-full w-full text-error-400 justify-center text-center mt-[-80px] text-[40px]  flex flex-col">
-  <p>
-    {
-      "Mainnet is not yet released. Please switch to a supported network"
-    }
-  </p>
-  </div>
+//   chain.network === "mainnet"&&
+// //Disabled Mainnet Prompt
+// <div className="fixed h-full w-full text-error-400 justify-center text-center mt-[-80px] text-[40px]  flex flex-col">
+//   <p>
+//     {
+//       "Mainnet is not yet released. Please switch to a supported network"
+//     }
+//   </p>
+//   </div>
 }
       {
         // <CreateVaultModal isModalVisible={isModalVisible} closeModal={() => setIsModalVisible(false)} />

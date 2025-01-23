@@ -10,7 +10,6 @@ import { useProtocolContext } from "@/context/ProtocolProvider";
 import { num, Call } from "starknet";
 import useERC20 from "@/hooks/erc20/useERC20";
 import { useAccount } from "@starknet-react/core";
-import useLatestTimetamp from "@/hooks/chain/useLatestTimestamp";
 import { useTransactionContext } from "@/context/TransactionProvider";
 import { useProvider } from "@starknet-react/core";
 import {
@@ -45,7 +44,6 @@ const EditModal: React.FC<EditModalProps> = ({
   const { account } = useAccount();
   const { pendingTx, setPendingTx } = useTransactionContext();
   const { provider } = useProvider();
-  const { timestamp } = useLatestTimetamp(provider);
   const bid = bidToEdit
     ? bidToEdit.item
     : { amount: "0", price: "0", bid_id: "" };
@@ -54,7 +52,7 @@ const EditModal: React.FC<EditModalProps> = ({
   const oldAmount = num.toBigInt(bid.amount);
   const oldPriceWei = num.toBigInt(bid.price);
   const oldPriceGwei = formatUnits(oldPriceWei, "gwei");
-  const { vaultState, selectedRoundState } = useProtocolContext();
+  const { vaultState, selectedRoundState,timestamp } = useProtocolContext();
   const [state, setState] = useState({
     newPriceGwei: localStorage.getItem(LOCAL_STORAGE_KEY) || "",
     isButtonDisabled: true,

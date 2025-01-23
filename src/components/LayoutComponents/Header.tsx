@@ -4,43 +4,29 @@ import Image from "next/image";
 
 import { BellIcon, ChevronDownIcon } from "lucide-react";
 import logo_full from "@/../public/logo_full.svg";
-import login from "@/../public/login.svg";
 import braavosIcon from "@/../public/braavos.svg";
 import argent from "@/../public/argent.svg";
 import keplr from "@/../public/keplr.svg";
 import avatar from "@/../public/avatar.svg";
-import { toast, ToastContainer, Bounce } from "react-toastify";
-import { starknetChainId, useNetwork } from "@starknet-react/core";
+import { toast } from "react-toastify";
 import {
-  braavos,
   useAccount,
-  useBalance,
   useConnect,
-  useDeployAccount,
   useDisconnect,
-  useProvider,
 } from "@starknet-react/core";
 import ProfileDropdown from "../BaseComponents/ProfileDropdown";
-import { copyToClipboard } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { useProtocolContext } from "@/context/ProtocolProvider";
 import { constants } from "starknet";
 import {
-  Account,
-  BigNumberish,
-  RawArgs,
-  DeployAccountContractPayload,
-  CallData,
-  hash,
   num,
   // ArgentX,
 } from "starknet";
-import { parseEther, formatEther } from "ethers";
+import {  formatEther } from "ethers";
 import useERC20 from "@/hooks/erc20/useERC20";
 import useAccountBalances from "@/hooks/vault/state/useAccountBalances";
-import { ArrowDownIcon, LoginIcon } from "../Icons";
+import {  LoginIcon } from "../Icons";
 import useIsMobile from "@/hooks/window/useIsMobile";
-import { Chain } from "@starknet-react/chains";
 
 export default function Header() {
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -55,8 +41,6 @@ export default function Header() {
   const { connect, connectors } = useConnect();
  // const { switchChainAsync } = useSwitchChain({});
   const { disconnect } = useDisconnect();
-  const { chains, chain } = useNetwork();
-  console.log("CHAINS", chains);
   const { account } = useAccount();
   const { balance } = useERC20(
     "0x49d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
@@ -199,7 +183,7 @@ export default function Header() {
             //</div>
           }
           <div className="relative" ref={dropdownChainRef}>
-            {
+            {/* {
               <button
                 className="flex flex-row min-w-16 border-[1px] border-primary-400 text-primary-400 text-sm px-4 py-3 rounded-md  items-center justify-center"
                 onClick={() => setIsDropdownChainOpen(true)}
@@ -210,11 +194,11 @@ export default function Header() {
                   classname="flex items-center ml-2 w-4 h-4"
                 />
               </button>
-            }
+            } */}
 
             {isDropdownChainOpen && (
               <div className="absolute right-0 bg-[#161616] text-center text-primary-400 w-full text-sm flex flex-col">
-                {chains.map((chain: Chain,index:number) => {
+                {/* {chains.map((chain: Chain,index:number) => {
                   return (
                     <div
                     key={index}
@@ -228,7 +212,7 @@ export default function Header() {
                       {chain.network.toLocaleUpperCase()}
                     </div>
                   );
-                })}
+                })} */}
               </div>
             )}
           </div>

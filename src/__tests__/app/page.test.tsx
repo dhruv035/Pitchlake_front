@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import Home from "../../app/page";
-import { useNetwork } from "@starknet-react/core";
+
 import useWebSocketHome from "../../hooks/websocket/useWebSocketHome";
 import useIsMobile from "../../hooks/window/useIsMobile";
 import VaultCard from "../../components/VaultCard/VaultCard";
@@ -38,9 +38,9 @@ type MockHookParams = {
 
 const mockHooks = ({ isMobile, network, vaults }: MockHookParams) => {
   (useIsMobile as jest.Mock).mockReturnValue({ isMobile: isMobile ?? false });
-  (useNetwork as jest.Mock).mockReturnValue({
-    chain: { network: network ?? "testnet" },
-  });
+  // (useNetwork as jest.Mock).mockReturnValue({
+  //   chain: { network: network ?? "testnet" },
+  // });
   (useWebSocketHome as jest.Mock).mockReturnValue({ vaults: vaults ?? [""] });
 };
 
